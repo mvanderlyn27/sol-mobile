@@ -1,15 +1,19 @@
 // src/contexts/AuthProvider.tsx
 import React, { createContext, useState, useEffect, useContext, ReactNode } from "react";
-import { AuthService, AuthResponse } from "@/src/api/auth";
+import { AuthService } from "@/src/api/auth";
 import { Session } from "@supabase/supabase-js";
 import { ActivityIndicator } from "react-native";
+import { SupabaseResponse } from "../lib/supabase";
 
 // Define the context type
 interface AuthContextType {
   session: Session | null;
-  signIn: (email: string, password: string) => Promise<AuthResponse<Session>>;
-  signUp: (email: string, password: string) => Promise<AuthResponse<Session>>;
-  signOut: () => Promise<AuthResponse<null>>;
+  signIn: (email: string, password: string) => void;
+  signUp: (email: string, password: string) => void;
+  signOut: () => void;
+  updateEmail: (email: string) => void;
+  updatePassword: (password: string) => void;
+  sendResetPasswordEmail: (email: string) => void;
   isReady: boolean;
   error: string | null;
 }
@@ -30,7 +34,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     AuthService.setupSessionListener(setSession);
   }, []);
 
-  const signIn = async (email: string, password: string): Promise<AuthResponse<Session>> => {
+  const signIn = async (email: string, password: string) => {
     const response = await AuthService.signIn(email, password);
 
     if (response.success) {
@@ -40,11 +44,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setError(response.error || "Error signing in");
     }
-
-    return response;
   };
 
-  const signUp = async (email: string, password: string): Promise<AuthResponse<Session>> => {
+  const signUp = async (email: string, password: string) => {
     const response = await AuthService.signUp(email, password);
 
     if (response.success) {
@@ -54,13 +56,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setError(response.error || "Error signing up");
     }
-
-    return response;
   };
 
-  const signOut = async (): Promise<AuthResponse<null>> => {
+  const signOut = async () => {
     const response = await AuthService.signOut();
-
     if (response.success) {
       setSession(null);
       setError(null);
@@ -68,15 +67,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setError(response.error || "Error signing out");
     }
+  };
+  const updateEmail = async (email: string) => {
+    const response = await AuthService.updateEmail(email);
 
-    return response;
+    if (response.success) {
+      setSession(response.data || null);
+      setError(null);
+      setIsReady(false);
+    } else {
+      setError(response.error || "Error updating email");
+    }
+  };
+  const updatePassword = async (password: string) => {
+    const response = await AuthService.updatePassword(password);
+
+    if (response.success) {
+      setSession(response.data || null);
+      setError(null);
+      setIsReady(false);
+    } else {
+      setError(response.error || "Error updating password");
+    }
+  };
+  const sendResetPasswordEmail = async (email: string) => {
+    const response = await AuthService.sendResetPasswordEmail(email);
+    if (response.success) {
+      setSession(null);
+      setError(null);
+      setIsReady(true);
+    } else {
+      setError(response.error || "Error resetting password");
+    }
   };
 
   if (!isReady) {
     return <ActivityIndicator />;
   }
   return (
-    <AuthContext.Provider value={{ session, signIn, signUp, signOut, isReady, error }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider
+      value={{ session, signIn, signUp, signOut, updateEmail, updatePassword, sendResetPasswordEmail, isReady, error }}>
+      {children}
+    </AuthContext.Provider>
   );
 };
 
