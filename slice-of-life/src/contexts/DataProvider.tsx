@@ -428,9 +428,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export const useData = (): DataContextType => {
-  const context = useContext(DataContext);
-  if (!context) {
+  const useData = useContext(DataContext);
+  if (!useData) {
     throw new Error("useData must be used within a DataProvider");
   }
-  return context;
+  return useData;
 };

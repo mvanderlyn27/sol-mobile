@@ -10,6 +10,43 @@ export type Template = Database["public"]["Tables"]["templates"]["Row"];
 export type Frame = Database["public"]["Tables"]["frames"]["Row"];
 export type BookType = Database["public"]["Enums"]["book_type"];
 
+//Button Types
+export enum ButtonType {
+  Menu,
+  Library,
+  Journal,
+  Profile,
+  Edit,
+  Share,
+}
+
+//Canvas Types
+
+interface CanvasItemBase {
+  id: string;
+  xPercent: number;
+  yPercent: number;
+  rotation: number;
+  widthPercent: number;
+  aspectRatio: number;
+}
+interface CanvasFrame extends CanvasItemBase {
+  type: "frame";
+  imagePath: string; // Path to the frame image
+}
+
+interface CanvasText extends CanvasItemBase {
+  type: "text";
+  textContent: string; // The text content to be displayed
+  fontSize: number; // Size of the text font
+  fontColor: string; // Color of the text
+}
+export type CanvasItem = CanvasFrame | CanvasText;
+
+export type Canvas = {
+  backgroundImagePath: string; // Path to the background image
+  items: CanvasItem[]; // Array of canvas items};
+};
 //Book Types
 export type CreateBookInput = {
   type: BookType;

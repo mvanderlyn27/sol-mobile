@@ -7,11 +7,11 @@ export default function EmailForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, error } = useAuth();
 
   async function signInWithEmail() {
     setLoading(true);
-    const { error } = await signIn(email, password);
+    await signIn(email, password);
     if (error) {
       Alert.alert(error);
     }
@@ -19,7 +19,7 @@ export default function EmailForm() {
   }
   async function signUpWithEmail() {
     setLoading(true);
-    const { error } = await signUp(email, password);
+    await signUp(email, password);
     if (error) {
       Alert.alert(error);
     } else {
