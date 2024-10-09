@@ -53,7 +53,7 @@ export interface CanvasText extends CanvasItemBase {
 export type CanvasItem = CanvasFrame | CanvasText;
 
 export type Canvas = {
-  backgroundImagePath: string; // Path to the background image
+  backgroundImage: CanvasImage; // Path to the background image
   items: CanvasItem[]; // Array of canvas items};
 };
 //Book Types
@@ -63,7 +63,7 @@ export type CreateBookInput = {
 
 //Font Types
 export type CreateFontInput = {
-  fontImage: string;
+  fontImage: CanvasImage;
   name: string;
   type: string;
 };
@@ -82,7 +82,14 @@ export type CreatePageInput = {
   date: string;
   last_edited: string;
 };
-
+export type CanvasImage = {
+  path: string;
+  type: ImageType;
+};
+export enum ImageType {
+  Web = "Web",
+  Local = "Local",
+}
 //Profile Types
 export type CreateProfileInput = {
   avatar_url: string;

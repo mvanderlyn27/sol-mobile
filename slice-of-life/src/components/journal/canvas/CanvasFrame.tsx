@@ -1,6 +1,6 @@
 import { CanvasFrame } from "@/src/types/shared.types";
-import { View } from "react-native";
+import { Text } from "react-native";
 
-export default function CanvasFrameHolder({ key, item }: { key: string; item: CanvasFrame }) {
-  return <View style={{ flex: 1, backgroundColor: "white" }} />;
+export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
+  return <Text>test </Text>;
 }

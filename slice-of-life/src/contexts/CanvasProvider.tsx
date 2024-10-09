@@ -1,5 +1,5 @@
 import { ReactNode, createContext, useContext, useEffect, useState } from "react";
-import { Canvas, CanvasItem, Page } from "../types/shared.types";
+import { Canvas, CanvasItem, ImageType, Page } from "../types/shared.types";
 import { useData } from "./DataProvider";
 import { Json } from "../types/supabase.types";
 
@@ -8,6 +8,7 @@ interface CanvasContextType {
   tempCanvas: Canvas | null;
   editing: boolean;
   canvasError: string | null;
+  canvasLoading: boolean;
   canvasSaving: boolean;
   setCanvasData: (canvas: Canvas) => void;
   updateCanvasItem: (oldItem: CanvasItem, newItem: CanvasItem) => void;
@@ -26,7 +27,7 @@ const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
 export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const defaultCanvas = {
-    backgroundImagePath: "bg_04",
+    backgroundImage: { path: "bg_04", type: ImageType.Local },
     items: [],
   };
   const { pagesMap, pagesLoading, selectedDate, updatePage, pagesError } = useData();
@@ -40,7 +41,6 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const [editing, setEditing] = useState<boolean>(false);
 
   useEffect(() => {
-    console.log("updating canvas from pages", pagesMap, "date", selectedDate);
     if (pagesLoading === false && pagesMap && selectedDate) {
       const curPage = pagesMap.get(selectedDate);
       if (curPage) {
@@ -170,6 +170,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
         editing,
         canvasError,
         canvasSaving,
+        canvasLoading,
         setCanvasData,
         updateCanvasItem,
         addCanvasItem,

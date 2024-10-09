@@ -11,6 +11,7 @@ import { Button } from "@rneui/themed";
 import VerticalStack from "../shared/VerticleStack";
 
 export const StyledMotiView = styled(MotiView);
+export const StyledView = styled(View);
 
 export default function ButtonNavigator(): JSX.Element {
   const router = useRouter();
@@ -59,11 +60,23 @@ export default function ButtonNavigator(): JSX.Element {
     ];
   };
   return (
-    <Pressable
-      style={{ position: "absolute", right: 0, top: 0, left: 0, bottom: 0, display: navMenuVisible ? "flex" : "none" }}
-      onPress={() => {
-        if (menuOpen) toggleMenuOpen();
-      }}>
+    <StyledView
+      pointerEvents="box-none"
+      className={`${!navMenuVisible && "hidden"} absolute left-0 right-0 top-0 bottom-0`}>
+      {menuOpen && (
+        <Pressable
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+            left: 0,
+            bottom: 0,
+          }}
+          onPress={() => {
+            if (menuOpen) toggleMenuOpen();
+          }}
+        />
+      )}
       <View style={{ position: "absolute", left: 10, bottom: 0 }}>
         <AnimatePresence exitBeforeEnter>
           {/* Menu Items */}
@@ -72,6 +85,6 @@ export default function ButtonNavigator(): JSX.Element {
           {!menuOpen && <VerticalStack items={[getMenuItems()]} key="menu-button" />}
         </AnimatePresence>
       </View>
-    </Pressable>
+    </StyledView>
   );
 }

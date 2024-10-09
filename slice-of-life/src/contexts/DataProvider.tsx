@@ -46,15 +46,15 @@ interface DataContextType {
   framesError: string | null;
   fetchFrames: () => void;
   // pages
-  pagesMap: Map<Date, Page>;
-  selectedDate: Date | null;
+  pagesMap: Map<string, Page>;
+  selectedDate: string | null;
   pagesLoading: boolean;
   pagesError: string | null;
   fetchPagesMap: () => void;
-  createPage: (date: Date, content: CreatePageInput) => void;
-  updatePage: (date: Date, content: Page) => void;
-  deletePage: (date: Date) => void;
-  setCurrentPage: (date: Date) => void;
+  createPage: (dayString: string, content: CreatePageInput) => void;
+  updatePage: (dayString: string, content: Page) => void;
+  deletePage: (dayString: string) => void;
+  setCurrentPage: (dayString: string) => void;
   //profile
   profile: Profile | null;
   profileLoading: boolean;
@@ -66,6 +66,7 @@ interface DataContextType {
   templatesLoading: boolean;
   templatesError: string | null;
   fetchTemplates: () => void;
+  toDayString: (date: Date) => string;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -86,10 +87,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [framesLoading, setFramesLoading] = useState<boolean>(false);
   const [framesError, setFramesError] = useState<string | null>(null);
   //page state
-  const [pagesMap, setPageMap] = useState<Map<Date, Page>>(new Map<Date, Page>());
+  const [pagesMap, setPageMap] = useState<Map<string, Page>>(new Map<string, Page>());
   // MIGHT NEED A DEFAULT VALUE OF THE DAY MINUS HOURS/MINUTES
   //Might also not need to be in this provider, maybe have it just in the journal page?
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [pagesLoading, setPagesLoading] = useState<boolean>(false);
   const [pagesError, setPagesError] = useState<string | null>(null);
   //profile state
@@ -102,17 +103,29 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [templatesError, setTemplatesError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadData();
+    //load book, and other info
+    loadMainData();
   }, [session]);
-  const loadData = async () => {
+
+  useEffect(() => {
+    //after currentbook is updated, reload pages
+    loadPagesData();
+  }, [currentBook]);
+
+  // provider setup functions
+  const loadMainData = async () => {
     if (session) {
-      await fetchBooks();
-      //should have a selected book after fetching books
-      if (currentBook) {
-        await fetchPagesMap();
-      }
-      await Promise.all([fetchTemplates(), fetchFrames(), fetchFonts(), fetchProfile()]);
+      await Promise.all([fetchBooks(), fetchTemplates(), fetchFrames(), fetchFonts(), fetchProfile()]);
     }
+  };
+  const loadPagesData = async () => {
+    if (currentBook !== null) {
+      await fetchPagesMap();
+    } else {
+      //clear if no book selected
+      setPageMap(new Map<string, Page>());
+    }
+    setSelectedDate(toDayString(new Date()));
   };
   //book functions
   const fetchBooks = async () => {
@@ -128,6 +141,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     setBooks(data);
+    if (data.length > 0) {
+      //currently just get users first book, need logic later for when users have multiple books
+      setCurrentBook(0);
+    }
     setBooksLoading(false);
     setBooksLoading(false);
   };
@@ -140,7 +157,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
     if (currentBook === id) {
       setCurrentBook(null);
-      setPageMap(new Map<Date, Page>());
+      setPageMap(new Map<string, Page>());
     }
     await fetchBooks();
   };
@@ -215,11 +232,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       setPagesLoading(false);
       return;
     }
-    setPageMap(new Map(data.map((page) => [new Date(page.date), page])));
-    setPagesLoading(false);
+    setPageMap(new Map(data.map((page) => [page.date, page])));
     setPagesLoading(false);
   };
-  const createPage = async (date: Date, content: CreatePageInput) => {
+  const createPage = async (dayString: string, content: CreatePageInput) => {
     setPagesLoading(true);
     setPagesError(null);
     const { data, error } = await PageService.createPage(content);
@@ -231,11 +247,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       setPagesLoading(false);
       return;
     }
-    setPageMap(new Map([...pagesMap!, [new Date(data.date), data]]));
+    setPageMap(new Map([...pagesMap!, [data.date, data]]));
     setPagesLoading(false);
   };
-  const updatePage = async (date: Date, content: Page) => {
-    if (!pagesMap.has(date)) {
+  const updatePage = async (dayString: string, content: Page) => {
+    if (!pagesMap.has(dayString)) {
       setPagesError("Can't updaate, page does not exist yet");
       return;
     }
@@ -250,18 +266,18 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       setPagesLoading(false);
       return;
     }
-    pagesMap!.set(new Date(data.date), data);
+    pagesMap!.set(data.date, data);
     setPageMap(pagesMap!);
     setPagesLoading(false);
   };
-  const deletePage = async (date: Date) => {
-    if (!pagesMap.has(date)) {
+  const deletePage = async (dayString: string) => {
+    if (!pagesMap.has(dayString)) {
       setPagesError("Can't delete, page does not exist yet");
       return;
     }
     setPagesLoading(true);
     setPagesError(null);
-    const page = pagesMap.get(date)!;
+    const page = pagesMap.get(dayString)!;
     const { data, error } = await PageService.deletePage(page.id);
     if (error) {
       setPagesError(error);
@@ -271,16 +287,16 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       setPagesLoading(false);
       return;
     }
-    pagesMap!.delete(date);
+    pagesMap!.delete(dayString);
     setPageMap(pagesMap!);
     setPagesLoading(false);
   };
-  const setCurrentPage = (date: Date) => {
-    if (!pagesMap.has(date)) {
+  const setCurrentPage = (dayString: string) => {
+    if (!pagesMap.has(dayString)) {
       setPagesError("Can't set current page, page does not exist yet");
       return;
     }
-    setSelectedDate(date);
+    setSelectedDate(dayString);
   };
   // profile functions
   const fetchProfile = async () => {
@@ -371,11 +387,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   //helper functions
-  const dateToString = (date: Date): string => {
-    return "";
+  const toDayString = (date: Date): string => {
+    return date.toISOString().split("T")[0];
   };
-  const stringToDate = (date: Date): Date => {
-    return new Date();
+  const dateToString = (date: Date): string => {
+    return date.toISOString();
+  };
+  const stringToDate = (dateString: string): Date => {
+    return new Date(dateString);
   };
 
   return (
@@ -421,6 +440,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         templatesLoading,
         templatesError,
         fetchTemplates,
+        toDayString,
       }}>
       {children}
     </DataContext.Provider>
