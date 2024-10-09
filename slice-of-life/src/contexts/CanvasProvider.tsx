@@ -4,7 +4,7 @@ import { useData } from "./DataProvider";
 import { Json } from "../types/supabase.types";
 
 interface CanvasContextType {
-  canvas: Canvas | null;
+  canvas: Canvas;
   tempCanvas: Canvas | null;
   editing: boolean;
   canvasError: string | null;
@@ -15,8 +15,9 @@ interface CanvasContextType {
   removeCanvasItem: (item: CanvasItem) => void;
   startEdit: () => void;
   saveCanvas: () => void;
+  clearCanvas: () => void;
   exitEdit: () => void;
-  loadCanvasFromJson: (json: string) => void;
+  loadCanvasFromJsonString: (json: string) => void;
   jsonToCanvas: (json: string) => Canvas | null;
   canvasToJson: (canvas: Canvas) => Json;
 }
@@ -24,25 +25,36 @@ interface CanvasContextType {
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
 export const CanvasProvider = ({ children }: { children: ReactNode }) => {
-  const { pagesMap, selectedDate, updatePage, pagesError } = useData();
+  const defaultCanvas = {
+    backgroundImagePath: "bg_04",
+    items: [],
+  };
+  const { pagesMap, pagesLoading, selectedDate, updatePage, pagesError } = useData();
   // maybe get current page from book/page provider after we seperate them out
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
-  const [canvas, setCanvas] = useState<Canvas | null>(null);
+  const [canvas, setCanvas] = useState<Canvas>(defaultCanvas);
   const [canvasError, setCanvasError] = useState<string | null>(null);
+  const [canvasLoading, setCanvasLoading] = useState<boolean>(true);
   const [canvasSaving, setCanvasSaving] = useState<boolean>(false);
   const [tempCanvas, setTempCanvas] = useState<Canvas | null>(null);
   const [editing, setEditing] = useState<boolean>(false);
 
   useEffect(() => {
-    if (pagesMap && selectedDate) {
+    console.log("updating canvas from pages", pagesMap, "date", selectedDate);
+    if (pagesLoading === false && pagesMap && selectedDate) {
       const curPage = pagesMap.get(selectedDate);
       if (curPage) {
         setCurrentPage(curPage);
+        loadCanvasFromJsonString(JSON.stringify(curPage.canvas));
+      } else {
+        setCurrentPage(null);
+        setCanvas(defaultCanvas);
       }
+      setCanvasLoading(false);
     }
-  }, [pagesMap, selectedDate]);
+  }, [pagesMap, selectedDate, pagesLoading]);
 
-  const loadCanvasFromJson = (json: string) => {
+  const loadCanvasFromJsonString = (json: string) => {
     if (!json) {
       setCanvasError("json is empty");
       return;
@@ -106,7 +118,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const clearCanvas = () => {
-    setCanvas(null);
+    setCanvas(defaultCanvas);
   };
   const startEdit = () => {
     setEditing(true);
@@ -119,7 +131,9 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     setCanvasSaving(true);
-    setCanvas(tempCanvas);
+    if (tempCanvas) {
+      setCanvas(tempCanvas);
+    }
     if (!canvas) {
       setCanvasError("canvas is empty");
       return;
@@ -163,9 +177,10 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
         startEdit,
         saveCanvas,
         exitEdit,
-        loadCanvasFromJson,
+        loadCanvasFromJsonString,
         jsonToCanvas,
         canvasToJson,
+        clearCanvas,
       }}>
       {children}
     </CanvasContext.Provider>
@@ -175,7 +190,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
 export const useCanvas = (): CanvasContextType => {
   const useCanvas = useContext(CanvasContext);
   if (!useCanvas) {
-    throw new Error("useData must be used within a CanvasProvider");
+    throw new Error("useCanvas must be used within a CanvasProvider");
   }
   return useCanvas;
 };

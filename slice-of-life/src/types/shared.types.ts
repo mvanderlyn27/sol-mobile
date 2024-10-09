@@ -31,7 +31,7 @@ export type VerticalStackItem = {
 };
 //Canvas Types
 
-interface CanvasItemBase {
+export interface CanvasItemBase {
   id: string;
   xPercent: number;
   yPercent: number;
@@ -39,12 +39,12 @@ interface CanvasItemBase {
   widthPercent: number;
   aspectRatio: number;
 }
-interface CanvasFrame extends CanvasItemBase {
+export interface CanvasFrame extends CanvasItemBase {
   type: "frame";
   imagePath: string; // Path to the frame image
 }
 
-interface CanvasText extends CanvasItemBase {
+export interface CanvasText extends CanvasItemBase {
   type: "text";
   textContent: string; // The text content to be displayed
   fontSize: number; // Size of the text font

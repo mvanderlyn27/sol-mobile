@@ -36,10 +36,10 @@ export default function ButtonNavigator(): JSX.Element {
   const getListItems = (): VerticalStackItem[] => {
     return [
       {
-        onClick: () => handleTabPress("/library"),
-        primary: true,
-        selected: currentRoute === "/library",
-        buttonType: ButtonType.Library,
+        onClick: () => handleTabPress("/profile"),
+        primary: false,
+        selected: currentRoute === "/profile",
+        buttonType: ButtonType.Profile,
         disabled: false,
       },
       {
@@ -50,10 +50,10 @@ export default function ButtonNavigator(): JSX.Element {
         disabled: false,
       },
       {
-        onClick: () => handleTabPress("/profile"),
-        primary: false,
-        selected: currentRoute === "/profile",
-        buttonType: ButtonType.Profile,
+        onClick: () => handleTabPress("/library"),
+        primary: true,
+        selected: currentRoute === "/library",
+        buttonType: ButtonType.Library,
         disabled: false,
       },
     ];
