@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { Button, Input } from "@rneui/themed";
-import { useAuth } from "../contexts/AuthProvider";
+import { useAuth } from "../../contexts/AuthProvider";
 
 export default function EmailForm() {
   const [email, setEmail] = useState("");

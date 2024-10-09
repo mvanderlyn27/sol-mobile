@@ -1,4 +1,4 @@
-import EmailForm from "@/src/components/EmailForm";
+import EmailForm from "@/src/components/auth/EmailForm";
 import { View } from "react-native";
 
 export default function Login() {
