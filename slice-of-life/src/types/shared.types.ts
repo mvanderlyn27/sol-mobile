@@ -12,12 +12,14 @@ export type BookType = Database["public"]["Enums"]["book_type"];
 
 //Button Types
 export enum ButtonType {
-  Menu,
-  Library,
-  Journal,
-  Profile,
-  Edit,
-  Share,
+  Menu = "menu",
+  Library = "library",
+  JournalCheck = "journal-check",
+  JournalEdit = "journal-edit",
+  Profile = "profile",
+  Edit = "edit",
+  Share = "share",
+  X = "x",
 }
 
 //Canvas Types
