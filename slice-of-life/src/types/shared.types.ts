@@ -21,7 +21,14 @@ export enum ButtonType {
   Share = "share",
   X = "x",
 }
-
+//Vertical Stack Types
+export type VerticalStackItem = {
+  onClick: () => void;
+  primary?: boolean;
+  selected?: boolean;
+  buttonType: ButtonType;
+  disabled?: boolean;
+};
 //Canvas Types
 
 interface CanvasItemBase {
