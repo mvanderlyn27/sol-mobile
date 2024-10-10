@@ -38,6 +38,10 @@ export default function ButtonNavigator(): JSX.Element {
   const getListItems = (): VerticalStackItem[] => {
     return [
       {
+        onClick: () => toggleMenuOpen(),
+        buttonType: ButtonType.X,
+      },
+      {
         onClick: () => handleTabPress("/profile"),
         primary: false,
         selected: currentRoute === "/profile",
@@ -53,7 +57,7 @@ export default function ButtonNavigator(): JSX.Element {
       },
       {
         onClick: () => handleTabPress("/library"),
-        primary: true,
+        primary: false,
         selected: currentRoute === "/library",
         buttonType: ButtonType.Library,
         disabled: false,
@@ -61,10 +65,8 @@ export default function ButtonNavigator(): JSX.Element {
     ];
   };
   return (
-    <StyledView
-      pointerEvents="box-none"
-      className={`${!navMenuVisible && "hidden"} absolute top-0 right-0 bottom-0 left-0 `}>
-      {menuOpen && (
+    <StyledView key="menu-container" pointerEvents="box-none" className={`absolute top-0 right-0 bottom-0 left-0 `}>
+      {/* {menuOpen && (
         <Pressable
           style={{
             position: "absolute",
@@ -72,19 +74,19 @@ export default function ButtonNavigator(): JSX.Element {
             top: 0,
             left: 0,
             bottom: 0,
-            // flex: 1,
           }}
           onPress={() => {
             if (menuOpen) toggleMenuOpen();
           }}
         />
-      )}
+      )} */}
       <StyledView className="absolute bottom-10 left-10">
+        {/* Menu Items */}
+
         <AnimatePresence exitBeforeEnter>
-          {/* Menu Items */}
-          {menuOpen && <VerticalStack items={getListItems()} key="menu-list" />}
+          {menuOpen && navMenuVisible && <VerticalStack items={getListItems()} key="menu-list" />}
           {/* Menu Button */}
-          {!menuOpen && <VerticalStack items={[getMenuItems()]} key="menu-button" />}
+          {!menuOpen && navMenuVisible && <VerticalStack items={[getMenuItems()]} key="menu-button" />}
         </AnimatePresence>
       </StyledView>
     </StyledView>

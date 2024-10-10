@@ -6,29 +6,43 @@ import JournalMenu from "../journal/JournalMenu";
 import { useState } from "react";
 import { useNav } from "@/src/contexts/NavigationProvider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import BottomBar from "../journal/BottomBar";
+import { AnimatePresence } from "moti";
 const StyledView = styled(View);
-import { Dimensions } from "react-native";
 
 export default function JournalScreen() {
-  const { toggleMenuVisible } = useNav();
+  const { menuOpen, toggleMenuOpen, toggleMenuVisible } = useNav();
   const [editMode, setEditMode] = useState<boolean>(false);
+  const startEditMode = () => {
+    setEditMode(!editMode);
+    if (menuOpen) {
+      toggleMenuOpen();
+    }
+    toggleMenuVisible();
+  };
+  const handleShare = () => {
+    console.log("sharing");
+  };
+  const handleSave = () => {
+    console.log("saving");
+  };
+  const exitEditMode = () => {
+    setEditMode(!editMode);
+    toggleMenuVisible();
+  };
 
-  const { width, height } = Dimensions.get("window");
-  console.log("window", width, height);
   return (
     <CanvasProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         {/* canvas component here */}
-        {/* <CanvasHolder /> */}
+        <CanvasHolder />
         {/* Page menu */}
+        <BottomBar key="bottom-bar" editMode={editMode} onExit={() => exitEditMode()} onSave={() => handleSave()} />
         <JournalMenu
-          editMode={false}
-          onEditClick={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-          onShareClick={function (): void {
-            throw new Error("Function not implemented.");
-          }}
+          key="journal-menu"
+          editMode={editMode}
+          onEditClick={() => startEditMode()}
+          onShareClick={() => handleShare()}
         />
       </GestureHandlerRootView>
     </CanvasProvider>

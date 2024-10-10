@@ -6,6 +6,7 @@ import { useAuth } from "@/src/contexts/AuthProvider";
 import ButtonNavigator from "@/src/components/navigation/ButtonNavigator";
 import { DataProvider } from "@/src/contexts/DataProvider";
 import { NavigationProvider } from "@/src/contexts/NavigationProvider";
+import { AnimatePresence } from "moti";
 
 const buttonHeight = 50; // Height for each button
 const spacing = 10; // Space between buttons
@@ -21,9 +22,7 @@ export default function Layout(): JSX.Element {
     <View style={{ flex: 1, position: "relative" }}>
       <DataProvider>
         <NavigationProvider>
-          <View style={{ flex: 1 }}>
-            <Slot />
-          </View>
+          <Slot />
           <ButtonNavigator />
         </NavigationProvider>
       </DataProvider>

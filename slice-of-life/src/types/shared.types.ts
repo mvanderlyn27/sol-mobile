@@ -20,6 +20,10 @@ export enum ButtonType {
   Edit = "edit",
   Share = "share",
   X = "x",
+  Save = "save",
+  Text = "text",
+  Frame = "frame",
+  Template = "template",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {

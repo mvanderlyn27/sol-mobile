@@ -32,14 +32,13 @@ export default function JournalMenu({
         //check data provider for currentPage
         selected: true,
         buttonType: ButtonType.Share,
-        disabled: false,
+        disabled: true,
       },
     ];
   };
-  console.log("edit mdoe", editMode, getListItems());
   return (
     <StyledView className="absolute right-10 bottom-10">
-      <AnimatePresence exitBeforeEnter>
+      <AnimatePresence>
         {/* Menu Button */}
         {!editMode && <VerticalStack items={getListItems()} key="menu-list" />}
       </AnimatePresence>

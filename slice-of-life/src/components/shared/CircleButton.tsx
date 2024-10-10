@@ -127,13 +127,13 @@ export default function RoundButton({
     }
   };
   return (
-    <Pressable onPress={handlePress}>
+    <Pressable onPress={disabled ? () => {} : handlePress}>
       <StyledMotiView
         className={` w-[70px] h-[70px] rounded-full ${getButtonColor(buttonType)} border-2 ${getBorderColor(
           buttonType
         )}  items-center justify-center`}
         from={{ scale: 1 }}
-        animate={{ scale: isPressed ? 1.2 : 1 }} // Scale up when pressed
+        animate={disabled ? {} : { scale: isPressed ? 1.2 : 1 }} // Scale up when pressed
         transition={{
           type: "spring",
           damping: 10,
