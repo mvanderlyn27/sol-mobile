@@ -33,15 +33,22 @@ export type VerticalStackItem = {
 
 export interface CanvasItemBase {
   id: string;
-  xPercent: number;
-  yPercent: number;
+  //pixel count
+  x: number;
+  //pixel count
+  y: number;
+  //rad
   rotation: number;
-  widthPercent: number;
-  aspectRatio: number;
+  //calc when adding to screen to ensure it fits in the frame properly, increase/decrease as desiread
+  scale: number;
+
+  //original picture width/height, doesn't change
 }
 export interface CanvasFrame extends CanvasItemBase {
   type: "frame";
   imagePath: string; // Path to the frame image
+  width: number;
+  height: number;
 }
 
 export interface CanvasText extends CanvasItemBase {
@@ -49,12 +56,16 @@ export interface CanvasText extends CanvasItemBase {
   textContent: string; // The text content to be displayed
   fontSize: number; // Size of the text font
   fontColor: string; // Color of the text
+  fontType: string;
 }
 export type CanvasItem = CanvasFrame | CanvasText;
 
 export type Canvas = {
   backgroundImage: CanvasImage; // Path to the background image
   items: CanvasItem[]; // Array of canvas items};
+  //screen size canvas was last saved with
+  screenWidth: number;
+  screenHeight: number;
 };
 //Book Types
 export type CreateBookInput = {

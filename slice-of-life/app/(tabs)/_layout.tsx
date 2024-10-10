@@ -18,13 +18,15 @@ export default function Layout(): JSX.Element {
   }
 
   return (
-    <DataProvider>
-      <NavigationProvider>
-        <View style={{ flex: 1 }}>
-          <Slot />
+    <View style={{ flex: 1, position: "relative" }}>
+      <DataProvider>
+        <NavigationProvider>
+          <View style={{ flex: 1 }}>
+            <Slot />
+          </View>
           <ButtonNavigator />
-        </View>
-      </NavigationProvider>
-    </DataProvider>
+        </NavigationProvider>
+      </DataProvider>
+    </View>
   );
 }

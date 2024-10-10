@@ -2,6 +2,7 @@ import { ReactNode, createContext, useContext, useEffect, useState } from "react
 import { Canvas, CanvasItem, ImageType, Page } from "../types/shared.types";
 import { useData } from "./DataProvider";
 import { Json } from "../types/supabase.types";
+import { Dimensions } from "react-native";
 
 interface CanvasContextType {
   canvas: Canvas;
@@ -11,7 +12,7 @@ interface CanvasContextType {
   canvasLoading: boolean;
   canvasSaving: boolean;
   setCanvasData: (canvas: Canvas) => void;
-  updateCanvasItem: (oldItem: CanvasItem, newItem: CanvasItem) => void;
+  updateCanvasItem: (id: string, newItem: CanvasItem) => void;
   addCanvasItem: (item: CanvasItem) => void;
   removeCanvasItem: (item: CanvasItem) => void;
   startEdit: () => void;
@@ -26,9 +27,13 @@ interface CanvasContextType {
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
 
 export const CanvasProvider = ({ children }: { children: ReactNode }) => {
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+
   const defaultCanvas = {
     backgroundImage: { path: "bg_04", type: ImageType.Local },
     items: [],
+    screenWidth: screenWidth,
+    screenHeight: screenHeight,
   };
   const { pagesMap, pagesLoading, selectedDate, updatePage, pagesError } = useData();
   // maybe get current page from book/page provider after we seperate them out
@@ -69,17 +74,19 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const setCanvasData = (canvas: Canvas) => {
     setCanvas(canvas);
   };
-  const updateCanvasItem = (oldItem: CanvasItem, newItem: CanvasItem) => {
-    if (!canvas) {
+  const updateCanvasItem = (id: string, newItem: CanvasItem) => {
+    if (!editing) {
+      console.debug("no canvas");
       setCanvasError("Canvas is empty");
       return;
     }
     if (!editing) {
+      console.debug("Canvas not in edit mode");
       setCanvasError("Canvas not in edit mode");
       return;
     }
 
-    const updatedItems = canvas.items.map((item) => (item.id === oldItem.id ? newItem : item));
+    const updatedItems = canvas.items.map((item) => (item.id === id ? newItem : item));
 
     setCanvas({ ...canvas, items: updatedItems });
     setCanvasError(null);

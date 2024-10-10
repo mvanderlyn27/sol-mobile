@@ -5,49 +5,56 @@ import { MotiView } from "moti";
 import { CanvasText } from "@/src/types/shared.types";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle } from "react-native-reanimated";
+import { useCanvas } from "@/src/contexts/CanvasProvider";
+import { runOnJS } from "react-native-reanimated";
 
 export const StyledMotiView = styled(Animated.View); // Changed to Animated.View for proper reanimated styling
 export const StyledTextInput = styled(TextInput);
 export const StyledText = styled(Text);
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-
 export default function CanvasTextHolder({ item }: { item: CanvasText }) {
+  const { updateCanvasItem } = useCanvas();
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(item.textContent);
-
-  // Shared values for position, scale, and rotation
-  const offsetX = useSharedValue(item.xPercent * screenWidth);
-  const offsetY = useSharedValue(item.yPercent * screenHeight);
-  const start = useSharedValue({ x: 0, y: 0 });
-  const scale = useSharedValue(1);
+  const [fontSize, setFontSize] = useState(item.fontSize);
+  const [fontColor, setFontColor] = useState(item.fontColor);
+  const [fontFamily, setFontFamily] = useState(item.fontType);
+  const offset = useSharedValue({ x: item.x, y: item.y });
+  const start = useSharedValue({ x: item.x, y: item.x });
+  const scale = useSharedValue(item.scale);
   const savedScale = useSharedValue(1);
-  const rotation = useSharedValue(0);
+  const rotation = useSharedValue(item.rotation);
   const savedRotation = useSharedValue(0);
-
-  // Animated styles for transforming the text object
   const animatedStyles = useAnimatedStyle(() => {
     return {
       transform: [
-        { translateX: offsetX.value },
-        { translateY: offsetY.value },
+        { translateX: offset.value.x },
+        { translateY: offset.value.y },
         { scale: scale.value },
         { rotateZ: `${rotation.value}rad` },
       ],
     };
   });
 
-  // Gesture to handle dragging
+  //   Gesture to handle dragging
   const dragGesture = Gesture.Pan()
-    .onBegin(() => {
-      start.value = { x: offsetX.value, y: offsetY.value };
-    })
+    .averageTouches(true)
     .onUpdate((e) => {
-      offsetX.value = start.value.x + e.translationX;
-      offsetY.value = start.value.y + e.translationY;
+      offset.value = {
+        x: e.translationX + start.value.x,
+        y: e.translationY + start.value.y,
+      };
     })
     .onEnd(() => {
-      start.value = { x: offsetX.value, y: offsetY.value };
+      start.value = {
+        x: offset.value.x,
+        y: offset.value.y,
+      };
+      runOnJS(updateCanvasItem)(item.id, {
+        ...item,
+        x: start.value.x,
+        y: start.value.y,
+      });
     });
 
   // Gesture to handle pinch/zoom
@@ -57,6 +64,7 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
     })
     .onEnd(() => {
       savedScale.value = scale.value;
+      runOnJS(updateCanvasItem)(item.id, { ...item, scale: scale.value });
     });
 
   // Gesture to handle rotation
@@ -66,11 +74,27 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
     })
     .onEnd(() => {
       savedRotation.value = rotation.value;
+      runOnJS(updateCanvasItem)(item.id, {
+        ...item,
+        rotation: rotation.value,
+      });
     });
 
   // For testing, let's isolate the drag gesture first to make sure it works independently
-  const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
-
+  //   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
+  const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
+  //   console.log(
+  //     "width/height",
+  //     width.value,
+  //     height.value,
+  //     "rotation",
+  //     rotation.value,
+  //     "scale",
+  //     scale.value,
+  //     "offset",
+  //     offsetX.value,
+  //     offsetY.value
+  //   );
   return (
     <GestureDetector gesture={composed}>
       <StyledMotiView

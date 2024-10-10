@@ -8,11 +8,11 @@ export const StyledMotiView = styled(MotiView);
 export default function VerticalStack({ items }: { items: VerticalStackItem[] }) {
   return (
     <StyledMotiView
-      className="flex flex-col-reverse gap-24"
+      className="flex-col-reverse gap-8"
       from={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      exitTransition={{ type: "timing", duration: 100 }}
+      exitTransition={{ type: "timing", duration: 200 }}
       transition={{ type: "timing", duration: 200 }}>
       {items.map((item, index) => (
         <StyledMotiView
