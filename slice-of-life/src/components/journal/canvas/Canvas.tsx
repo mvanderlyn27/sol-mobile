@@ -8,38 +8,53 @@ import CanvasFrameHolder from "./CanvasFrame";
 import CanvasTextHolder from "./CanvasText";
 import { BG_04, getImageFromPath } from "@/src/assets/images/images";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 
 export default function CanvasHolder() {
   const { canvas, canvasLoading, addCanvasItem } = useCanvas();
+  if (canvas.items.length === 0) {
+    canvas.items.push({
+      type: "text",
+      xPercent: 0.5,
+      yPercent: 0.5,
+      rotation: 0,
+      widthPercent: 0.5,
+      aspectRatio: 1,
+      textContent: "Hello World",
+      fontSize: 20,
+      fontColor: "#000000",
+      id: "1",
+    });
+  }
   return (
-    <StyledMotiView className="w-full h-full absolute inset-0 bg-slate-200 z-[-1]">
-      {canvas.backgroundImage.type === "Local" && (
-        <Image
-          // maybe check if its a URL, or an enum, if its an enum we load locally, otherwise load from backend
-          key="backgroundImage"
-          source={getImageFromPath(canvas.backgroundImage.path)}
-          style={{ position: "absolute", width: "100%", height: "100%", zIndex: -1 }}
-          resizeMode="cover" // Use 'cover' to ensure it covers the whole area
-        />
-      )}
-      {/* Render canvas items */}
-      {canvas.items.map((item, index) => {
-        // console.log(item, index);
-        if (item.type === "frame") {
-          console.log("frame found");
-          return <CanvasFrameHolder key={index + ""} item={item} />;
-        }
+    <StyledMotiView className="w-full h-full absolute top-0 bottom-0 right-0 left-0">
+      <GestureHandlerRootView style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 2 }}>
+        {canvas.backgroundImage.type === "Local" && (
+          <Image
+            // maybe check if its a URL, or an enum, if its an enum we load locally, otherwise load from backend
+            key="backgroundImage"
+            source={getImageFromPath(canvas.backgroundImage.path)}
+            style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
+            resizeMode="cover" // Use 'cover' to ensure it covers the whole area
+          />
+        )}
 
-        if (item.type === "text") {
-          console.log("text found");
-          return <CanvasTextHolder key={index + ""} item={item} />;
-        }
+        {/* Render canvas items */}
+        {canvas.items.map((item, index) => {
+          if (item.type === "frame") {
+            return <CanvasFrameHolder key={"frame-" + index} item={item} />;
+          }
 
-        return null; // Return null if the type is unrecognized
-      })}
+          if (item.type === "text") {
+            return <CanvasTextHolder key={"text-" + index} item={item} />;
+          }
+
+          return null; // Return null if the type is unrecognized
+        })}
+      </GestureHandlerRootView>
     </StyledMotiView>
   );
 }
