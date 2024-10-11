@@ -6,7 +6,7 @@ import JournalMenu from "../journal/JournalMenu";
 import { useState } from "react";
 import { useNav } from "@/src/contexts/NavigationProvider";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BottomBar from "../journal/BottomBar";
+import BottomBar from "../journal/bottomBar/BottomBar";
 import { AnimatePresence } from "moti";
 const StyledView = styled(View);
 

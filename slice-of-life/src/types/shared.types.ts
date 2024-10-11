@@ -34,7 +34,11 @@ export type VerticalStackItem = {
   disabled?: boolean;
 };
 //Canvas Types
-
+export enum BottomBarTab {
+  Template = "template",
+  Frame = "frame",
+  Font = "font",
+}
 export interface CanvasItemBase {
   id: string;
   //pixel count
