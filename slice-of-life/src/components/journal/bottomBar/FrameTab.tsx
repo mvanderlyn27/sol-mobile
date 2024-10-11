@@ -1,13 +1,15 @@
 import React, { useState, useContext } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
 import PagerView from "react-native-pager-view";
 import { MotiView } from "moti";
 import { useData } from "@/src/contexts/DataProvider";
 import { styled } from "nativewind";
+import { useCanvas } from "@/src/contexts/CanvasProvider";
 const StyledMotiView = styled(MotiView);
 
-export default function FrameTab() {
+export default function FrameTab({ onSelect }: { onSelect: () => void }) {
   const { frames } = useData(); // Fetch frames from the context
+  const { addCanvasItem } = useCanvas();
   const itemsPerPage = 6; // Number of items you want to display per page
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -19,6 +21,10 @@ export default function FrameTab() {
     return frames.slice(startIndex, startIndex + itemsPerPage);
   };
 
+  const handleAddText = () => {
+    onSelect();
+    console.log("add text");
+  };
   return (
     <View style={{ flex: 1 }}>
       <PagerView
@@ -33,9 +39,9 @@ export default function FrameTab() {
               transition={{ type: "timing", duration: 500 }}
               className="flex flex-wrap flex-row justify-start items-start">
               {getPageFrames(pageIndex).map((frame) => (
-                <View key={frame.id} style={{ width: "30%", margin: 5 }}>
+                <Pressable key={frame.id} onPress={handleAddText} style={{ width: "30%", margin: 5 }}>
                   <Image source={{ uri: frame.path }} style={{ width: "100%", height: 100, borderRadius: 10 }} />
-                </View>
+                </Pressable>
               ))}
             </StyledMotiView>
           </View>

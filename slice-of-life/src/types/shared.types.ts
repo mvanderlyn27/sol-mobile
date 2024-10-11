@@ -40,7 +40,8 @@ export enum BottomBarTab {
   Font = "font",
 }
 export interface CanvasItemBase {
-  id: string;
+  //database id of item used eg font id, or frame id
+  id: number;
   //pixel count
   x: number;
   //pixel count

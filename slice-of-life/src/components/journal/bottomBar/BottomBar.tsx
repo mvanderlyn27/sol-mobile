@@ -60,11 +60,11 @@ export default function BottomBar({
   const getSelectedTab = () => {
     switch (selectedTab) {
       case BottomBarTab.Template:
-        return <TemplateTab />;
+        return <TemplateTab onSelect={() => setSelectedTab(null)} />;
       case BottomBarTab.Frame:
-        return <FrameTab />;
+        return <FrameTab onSelect={() => setSelectedTab(null)} />;
       case BottomBarTab.Font:
-        return <FontTab />;
+        return <FontTab onSelect={() => setSelectedTab(null)} />;
       default:
         return null;
     }

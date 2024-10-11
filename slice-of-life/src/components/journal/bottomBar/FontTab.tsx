@@ -1,13 +1,16 @@
 import React, { useState, useContext } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
 import PagerView from "react-native-pager-view";
 import { MotiView } from "moti";
 import { useData } from "@/src/contexts/DataProvider";
 import { styled } from "nativewind";
+import { useCanvas } from "@/src/contexts/CanvasProvider";
+import { CanvasItem, Font } from "@/src/types/shared.types";
 const StyledMotiView = styled(MotiView);
 
-export default function FontTab() {
+export default function FontTab({ onSelect }: { onSelect: () => void }) {
   const { fonts } = useData(); // Fetch frames from the context
+  const { canvas, addCanvasItem } = useCanvas();
   const itemsPerPage = 6; // Number of items you want to display per page
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -18,7 +21,25 @@ export default function FontTab() {
     const startIndex = page * itemsPerPage;
     return fonts.slice(startIndex, startIndex + itemsPerPage);
   };
-
+  const handleAddText = (font: Font) => {
+    console.log("add text");
+    const newText: CanvasItem = {
+      id: font.id,
+      type: "text",
+      textContent: "text",
+      fontSize: 20,
+      fontColor: "darkPrimary",
+      fontType: font.type,
+      x: canvas.screenWidth / 2,
+      y: canvas.screenHeight / 2,
+      scale: 1,
+      rotation: 0,
+    };
+    console.log("new text", newText);
+    addCanvasItem(newText);
+    console.log("canvas after add", canvas);
+    onSelect();
+  };
   return (
     <View style={{ flex: 1 }}>
       <PagerView
@@ -33,12 +54,12 @@ export default function FontTab() {
               transition={{ type: "timing", duration: 500 }}
               className="flex flex-wrap flex-row justify-start items-start">
               {getPageFrames(pageIndex).map((font) => (
-                <View key={font.id} style={{ width: "30%", margin: 5 }}>
+                <Pressable key={font.id} onPress={() => handleAddText(font)} style={{ width: "30%", margin: 5 }}>
                   <Image
                     source={{ uri: font.fontImage ? font.fontImage : "" }}
                     style={{ width: "100%", height: 100, borderRadius: 10 }}
                   />
-                </View>
+                </Pressable>
               ))}
             </StyledMotiView>
           </View>

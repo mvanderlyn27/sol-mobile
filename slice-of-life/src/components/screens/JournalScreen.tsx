@@ -13,11 +13,13 @@ const StyledView = styled(View);
 export default function JournalScreen() {
   const { menuOpen, toggleMenuOpen, toggleMenuVisible } = useNav();
   const [editMode, setEditMode] = useState<boolean>(false);
+  const { startEdit, exitEdit, saveCanvas } = useCanvas();
   const startEditMode = () => {
     setEditMode(!editMode);
     if (menuOpen) {
       toggleMenuOpen();
     }
+    startEdit();
     toggleMenuVisible();
   };
   const handleShare = () => {
@@ -25,26 +27,26 @@ export default function JournalScreen() {
   };
   const handleSave = () => {
     console.log("saving");
+    saveCanvas();
   };
   const exitEditMode = () => {
     setEditMode(!editMode);
     toggleMenuVisible();
+    exitEdit();
   };
 
   return (
-    <CanvasProvider>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        {/* canvas component here */}
-        <CanvasHolder />
-        {/* Page menu */}
-        <BottomBar key="bottom-bar" editMode={editMode} onExit={() => exitEditMode()} onSave={() => handleSave()} />
-        <JournalMenu
-          key="journal-menu"
-          editMode={editMode}
-          onEditClick={() => startEditMode()}
-          onShareClick={() => handleShare()}
-        />
-      </GestureHandlerRootView>
-    </CanvasProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* canvas component here */}
+      <CanvasHolder />
+      {/* Page menu */}
+      <BottomBar key="bottom-bar" editMode={editMode} onExit={() => exitEditMode()} onSave={() => handleSave()} />
+      <JournalMenu
+        key="journal-menu"
+        editMode={editMode}
+        onEditClick={() => startEditMode()}
+        onShareClick={() => handleShare()}
+      />
+    </GestureHandlerRootView>
   );
 }

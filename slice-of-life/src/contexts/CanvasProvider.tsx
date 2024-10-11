@@ -12,7 +12,7 @@ interface CanvasContextType {
   canvasLoading: boolean;
   canvasSaving: boolean;
   setCanvasData: (canvas: Canvas) => void;
-  updateCanvasItem: (id: string, newItem: CanvasItem) => void;
+  updateCanvasItem: (index: number, newItem: CanvasItem) => void;
   addCanvasItem: (item: CanvasItem) => void;
   removeCanvasItem: (item: CanvasItem) => void;
   startEdit: () => void;
@@ -74,7 +74,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const setCanvasData = (canvas: Canvas) => {
     setCanvas(canvas);
   };
-  const updateCanvasItem = (id: string, newItem: CanvasItem) => {
+  const updateCanvasItem = (index: number, newItem: CanvasItem) => {
     if (!editing) {
       console.debug("no canvas");
       setCanvasError("Canvas is empty");
@@ -86,7 +86,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
 
-    const updatedItems = canvas.items.map((item) => (item.id === id ? newItem : item));
+    const updatedItems = canvas.items.splice(index, 1, newItem);
 
     setCanvas({ ...canvas, items: updatedItems });
     setCanvasError(null);
@@ -110,10 +110,12 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
 
   const addCanvasItem = (item: CanvasItem) => {
     if (!canvas) {
+      console.debug("Add failed, Canvas is empty");
       setCanvasError("Canvas is empty");
       return;
     }
     if (!editing) {
+      console.debug("Add failed, Canvas is not in edit mode");
       setCanvasError("Canvas not in edit mode");
       return;
     }

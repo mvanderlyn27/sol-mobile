@@ -1,12 +1,12 @@
 import React, { useState, useContext } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
 import PagerView from "react-native-pager-view";
 import { MotiView } from "moti";
 import { useData } from "@/src/contexts/DataProvider";
 import { styled } from "nativewind";
 const StyledMotiView = styled(MotiView);
 
-export default function TemplateTab() {
+export default function TemplateTab({ onSelect }: { onSelect: () => void }) {
   const { templates } = useData(); // Fetch frames from the context
   const itemsPerPage = 6; // Number of items you want to display per page
   const [currentPage, setCurrentPage] = useState(0);
@@ -18,7 +18,10 @@ export default function TemplateTab() {
     const startIndex = page * itemsPerPage;
     return templates.slice(startIndex, startIndex + itemsPerPage);
   };
-
+  const handleSelectTemplate = () => {
+    onSelect();
+    console.log("select template");
+  };
   return (
     <View style={{ flex: 1 }}>
       <PagerView
@@ -34,12 +37,12 @@ export default function TemplateTab() {
               className="flex flex-wrap flex-row justify-start items-start">
               {getPageFrames(pageIndex).map((template) => (
                 // update to have canvas added here
-                <View key={template.id} style={{ width: "30%", margin: 5 }}>
+                <Pressable key={template.id} onPress={handleSelectTemplate} style={{ width: "30%", margin: 5 }}>
                   <Image
                     source={{ uri: template.path ? template.path : "" }}
                     style={{ width: "100%", height: 100, borderRadius: 10 }}
                   />
-                </View>
+                </Pressable>
               ))}
             </StyledMotiView>
           </View>
