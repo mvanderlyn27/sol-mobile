@@ -5,11 +5,12 @@ import { MotiView } from "moti";
 import { useData } from "@/src/contexts/DataProvider";
 import { styled } from "nativewind";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
+import { CanvasItem, Frame } from "@/src/types/shared.types";
 const StyledMotiView = styled(MotiView);
 
 export default function FrameTab({ onSelect }: { onSelect: () => void }) {
   const { frames } = useData(); // Fetch frames from the context
-  const { addCanvasItem } = useCanvas();
+  const { canvas, tempCanvas, addCanvasItem } = useCanvas();
   const itemsPerPage = 6; // Number of items you want to display per page
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -21,9 +22,25 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
     return frames.slice(startIndex, startIndex + itemsPerPage);
   };
 
-  const handleAddText = () => {
+  const handleAddFrame = (frame: Frame) => {
+    if (!tempCanvas) {
+      console.log("no temp canvas");
+      return;
+    }
+    const newFrame: CanvasItem = {
+      id: tempCanvas.curId + 1,
+      dbId: frame.id,
+      type: "frame",
+      path: frame.path,
+      width: frame.width ?? 100,
+      height: frame.height ?? 100,
+      x: tempCanvas.screenWidth / 2,
+      y: tempCanvas.screenHeight / 2,
+      scale: 1,
+      rotation: 0,
+    };
+    addCanvasItem(newFrame);
     onSelect();
-    console.log("add text");
   };
   return (
     <View style={{ flex: 1 }}>
@@ -39,7 +56,7 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
               transition={{ type: "timing", duration: 500 }}
               className="flex flex-wrap flex-row justify-start items-start">
               {getPageFrames(pageIndex).map((frame) => (
-                <Pressable key={frame.id} onPress={handleAddText} style={{ width: "30%", margin: 5 }}>
+                <Pressable key={frame.id} onPress={() => handleAddFrame(frame)} style={{ width: "30%", margin: 5 }}>
                   <Image source={{ uri: frame.path }} style={{ width: "100%", height: 100, borderRadius: 10 }} />
                 </Pressable>
               ))}

@@ -64,25 +64,28 @@ export type Database = {
       }
       frames: {
         Row: {
-          aspect_ratio: number | null
           created_at: string
+          height: number | null
           id: number
           name: string
           path: string
+          width: number | null
         }
         Insert: {
-          aspect_ratio?: number | null
           created_at?: string
+          height?: number | null
           id?: number
           name: string
           path: string
+          width?: number | null
         }
         Update: {
-          aspect_ratio?: number | null
           created_at?: string
+          height?: number | null
           id?: number
           name?: string
           path?: string
+          width?: number | null
         }
         Relationships: []
       }

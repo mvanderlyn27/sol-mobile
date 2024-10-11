@@ -10,7 +10,7 @@ const StyledMotiView = styled(MotiView);
 
 export default function FontTab({ onSelect }: { onSelect: () => void }) {
   const { fonts } = useData(); // Fetch frames from the context
-  const { canvas, addCanvasItem } = useCanvas();
+  const { canvas, tempCanvas, addCanvasItem } = useCanvas();
   const itemsPerPage = 6; // Number of items you want to display per page
   const [currentPage, setCurrentPage] = useState(0);
 
@@ -22,9 +22,13 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
     return fonts.slice(startIndex, startIndex + itemsPerPage);
   };
   const handleAddText = (font: Font) => {
-    console.log("add text");
+    if (!tempCanvas) {
+      console.log("no temp canvas");
+      return;
+    }
     const newText: CanvasItem = {
-      id: font.id,
+      id: tempCanvas.curId + 1,
+      dbId: font.id,
       type: "text",
       textContent: "text",
       fontSize: 20,
@@ -35,9 +39,7 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
       scale: 1,
       rotation: 0,
     };
-    console.log("new text", newText);
     addCanvasItem(newText);
-    console.log("canvas after add", canvas);
     onSelect();
   };
   return (

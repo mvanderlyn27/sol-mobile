@@ -14,6 +14,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import FontTab from "./FontTab";
 import FrameTab from "./FrameTab";
 import TemplateTab from "./TemplateTab";
+import { useJournal } from "@/src/contexts/JournalProvider";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -22,15 +23,8 @@ const StyledFeather = styled(Feather);
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const { width, height } = Dimensions.get("window");
-export default function BottomBar({
-  editMode,
-  onExit,
-  onSave,
-}: {
-  editMode: boolean;
-  onExit: () => void;
-  onSave: () => void;
-}) {
+export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSave: () => void }) {
+  const { editMode, bottomBarVisible } = useJournal();
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
   const handleExit = () => {
     if (selectedTab) setSelectedTab(null);
@@ -57,14 +51,17 @@ export default function BottomBar({
     }
     setSelectedTab(BottomBarTab.Font);
   };
+  const handleSelect = () => {
+    setSelectedTab(null);
+  };
   const getSelectedTab = () => {
     switch (selectedTab) {
       case BottomBarTab.Template:
-        return <TemplateTab onSelect={() => setSelectedTab(null)} />;
+        return <TemplateTab onSelect={handleSelect} />;
       case BottomBarTab.Frame:
-        return <FrameTab onSelect={() => setSelectedTab(null)} />;
+        return <FrameTab onSelect={handleSelect} />;
       case BottomBarTab.Font:
-        return <FontTab onSelect={() => setSelectedTab(null)} />;
+        return <FontTab onSelect={handleSelect} />;
       default:
         return null;
     }
@@ -86,7 +83,7 @@ export default function BottomBar({
           }}
         />
       )}
-      {editMode && (
+      {editMode && bottomBarVisible && (
         <StyledMotiView
           className="absolute bottom-6 right-4 left-4 p-6  bg-black/80 rounded-xl flex-col justify-end"
           from={{ opacity: 0, translateY: 20 }}

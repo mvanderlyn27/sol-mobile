@@ -6,16 +6,16 @@ import { StyledView } from "./canvas/Canvas";
 import { useNav } from "@/src/contexts/NavigationProvider";
 import { AnimatePresence } from "moti";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { useJournal } from "@/src/contexts/JournalProvider";
 
 export default function JournalMenu({
-  editMode,
   onEditClick,
   onShareClick,
 }: {
-  editMode: boolean;
   onEditClick: () => void;
   onShareClick: () => void;
 }) {
+  const { editMode } = useJournal();
   const getListItems = (): VerticalStackItem[] => {
     return [
       {

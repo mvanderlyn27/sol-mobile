@@ -7,6 +7,7 @@ import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle } from "react-native-reanimated";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { runOnJS } from "react-native-reanimated";
+import { useJournal } from "@/src/contexts/JournalProvider";
 
 export const StyledMotiView = styled(Animated.View); // Changed to Animated.View for proper reanimated styling
 export const StyledTextInput = styled(TextInput);
@@ -14,13 +15,14 @@ export const StyledText = styled(Text);
 
 export default function CanvasTextHolder({ item }: { item: CanvasText }) {
   const { updateCanvasItem } = useCanvas();
+  const { setBottomBarVisible } = useJournal();
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(item.textContent);
   const [fontSize, setFontSize] = useState(item.fontSize);
   const [fontColor, setFontColor] = useState(item.fontColor);
   const [fontFamily, setFontFamily] = useState(item.fontType);
   const offset = useSharedValue({ x: item.x, y: item.y });
-  const start = useSharedValue({ x: item.x, y: item.x });
+  const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
   const savedScale = useSharedValue(1);
   const rotation = useSharedValue(item.rotation);
@@ -83,18 +85,23 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
   // For testing, let's isolate the drag gesture first to make sure it works independently
   //   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
   const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
-  //   console.log(
-  //     "width/height",
-  //     width.value,
-  //     height.value,
-  //     "rotation",
-  //     rotation.value,
-  //     "scale",
-  //     scale.value,
-  //     "offset",
-  //     offsetX.value,
-  //     offsetY.value
-  //   );
+  // console.log(
+  //   "width/height",
+  //   width.value,
+  //   height.value,
+  //   "rotation",
+  //   rotation.value,
+  //   "scale",
+  //   scale.value,
+  //   "offset",
+  //   offsetX.value,
+  //   offsetY.value
+  // );
+  const handleEdit = () => {
+    updateCanvasItem(item.id, item);
+    setBottomBarVisible(false);
+    setIsEditing(true);
+  };
   return (
     <GestureDetector gesture={composed}>
       <StyledMotiView

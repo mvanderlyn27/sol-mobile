@@ -42,6 +42,7 @@ export enum BottomBarTab {
 export interface CanvasItemBase {
   //database id of item used eg font id, or frame id
   id: number;
+  dbId: number;
   //pixel count
   x: number;
   //pixel count
@@ -55,7 +56,7 @@ export interface CanvasItemBase {
 }
 export interface CanvasFrame extends CanvasItemBase {
   type: "frame";
-  imagePath: string; // Path to the frame image
+  path: string; // Path to the frame image
   width: number;
   height: number;
 }
@@ -75,6 +76,7 @@ export type Canvas = {
   //screen size canvas was last saved with
   screenWidth: number;
   screenHeight: number;
+  curId: number;
 };
 //Book Types
 export type CreateBookInput = {

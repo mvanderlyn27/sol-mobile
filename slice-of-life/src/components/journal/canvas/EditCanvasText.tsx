@@ -1,0 +1,38 @@
+import { CanvasFrame } from "@/src/types/shared.types";
+import { MotiView } from "moti";
+import { styled } from "nativewind";
+import React from "react";
+import { Pressable, Text, Image, Button, TextInput } from "react-native";
+
+const StyledMotiView = styled(MotiView);
+const StyledText = styled(Text);
+const StyledPressable = styled(Pressable);
+
+export default function EditCanvasText({
+  item,
+  onExit,
+  onCancel,
+}: {
+  item: CanvasFrame;
+  onExit: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 bg-black/80">
+      {/* Pressable background area */}
+      {/* <Pressable style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }} onPress={onExit} /> */}
+
+      {/* Centered image */}
+      <StyledMotiView className="flex-1 justify-center items-center">
+        <TextInput />
+      </StyledMotiView>
+
+      {/* Button at the bottom */}
+      <StyledMotiView className="absolute top-16  right-8">
+        <StyledPressable onPress={onCancel} className="bg-clear px-4 py-2 rounded-md">
+          <StyledText className="text-white">Done</StyledText>
+        </StyledPressable>
+      </StyledMotiView>
+    </StyledMotiView>
+  );
+}

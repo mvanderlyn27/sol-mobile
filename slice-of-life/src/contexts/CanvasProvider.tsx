@@ -14,7 +14,7 @@ interface CanvasContextType {
   setCanvasData: (canvas: Canvas) => void;
   updateCanvasItem: (index: number, newItem: CanvasItem) => void;
   addCanvasItem: (item: CanvasItem) => void;
-  removeCanvasItem: (item: CanvasItem) => void;
+  removeCanvasItem: (index: number) => void;
   startEdit: () => void;
   saveCanvas: () => void;
   clearCanvas: () => void;
@@ -34,6 +34,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     items: [],
     screenWidth: screenWidth,
     screenHeight: screenHeight,
+    curId: 0,
   };
   const { pagesMap, pagesLoading, selectedDate, updatePage, pagesError } = useData();
   // maybe get current page from book/page provider after we seperate them out
@@ -74,55 +75,77 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const setCanvasData = (canvas: Canvas) => {
     setCanvas(canvas);
   };
-  const updateCanvasItem = (index: number, newItem: CanvasItem) => {
-    if (!editing) {
-      console.debug("no canvas");
-      setCanvasError("Canvas is empty");
-      return;
-    }
+  const updateCanvasItem = (id: number, newItem: CanvasItem) => {
+    // Check if we are in edit mode and tempCanvas is available
     if (!editing) {
       console.debug("Canvas not in edit mode");
       setCanvasError("Canvas not in edit mode");
       return;
     }
 
-    const updatedItems = canvas.items.splice(index, 1, newItem);
+    if (!tempCanvas) {
+      console.debug("Update failed, tempCanvas is empty");
+      setCanvasError("tempCanvas is empty");
+      return;
+    }
 
-    setCanvas({ ...canvas, items: updatedItems });
+    // Find the index of the item with the specified id
+    const oldItemIndex = tempCanvas.items.findIndex((item) => item.id === id);
+    // Validate the index to make sure the item exists
+    if (oldItemIndex === -1) {
+      console.debug("Invalid id for updating canvas item");
+      setCanvasError("Invalid item id");
+      return;
+    }
+    const updatedItems = tempCanvas.items
+      .filter((item) => item.id !== id) // Remove the item with the specified id
+      .concat({ ...newItem, id }); // Add the updated item to the top
+
+    // Update the tempCanvas with the new items array
+    setTempCanvas({ ...tempCanvas, items: updatedItems });
     setCanvasError(null);
   };
 
-  const removeCanvasItem = (item: CanvasItem) => {
+  const removeCanvasItem = (id: number) => {
     if (!canvas) {
+      console.debug("failed to remove, canvas empty");
       setCanvasError("Canvas is empty");
       return;
     }
     if (!editing) {
+      console.debug("failed to remove, not editing");
       setCanvasError("Canvas not in edit mode");
       return;
     }
+    if (!tempCanvas) {
+      console.debug("Remove failed, tempCanvas is empty");
+      setCanvasError("tempCanvas is empty");
+      return;
+    }
 
-    const updatedItems = canvas.items.filter((canvasItem) => canvasItem.id !== item.id);
+    // Create a new array with the item removed based on its id
+    const updatedItems = tempCanvas.items.filter((item) => item.id !== id);
 
-    setCanvas({ ...canvas, items: updatedItems });
+    setTempCanvas({ ...tempCanvas, items: updatedItems });
     setCanvasError(null);
   };
 
   const addCanvasItem = (item: CanvasItem) => {
-    if (!canvas) {
-      console.debug("Add failed, Canvas is empty");
-      setCanvasError("Canvas is empty");
-      return;
-    }
     if (!editing) {
       console.debug("Add failed, Canvas is not in edit mode");
       setCanvasError("Canvas not in edit mode");
       return;
     }
+    if (!tempCanvas) {
+      console.debug("Add failed, tempCanvas is empty");
+      setCanvasError("tempCanvas is empty");
+      return;
+    }
 
-    const updatedItems = [...canvas.items, item];
-
-    setCanvas({ ...canvas, items: updatedItems });
+    // Add the new item to the items array
+    const updatedItems = [...tempCanvas.items, item];
+    //update items, and add new id
+    setTempCanvas({ ...tempCanvas, curId: tempCanvas.curId + 1, items: updatedItems });
     setCanvasError(null);
   };
 

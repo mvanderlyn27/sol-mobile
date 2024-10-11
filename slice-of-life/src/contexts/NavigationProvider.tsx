@@ -4,8 +4,8 @@ import { ReactNode, createContext, useContext, useState } from "react";
 interface NavigationContextType {
   navMenuVisible: boolean;
   menuOpen: boolean;
-  toggleMenuOpen: () => void;
-  toggleMenuVisible: () => void;
+  setNavMenuVisible: (val: boolean) => void;
+  setMenuOpen: (val: boolean) => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -14,21 +14,13 @@ export const NavigationProvider = ({ children }: { children: ReactNode }) => {
   const [navMenuVisible, setNavMenuVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const toggleMenuOpen = () => {
-    setMenuOpen(!menuOpen);
-  };
-
-  const toggleMenuVisible = () => {
-    setNavMenuVisible(!navMenuVisible);
-  };
-
   return (
     <NavigationContext.Provider
       value={{
         navMenuVisible,
         menuOpen,
-        toggleMenuOpen,
-        toggleMenuVisible,
+        setMenuOpen,
+        setNavMenuVisible,
       }}>
       {children}
     </NavigationContext.Provider>

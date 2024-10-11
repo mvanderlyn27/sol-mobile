@@ -16,7 +16,7 @@ export const StyledView = styled(View);
 export default function ButtonNavigator(): JSX.Element {
   const router = useRouter();
   const currentRoute = usePathname();
-  const { navMenuVisible, toggleMenuVisible, menuOpen, toggleMenuOpen } = useNav();
+  const { navMenuVisible, menuOpen, setMenuOpen } = useNav();
   // const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
   // const toggleMenu = () => setMenuOpen((prev) => !prev);
@@ -24,13 +24,13 @@ export default function ButtonNavigator(): JSX.Element {
   const handleTabPress = (route: string): void => {
     if (route) {
       router.push(route as Href);
-      toggleMenuOpen();
+      setMenuOpen(false);
     }
   };
 
   const getMenuItems = (): VerticalStackItem => {
     return {
-      onClick: () => toggleMenuOpen(),
+      onClick: () => setMenuOpen(true),
       selected: true,
       buttonType: ButtonType.Menu,
     };
@@ -38,7 +38,7 @@ export default function ButtonNavigator(): JSX.Element {
   const getListItems = (): VerticalStackItem[] => {
     return [
       {
-        onClick: () => toggleMenuOpen(),
+        onClick: () => setMenuOpen(false),
         buttonType: ButtonType.X,
       },
       {
