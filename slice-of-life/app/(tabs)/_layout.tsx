@@ -7,6 +7,7 @@ import ButtonNavigator from "@/src/components/navigation/ButtonNavigator";
 import { DataProvider } from "@/src/contexts/DataProvider";
 import { NavigationProvider } from "@/src/contexts/NavigationProvider";
 import { AnimatePresence } from "moti";
+import SplashScreen from "@/src/components/shared/SplashScreen";
 
 const buttonHeight = 50; // Height for each button
 const spacing = 10; // Space between buttons
@@ -19,13 +20,11 @@ export default function Layout(): JSX.Element {
   }
 
   return (
-    <View style={{ flex: 1, position: "relative" }}>
-      <DataProvider>
-        <NavigationProvider>
-          <Slot />
-          <ButtonNavigator />
-        </NavigationProvider>
-      </DataProvider>
-    </View>
+    <DataProvider>
+      <NavigationProvider>
+        <Slot />
+        <ButtonNavigator />
+      </NavigationProvider>
+    </DataProvider>
   );
 }

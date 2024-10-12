@@ -36,6 +36,7 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
       fontType: font.type,
       x: canvas.screenWidth / 2,
       y: canvas.screenHeight / 2,
+      z: canvas.maxZIndex + 1,
       scale: 1,
       rotation: 0,
     };

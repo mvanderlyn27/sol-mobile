@@ -2,8 +2,9 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from "react";
 import { AuthService } from "@/src/api/auth";
 import { Session } from "@supabase/supabase-js";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { SupabaseResponse } from "../lib/supabase";
+import SplashScreen from "../components/shared/SplashScreen";
 
 // Define the context type
 interface AuthContextType {
@@ -27,38 +28,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    AuthService.getSession().then((session) => {
-      setSession(session);
-      setIsReady(true);
-    });
+    AuthService.getSession()
+      .then((session) => {
+        setSession(session);
+        setIsReady(true);
+      })
+      .catch((error) => {
+        console.debug("Error getting session:", error);
+        setSession(null);
+        setIsReady(true);
+      });
     AuthService.setupSessionListener(setSession);
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    setIsReady(false);
     const response = await AuthService.signIn(email, password);
 
     if (response.success) {
       setSession(response.data || null);
       setError(null);
-      setIsReady(false);
+      setIsReady(true);
     } else {
       setError(response.error || "Error signing in");
     }
   };
 
   const signUp = async (email: string, password: string) => {
+    setIsReady(false);
     const response = await AuthService.signUp(email, password);
 
     if (response.success) {
       setSession(response.data || null);
       setError(null);
-      setIsReady(false);
+      setIsReady(true);
     } else {
       setError(response.error || "Error signing up");
     }
   };
 
   const signOut = async () => {
+    setIsReady(false);
     const response = await AuthService.signOut();
     if (response.success) {
       setSession(null);
@@ -74,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (response.success) {
       setSession(response.data || null);
       setError(null);
-      setIsReady(false);
+      setIsReady(true);
     } else {
       setError(response.error || "Error updating email");
     }
@@ -85,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (response.success) {
       setSession(response.data || null);
       setError(null);
-      setIsReady(false);
+      setIsReady(true);
     } else {
       setError(response.error || "Error updating password");
     }
@@ -102,7 +112,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   if (!isReady) {
-    return <ActivityIndicator />;
+    return <SplashScreen />;
   }
   return (
     <AuthContext.Provider

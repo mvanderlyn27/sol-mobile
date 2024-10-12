@@ -16,9 +16,9 @@ export const StyledTextInput = styled(TextInput);
 export const StyledText = styled(Text);
 
 export default function CanvasTextHolder({ item }: { item: CanvasText }) {
-  const { updateCanvasItem } = useCanvas();
-  const { setBottomBarVisible } = useJournal();
-  const [isEditing, setIsEditing] = useState(false);
+  const { tempCanvas, updateCanvasItem } = useCanvas();
+  const { editMode, setBottomBarVisible } = useJournal();
+  // const zIndex = useSharedValue(item.z);
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
@@ -27,6 +27,7 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
   const savedRotation = useSharedValue(0);
   const animatedStyles = useAnimatedStyle(() => {
     return {
+      zIndex: item.z,
       transform: [
         { translateX: offset.value.x },
         { translateY: offset.value.y },
@@ -35,10 +36,24 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
       ],
     };
   });
+  const handleGestureStart = () => {
+    if (!tempCanvas) {
+      console.log("not editing shouldn't allow gestures ");
+      return;
+    }
+    // console.log("text:", item.id, "canvas max z", tempCanvas.maxZIndex, "item z: ", item.z, "val: ", zIndex.value);
+    updateCanvasItem(item.id, { ...item });
+    // zIndex.value = tempCanvas.maxZIndex + 1; // Bring the current item to the top
+  };
 
   //   Gesture to handle dragging
   const dragGesture = Gesture.Pan()
     .averageTouches(true)
+    .onBegin(() => {
+      runOnJS(handleGestureStart)(); // Call function to set zIndex
+    })
+    //need some way to keep track of z index lol
+    // .onStart(() => {})
     .onUpdate((e) => {
       offset.value = {
         x: e.translationX + start.value.x,
@@ -59,6 +74,9 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
 
   // Gesture to handle pinch/zoom
   const zoomGesture = Gesture.Pinch()
+    .onBegin(() => {
+      runOnJS(handleGestureStart)(); // Call function to set zIndex
+    })
     .onUpdate((event) => {
       scale.value = savedScale.value * event.scale;
     })
@@ -69,6 +87,9 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
 
   // Gesture to handle rotation
   const rotateGesture = Gesture.Rotation()
+    .onBegin(() => {
+      runOnJS(handleGestureStart)(); // Call function to set zIndex
+    })
     .onUpdate((event) => {
       rotation.value = savedRotation.value + event.rotation;
     })
@@ -83,22 +104,19 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
   const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
 
   const handleCancel = () => {
-    setIsEditing(false);
     setBottomBarVisible(true);
   };
   const handleExit = () => {
-    setIsEditing(false);
     setBottomBarVisible(true);
   };
   const handleEdit = () => {
-    setIsEditing(true);
     updateCanvasItem(item.id, item);
     setBottomBarVisible(false);
   };
 
   return (
     <AnimatePresence>
-      {isEditing && (
+      {/* {isEditing && (
         <StyledMotiView
           exit={{ opacity: 0 }}
           from={{ opacity: 0 }}
@@ -109,16 +127,17 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
         >
           <EditCanvasText item={item} onCancel={handleCancel} onExit={handleExit} />
         </StyledMotiView>
-      )}
-      {!isEditing && (
-        <StyledMotiView
-          exit={{ opacity: 0 }}
-          from={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ type: "timing", duration: 300 }}
-          key={"frame-" + item.id}
-          style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
-        >
+      )} */}
+      (
+      <StyledMotiView
+        // exit={{ opacity: 0 }}
+        // from={{ opacity: 0 }}
+        // animate={{ opacity: 1 }}
+        // transition={{ type: "timing", duration: 100 }}
+        key={"frame-" + item.id}
+        style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
+      >
+        {editMode && (
           <GestureDetector gesture={composed}>
             <Pressable onPress={handleEdit}>
               <StyledText
@@ -131,8 +150,19 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
               </StyledText>
             </Pressable>
           </GestureDetector>
-        </StyledMotiView>
-      )}
+        )}
+        {!editMode && (
+          <StyledText
+            style={{
+              fontFamily: item.fontType || "System",
+              fontSize: item.fontSize,
+              color: item.fontColor,
+            }}>
+            {item.textContent}
+          </StyledText>
+        )}
+      </StyledMotiView>
+      )
     </AnimatePresence>
   );
 }

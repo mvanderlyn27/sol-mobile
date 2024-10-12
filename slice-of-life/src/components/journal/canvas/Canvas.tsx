@@ -1,7 +1,7 @@
 import { styled } from "nativewind";
 import { MotiView } from "moti";
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 import { Canvas } from "@/src/types/shared.types";
 import { Image } from "react-native";
 import CanvasFrameHolder from "./CanvasFrame";
@@ -17,32 +17,43 @@ export default function CanvasHolder() {
   const { canvas, tempCanvas, startEdit, exitEdit, saveCanvas, canvasLoading, addCanvasItem } = useCanvas();
   const { editMode } = useJournal();
   //if editmode is trye, the tempcanvas is not null
-  const [curCanvas, setCurCanvas] = useState<Canvas | null>(null);
-  useEffect(() => {
-    editMode ? setCurCanvas(tempCanvas) : setCurCanvas(canvas);
-  }, [canvas, tempCanvas, editMode]);
+  const curCanvas = editMode && tempCanvas ? tempCanvas : canvas;
+
   return (
-    <StyledMotiView className=" absolute top-0 bottom-0 right-0 left-0">
+    <StyledMotiView key="canvas" className=" absolute top-0 bottom-0 right-0 left-0">
       {/*  <StyledMotiView className="flex-1 "> */}
-      {canvas.backgroundImage.type === "Local" && (
+      {(canvasLoading || !curCanvas?.backgroundImage) && (
+        <StyledMotiView className="flex-1 justify-center items-center">
+          <Image
+            // maybe check if its a URL, or an enum, if its an enum we load locally, otherwise load from backend
+            key="backgroundImage"
+            source={getImageFromPath("bg_04")}
+            style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
+            resizeMode="cover" // Use 'cover' to ensure it covers the whole area
+          />
+          {/* <ActivityIndicator size="large" /> */}
+        </StyledMotiView>
+      )}
+      {!canvasLoading && curCanvas && curCanvas.backgroundImage?.type === "Local" && (
         <Image
           // maybe check if its a URL, or an enum, if its an enum we load locally, otherwise load from backend
           key="backgroundImage"
-          source={getImageFromPath(canvas.backgroundImage.path)}
+          source={getImageFromPath(curCanvas.backgroundImage.path)}
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
           resizeMode="cover" // Use 'cover' to ensure it covers the whole area
         />
       )}
 
       {/* Render canvas items */}
-      {curCanvas &&
-        curCanvas.items.map((item) => {
+      {!canvasLoading &&
+        curCanvas &&
+        curCanvas.items?.map((item) => {
           if (item.type === "frame") {
-            return <CanvasFrameHolder key={"frame-" + item.id} item={item} />;
+            return <CanvasFrameHolder key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
           }
 
           if (item.type === "text") {
-            return <CanvasTextHolder key={"text-" + item.id} item={item} />;
+            return <CanvasTextHolder key={`text-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
           }
           return null; // Return null if the type is unrecognized
         })}

@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import BottomBar from "../journal/bottomBar/BottomBar";
 import { AnimatePresence } from "moti";
 import { useJournal } from "@/src/contexts/JournalProvider";
+import Toast from "react-native-root-toast";
 const StyledView = styled(View);
 
 export default function JournalScreen() {
@@ -31,18 +32,20 @@ export default function JournalScreen() {
   };
   const handleSave = () => {
     console.log("saving");
+    let toast = Toast.show("Saving", {
+      duration: 1000,
+      position: Toast.positions.TOP,
+    });
     saveCanvas();
   };
   const exitEditMode = () => {
-    //update nav settings
+    exitEdit();
     setNavMenuVisible(true);
     //update journal menus
-    setEditMode(!editMode);
+    setEditMode(false);
     setJournalMenuVisible(false);
     setBottomBarVisible(true);
-    exitEdit();
   };
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       {/* canvas component here */}

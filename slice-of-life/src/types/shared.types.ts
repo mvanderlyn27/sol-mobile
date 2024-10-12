@@ -47,6 +47,8 @@ export interface CanvasItemBase {
   x: number;
   //pixel count
   y: number;
+  // z index, default to 0
+  z: number;
   //rad
   rotation: number;
   //calc when adding to screen to ensure it fits in the frame properly, increase/decrease as desiread
@@ -77,6 +79,7 @@ export type Canvas = {
   screenWidth: number;
   screenHeight: number;
   curId: number;
+  maxZIndex: number;
 };
 //Book Types
 export type CreateBookInput = {
@@ -99,6 +102,7 @@ export type CreateFrameInput = {
 
 // Page types
 export type CreatePageInput = {
+  //book id to save page to
   book: number;
   canvas: Json;
   date: string;

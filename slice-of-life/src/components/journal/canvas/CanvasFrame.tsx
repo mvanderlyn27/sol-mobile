@@ -15,9 +15,8 @@ export const StyledTextInput = styled(TextInput);
 export const StyledText = styled(Text);
 
 export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
-  const { setBottomBarVisible } = useJournal();
-  const { updateCanvasItem } = useCanvas();
-  const [isEditing, setIsEditing] = useState(false);
+  const { editMode, setBottomBarVisible } = useJournal();
+  const { tempCanvas, updateCanvasItem } = useCanvas();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
@@ -26,6 +25,7 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const savedRotation = useSharedValue(0);
   const animatedStyles = useAnimatedStyle(() => {
     return {
+      zIndex: item.z,
       transform: [
         { translateX: offset.value.x },
         { translateY: offset.value.y },
@@ -36,8 +36,19 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   });
 
   //   Gesture to handle dragging
+  const handleGestureStart = () => {
+    if (!tempCanvas) {
+      console.log("not editing shouldn't allow gestures ");
+      return;
+    }
+    updateCanvasItem(item.id, { ...item });
+  };
+
   const dragGesture = Gesture.Pan()
     .averageTouches(true)
+    .onBegin(() => {
+      runOnJS(handleGestureStart)(); // Call function to set zIndex
+    })
     .onUpdate((e) => {
       offset.value = {
         x: e.translationX + start.value.x,
@@ -58,6 +69,9 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
 
   // Gesture to handle pinch/zoom
   const zoomGesture = Gesture.Pinch()
+    .onBegin(() => {
+      runOnJS(handleGestureStart)(); // Call function to set zIndex
+    })
     .onUpdate((event) => {
       scale.value = savedScale.value * event.scale;
     })
@@ -68,6 +82,9 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
 
   // Gesture to handle rotation
   const rotateGesture = Gesture.Rotation()
+    .onBegin(() => {
+      runOnJS(handleGestureStart)(); // Call function to set zIndex
+    })
     .onUpdate((event) => {
       rotation.value = savedRotation.value + event.rotation;
     })
@@ -81,41 +98,28 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
 
   const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
   const handleCancel = () => {
-    setIsEditing(false);
     setBottomBarVisible(true);
   };
   const handleExit = () => {
-    setIsEditing(false);
     setBottomBarVisible(true);
   };
   const handleEdit = () => {
+    //add something related to the canvasprovider here
     updateCanvasItem(item.id, item);
     setBottomBarVisible(false);
-    setIsEditing(true);
   };
   return (
     <AnimatePresence>
-      {isEditing && (
-        <StyledMotiView
-          exit={{ opacity: 0 }}
-          from={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ type: "timing", duration: 300 }}
-          key="edit"
-          style={{ flex: 1 }} // Added position: 'absolute' for proper placement
-        >
-          <EditCanvasFrame item={item} onCancel={handleCancel} onExit={handleExit} />
-        </StyledMotiView>
-      )}
-      {!isEditing && (
-        <StyledMotiView
-          exit={{ opacity: 0 }}
-          from={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ type: "timing", duration: 300 }}
-          key={"frame-" + item.id}
-          style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
-        >
+      (
+      <StyledMotiView
+        // exit={{ opacity: 0 }}
+        // from={{ opacity: 0 }}
+        // animate={{ opacity: 1 }}
+        // transition={{ type: "timing", duration: 300 }}
+        key={"frame-" + item.id}
+        style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
+      >
+        {editMode && (
           <GestureDetector gesture={composed}>
             <Pressable onPress={handleEdit}>
               <Image
@@ -124,8 +128,15 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
               />
             </Pressable>
           </GestureDetector>
-        </StyledMotiView>
-      )}
+        )}
+        {!editMode && (
+          <Image
+            source={{ uri: item.path }} // Replace with your image URL or source
+            style={{ width: 150, height: 150, borderRadius: 10 }}
+          />
+        )}
+      </StyledMotiView>
+      )
     </AnimatePresence>
   );
 }

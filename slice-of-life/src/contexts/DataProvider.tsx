@@ -54,7 +54,7 @@ interface DataContextType {
   createPage: (dayString: string, content: CreatePageInput) => void;
   updatePage: (dayString: string, content: Page) => void;
   deletePage: (dayString: string) => void;
-  setCurrentPage: (dayString: string) => void;
+  setCurrentPageDate: (dayString: string) => void;
   //profile
   profile: Profile | null;
   profileLoading: boolean;
@@ -67,6 +67,7 @@ interface DataContextType {
   templatesError: string | null;
   fetchTemplates: () => void;
   toDayString: (date: Date) => string;
+  isReady: boolean;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -101,6 +102,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState<boolean>(false);
   const [templatesError, setTemplatesError] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState<boolean>(false);
 
   useEffect(() => {
     //load book, and other info
@@ -111,9 +113,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     //after currentbook is updated, reload pages
     loadPagesData();
   }, [currentBook]);
+  useEffect(() => {
+    setIsReady(!(booksLoading || pagesLoading || fontsLoading || framesLoading || profileLoading || templatesLoading));
+  }, [booksLoading, pagesLoading, fontsLoading, framesLoading, profileLoading, templatesLoading]);
 
   // provider setup functions
   const loadMainData = async () => {
+    toDayString(new Date());
     if (session) {
       await Promise.all([fetchBooks(), fetchTemplates(), fetchFrames(), fetchFonts(), fetchProfile()]);
     }
@@ -291,7 +297,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setPageMap(pagesMap!);
     setPagesLoading(false);
   };
-  const setCurrentPage = (dayString: string) => {
+  const setCurrentPageDate = (dayString: string) => {
     if (!pagesMap.has(dayString)) {
       setPagesError("Can't set current page, page does not exist yet");
       return;
@@ -428,7 +434,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         createPage,
         updatePage,
         deletePage,
-        setCurrentPage,
+        setCurrentPageDate,
         //profile
         profile,
         profileLoading,
@@ -441,6 +447,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         templatesError,
         fetchTemplates,
         toDayString,
+        isReady,
       }}>
       {children}
     </DataContext.Provider>

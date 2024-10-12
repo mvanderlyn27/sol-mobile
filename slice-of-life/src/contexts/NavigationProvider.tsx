@@ -1,4 +1,5 @@
-import { ReactNode, createContext, useContext, useState } from "react";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
+import { useJournal } from "./JournalProvider";
 
 //want to be able to show/hide the navigation menu from other routes, and keep teh selected route up to date
 interface NavigationContextType {
@@ -13,7 +14,6 @@ const NavigationContext = createContext<NavigationContextType | undefined>(undef
 export const NavigationProvider = ({ children }: { children: ReactNode }) => {
   const [navMenuVisible, setNavMenuVisible] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <NavigationContext.Provider
       value={{

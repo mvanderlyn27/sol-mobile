@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import { Button, Input } from "@rneui/themed";
 import { useAuth } from "../../contexts/AuthProvider";
+import Toast from "react-native-root-toast";
 
 export default function EmailForm() {
   const [email, setEmail] = useState("");
@@ -12,8 +13,12 @@ export default function EmailForm() {
   async function signInWithEmail() {
     setLoading(true);
     await signIn(email, password);
+
     if (error) {
-      Alert.alert(error);
+      // Alert.alert(error);
+      let toast = Toast.show("Request failed to send.", {
+        duration: Toast.durations.LONG,
+      });
     }
     setLoading(false);
   }

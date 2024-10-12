@@ -44,7 +44,7 @@ export default function EditCanvasText({
           }}
           onChangeText={setTextInput}
           autoFocus>
-          Test
+          {item.textContent}
         </StyledTextInput>
       </StyledMotiView>
 

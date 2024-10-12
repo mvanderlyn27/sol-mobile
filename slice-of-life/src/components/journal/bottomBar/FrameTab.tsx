@@ -36,6 +36,7 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
       height: frame.height ?? 100,
       x: tempCanvas.screenWidth / 2,
       y: tempCanvas.screenHeight / 2,
+      z: canvas.maxZIndex + 1,
       scale: 1,
       rotation: 0,
     };

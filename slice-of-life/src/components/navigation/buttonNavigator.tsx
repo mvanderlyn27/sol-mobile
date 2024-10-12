@@ -9,12 +9,14 @@ import { useNav } from "@/src/contexts/NavigationProvider";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { Button } from "@rneui/themed";
 import VerticalStack from "../shared/VerticleStack";
+import { useData } from "@/src/contexts/DataProvider";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 
 export default function ButtonNavigator(): JSX.Element {
   const router = useRouter();
+  const { isReady } = useData();
   const currentRoute = usePathname();
   const { navMenuVisible, menuOpen, setMenuOpen } = useNav();
   // const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -84,9 +86,9 @@ export default function ButtonNavigator(): JSX.Element {
         {/* Menu Items */}
 
         <AnimatePresence exitBeforeEnter>
-          {menuOpen && navMenuVisible && <VerticalStack items={getListItems()} key="menu-list" />}
+          {menuOpen && navMenuVisible && isReady && <VerticalStack items={getListItems()} key="menu-list" />}
           {/* Menu Button */}
-          {!menuOpen && navMenuVisible && <VerticalStack items={[getMenuItems()]} key="menu-button" />}
+          {!menuOpen && navMenuVisible && isReady && <VerticalStack items={[getMenuItems()]} key="menu-button" />}
         </AnimatePresence>
       </StyledView>
     </StyledView>
