@@ -31,7 +31,7 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
       dbId: font.id,
       type: "text",
       textContent: "text",
-      fontSize: 20,
+      fontSize: 40,
       fontColor: "darkPrimary",
       fontType: font.type,
       x: canvas.screenWidth / 2,

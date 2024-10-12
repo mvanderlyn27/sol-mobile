@@ -19,10 +19,6 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
   const { updateCanvasItem } = useCanvas();
   const { setBottomBarVisible } = useJournal();
   const [isEditing, setIsEditing] = useState(false);
-  const [text, setText] = useState(item.textContent);
-  const [fontSize, setFontSize] = useState(item.fontSize);
-  const [fontColor, setFontColor] = useState(item.fontColor);
-  const [fontFamily, setFontFamily] = useState(item.fontType);
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
@@ -95,9 +91,9 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
     setBottomBarVisible(true);
   };
   const handleEdit = () => {
+    setIsEditing(true);
     updateCanvasItem(item.id, item);
     setBottomBarVisible(false);
-    setIsEditing(true);
   };
 
   return (
@@ -125,7 +121,14 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
         >
           <GestureDetector gesture={composed}>
             <Pressable onPress={handleEdit}>
-              <StyledText>{text}</StyledText>
+              <StyledText
+                style={{
+                  fontFamily: item.fontType || "System",
+                  fontSize: item.fontSize,
+                  color: item.fontColor,
+                }}>
+                {item.textContent}
+              </StyledText>
             </Pressable>
           </GestureDetector>
         </StyledMotiView>
