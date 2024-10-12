@@ -21,6 +21,7 @@ export default function JournalScreen() {
   const { menuOpen, setMenuOpen, navMenuVisible, setNavMenuVisible } = useNav();
   const { startEditCanvas, exitEditCanvas, saveCanvasEdits, curEditingCanvasItem } = useCanvas();
   const {
+    setDateSelectorVisible,
     viewMode,
     setViewMode,
     journalMenuVisible,
@@ -36,6 +37,7 @@ export default function JournalScreen() {
     setNavMenuVisible(false);
     setEditMode(true);
     setJournalMenuVisible(false);
+    setDateSelectorVisible(false);
     setBottomBarVisible(true);
     startEditCanvas();
   };
@@ -56,6 +58,7 @@ export default function JournalScreen() {
   const exitEditMode = () => {
     exitEditCanvas();
     setNavMenuVisible(true);
+    setDateSelectorVisible(true);
     setEditMode(false);
     setJournalMenuVisible(false);
     setBottomBarVisible(true);
@@ -74,37 +77,33 @@ export default function JournalScreen() {
   });
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <GestureDetector gesture={tapGesture}>
-        <StyledView className="absolute top-0 bottom-0 right-0 left-0 ">
+    <StyledView className="absolute top-0 bottom-0 right-0 left-0 ">
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureDetector gesture={tapGesture}>
           <CanvasHolder />
-          <AnimatePresence>
-            {!viewMode && (
-              <StyledMotiView
-                from={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "timing", duration: 200 }}
-                className="absolute top-0 bottom-0 right-0 left-0 " // Allow pointer events to pass through
-                style={{
-                  pointerEvents: "box-none",
-                }}
-                // className="flex-1" // Allow pointer events to pass through
-              >
-                <BottomBar key="bottom-bar" onExit={() => exitEditMode()} onSave={() => handleSave()} />
-                <JournalMenu
-                  key="journal-menu"
-                  onEditClick={() => startEditMode()}
-                  onShareClick={() => handleShare()}
-                />
-                <DateSelector />
-              </StyledMotiView>
-            )}
-          </AnimatePresence>
+        </GestureDetector>
+      </GestureHandlerRootView>
+      <AnimatePresence>
+        {!viewMode && (
+          <StyledMotiView
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "timing", duration: 200 }}
+            className="absolute top-0 bottom-0 right-0 left-0 " // Allow pointer events to pass through
+            style={{
+              pointerEvents: "box-none",
+            }}
+            // className="flex-1" // Allow pointer events to pass through
+          >
+            <BottomBar key="bottom-bar" onExit={() => exitEditMode()} onSave={() => handleSave()} />
+            <JournalMenu key="journal-menu" onEditClick={() => startEditMode()} onShareClick={() => handleShare()} />
+            <DateSelector />
+          </StyledMotiView>
+        )}
+      </AnimatePresence>
 
-          <AnimatePresence>{curEditingCanvasItem && <CanvasItemEditor />}</AnimatePresence>
-        </StyledView>
-      </GestureDetector>
-    </GestureHandlerRootView>
+      <AnimatePresence>{curEditingCanvasItem && <CanvasItemEditor />}</AnimatePresence>
+    </StyledView>
   );
 }

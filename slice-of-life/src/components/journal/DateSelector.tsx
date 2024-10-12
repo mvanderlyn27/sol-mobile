@@ -6,6 +6,7 @@ import { Pressable } from "react-native";
 import { useData } from "@/src/contexts/DataProvider";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import tailwindConfig from "@/tailwind.config"; // Adjust this path to where your config is located
+import { useJournal } from "@/src/contexts/JournalProvider";
 
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
@@ -15,6 +16,7 @@ const StyledAnt = styled(AntDesign);
 
 export default function DateSelector() {
   const { toDayString, selectedDate, setCurrentPageDate, dailyEntryAvailable } = useData();
+  const { dateSelectorVisible } = useJournal();
   const today = toDayString(new Date());
   const curDay = selectedDate;
 
@@ -31,7 +33,7 @@ export default function DateSelector() {
   };
 
   const isToday = curDay === today;
-
+  if (!dateSelectorVisible) return null;
   return (
     <AnimatePresence>
       <StyledMotiView
