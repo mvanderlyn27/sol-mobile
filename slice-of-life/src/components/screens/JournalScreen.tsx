@@ -10,11 +10,12 @@ import BottomBar from "../journal/bottomBar/BottomBar";
 import { AnimatePresence } from "moti";
 import { useJournal } from "@/src/contexts/JournalProvider";
 import Toast from "react-native-root-toast";
+import CanvasItemEditor from "../journal/canvas/CanvasItemEditor";
 const StyledView = styled(View);
 
 export default function JournalScreen() {
   const { menuOpen, setMenuOpen, setNavMenuVisible } = useNav();
-  const { startEdit, exitEdit, saveCanvas } = useCanvas();
+  const { startEditCanvas, exitEditCanvas, saveCanvasEdits, curEditingCanvasItem } = useCanvas();
   const { journalMenuVisible, setJournalMenuVisible, bottomBarVisible, setBottomBarVisible, editMode, setEditMode } =
     useJournal();
   const startEditMode = () => {
@@ -25,7 +26,7 @@ export default function JournalScreen() {
     setEditMode(true);
     setJournalMenuVisible(false);
     setBottomBarVisible(true);
-    startEdit();
+    startEditCanvas();
   };
   const handleShare = () => {
     console.log("sharing");
@@ -36,10 +37,10 @@ export default function JournalScreen() {
       duration: 1000,
       position: Toast.positions.TOP,
     });
-    saveCanvas();
+    saveCanvasEdits();
   };
   const exitEditMode = () => {
-    exitEdit();
+    exitEditCanvas();
     setNavMenuVisible(true);
     //update journal menus
     setEditMode(false);
@@ -53,6 +54,11 @@ export default function JournalScreen() {
       {/* Page menu */}
       <BottomBar key="bottom-bar" onExit={() => exitEditMode()} onSave={() => handleSave()} />
       <JournalMenu key="journal-menu" onEditClick={() => startEditMode()} onShareClick={() => handleShare()} />
+      <AnimatePresence>
+        {/* <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 z-[1000]"> */}
+        {curEditingCanvasItem && <CanvasItemEditor />}
+        {/* </StyledMotiView> */}
+      </AnimatePresence>
     </GestureHandlerRootView>
   );
 }

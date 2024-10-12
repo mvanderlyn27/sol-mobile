@@ -8,21 +8,26 @@ import Toast from "react-native-root-toast";
 interface CanvasContextType {
   canvas: Canvas;
   tempCanvas: Canvas | null;
-  editing: boolean;
+  editingCanvas: boolean;
   canvasError: string | null;
   canvasLoading: boolean;
   canvasSaving: boolean;
+  //id of canvas item we're editing
+  curEditingCanvasItem: number | null;
   setCanvasData: (canvas: Canvas) => void;
   updateCanvasItem: (index: number, newItem: CanvasItem) => void;
   addCanvasItem: (item: CanvasItem) => void;
   removeCanvasItem: (index: number) => void;
-  startEdit: () => void;
-  saveCanvas: () => void;
+  startEditCanvas: () => void;
+  saveCanvasEdits: () => void;
   clearCanvas: () => void;
-  exitEdit: () => void;
+  exitEditCanvas: () => void;
   loadCanvasFromJsonString: (json: string) => void;
   jsonToCanvas: (json: string) => Canvas | null;
   canvasToJson: (canvas: Canvas) => Json;
+  editCanvasItem: (index: number) => void;
+  saveCanvasItemEdits: (id: number, updates: CanvasItem) => void;
+  exitEditCanvasItem: () => void;
 }
 
 const CanvasContext = createContext<CanvasContextType | undefined>(undefined);
@@ -57,8 +62,8 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const [canvasLoading, setCanvasLoading] = useState<boolean>(true);
   const [canvasSaving, setCanvasSaving] = useState<boolean>(false);
   const [tempCanvas, setTempCanvas] = useState<Canvas | null>(null);
-  const [editing, setEditing] = useState<boolean>(false);
-
+  const [editingCanvas, setEditingCanvas] = useState<boolean>(false);
+  const [curEditingCanvasItem, setCurEditingCanvasItem] = useState<number | null>(null);
   useEffect(() => {
     if (pagesLoading === false && pagesMap && selectedDate) {
       const curPage = pagesMap.get(selectedDate);
@@ -92,40 +97,33 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   };
   const updateCanvasItem = (id: number, newItem: CanvasItem) => {
     // Check if we are in edit mode and tempCanvas is available
-    if (!editing) {
+    if (!editingCanvas) {
       console.debug("Canvas not in edit mode");
       setCanvasError("Canvas not in edit mode");
       return;
     }
-
     if (!tempCanvas) {
       console.debug("Update failed, tempCanvas is empty");
       setCanvasError("tempCanvas is empty");
       return;
     }
-
     // Find the index of the item with the specified id
     const oldItemIndex = tempCanvas.items.findIndex((item) => item.id === id);
-
     // Validate the index to make sure the item exists
     if (oldItemIndex === -1) {
       console.debug("Invalid id for updating canvas item");
       setCanvasError("Invalid item id");
       return;
     }
-
     // Calculate the current z-index of the item being updated
     const currentZ = tempCanvas.items[oldItemIndex].z;
-
     // Determine the new z-index and whether to update the maxZIndex
     let newZ = newItem.z;
     let shouldUpdateMaxZIndex = false;
-
     if (currentZ < tempCanvas.maxZIndex) {
       newZ = tempCanvas.maxZIndex + 1; // Move item to the top
       shouldUpdateMaxZIndex = true; // Mark that we need to update maxZIndex
     }
-
     // Update the item's properties while ensuring we keep the same id and other necessary fields
     const updatedItems = tempCanvas.items.map((item, index) => {
       if (index === oldItemIndex) {
@@ -133,10 +131,8 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
       }
       return item; // Keep the existing item unchanged
     });
-
     // Update the tempCanvas with the new items array
     const newMaxZIndex = shouldUpdateMaxZIndex ? Math.max(tempCanvas.maxZIndex + 1, newZ) : tempCanvas.maxZIndex; // Only update maxZIndex if needed
-
     setTempCanvas({ ...tempCanvas, maxZIndex: newMaxZIndex, items: updatedItems });
     setCanvasError(null);
   };
@@ -147,7 +143,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
       setCanvasError("Canvas is empty");
       return;
     }
-    if (!editing) {
+    if (!editingCanvas) {
       console.debug("failed to remove, not editing");
       setCanvasError("Canvas not in edit mode");
       return;
@@ -164,9 +160,26 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     setTempCanvas({ ...tempCanvas, items: updatedItems });
     setCanvasError(null);
   };
-
+  const editCanvasItem = (id: number) => {
+    if (tempCanvas === null) {
+      console.debug("failed to edit, no tempCanvas");
+      setCanvasError("tempCanvas is empty");
+      return;
+    }
+    console.log("editing", id);
+    setCurEditingCanvasItem(id);
+    setEditingCanvas(false);
+  };
+  const saveCanvasItemEdits = (id: number, updates: CanvasItem) => {
+    updateCanvasItem(id, updates);
+    exitEditCanvasItem();
+  };
+  const exitEditCanvasItem = () => {
+    setCurEditingCanvasItem(null);
+    setEditingCanvas(true);
+  };
   const addCanvasItem = (item: CanvasItem) => {
-    if (!editing) {
+    if (!editingCanvas) {
       console.debug("Add failed, Canvas is not in edit mode");
       setCanvasError("Canvas not in edit mode");
       return;
@@ -192,13 +205,13 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const clearCanvas = () => {
     setCanvas(defaultCanvas);
   };
-  const startEdit = () => {
-    setEditing(true);
+  const startEditCanvas = () => {
+    setEditingCanvas(true);
     setTempCanvas(canvas);
   };
-  const saveCanvas = async () => {
+  const saveCanvasEdits = async () => {
     //need to figure out/
-    if (!editing) {
+    if (!editingCanvas) {
       console.debug("Save failed, Canvas is not in edit mode");
       setCanvasError("Canvas not in edit mode");
       return;
@@ -252,8 +265,8 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     });
     setCanvasSaving(false);
   };
-  const exitEdit = () => {
-    setEditing(false);
+  const exitEditCanvas = () => {
+    setEditingCanvas(false);
     setTempCanvas(null);
   };
   const canvasToJson = (canvas: Canvas): Json => {
@@ -273,17 +286,21 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
       value={{
         canvas,
         tempCanvas,
-        editing,
+        editingCanvas,
         canvasError,
         canvasSaving,
         canvasLoading,
+        curEditingCanvasItem,
         setCanvasData,
+        editCanvasItem,
+        exitEditCanvasItem,
         updateCanvasItem,
         addCanvasItem,
         removeCanvasItem,
-        startEdit,
-        saveCanvas,
-        exitEdit,
+        saveCanvasItemEdits,
+        startEditCanvas,
+        saveCanvasEdits,
+        exitEditCanvas,
         loadCanvasFromJsonString,
         jsonToCanvas,
         canvasToJson,

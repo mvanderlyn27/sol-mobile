@@ -1,5 +1,5 @@
 import { styled } from "nativewind";
-import { MotiView } from "moti";
+import { AnimatePresence, MotiView } from "moti";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { Canvas } from "@/src/types/shared.types";
@@ -9,12 +9,14 @@ import CanvasTextHolder from "./CanvasText";
 import { BG_04, getImageFromPath } from "@/src/assets/images/images";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { useJournal } from "@/src/contexts/JournalProvider";
+import CanvasItemEditor from "./CanvasItemEditor";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 
 export default function CanvasHolder() {
-  const { canvas, tempCanvas, startEdit, exitEdit, saveCanvas, canvasLoading, addCanvasItem } = useCanvas();
+  const { canvas, tempCanvas, startEditCanvas, exitEditCanvas, saveCanvasEdits, canvasLoading, addCanvasItem } =
+    useCanvas();
   const { editMode } = useJournal();
   //if editmode is trye, the tempcanvas is not null
   const curCanvas = editMode && tempCanvas ? tempCanvas : canvas;

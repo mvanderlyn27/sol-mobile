@@ -16,7 +16,7 @@ export const StyledText = styled(Text);
 
 export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const { editMode, setBottomBarVisible } = useJournal();
-  const { tempCanvas, updateCanvasItem } = useCanvas();
+  const { tempCanvas, updateCanvasItem, editCanvasItem } = useCanvas();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
@@ -105,7 +105,8 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   };
   const handleEdit = () => {
     //add something related to the canvasprovider here
-    updateCanvasItem(item.id, item);
+    // updateCanvasItem(item.id, item);
+    editCanvasItem(item.id);
     setBottomBarVisible(false);
   };
   return (

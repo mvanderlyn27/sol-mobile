@@ -1,4 +1,5 @@
-import { useData } from "@/src/contexts/DataProvider";
+import { useCanvas } from "@/src/contexts/CanvasProvider";
+import { useJournal } from "@/src/contexts/JournalProvider";
 import { CanvasFrame } from "@/src/types/shared.types";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
@@ -9,18 +10,16 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 const { width, height } = Dimensions.get("window");
 
-export default function EditCanvasFrame({
-  item,
-  onExit,
-  onCancel,
-}: {
-  item: CanvasFrame;
-  onExit: () => void;
-  onCancel: () => void;
-}) {
+export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
   //might need to recheck this math
+  const { saveCanvasItemEdits } = useCanvas();
+  const { setBottomBarVisible } = useJournal();
   const aspectRatio = item.width / item.height;
   const maxFrameWidth = width * 0.8;
+  const handleDone = () => {
+    saveCanvasItemEdits(item.id, { ...item });
+    setBottomBarVisible(true);
+  };
   return (
     <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 bg-black/80">
       {/* Pressable background area */}
@@ -36,7 +35,7 @@ export default function EditCanvasFrame({
 
       {/* Button at the bottom */}
       <StyledMotiView className="absolute top-16  right-8">
-        <StyledPressable onPress={onCancel} className="bg-clear px-4 py-2 rounded-md">
+        <StyledPressable onPress={handleDone} className="bg-clear px-4 py-2 rounded-md">
           <StyledText className="text-white">Done</StyledText>
         </StyledPressable>
       </StyledMotiView>

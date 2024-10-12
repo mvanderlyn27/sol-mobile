@@ -16,7 +16,7 @@ export const StyledTextInput = styled(TextInput);
 export const StyledText = styled(Text);
 
 export default function CanvasTextHolder({ item }: { item: CanvasText }) {
-  const { tempCanvas, updateCanvasItem } = useCanvas();
+  const { tempCanvas, updateCanvasItem, editCanvasItem } = useCanvas();
   const { editMode, setBottomBarVisible } = useJournal();
   // const zIndex = useSharedValue(item.z);
   const offset = useSharedValue({ x: item.x, y: item.y });
@@ -110,7 +110,8 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
     setBottomBarVisible(true);
   };
   const handleEdit = () => {
-    updateCanvasItem(item.id, item);
+    // updateCanvasItem(item.id, item);
+    editCanvasItem(item.id);
     setBottomBarVisible(false);
   };
 
