@@ -7,6 +7,7 @@ import { useNav } from "@/src/contexts/NavigationProvider";
 import { AnimatePresence } from "moti";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 import { useJournal } from "@/src/contexts/JournalProvider";
+import { useData } from "@/src/contexts/DataProvider";
 
 export default function JournalMenu({
   onEditClick,
@@ -16,11 +17,13 @@ export default function JournalMenu({
   onShareClick: () => void;
 }) {
   const { editMode } = useJournal();
+  const { dailyEntryAvailable, hasSelectedDateEntry, pagesMap, selectedDate, toDayString } = useData();
+
   const getListItems = (): VerticalStackItem[] => {
     return [
       {
         onClick: () => onEditClick(),
-        primary: true,
+        primary: dailyEntryAvailable && selectedDate === toDayString(new Date()),
         buttonType: ButtonType.JournalEdit,
         disabled: false,
         selected: true,
@@ -32,12 +35,13 @@ export default function JournalMenu({
         //check data provider for currentPage
         selected: true,
         buttonType: ButtonType.Share,
-        disabled: true,
+        //disabled if we don't have an entry for today
+        disabled: !hasSelectedDateEntry,
       },
     ];
   };
   return (
-    <StyledView className="absolute right-10 bottom-10">
+    <StyledView className="absolute right-5 bottom-10">
       <AnimatePresence>
         {/* Menu Button */}
         {!editMode && <VerticalStack items={getListItems()} key="menu-list" />}

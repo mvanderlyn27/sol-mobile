@@ -24,10 +24,10 @@ export default function ButtonNavigator(): JSX.Element {
   // const toggleMenu = () => setMenuOpen((prev) => !prev);
 
   const handleTabPress = (route: string): void => {
-    if (route) {
+    if (route && route !== currentRoute) {
       router.push(route as Href);
-      setMenuOpen(false);
     }
+    setMenuOpen(false);
   };
 
   const getMenuItems = (): VerticalStackItem => {
@@ -82,7 +82,7 @@ export default function ButtonNavigator(): JSX.Element {
           }}
         />
       )} */}
-      <StyledView className="absolute bottom-10 left-10">
+      <StyledView className="absolute bottom-10 left-5">
         {/* Menu Items */}
 
         <AnimatePresence exitBeforeEnter>

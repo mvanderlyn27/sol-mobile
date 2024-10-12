@@ -67,6 +67,10 @@ interface DataContextType {
   templatesError: string | null;
   fetchTemplates: () => void;
   toDayString: (date: Date) => string;
+  //todays entry hasn't been done yet
+  dailyEntryAvailable: boolean;
+  //bol for if selected day has a val or not
+  hasSelectedDateEntry: boolean;
   isReady: boolean;
 }
 
@@ -91,7 +95,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [pagesMap, setPageMap] = useState<Map<string, Page>>(new Map<string, Page>());
   // MIGHT NEED A DEFAULT VALUE OF THE DAY MINUS HOURS/MINUTES
   //Might also not need to be in this provider, maybe have it just in the journal page?
+  const [dailyEntryAvailable, setDailyEntryAvailable] = useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [hasSelectedDateEntry, setHasSelectedDate] = useState<boolean>(false);
   const [pagesLoading, setPagesLoading] = useState<boolean>(false);
   const [pagesError, setPagesError] = useState<string | null>(null);
   //profile state
@@ -131,7 +137,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       //clear if no book selected
       setPageMap(new Map<string, Page>());
     }
-    setSelectedDate(toDayString(new Date()));
+    setCurrentPageDate(toDayString(new Date()));
   };
   //book functions
   const fetchBooks = async () => {
@@ -238,9 +244,13 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       setPagesLoading(false);
       return;
     }
-    setPageMap(new Map(data.map((page) => [page.date, page])));
+    const newPagesMap = new Map(data.map((page) => [page.date, page]));
+    //update if we have todays date entered or not
+    setDailyEntryAvailable(!newPagesMap.has(toDayString(new Date())));
+    setPageMap(newPagesMap);
     setPagesLoading(false);
   };
+  //PROBABLY UPDATE TO JUST USE SELECTED DATE
   const createPage = async (dayString: string, content: CreatePageInput) => {
     setPagesLoading(true);
     setPagesError(null);
@@ -254,6 +264,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     setPageMap(new Map([...pagesMap!, [data.date, data]]));
+    if (dayString === toDayString(new Date())) {
+      //if we entered for today, set daily entry available
+      setHasSelectedDate(true);
+      setDailyEntryAvailable(false);
+    }
     setPagesLoading(false);
   };
   const updatePage = async (dayString: string, content: Page) => {
@@ -298,11 +313,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setPagesLoading(false);
   };
   const setCurrentPageDate = (dayString: string) => {
-    if (!pagesMap.has(dayString)) {
-      setPagesError("Can't set current page, page does not exist yet");
-      return;
-    }
     setSelectedDate(dayString);
+    //some logic here aboout daily entry
+    setHasSelectedDate(pagesMap.has(dayString));
   };
   // profile functions
   const fetchProfile = async () => {
@@ -447,6 +460,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         templatesError,
         fetchTemplates,
         toDayString,
+        hasSelectedDateEntry,
+        dailyEntryAvailable,
         isReady,
       }}>
       {children}
