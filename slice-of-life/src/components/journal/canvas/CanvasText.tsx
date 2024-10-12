@@ -1,15 +1,17 @@
 import React, { useState } from "react";
-import { Text, TextInput, Dimensions } from "react-native";
+import { Text, TextInput, Dimensions, Pressable } from "react-native";
 import { styled } from "nativewind";
-import { MotiView } from "moti";
+import { AnimatePresence, MotiView } from "moti";
 import { CanvasText } from "@/src/types/shared.types";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle } from "react-native-reanimated";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { runOnJS } from "react-native-reanimated";
 import { useJournal } from "@/src/contexts/JournalProvider";
+import EditCanvasText from "./EditCanvasText";
+import EditCanvasFrame from "./EditCanvasFrame";
 
-export const StyledMotiView = styled(Animated.View); // Changed to Animated.View for proper reanimated styling
+export const StyledMotiView = styled(MotiView);
 export const StyledTextInput = styled(TextInput);
 export const StyledText = styled(Text);
 
@@ -82,45 +84,52 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
       });
     });
 
-  // For testing, let's isolate the drag gesture first to make sure it works independently
-  //   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
   const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
-  // console.log(
-  //   "width/height",
-  //   width.value,
-  //   height.value,
-  //   "rotation",
-  //   rotation.value,
-  //   "scale",
-  //   scale.value,
-  //   "offset",
-  //   offsetX.value,
-  //   offsetY.value
-  // );
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setBottomBarVisible(true);
+  };
+  const handleExit = () => {
+    setIsEditing(false);
+    setBottomBarVisible(true);
+  };
   const handleEdit = () => {
     updateCanvasItem(item.id, item);
     setBottomBarVisible(false);
     setIsEditing(true);
   };
+
   return (
-    <GestureDetector gesture={composed}>
-      <StyledMotiView
-        style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
-      >
-        {isEditing ? (
-          <StyledTextInput
-            style={{ fontSize: item.fontSize, color: item.fontColor }}
-            value={text}
-            onChangeText={setText}
-            onBlur={() => setIsEditing(false)}
-            autoFocus
-          />
-        ) : (
-          <StyledText onPress={() => setIsEditing(true)} style={{ fontSize: item.fontSize, color: item.fontColor }}>
-            {text}
-          </StyledText>
-        )}
-      </StyledMotiView>
-    </GestureDetector>
+    <AnimatePresence>
+      {isEditing && (
+        <StyledMotiView
+          exit={{ opacity: 0 }}
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ type: "timing", duration: 300 }}
+          key="edit"
+          style={{ flex: 1 }} // Added position: 'absolute' for proper placement
+        >
+          <EditCanvasText item={item} onCancel={handleCancel} onExit={handleExit} />
+        </StyledMotiView>
+      )}
+      {!isEditing && (
+        <StyledMotiView
+          exit={{ opacity: 0 }}
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ type: "timing", duration: 300 }}
+          key={"frame-" + item.id}
+          style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
+        >
+          <GestureDetector gesture={composed}>
+            <Pressable onPress={handleEdit}>
+              <StyledText>{text}</StyledText>
+            </Pressable>
+          </GestureDetector>
+        </StyledMotiView>
+      )}
+    </AnimatePresence>
   );
 }

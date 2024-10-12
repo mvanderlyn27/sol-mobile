@@ -10,7 +10,7 @@ import { runOnJS } from "react-native-reanimated";
 import EditCanvasFrame from "./EditCanvasFrame";
 import { useJournal } from "@/src/contexts/JournalProvider";
 
-export const StyledMotiView = styled(Animated.View); // Changed to Animated.View for proper reanimated styling
+export const StyledMotiView = styled(MotiView); // Changed to Animated.View for proper reanimated styling
 export const StyledTextInput = styled(TextInput);
 export const StyledText = styled(Text);
 
@@ -95,25 +95,37 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   };
   return (
     <AnimatePresence>
-      <StyledMotiView
-        key="edit"
-        style={{ flex: 1, display: isEditing ? "flex" : "none" }} // Added position: 'absolute' for proper placement
-      >
-        <EditCanvasFrame item={item} onCancel={handleCancel} onExit={handleExit} />
-      </StyledMotiView>
-      <StyledMotiView
-        key={"frame-" + item.id}
-        style={[animatedStyles, { position: "absolute", display: isEditing ? "none" : "flex" }]} // Added position: 'absolute' for proper placement
-      >
-        <GestureDetector gesture={composed}>
-          <Pressable onPress={handleEdit}>
-            <Image
-              source={{ uri: item.path }} // Replace with your image URL or source
-              style={{ width: 150, height: 150, borderRadius: 10 }}
-            />
-          </Pressable>
-        </GestureDetector>
-      </StyledMotiView>
+      {isEditing && (
+        <StyledMotiView
+          exit={{ opacity: 0 }}
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ type: "timing", duration: 300 }}
+          key="edit"
+          style={{ flex: 1 }} // Added position: 'absolute' for proper placement
+        >
+          <EditCanvasFrame item={item} onCancel={handleCancel} onExit={handleExit} />
+        </StyledMotiView>
+      )}
+      {!isEditing && (
+        <StyledMotiView
+          exit={{ opacity: 0 }}
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ type: "timing", duration: 300 }}
+          key={"frame-" + item.id}
+          style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
+        >
+          <GestureDetector gesture={composed}>
+            <Pressable onPress={handleEdit}>
+              <Image
+                source={{ uri: item.path }} // Replace with your image URL or source
+                style={{ width: 150, height: 150, borderRadius: 10 }}
+              />
+            </Pressable>
+          </GestureDetector>
+        </StyledMotiView>
+      )}
     </AnimatePresence>
   );
 }

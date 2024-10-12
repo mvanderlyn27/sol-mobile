@@ -1,4 +1,4 @@
-import { CanvasFrame } from "@/src/types/shared.types";
+import { CanvasText } from "@/src/types/shared.types";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import React from "react";
@@ -6,6 +6,7 @@ import { Pressable, Text, Image, Button, TextInput } from "react-native";
 
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
+const StyledTextInput = styled(TextInput);
 const StyledPressable = styled(Pressable);
 
 export default function EditCanvasText({
@@ -13,7 +14,7 @@ export default function EditCanvasText({
   onExit,
   onCancel,
 }: {
-  item: CanvasFrame;
+  item: CanvasText;
   onExit: () => void;
   onCancel: () => void;
 }) {
@@ -24,7 +25,7 @@ export default function EditCanvasText({
 
       {/* Centered image */}
       <StyledMotiView className="flex-1 justify-center items-center">
-        <TextInput />
+        <StyledTextInput className="text-white"></StyledTextInput>
       </StyledMotiView>
 
       {/* Button at the bottom */}
