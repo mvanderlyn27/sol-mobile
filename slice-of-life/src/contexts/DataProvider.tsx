@@ -407,7 +407,15 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   //helper functions
   const toDayString = (date: Date): string => {
-    return date.toISOString().split("T")[0];
+    const out = date
+      .toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+      .replace(/\//g, "-"); // Replace slashes with hyphens if needed
+    console.debug("out", out, "in", date);
+    return out;
   };
   const dateToString = (date: Date): string => {
     return date.toISOString();

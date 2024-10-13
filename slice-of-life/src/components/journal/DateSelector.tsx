@@ -20,14 +20,22 @@ export default function DateSelector() {
   const today = toDayString(new Date());
   const curDay = selectedDate;
 
+  const parseSelectedDate = (dateString: string): Date => {
+    const [month, day, year] = dateString.split("-").map(Number);
+    return new Date(year, month - 1, day); // Month is zero-indexed
+  };
+
   const onBack = () => {
-    const previousDate = new Date(selectedDate ? selectedDate : today);
+    console.log(selectedDate, new Date(selectedDate ? parseSelectedDate(selectedDate) : today));
+    const previousDate = new Date(selectedDate ? parseSelectedDate(selectedDate) : today);
+    console.log("curDate", previousDate);
     previousDate.setDate(previousDate.getDate() - 1);
+    console.log("previousDate", previousDate);
     setCurrentPageDate(toDayString(previousDate));
   };
 
   const onForward = () => {
-    const nextDate = new Date(selectedDate ? selectedDate : today);
+    const nextDate = new Date(selectedDate ? parseSelectedDate(selectedDate) : today);
     nextDate.setDate(nextDate.getDate() + 1);
     setCurrentPageDate(toDayString(nextDate));
   };
