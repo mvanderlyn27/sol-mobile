@@ -78,7 +78,7 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
       runOnJS(handleGestureStart)(); // Call function to set zIndex
     })
     .onUpdate((event) => {
-      scale.value = savedScale.value * event.scale;
+      scale.value = Math.max(savedScale.value * event.scale, 0.75);
     })
     .onEnd(() => {
       savedScale.value = scale.value;

@@ -40,7 +40,6 @@ export default function DateSelector() {
     const formattedDate = date.toLocaleDateString(undefined, options);
 
     // Reformatting to match the desired output
-    console.log("formattedDate", formattedDate);
     const [weekday, monthDay] = formattedDate.split(", ");
     return `${monthDay}, ${weekday}`;
   };
@@ -48,9 +47,7 @@ export default function DateSelector() {
   const onBack = () => {
     console.log(selectedDate, new Date(selectedDate ? parseSelectedDate(selectedDate) : today));
     const previousDate = new Date(selectedDate ? parseSelectedDate(selectedDate) : today);
-    console.log("curDate", previousDate);
     previousDate.setDate(previousDate.getDate() - 1);
-    console.log("previousDate", previousDate);
     setCurrentPageDate(toDayString(previousDate));
   };
 

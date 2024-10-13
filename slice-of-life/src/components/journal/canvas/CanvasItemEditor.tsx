@@ -13,7 +13,6 @@ export default function CanvasItemEditor() {
     console.log("no curItem", curItem);
     return null;
   }
-  console.log("rendering editor");
   switch (curItem.type) {
     case "text":
       return <EditCanvasText item={curItem} />;

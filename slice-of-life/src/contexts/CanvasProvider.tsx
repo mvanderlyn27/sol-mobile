@@ -166,9 +166,8 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
       setCanvasError("tempCanvas is empty");
       return;
     }
-    console.log("editing", id);
     setCurEditingCanvasItem(id);
-    setEditingCanvas(false);
+    // setEditingCanvas(false);
   };
   const saveCanvasItemEdits = (id: number, updates: CanvasItem) => {
     updateCanvasItem(id, updates);
@@ -176,7 +175,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   };
   const exitEditCanvasItem = () => {
     setCurEditingCanvasItem(null);
-    setEditingCanvas(true);
+    // setEditingCanvas(true);
   };
   const addCanvasItem = (item: CanvasItem) => {
     if (!editingCanvas) {
