@@ -39,6 +39,10 @@ export enum BottomBarTab {
   Frame = "frame",
   Font = "font",
 }
+export enum BottomDrawerType {
+  Destructive = "destructive",
+  Save = "save",
+}
 export interface CanvasItemBase {
   //database id of item used eg font id, or frame id
   id: number;
@@ -61,6 +65,25 @@ export interface CanvasFrame extends CanvasItemBase {
   path: string; // Path to the frame image
   width: number;
   height: number;
+  slots?: CanvasFrameSlot[]; // Array of slots for images
+}
+export interface CanvasFrameSlot {
+  id: number; // Unique identifier for the slot
+  x: number; // X position of the slot within the frame
+  y: number; // Y position of the slot within the frame
+  width: number; // Width of the slot
+  height: number; // Height of the slot
+  image: CanvasFrameSlotImage; // Optional URL for the image that fits in the slot
+}
+export interface CanvasFrameSlotImage {
+  url: string; // URL of the image that fits in the slot
+  width: number; // Width of the image that fits in the slot
+  height: number; // Height of the image that fits in the slot
+  scale: number;
+  rotation: number;
+  //need someway to ensure its not dragged off the screen lol
+  x: number;
+  y: number;
 }
 
 export interface CanvasText extends CanvasItemBase {

@@ -73,7 +73,7 @@ export default function JournalScreen() {
 
   // Create the tap gesture using the modern Gesture API
   const tapGesture = Gesture.Tap()
-    .numberOfTaps(2)
+    .numberOfTaps(viewMode ? 1 : 2)
     .onStart(() => {
       runOnJS(handleBackgroundTap)();
     });

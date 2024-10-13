@@ -120,6 +120,12 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     loadPagesData();
   }, [currentBook]);
   useEffect(() => {
+    if (selectedDate !== null) {
+      setHasSelectedDate(pagesMap.has(selectedDate));
+      setDailyEntryAvailable(pagesMap.has(toDayString(new Date())));
+    }
+  }, [pagesMap, selectedDate]);
+  useEffect(() => {
     setIsReady(!(booksLoading || pagesLoading || fontsLoading || framesLoading || profileLoading || templatesLoading));
   }, [booksLoading, pagesLoading, fontsLoading, framesLoading, profileLoading, templatesLoading]);
 
@@ -315,7 +321,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const setCurrentPageDate = (dayString: string) => {
     setSelectedDate(dayString);
     //some logic here aboout daily entry
-    setHasSelectedDate(pagesMap.has(dayString));
   };
   // profile functions
   const fetchProfile = async () => {
@@ -414,6 +419,15 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     const out = `${year}-${month}-${day}`; // Format as yyyy-mm-dd
     return out;
   };
+  // const toDayString = (date: Date): string => {
+  //   return new Intl.DateTimeFormat('default', {
+  //     year: 'numeric',
+  //     month: '2-digit',
+  //     day: '2-digit',
+  //   })
+  //     .format(date)
+  //     .replace(/\//g, '-'); // Convert slashes to hyphens if needed
+  // };
   const dateToString = (date: Date): string => {
     return date.toISOString();
   };

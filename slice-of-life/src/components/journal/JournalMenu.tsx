@@ -28,16 +28,16 @@ export default function JournalMenu({
         disabled: false,
         selected: true,
       },
-      {
-        onClick: () => onShareClick(),
-        primary: false,
-        //based on if we've filled out today or not
-        //check data provider for currentPage
-        selected: true,
-        buttonType: ButtonType.Share,
-        //disabled if we don't have an entry for today
-        disabled: !hasSelectedDateEntry,
-      },
+      // {
+      //   onClick: () => onShareClick(),
+      //   primary: false,
+      //   //based on if we've filled out today or not
+      //   //check data provider for currentPage
+      //   selected: true,
+      //   buttonType: ButtonType.Share,
+      //   //disabled if we don't have an entry for today
+      //   disabled: !hasSelectedDateEntry,
+      // },
     ];
   };
   return (

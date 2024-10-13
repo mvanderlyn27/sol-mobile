@@ -1,28 +1,27 @@
-import React, { useState } from "react";
-import { Text, TextInput, Image, Pressable } from "react-native";
+import React from "react";
+import { Image, Pressable, View } from "react-native";
 import { styled } from "nativewind";
-import { AnimatePresence, MotiView } from "moti";
-import { CanvasFrame, CanvasText } from "@/src/types/shared.types";
+import { AnimatePresence } from "moti";
+import { CanvasFrame } from "@/src/types/shared.types";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
-import Animated, { useSharedValue, useAnimatedStyle } from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
+import Svg, { Mask, Rect, Image as SvgImage, Defs } from "react-native-svg";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
-import { runOnJS } from "react-native-reanimated";
-import EditCanvasFrame from "./EditCanvasFrame";
 import { useJournal } from "@/src/contexts/JournalProvider";
 
-export const StyledMotiView = styled(MotiView); // Changed to Animated.View for proper reanimated styling
-export const StyledTextInput = styled(TextInput);
-export const StyledText = styled(Text);
+export const StyledMotiView = styled(Animated.View);
 
 export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const { editMode, setBottomBarVisible } = useJournal();
   const { tempCanvas, updateCanvasItem, editCanvasItem } = useCanvas();
+
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
   const savedScale = useSharedValue(1);
   const rotation = useSharedValue(item.rotation);
   const savedRotation = useSharedValue(0);
+
   const animatedStyles = useAnimatedStyle(() => {
     return {
       zIndex: item.z,
@@ -35,10 +34,9 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
     };
   });
 
-  //   Gesture to handle dragging
   const handleGestureStart = () => {
     if (!tempCanvas) {
-      console.log("not editing shouldn't allow gestures ");
+      console.log("Not in edit mode, gesture shouldn't be allowed.");
       return;
     }
     updateCanvasItem(item.id, { ...item });
@@ -47,7 +45,7 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const dragGesture = Gesture.Pan()
     .averageTouches(true)
     .onBegin(() => {
-      runOnJS(handleGestureStart)(); // Call function to set zIndex
+      runOnJS(handleGestureStart)();
     })
     .onUpdate((e) => {
       offset.value = {
@@ -67,10 +65,9 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
       });
     });
 
-  // Gesture to handle pinch/zoom
   const zoomGesture = Gesture.Pinch()
     .onBegin(() => {
-      runOnJS(handleGestureStart)(); // Call function to set zIndex
+      runOnJS(handleGestureStart)();
     })
     .onUpdate((event) => {
       scale.value = savedScale.value * event.scale;
@@ -80,10 +77,9 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
       runOnJS(updateCanvasItem)(item.id, { ...item, scale: scale.value });
     });
 
-  // Gesture to handle rotation
   const rotateGesture = Gesture.Rotation()
     .onBegin(() => {
-      runOnJS(handleGestureStart)(); // Call function to set zIndex
+      runOnJS(handleGestureStart)();
     })
     .onUpdate((event) => {
       rotation.value = savedRotation.value + event.rotation;
@@ -96,48 +92,58 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
       });
     });
 
-  const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
-  const handleCancel = () => {
-    setBottomBarVisible(true);
-  };
-  const handleExit = () => {
-    setBottomBarVisible(true);
-  };
+  const composedGesture = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
+
   const handleEdit = () => {
-    //add something related to the canvasprovider here
-    // updateCanvasItem(item.id, item);
     editCanvasItem(item.id);
     setBottomBarVisible(false);
   };
+
   return (
     <AnimatePresence>
-      (
-      <StyledMotiView
-        // exit={{ opacity: 0 }}
-        // from={{ opacity: 0 }}
-        // animate={{ opacity: 1 }}
-        // transition={{ type: "timing", duration: 300 }}
-        key={"frame-" + item.id}
-        style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
-      >
-        {editMode && (
-          <GestureDetector gesture={composed}>
+      <StyledMotiView key={`frame-${item.id}`} style={[animatedStyles, { position: "absolute" }]}>
+        {editMode ? (
+          <GestureDetector gesture={composedGesture}>
             <Pressable onPress={handleEdit}>
-              <Image
-                source={{ uri: item.path }} // Replace with your image URL or source
-                style={{ width: 150, height: 150, borderRadius: 10 }}
-              />
+              <View style={{ width: 150, height: 150 }}>
+                <Svg height="100%" width="100%">
+                  <Defs>
+                    <Mask id="frame-mask" x="0" y="0" width="100%" height="100%">
+                      {/* Use the existing frame image as the mask */}
+                      <SvgImage href={item.path} width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
+                    </Mask>
+                  </Defs>
+                  {/* New image that will be masked by the existing frame */}
+                  <SvgImage
+                    href="https://t3.ftcdn.net/jpg/02/87/35/70/360_F_287357045_Ib0oYOxhotdjOEHi0vkggpZTQCsz0r19.jpg" // Replace with your new image URL
+                    width="100%"
+                    height="100%"
+                    preserveAspectRatio="xMidYMid slice"
+                    mask="url(#frame-mask)" // Apply the mask
+                  />
+                </Svg>
+              </View>
             </Pressable>
           </GestureDetector>
-        )}
-        {!editMode && (
-          <Image
-            source={{ uri: item.path }} // Replace with your image URL or source
-            style={{ width: 150, height: 150, borderRadius: 10 }}
-          />
+        ) : (
+          <View style={{ width: 150, height: 150 }}>
+            <Svg height="100%" width="100%">
+              <Defs>
+                <Mask id="frame-mask" x="0" y="0" width="100%" height="100%">
+                  <SvgImage href={item.path} width="100%" height="100%" preserveAspectRatio="xMidYMid slice" />
+                </Mask>
+              </Defs>
+              <SvgImage
+                href="https://t3.ftcdn.net/jpg/02/87/35/70/360_F_287357045_Ib0oYOxhotdjOEHi0vkggpZTQCsz0r19.jpg" // Replace with your new image URL
+                width="100%"
+                height="100%"
+                preserveAspectRatio="xMidYMid slice"
+                mask="url(#frame-mask)"
+              />
+            </Svg>
+          </View>
         )}
       </StyledMotiView>
-      )
     </AnimatePresence>
   );
 }

@@ -2,7 +2,7 @@ import { View, Pressable, Dimensions } from "react-native";
 import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
 import { useState } from "react";
-import { BottomBarTab, ButtonType } from "@/src/types/shared.types";
+import { BottomBarTab, BottomDrawerType, ButtonType } from "@/src/types/shared.types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 //<MaterialIcons name="text-fields" size={24} color="black" />
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -15,6 +15,8 @@ import FontTab from "./FontTab";
 import FrameTab from "./FrameTab";
 import TemplateTab from "./TemplateTab";
 import { useJournal } from "@/src/contexts/JournalProvider";
+import Drawer from "../../shared/Drawer";
+import { useCanvas } from "@/src/contexts/CanvasProvider";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -24,9 +26,26 @@ const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const { width, height } = Dimensions.get("window");
 export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSave: () => void }) {
+  const { canvas, tempCanvas } = useCanvas();
   const { editMode, bottomBarVisible } = useJournal();
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
+  const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
   const handleExit = () => {
+    if (selectedTab) setSelectedTab(null);
+    if (canvas != tempCanvas) {
+      setShowCancelDrawer(true);
+    } else {
+      onExit();
+    }
+  };
+  const handleDrawerSave = () => {
+    setShowCancelDrawer(false);
+    onSave();
+    if (selectedTab) setSelectedTab(null);
+    onExit();
+  };
+  const handleDrawerExit = () => {
+    setShowCancelDrawer(false);
     if (selectedTab) setSelectedTab(null);
     onExit();
   };
@@ -125,6 +144,16 @@ export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSa
             <BottomBarButton onPress={onSave} buttonType={ButtonType.Save} />
           </StyledMotiView>
         </StyledMotiView>
+      )}
+      {showCancelDrawer && (
+        <Drawer
+          key="bottom-bar-cancel-drawer"
+          text={"Save unsaved changes?"}
+          buttons={[
+            { action: handleDrawerSave, text: "Save", color: "bg-primary" },
+            { action: () => handleDrawerExit(), text: "Leave", color: "bg-red-500" },
+          ]}
+        />
       )}
     </AnimatePresence>
   );
