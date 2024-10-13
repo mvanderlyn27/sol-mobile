@@ -7,6 +7,7 @@ import { useData } from "@/src/contexts/DataProvider";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import tailwindConfig from "@/tailwind.config"; // Adjust this path to where your config is located
 import { useJournal } from "@/src/contexts/JournalProvider";
+import { parse } from "@babel/core";
 
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
@@ -18,11 +19,30 @@ export default function DateSelector() {
   const { toDayString, selectedDate, setCurrentPageDate, dailyEntryAvailable } = useData();
   const { dateSelectorVisible } = useJournal();
   const today = toDayString(new Date());
-  const curDay = selectedDate;
+  const curDay = selectedDate || today;
 
   const parseSelectedDate = (dateString: string): Date => {
-    const [month, day, year] = dateString.split("-").map(Number);
+    const [year, month, day] = dateString.split("-").map(Number);
     return new Date(year, month - 1, day); // Month is zero-indexed
+  };
+  const formatDateString = (dateString: string): string => {
+    // Parse the date string into a Date object
+    const date = parseSelectedDate(dateString);
+
+    // Format the date as "MMM, dd ddd"
+    const options: Intl.DateTimeFormatOptions = {
+      month: "short",
+      day: "2-digit",
+      weekday: "short",
+    };
+
+    // Convert to the desired format
+    const formattedDate = date.toLocaleDateString(undefined, options);
+
+    // Reformatting to match the desired output
+    console.log("formattedDate", formattedDate);
+    const [weekday, monthDay] = formattedDate.split(", ");
+    return `${monthDay}, ${weekday}`;
   };
 
   const onBack = () => {
@@ -69,7 +89,7 @@ export default function DateSelector() {
               )}
             </StyledPressable>
 
-            <StyledText className="text-white p-4 text-secondary">{curDay}</StyledText>
+            <StyledText className="text-white p-4 text-secondary">{formatDateString(curDay)}</StyledText>
 
             <StyledPressable onPress={onForward} disabled={isToday}>
               {({ pressed }) => (
