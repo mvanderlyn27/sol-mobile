@@ -65,23 +65,28 @@ export interface CanvasFrame extends CanvasItemBase {
   path: string; // Path to the frame image
   width: number;
   height: number;
-  slots?: CanvasFrameSlot[]; // Array of slots for images
+  slots: CanvasFrameSlot[]; // Array of slots for images
 }
 export interface CanvasFrameSlot {
-  id: number; // Unique identifier for the slot
-  x: number; // X position of the slot within the frame
-  y: number; // Y position of the slot within the frame
-  width: number; // Width of the slot
-  height: number; // Height of the slot
+  // id: number; // Unique identifier for the slot
+  // x: number; // X position of the slot within the frame
+  // y: number; // Y position of the slot within the frame
+  // width: number; // Width of the slot
+  // height: number; // Height of the slot
+  //currently 1 mask same size/width/height/scale as parent
+  maskPath: string;
   image: CanvasFrameSlotImage; // Optional URL for the image that fits in the slot
 }
 export interface CanvasFrameSlotImage {
   url: string; // URL of the image that fits in the slot
-  width: number; // Width of the image that fits in the slot
-  height: number; // Height of the image that fits in the slot
+  width: number; // image original width
+  height: number; //original height
+  //used to scale image via gesture
   scale: number;
+  // used to rotate image in frame
   rotation: number;
   //need someway to ensure its not dragged off the screen lol
+  //relative to parent
   x: number;
   y: number;
 }

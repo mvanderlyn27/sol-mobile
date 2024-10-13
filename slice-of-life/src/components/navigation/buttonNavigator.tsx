@@ -57,13 +57,13 @@ export default function ButtonNavigator(): JSX.Element {
         buttonType: ButtonType.JournalCheck,
         disabled: false,
       },
-      // {
-      //   onClick: () => handleTabPress("/library"),
-      //   primary: false,
-      //   selected: currentRoute === "/library",
-      //   buttonType: ButtonType.Library,
-      //   disabled: false,
-      // },
+      {
+        onClick: () => handleTabPress("/library"),
+        primary: false,
+        selected: currentRoute === "/library",
+        buttonType: ButtonType.Library,
+        disabled: false,
+      },
     ];
   };
   return (
