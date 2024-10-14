@@ -74,15 +74,31 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
         initialPage={0}
         onPageSelected={(e: any) => setCurrentPage(e.nativeEvent.position)}>
         {Array.from({ length: totalPages }).map((_, pageIndex) => (
-          <View key={pageIndex} style={{ padding: 10 }}>
+          <View key={pageIndex} style={{ padding: 0 }}>
             <StyledMotiView
               from={{ opacity: 0, translateY: 10 }}
               animate={{ opacity: 1, translateY: 0 }}
               transition={{ type: "timing", duration: 500 }}
               className="flex flex-wrap flex-row justify-start items-start">
+              {/* Wrap frames in a View with flex properties for the grid layout */}
               {getPageFrames(pageIndex).map((frame) => (
-                <Pressable key={frame.id} onPress={() => handleAddFrame(frame)} style={{ width: "30%", margin: 5 }}>
-                  <Image source={{ uri: frame.path }} style={{ width: "100%", height: 100, borderRadius: 10 }} />
+                <Pressable
+                  key={frame.id}
+                  onPress={() => handleAddFrame(frame)}
+                  style={{
+                    width: "30%", // Make each item 30% width (3 columns)
+                    margin: 5,
+                    aspectRatio: 1, // Maintain a square aspect ratio
+                  }}>
+                  <Image
+                    source={{ uri: frame.path }}
+                    style={{
+                      width: "100%",
+                      height: "100%", // Fill the entire space
+                      borderRadius: 10,
+                      resizeMode: "contain", // Ensure the image covers the entire container
+                    }}
+                  />
                 </Pressable>
               ))}
             </StyledMotiView>
