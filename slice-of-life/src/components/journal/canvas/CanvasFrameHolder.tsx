@@ -16,7 +16,7 @@ export const StyledPressable = styled(Pressable);
 
 export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const { editMode, setBottomBarVisible } = useJournal();
-  const { tempCanvas, updateCanvasItem } = useCanvas();
+  const { editCanvasItem, tempCanvas, updateCanvasItem } = useCanvas();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
@@ -103,7 +103,8 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
   const handleEdit = () => {
     //add something related to the canvasprovider here
-    updateCanvasItem(item.id, item);
+    console.log("edit clicked");
+    editCanvasItem(item.id);
     setBottomBarVisible(false);
   };
   return (

@@ -30,7 +30,6 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
     const scaleHeight = targetHeight / frameHeight;
 
     // The maximum scale is the smaller of the two scaling factors
-    console.log(Math.min(scaleWidth, scaleHeight));
     return Math.min(scaleWidth, scaleHeight);
   };
 
