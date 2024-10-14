@@ -90,18 +90,32 @@ export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSa
   };
   return (
     <AnimatePresence>
+      {selectedTab && (
+        <Pressable
+          key="bottom-bar deselect"
+          style={{
+            position: "absolute",
+            right: 0,
+            top: 0,
+            left: 0,
+            bottom: 0,
+          }}
+          onPress={() => {
+            console.log("selected tab", selectedTab);
+            handleSelect();
+          }}
+        />
+      )}
       {editMode && bottomBarVisible && (
         <StyledMotiView
           key="bottom-bar"
-          className="flex-1"
+          pointerEvents="box-none"
+          className="flex-1 "
           from={{ opacity: 0, translateY: 20 }}
           animate={{ opacity: 1, translateY: 0 }}
           exit={{ opacity: 0, translateY: 20 }}
           exitTransition={{ type: "timing", duration: 200 }}
           transition={{ type: "timing", duration: 200 }}>
-          <StyledPressable
-            onPress={() => handleSelect()}
-            className="absolute bottom-0 right-0 left-0 top-0"></StyledPressable>
           <StyledMotiView className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden">
             <StyledBlurView intensity={80} tint="dark" className="p-6 flex-1">
               <AnimatePresence>
