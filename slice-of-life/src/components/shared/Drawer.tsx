@@ -36,7 +36,7 @@ export default function Drawer({
       onBackPress={onClose}
       openOnMount
       initialHeight={height * 0.2}
-      className="bg-secondarys">
+      className="bg-secondary">
       <StyledMotiView className="flex flex-col justify-center items-center gap-4 mb-4">
         <StyledText className="text-lg font-semibold text-gray-800">{text}</StyledText>
         <StyledMotiView className="w-full flex flex-row justify-center items-center gap-4">

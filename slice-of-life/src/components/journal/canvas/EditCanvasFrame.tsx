@@ -15,6 +15,7 @@ import * as FileSystem from "expo-file-system";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { Skeleton } from "moti/skeleton";
 import { BlurView } from "expo-blur";
+import * as ImageManipulator from "expo-image-manipulator";
 
 const StyledMotiView = styled(MotiView);
 const StyledBottomDrawer = styled(BottomDrawer);
@@ -25,6 +26,7 @@ const StyledPressable = styled(Pressable);
 const { width, height } = Dimensions.get("window");
 const StyledImage = styled(Image);
 const StyledBlurView = styled(BlurView);
+const StyledSkeleton = styled(Skeleton);
 
 export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
   //might need to recheck this math
@@ -55,6 +57,14 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
     setShowBottomDrawer(false);
     setBottomBarVisible(true);
   };
+  const resizeImage = async (uri: string) => {
+    const manipResult = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: 800, height: 600 } }], // Adjust width and height as needed
+      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG } // Adjust compression as needed
+    );
+    return manipResult;
+  };
   const handleAddPhoto = async () => {
     if (!session) {
       console.debug("not logged in");
@@ -70,10 +80,11 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
     // Save image if not cancelled
     if (!result.canceled) {
       const img = result.assets[0];
+      const resizedImage = await resizeImage(img.uri);
       const fullFileName = img.uri.split("/").pop();
       const fileName = fullFileName?.substring(0, fullFileName.lastIndexOf(".")) || fullFileName; // File name without extension
       const fileExtension = fullFileName?.split(".").pop(); // File extension
-      const base64 = await FileSystem.readAsStringAsync(img.uri, { encoding: "base64" });
+      const base64 = await FileSystem.readAsStringAsync(resizedImage.uri, { encoding: "base64" });
       console.log("file type", fullFileName);
 
       updateCanvasItemImage(item.id, base64, fileName || "image" + Date.now(), fileExtension || "jpg");
@@ -125,7 +136,17 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
                 )}
               </StyledMaskedView>
             ) : (
-              <Skeleton width={scaledWidth} height={scaledHeight} />
+              <StyledMaskedView
+                className="w-full h-full"
+                maskElement={<StyledImage className="flex-1" source={{ uri: item.slots[0].maskPath }} />}>
+                <StyledMotiView
+                  className="flex-1"
+                  from={{ opacity: 0, backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+                  animate={{ opacity: 1, backgroundColor: "rgba(0, 0, 0, 0.0)" }}
+                  exit={{ opacity: 0, backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+                  transition={{ type: "timing", duration: 1000, delay: 100, loop: true }}
+                />
+              </StyledMaskedView>
             )}
             <StyledMotiView className="absolute inset-0 w-full h-full p-4">
               <StyledMotiView className={`flex-1`}>

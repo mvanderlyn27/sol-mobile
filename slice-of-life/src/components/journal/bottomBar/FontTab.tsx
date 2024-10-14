@@ -11,7 +11,7 @@ const StyledMotiView = styled(MotiView);
 export default function FontTab({ onSelect }: { onSelect: () => void }) {
   const { fonts } = useData(); // Fetch frames from the context
   const { canvas, tempCanvas, addCanvasItem } = useCanvas();
-  const itemsPerPage = 6; // Number of items you want to display per page
+  const itemsPerPage = 18; // Number of items you want to display per page
   const [currentPage, setCurrentPage] = useState(0);
 
   // Calculate the number of pages based on the data
@@ -30,7 +30,7 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
       id: tempCanvas.curId + 1,
       dbId: font.id,
       type: "text",
-      textContent: "text",
+      textContent: font.name,
       fontSize: 40,
       fontColor: "darkPrimary",
       fontType: font.type,
@@ -50,20 +50,23 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
         initialPage={0}
         onPageSelected={(e: any) => setCurrentPage(e.nativeEvent.position)}>
         {Array.from({ length: totalPages }).map((_, pageIndex) => (
-          <View key={pageIndex} style={{ padding: 10 }}>
+          <View key={pageIndex} style={{ padding: 0 }}>
             <StyledMotiView
               from={{ opacity: 0, translateY: 10 }}
               animate={{ opacity: 1, translateY: 0 }}
               transition={{ type: "timing", duration: 500 }}
               className="flex flex-wrap flex-row justify-start items-start">
-              {getPageFrames(pageIndex).map((font) => (
-                <Pressable key={font.id} onPress={() => handleAddText(font)} style={{ width: "30%", margin: 5 }}>
-                  <Image
-                    source={{ uri: font.fontImage ? font.fontImage : "" }}
-                    style={{ width: "100%", height: 100, borderRadius: 10 }}
-                  />
-                </Pressable>
-              ))}
+              {getPageFrames(pageIndex).map((font) => {
+                console.log(font);
+                return (
+                  <Pressable key={font.id} onPress={() => handleAddText(font)} style={{ width: "30%", margin: 5 }}>
+                    <Text
+                      style={{ color: "#fff", fontSize: 30, fontFamily: font.type, padding: 20, textAlign: "center" }}>
+                      Aa
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </StyledMotiView>
           </View>
         ))}

@@ -143,7 +143,7 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
             <Pressable onPress={handleEdit}>
               <StyledText
                 style={{
-                  fontFamily: item.fontType || "System",
+                  fontFamily: item.fontType || "Inkfree",
                   fontSize: item.fontSize,
                   color: item.fontColor,
                 }}>
@@ -155,7 +155,7 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
         {!editMode && (
           <StyledText
             style={{
-              fontFamily: item.fontType || "System",
+              fontFamily: item.fontType || "Inkfree",
               fontSize: item.fontSize,
               color: item.fontColor,
             }}>

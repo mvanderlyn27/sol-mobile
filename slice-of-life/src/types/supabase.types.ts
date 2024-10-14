@@ -43,21 +43,21 @@ export type Database = {
           created_at: string
           fontImage: string | null
           id: number
-          name: string | null
+          name: string
           type: string
         }
         Insert: {
           created_at?: string
           fontImage?: string | null
           id?: number
-          name?: string | null
+          name: string
           type: string
         }
         Update: {
           created_at?: string
           fontImage?: string | null
           id?: number
-          name?: string | null
+          name?: string
           type?: string
         }
         Relationships: []

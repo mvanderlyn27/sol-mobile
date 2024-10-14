@@ -7,8 +7,8 @@ const StyledView = styled(MotiView);
 const StyledText = styled(Text);
 export default function SplashScreen() {
   return (
-    <StyledView className="absolute top-0 bottom-0 right-0 left-0 justify-center items-center bg-darkPrimary">
-      <StyledText className="font-xl text-white">Slice of Life</StyledText>
+    <StyledView className="absolute top-0 bottom-0 right-0 left-0 justify-center items-center bg-white">
+      {/* <StyledText className="font-xl text-white">Slice of Life</StyledText> */}
     </StyledView>
   );
 }
