@@ -48,9 +48,9 @@ export default function JournalScreen() {
 
   const handleSave = () => {
     console.log("saving");
-    let toast = Toast.show("Saving", {
+    let toast = Toast.show("Saving Changes", {
       duration: 1000,
-      position: Toast.positions.TOP,
+      position: Toast.positions.CENTER,
     });
     saveCanvasEdits();
   };

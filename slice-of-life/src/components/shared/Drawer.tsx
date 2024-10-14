@@ -20,9 +20,23 @@ export type DrawerButtonInput = {
   color?: string;
   textColor?: string;
 };
-export default function Drawer({ text, buttons }: { text: string; buttons: DrawerButtonInput[] }) {
+export default function Drawer({
+  text,
+  buttons,
+  onClose,
+}: {
+  text: string;
+  buttons: DrawerButtonInput[];
+  onClose: () => void;
+}) {
   return (
-    <StyledBottomDrawer openOnMount initialHeight={height * 0.2} className="bg-secondarys">
+    <StyledBottomDrawer
+      onClose={onClose}
+      onBackdropPress={onClose}
+      onBackPress={onClose}
+      openOnMount
+      initialHeight={height * 0.2}
+      className="bg-secondarys">
       <StyledMotiView className="flex flex-col justify-center items-center gap-4 mb-4">
         <StyledText className="text-lg font-semibold text-gray-800">{text}</StyledText>
         <StyledMotiView className="w-full flex flex-row justify-center items-center gap-4">

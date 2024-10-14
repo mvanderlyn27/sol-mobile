@@ -26,13 +26,13 @@ const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const { width, height } = Dimensions.get("window");
 export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSave: () => void }) {
-  const { canvas, tempCanvas } = useCanvas();
+  const { canvasHasChanges } = useCanvas();
   const { editMode, bottomBarVisible } = useJournal();
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
   const handleExit = () => {
     if (selectedTab) setSelectedTab(null);
-    if (canvas != tempCanvas) {
+    if (canvasHasChanges) {
       setShowCancelDrawer(true);
     } else {
       onExit();
@@ -149,6 +149,7 @@ export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSa
         <Drawer
           key="bottom-bar-cancel-drawer"
           text={"Save unsaved changes?"}
+          onClose={() => setShowCancelDrawer(false)}
           buttons={[
             { action: handleDrawerSave, text: "Save", color: "bg-primary" },
             { action: () => handleDrawerExit(), text: "Leave", color: "bg-red-500" },

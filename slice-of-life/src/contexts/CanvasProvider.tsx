@@ -17,6 +17,7 @@ interface CanvasContextType {
   //id of canvas item we're editing
   curEditingCanvasItem: number | null;
   uploadingImage: boolean;
+  canvasHasChanges: boolean;
   setCanvasData: (canvas: Canvas) => void;
   updateCanvasItem: (index: number, newItem: CanvasItem) => void;
   addCanvasItem: (item: CanvasItem) => void;
@@ -63,6 +64,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   // maybe get current page from book/page provider after we seperate them out
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
   const [canvas, setCanvas] = useState<Canvas>(defaultCanvas);
+  const [canvasHasChanges, setCanvasHasChanges] = useState<boolean>(false);
   const [canvasError, setCanvasError] = useState<string | null>(null);
   const [canvasLoading, setCanvasLoading] = useState<boolean>(true);
   const [canvasSaving, setCanvasSaving] = useState<boolean>(false);
@@ -141,6 +143,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     const newMaxZIndex = shouldUpdateMaxZIndex ? Math.max(tempCanvas.maxZIndex + 1, newZ) : tempCanvas.maxZIndex; // Only update maxZIndex if needed
     setTempCanvas({ ...tempCanvas, maxZIndex: newMaxZIndex, items: updatedItems });
     setCanvasError(null);
+    setCanvasHasChanges(true);
     if (uploadingImage) {
       setUploadingImage(false);
     }
@@ -167,6 +170,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     const updatedItems = tempCanvas.items.filter((item) => item.id !== id);
 
     setTempCanvas({ ...tempCanvas, items: updatedItems });
+    setCanvasHasChanges(true);
     setCanvasError(null);
   };
   const editCanvasItem = (id: number) => {
@@ -261,6 +265,8 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const clearCanvas = () => {
+    //probably want to see if its already empty, if so then don't update
+    setCanvasHasChanges(true);
     setCanvas(defaultCanvas);
   };
   const startEditCanvas = () => {
@@ -317,10 +323,11 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     if (pagesError) {
       setCanvasError(pagesError);
     }
-    let toast = Toast.show("Save complete", {
+    let toast = Toast.show("Save complete! :)", {
       duration: 1000,
-      position: Toast.positions.TOP,
+      position: Toast.positions.CENTER,
     });
+    setCanvasHasChanges(false);
     setCanvasSaving(false);
   };
   const exitEditCanvas = () => {
@@ -350,6 +357,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
         canvasLoading,
         curEditingCanvasItem,
         uploadingImage,
+        canvasHasChanges,
         setCanvasData,
         editCanvasItem,
         exitEditCanvasItem,
