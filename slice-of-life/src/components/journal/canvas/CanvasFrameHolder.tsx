@@ -1,5 +1,6 @@
 import React from "react";
-import { Image, Pressable } from "react-native";
+import { Pressable } from "react-native";
+import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { AnimatePresence } from "moti";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
@@ -11,7 +12,7 @@ import { useJournal } from "@/src/contexts/JournalProvider";
 
 export const StyledMaskedView = styled(MaskedView);
 export const StyledMotiView = styled(Animated.View);
-export const StyledImage = styled(Animated.Image);
+export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
@@ -27,7 +28,6 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const animatedFrameGroupStyles = useAnimatedStyle(() => {
     const scaledWidth = item.width * scale.value;
     const scaledHeight = item.height * scale.value;
-
     return {
       zIndex: item.z,
       width: scaledWidth,
@@ -124,7 +124,7 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
                 source={{ uri: item.slots[0].maskPath }}
               />
             }>
-            {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={{ uri: item.slots[0].image.url }} />}
+            {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={item.slots[0].image.url} />}
           </StyledMaskedView>
 
           {/* Frame image that goes on top of the masked image */}

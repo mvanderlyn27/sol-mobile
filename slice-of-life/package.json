@@ -59,7 +59,8 @@
     "expo-linear-gradient": "~13.0.2",
     "expo-blur": "~13.0.2",
     "expo-dev-client": "~4.0.28",
-    "expo-image-manipulator": "~12.0.5"
+    "expo-image-manipulator": "~12.0.5",
+    "expo-image": "~1.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

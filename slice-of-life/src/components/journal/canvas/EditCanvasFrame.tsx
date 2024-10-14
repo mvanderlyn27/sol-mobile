@@ -3,7 +3,8 @@ import { useJournal } from "@/src/contexts/JournalProvider";
 import { BottomDrawerType, CanvasFrame } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
-import { Pressable, Text, Image, Dimensions } from "react-native";
+import { Pressable, Text, Dimensions } from "react-native";
+import { Image } from "expo-image";
 import BottomDrawer, { BottomDrawerMethods } from "react-native-animated-bottom-drawer";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRef, useState } from "react";
@@ -23,14 +24,13 @@ const StyledText = styled(Text);
 const StyledIon = styled(Ionicons);
 const StyledMaskedView = styled(MaskedView);
 const StyledPressable = styled(Pressable);
-const { width, height } = Dimensions.get("window");
 const StyledImage = styled(Image);
 const StyledBlurView = styled(BlurView);
 const StyledSkeleton = styled(Skeleton);
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
   //might need to recheck this math
-  const bottomDrawerRef = useRef<BottomDrawerMethods>(null);
   const {
     saveCanvasItemEdits,
     exitEditCanvas,
@@ -41,8 +41,6 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
   } = useCanvas();
   const { setBottomBarVisible } = useJournal();
   const { session } = useAuth();
-  const aspectRatio = item.width / item.height;
-  const maxFrameWidth = width * 0.8;
   const [showBottomDrawer, setShowBottomDrawer] = useState(false);
   const handleDone = () => {
     saveCanvasItemEdits(item.id, { ...item });
@@ -57,14 +55,30 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
     setShowBottomDrawer(false);
     setBottomBarVisible(true);
   };
-  const resizeImage = async (uri: string) => {
-    const manipResult = await ImageManipulator.manipulateAsync(
-      uri,
-      [{ resize: { width: 800, height: 600 } }], // Adjust width and height as needed
-      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG } // Adjust compression as needed
-    );
-    return manipResult;
-  };
+  // const resizeImage = async (uri: string, originalWidth: number, originalHeight: number) => {
+  //   //ensure image is max the size of the screen
+  //   // Get screen dimensions
+
+  //   // Calculate aspect ratio
+  //   const aspectRatio = originalWidth / originalHeight;
+
+  //   let newWidth = Math.min(screenWidth, originalWidth); // Set a max width (80% of screen width)
+  //   let newHeight = newWidth / aspectRatio; // Calculate height based on aspect ratio
+
+  //   // If the calculated height exceeds the screen height, adjust
+  //   if (newHeight < screenHeight && originalHeight > screenHeight) {
+  //     newHeight = screenHeight;
+  //     newWidth = newHeight * aspectRatio; // Recalculate width based on new height
+  //   }
+
+  //   const manipResult = await ImageManipulator.manipulateAsync(
+  //     uri,
+  //     [{ resize: { width: Math.round(newWidth), height: Math.round(newHeight) } }],
+  //     { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
+  //   );
+
+  //   return manipResult;
+  // };
   const handleAddPhoto = async () => {
     if (!session) {
       console.debug("not logged in");
@@ -80,11 +94,11 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
     // Save image if not cancelled
     if (!result.canceled) {
       const img = result.assets[0];
-      const resizedImage = await resizeImage(img.uri);
+      // const resizedImage = await resizeImage(img.uri, img.width, img.height);
       const fullFileName = img.uri.split("/").pop();
       const fileName = fullFileName?.substring(0, fullFileName.lastIndexOf(".")) || fullFileName; // File name without extension
       const fileExtension = fullFileName?.split(".").pop(); // File extension
-      const base64 = await FileSystem.readAsStringAsync(resizedImage.uri, { encoding: "base64" });
+      const base64 = await FileSystem.readAsStringAsync(img.uri, { encoding: "base64" });
       console.log("file type", fullFileName);
 
       updateCanvasItemImage(item.id, base64, fileName || "image" + Date.now(), fileExtension || "jpg");
@@ -106,10 +120,9 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
     // The maximum scale is the smaller of the two scaling factors
     return Math.min(scaleWidth, scaleHeight);
   };
-  const scale = getScale(item.width, item.height, width, height);
+  const scale = getScale(item.width, item.height, screenWidth, screenHeight);
   const scaledWidth = scale * item.width;
   const scaledHeight = scale * item.height;
-  console.log("scale", scale, scaledWidth, scaledHeight, width, height);
 
   return (
     <StyledBlurView className="absolute top-0 bottom-0 right-0 left-0 bg-black/50" intensity={50}>
@@ -128,17 +141,15 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
                   <StyledImage
                     //   className={`w-[${item.width}px] h-[${item.height}px]`}
                     className="flex-1"
-                    source={{ uri: item.slots[0].maskPath }}
+                    source={item.slots[0].maskPath}
                   />
                 }>
-                {item?.slots[0]?.image?.url && (
-                  <StyledImage className="flex-1" source={{ uri: item.slots[0].image.url }} />
-                )}
+                {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={item.slots[0].image.url} />}
               </StyledMaskedView>
             ) : (
               <StyledMaskedView
                 className="w-full h-full"
-                maskElement={<StyledImage className="flex-1" source={{ uri: item.slots[0].maskPath }} />}>
+                maskElement={<StyledImage className="flex-1" source={item.slots[0].maskPath} />}>
                 <StyledMotiView
                   className="flex-1"
                   from={{ opacity: 0, backgroundColor: "rgba(0, 0, 0, 0.5)" }}
@@ -164,7 +175,12 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 500 }}>
                 {!item.slots[0].image && (
-                  <RectangleButton text="Add Photo" color="bg-primary" textColor="text-white" action={handleAddPhoto} />
+                  <RectangleButton
+                    text="Select Photo"
+                    color="bg-primary"
+                    textColor="text-white"
+                    action={handleAddPhoto}
+                  />
                 )}
                 {item.slots[0].image && (
                   <RectangleButton
@@ -198,11 +214,20 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
       </StyledMotiView>
 
       {/* Button at the bottom */}
-      <StyledMotiView className="absolute top-16  right-8">
-        <StyledPressable onPress={handleDone} className="bg-clear px-4 py-2 rounded-md">
-          <StyledText className="text-white text-lg">Done</StyledText>
-        </StyledPressable>
-      </StyledMotiView>
+      <AnimatePresence>
+        {uploadingImage ? null : (
+          <StyledMotiView
+            className="absolute top-16  right-8"
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 500 }}>
+            <StyledPressable onPress={uploadingImage ? null : handleDone} className="bg-clear px-4 py-2 rounded-md">
+              <StyledText className={`text-white text-lg`}>Done</StyledText>
+            </StyledPressable>
+          </StyledMotiView>
+        )}
+      </AnimatePresence>
       {showBottomDrawer && (
         <Drawer
           onClose={() => setShowBottomDrawer(false)}

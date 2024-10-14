@@ -1,5 +1,6 @@
 import React, { useState, useContext } from "react";
-import { View, Text, Image, TouchableOpacity, Pressable, Dimensions } from "react-native";
+import { View, Text, TouchableOpacity, Pressable, Dimensions } from "react-native";
+import { Image } from "expo-image";
 import PagerView from "react-native-pager-view";
 import { MotiView } from "moti";
 import { useData } from "@/src/contexts/DataProvider";
@@ -90,7 +91,7 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
                     aspectRatio: 1, // Maintain a square aspect ratio
                   }}>
                   <Image
-                    source={{ uri: frame.path }}
+                    source={frame.path}
                     style={{
                       width: "100%",
                       height: "100%", // Fill the entire space

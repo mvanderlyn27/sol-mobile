@@ -105,9 +105,9 @@ export default function EditCanvasText({ item }: { item: CanvasText }) {
         </StyledPressable>
       </StyledMotiView>
       {/* Done button at the top-right */}
-      <StyledMotiView className="absolute top-16 right-8">
+      <StyledMotiView className="absolute top-16  right-8">
         <StyledPressable onPress={handleDone} className="bg-clear px-4 py-2 rounded-md">
-          <StyledText className="text-white">Done</StyledText>
+          <StyledText className={`text-white text-lg`}>Done</StyledText>
         </StyledPressable>
       </StyledMotiView>
       {showBottomDrawer && (

@@ -3,7 +3,7 @@ import { useJournal } from "@/src/contexts/JournalProvider";
 import { BottomDrawerType, CanvasFrame } from "@/src/types/shared.types";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
-import { Pressable, Text, Image, Dimensions } from "react-native";
+import { Pressable, Text, Dimensions } from "react-native";
 import BottomDrawer from "react-native-animated-bottom-drawer";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRef } from "react";

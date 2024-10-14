@@ -3,8 +3,8 @@ import { AnimatePresence, MotiView } from "moti";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { Canvas } from "@/src/types/shared.types";
-import { Image } from "react-native";
-import CanvasFrameOld from "./CanvasFrame";
+import { Image } from "expo-image";
+
 import CanvasFrameHolder from "./CanvasFrameHolder";
 import CanvasTextHolder from "./CanvasText";
 import { BG_04, getImageFromPath } from "@/src/assets/images/images";

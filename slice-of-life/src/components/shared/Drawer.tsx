@@ -3,7 +3,7 @@ import { useJournal } from "@/src/contexts/JournalProvider";
 import { BottomDrawerType, CanvasFrame } from "@/src/types/shared.types";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
-import { Pressable, Text, Image, Dimensions } from "react-native";
+import { Pressable, Text, Dimensions } from "react-native";
 import BottomDrawer from "react-native-animated-bottom-drawer";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRef } from "react";
@@ -36,7 +36,7 @@ export default function Drawer({
       onBackPress={onClose}
       openOnMount
       initialHeight={height * 0.2}
-      className="bg-secondary">
+      customStyles={{ container: { backgroundColor: "#E7DBCB" }, handle: { backgroundColor: "#262326" } }}>
       <StyledMotiView className="flex flex-col justify-center items-center gap-4 mb-4">
         <StyledText className="text-lg font-semibold text-gray-800">{text}</StyledText>
         <StyledMotiView className="w-full flex flex-row justify-center items-center gap-4">
