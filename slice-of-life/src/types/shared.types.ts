@@ -79,16 +79,16 @@ export interface CanvasFrameSlot {
 }
 export interface CanvasFrameSlotImage {
   url: string; // URL of the image that fits in the slot
-  width: number; // image original width
-  height: number; //original height
+  width?: number; // image original width
+  height?: number; //original height
   //used to scale image via gesture
-  scale: number;
+  scale?: number;
   // used to rotate image in frame
-  rotation: number;
+  rotation?: number;
   //need someway to ensure its not dragged off the screen lol
   //relative to parent
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
 }
 
 export interface CanvasText extends CanvasItemBase {
@@ -152,8 +152,14 @@ export type CreateProfileInput = {
 };
 export type UpdateProfileInput = {
   //   file?: File | Blob;
-  file?: File;
+  file?: FileUploadInput;
   name: string;
+};
+export type FileUploadInput = {
+  bucket: string;
+  filePath: string;
+  base64: string;
+  fileExtension: string;
 };
 
 // Sticker Types

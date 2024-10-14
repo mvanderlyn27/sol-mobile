@@ -4,6 +4,8 @@ import { useData } from "./DataProvider";
 import { Json } from "../types/supabase.types";
 import { Dimensions } from "react-native";
 import Toast from "react-native-root-toast";
+import StorageService from "../api/storage";
+import { useAuth } from "./AuthProvider";
 
 interface CanvasContextType {
   canvas: Canvas;
@@ -14,12 +16,14 @@ interface CanvasContextType {
   canvasSaving: boolean;
   //id of canvas item we're editing
   curEditingCanvasItem: number | null;
+  uploadingImage: boolean;
   setCanvasData: (canvas: Canvas) => void;
   updateCanvasItem: (index: number, newItem: CanvasItem) => void;
   addCanvasItem: (item: CanvasItem) => void;
   removeCanvasItem: (index: number) => void;
   startEditCanvas: () => void;
   saveCanvasEdits: () => void;
+  updateCanvasItemImage: (id: number, base64: string, fileName: string, fileExtension: string) => void;
   clearCanvas: () => void;
   exitEditCanvas: () => void;
   loadCanvasFromJsonString: (json: string) => void;
@@ -55,6 +59,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     updatePage,
     pagesError,
   } = useData();
+  const { session } = useAuth();
   // maybe get current page from book/page provider after we seperate them out
   const [currentPage, setCurrentPage] = useState<Page | null>(null);
   const [canvas, setCanvas] = useState<Canvas>(defaultCanvas);
@@ -64,6 +69,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const [tempCanvas, setTempCanvas] = useState<Canvas | null>(null);
   const [editingCanvas, setEditingCanvas] = useState<boolean>(false);
   const [curEditingCanvasItem, setCurEditingCanvasItem] = useState<number | null>(null);
+  const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   useEffect(() => {
     if (pagesLoading === false && pagesMap && selectedDate) {
       const curPage = pagesMap.get(selectedDate);
@@ -135,6 +141,9 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     const newMaxZIndex = shouldUpdateMaxZIndex ? Math.max(tempCanvas.maxZIndex + 1, newZ) : tempCanvas.maxZIndex; // Only update maxZIndex if needed
     setTempCanvas({ ...tempCanvas, maxZIndex: newMaxZIndex, items: updatedItems });
     setCanvasError(null);
+    if (uploadingImage) {
+      setUploadingImage(false);
+    }
   };
 
   const removeCanvasItem = (id: number) => {
@@ -176,6 +185,56 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const exitEditCanvasItem = () => {
     setCurEditingCanvasItem(null);
     // setEditingCanvas(true);
+  };
+  const updateCanvasItemImage = async (id: number, base64: string, imageName: string, fileExtension: string) => {
+    //upload to supabase
+    setUploadingImage(true);
+    if (!session) {
+      console.debug("not logged in");
+      return;
+    }
+    if (!selectedDate) {
+      console.debug("no date selected");
+      return;
+    }
+    // if (!currentPage) {
+    //   console.debug("no current page");
+    //   return;
+    // }
+    const filePath = `${session.user.id}/${selectedDate}/${imageName}.${fileExtension}`;
+    const { success, data, error } = await StorageService.uploadFile({
+      bucket: "book_photos",
+      filePath: filePath,
+      base64: base64,
+      fileExtension: fileExtension,
+    });
+    if (error) {
+      console.debug(error);
+      setUploadingImage(false);
+      setCanvasError(error);
+      return;
+    }
+    if (!success || !data) {
+      console.debug("upload failed");
+      setUploadingImage(false);
+      setCanvasError("upload failed");
+      return;
+    }
+    const item = tempCanvas?.items.find((item) => item.id === id);
+    if (!item || item?.type !== "frame") {
+      console.debug("item not found or not a frame");
+      return;
+    }
+
+    const { data: publicUrl } = StorageService.getPublicUrl("book_photos", data);
+    const newSlot = [{ ...item?.slots[0], image: { url: publicUrl ?? "" } }];
+    if (item.slots[0].image?.url) {
+      StorageService.deleteFile("book_photos", item.slots[0].image.url);
+    }
+    updateCanvasItem(id, { ...item, slots: newSlot });
+    setUploadingImage(false);
+    //get url
+    //update item
   };
   const addCanvasItem = (item: CanvasItem) => {
     if (!editingCanvas) {
@@ -290,11 +349,13 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
         canvasSaving,
         canvasLoading,
         curEditingCanvasItem,
+        uploadingImage,
         setCanvasData,
         editCanvasItem,
         exitEditCanvasItem,
         updateCanvasItem,
         addCanvasItem,
+        updateCanvasItemImage,
         removeCanvasItem,
         saveCanvasItemEdits,
         startEditCanvas,

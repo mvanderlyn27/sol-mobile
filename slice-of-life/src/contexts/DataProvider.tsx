@@ -352,21 +352,20 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
     let publicFilePath = null;
     if (content.file) {
-      const filePath = `${profile.id}/${content.file.name}`;
-      const uploadResponse = await StorageService.uploadFile("avatars", filePath, content.file);
+      const uploadResponse = await StorageService.uploadFile(content.file);
 
-      if (!uploadResponse.success || !uploadResponse.data) {
-        setProfileError(uploadResponse.error || "Failed to upload avatar image.");
-        setProfileLoading(false);
-        return;
-      }
-      const urlResponse = await StorageService.getPublicUrl("avatars", filePath);
-      if (!urlResponse.success || !urlResponse.data) {
-        setProfileError(urlResponse.error || "Failed to generate public URL for the avatar image.");
-        setProfileLoading(false);
-        return;
-      }
-      publicFilePath = urlResponse.data;
+      // if (!uploadResponse.success || !uploadResponse.data) {
+      //   setProfileError(uploadResponse.error || "Failed to upload avatar image.");
+      //   setProfileLoading(false);
+      //   return;
+      // }
+      // const urlResponse = await StorageService.getPublicUrl("avatars", filePath);
+      // if (!urlResponse.success || !urlResponse.data) {
+      //   setProfileError(urlResponse.error || "Failed to generate public URL for the avatar image.");
+      //   setProfileLoading(false);
+      //   return;
+      // }
+      // publicFilePath = urlResponse.data;
     }
     let updateContent: Profile = { ...profile };
     let hasChanges = false;

@@ -69,7 +69,8 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
         x: start.value.x,
         y: start.value.y,
       });
-    });
+    })
+    .enabled(editMode);
 
   // Gesture to handle pinch/zoom
   const zoomGesture = Gesture.Pinch()
@@ -82,7 +83,8 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
     .onEnd(() => {
       savedScale.value = scale.value;
       runOnJS(updateCanvasItem)(item.id, { ...item, scale: scale.value });
-    });
+    })
+    .enabled(editMode);
 
   // Gesture to handle rotation
   const rotateGesture = Gesture.Rotation()
@@ -98,7 +100,8 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
         ...item,
         rotation: rotation.value,
       });
-    });
+    })
+    .enabled(editMode);
 
   const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
   const handleEdit = () => {
@@ -126,7 +129,7 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
 
           {/* Frame image that goes on top of the masked image */}
           <StyledMotiView className="absolute inset-0 w-full h-full">
-            <StyledPressable className="flex-1" onPress={handleEdit}>
+            <StyledPressable className="flex-1" onPress={editMode ? handleEdit : null}>
               <StyledMotiView className={`flex-1`}>
                 <StyledImage className="flex-1" source={{ uri: item.path }} />
               </StyledMotiView>

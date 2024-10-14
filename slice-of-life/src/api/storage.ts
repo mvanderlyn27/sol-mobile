@@ -1,4 +1,6 @@
 import { SupabaseResponse, supabase } from "@/src/lib/supabase";
+import { FileUploadInput } from "../types/shared.types";
+import { decode } from "base64-arraybuffer";
 
 // Define a standard response type for the service
 
@@ -10,14 +12,15 @@ export default class StorageService {
    * @param file - The file object to upload.
    * @returns A standardized response object indicating success or error.
    */
-  static async uploadFile(bucketName: string, filePath: string, file: File | Blob): Promise<SupabaseResponse<string>> {
-    const { data, error } = await supabase.storage.from(bucketName).upload(filePath, file, { upsert: true });
+  static async uploadFile(info: FileUploadInput): Promise<SupabaseResponse<string>> {
+    const { data, error } = await supabase.storage
+      .from(info.bucket)
+      .upload(info.filePath, decode(info.base64), { contentType: "image", upsert: true });
 
     if (error) {
       return { success: false, data: null, error: error.message };
     }
-
-    return { success: true, data: data?.fullPath || null };
+    return { success: true, data: data?.path || null };
   }
 
   /**
@@ -74,7 +77,7 @@ export default class StorageService {
    * @param filePath - The file path within the bucket.
    * @returns A standardized response object containing the public URL or error.
    */
-  static async getPublicUrl(bucketName: string, filePath: string): Promise<SupabaseResponse<string>> {
+  static getPublicUrl(bucketName: string, filePath: string): SupabaseResponse<string> {
     const {
       data: { publicUrl: publicURL },
     } = supabase.storage.from(bucketName).getPublicUrl(filePath);
