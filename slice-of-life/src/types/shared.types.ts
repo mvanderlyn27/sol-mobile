@@ -75,7 +75,7 @@ export interface CanvasFrameSlot {
   // height: number; // Height of the slot
   //currently 1 mask same size/width/height/scale as parent
   maskPath: string;
-  image: CanvasFrameSlotImage; // Optional URL for the image that fits in the slot
+  image?: CanvasFrameSlotImage; // Optional URL for the image that fits in the slot
 }
 export interface CanvasFrameSlotImage {
   url: string; // URL of the image that fits in the slot

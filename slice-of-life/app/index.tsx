@@ -4,8 +4,7 @@ import { View } from "react-native";
 const Index = () => {
   return (
     <View style={{ flex: 1 }}>
-      <Redirect href="/library" />
-      {/* <Redirect href="/journal" /> */}
+      <Redirect href="/journal" />
     </View>
   );
 };

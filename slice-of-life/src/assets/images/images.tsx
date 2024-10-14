@@ -7,8 +7,6 @@ export const BG_06 = require("./BG_Paper_06.jpg");
 export const BG_07 = require("./BG_Paper_07.jpg");
 export const BG_08 = require("./BG_Paper_08.jpg");
 export const BG_09 = require("./BG_Paper_09.jpg");
-export const Party = require("./party.jpg");
-export const Polaroid = require("./polaroid.png");
 
 //maybe in the future store in the cloud?
 export const getImageFromPath = (path: string) => {
@@ -31,10 +29,6 @@ export const getImageFromPath = (path: string) => {
       return BG_08;
     case "bg_09":
       return BG_09;
-    case "party":
-      return Party;
-    case "polaroid":
-      return Polaroid;
     default:
       return BG_04;
   }

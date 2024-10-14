@@ -65,27 +65,30 @@ export type Database = {
       frames: {
         Row: {
           created_at: string
-          height: number | null
+          height: number
           id: number
+          maskPath: string
           name: string
           path: string
-          width: number | null
+          width: number
         }
         Insert: {
           created_at?: string
-          height?: number | null
+          height: number
           id?: number
+          maskPath: string
           name: string
           path: string
-          width?: number | null
+          width: number
         }
         Update: {
           created_at?: string
-          height?: number | null
+          height?: number
           id?: number
+          maskPath?: string
           name?: string
           path?: string
-          width?: number | null
+          width?: number
         }
         Relationships: []
       }

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { View, Text, Image, TouchableOpacity, Pressable } from "react-native";
+import { View, Text, Image, TouchableOpacity, Pressable, Dimensions } from "react-native";
 import PagerView from "react-native-pager-view";
 import { MotiView } from "moti";
 import { useData } from "@/src/contexts/DataProvider";
@@ -7,7 +7,6 @@ import { styled } from "nativewind";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { CanvasItem, Frame } from "@/src/types/shared.types";
 const StyledMotiView = styled(MotiView);
-
 export default function FrameTab({ onSelect }: { onSelect: () => void }) {
   const { frames } = useData(); // Fetch frames from the context
   const { canvas, tempCanvas, addCanvasItem } = useCanvas();
@@ -21,24 +20,49 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
     const startIndex = page * itemsPerPage;
     return frames.slice(startIndex, startIndex + itemsPerPage);
   };
+  const getScale = (frameWidth: number, frameHeight: number, screenWidth: number, screenHeight: number): number => {
+    // Calculate 70% of screen dimensions
+    const targetWidth = screenWidth * 0.7;
+    const targetHeight = screenHeight * 0.7;
+
+    // Calculate the scaling factors for both width and height
+    const scaleWidth = targetWidth / frameWidth;
+    const scaleHeight = targetHeight / frameHeight;
+
+    // The maximum scale is the smaller of the two scaling factors
+    console.log(Math.min(scaleWidth, scaleHeight));
+    return Math.min(scaleWidth, scaleHeight);
+  };
 
   const handleAddFrame = (frame: Frame) => {
     if (!tempCanvas) {
       console.log("no temp canvas");
       return;
     }
+    const scale = getScale(frame.width, frame.height, tempCanvas.screenWidth, tempCanvas.screenHeight);
+    const scaledWidth = scale * frame.width;
+    const scaledHeight = scale * frame.height;
+
+    // Calculate the centered x and y positions
+    const x = (tempCanvas.screenWidth - scaledWidth) / 2;
+    const y = (tempCanvas.screenHeight - scaledHeight) / 2;
     const newFrame: CanvasItem = {
       id: tempCanvas.curId + 1,
       dbId: frame.id,
       type: "frame",
       path: frame.path,
-      width: frame.width ?? 100,
-      height: frame.height ?? 100,
-      x: tempCanvas.screenWidth / 2,
-      y: tempCanvas.screenHeight / 2,
-      z: canvas.maxZIndex + 1,
-      scale: 1,
+      width: frame.width,
+      height: frame.height,
+      y: y,
+      x: x,
+      z: tempCanvas.maxZIndex + 1,
+      scale: getScale(frame.width, frame.height, tempCanvas.screenWidth, tempCanvas.screenHeight),
       rotation: 0,
+      slots: [
+        {
+          maskPath: frame.maskPath ?? "",
+        },
+      ],
     };
     addCanvasItem(newFrame);
     onSelect();

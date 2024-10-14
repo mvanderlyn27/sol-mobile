@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { Canvas } from "@/src/types/shared.types";
 import { Image } from "react-native";
-import CanvasFrameHolder from "./CanvasFrame";
+import CanvasFrameOld from "./CanvasFrame";
+import CanvasFrameHolder from "./CanvasFrameHolder";
 import CanvasTextHolder from "./CanvasText";
 import { BG_04, getImageFromPath } from "@/src/assets/images/images";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
@@ -51,6 +52,7 @@ export default function CanvasHolder() {
         curCanvas &&
         curCanvas.items?.map((item) => {
           if (item.type === "frame") {
+            // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
             return <CanvasFrameHolder key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
           }
 

@@ -1,40 +1,46 @@
-import React, { useState } from "react";
-import { Text, TextInput, Image, Pressable } from "react-native";
+import React from "react";
+import { Image, Pressable } from "react-native";
 import { styled } from "nativewind";
-import { AnimatePresence, MotiView } from "moti";
-import { CanvasFrame, CanvasText } from "@/src/types/shared.types";
+import { AnimatePresence } from "moti";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
-import Animated, { useSharedValue, useAnimatedStyle } from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
+import MaskedView from "@react-native-masked-view/masked-view";
+import { CanvasFrame } from "@/src/types/shared.types";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
-import { runOnJS } from "react-native-reanimated";
-import EditCanvasFrame from "./EditCanvasFrame";
 import { useJournal } from "@/src/contexts/JournalProvider";
 
-export const StyledMotiView = styled(MotiView); // Changed to Animated.View for proper reanimated styling
-export const StyledText = styled(Text);
+export const StyledMaskedView = styled(MaskedView);
+export const StyledMotiView = styled(Animated.View);
+export const StyledImage = styled(Animated.Image);
+export const StyledPressable = styled(Pressable);
 
-export default function CanvasFrameOld({ item }: { item: CanvasFrame }) {
+export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const { editMode, setBottomBarVisible } = useJournal();
   const { tempCanvas, updateCanvasItem } = useCanvas();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
-  const savedScale = useSharedValue(1);
+  const savedScale = useSharedValue(item.scale);
   const rotation = useSharedValue(item.rotation);
   const savedRotation = useSharedValue(0);
-  const animatedStyles = useAnimatedStyle(() => {
+
+  const animatedFrameGroupStyles = useAnimatedStyle(() => {
+    const scaledWidth = item.width * scale.value;
+    const scaledHeight = item.height * scale.value;
+
     return {
       zIndex: item.z,
+      width: scaledWidth,
+      height: scaledHeight,
       transform: [
-        { translateX: offset.value.x },
-        { translateY: offset.value.y },
-        { scale: scale.value },
-        { rotateZ: `${rotation.value}rad` },
+        { translateX: offset.value.x }, // Initial translation from dragging
+        { translateY: offset.value.y }, // Initial translation from dragging
+        // { scale: scale.value }, // Scale from the gesture's focal point
+        { rotateZ: `${rotation.value}rad` }, // Rotate from the gesture's focal point
       ],
     };
   });
 
-  //   Gesture to handle dragging
   const handleGestureStart = () => {
     if (!tempCanvas) {
       console.log("not editing shouldn't allow gestures ");
@@ -42,7 +48,6 @@ export default function CanvasFrameOld({ item }: { item: CanvasFrame }) {
     }
     updateCanvasItem(item.id, { ...item });
   };
-
   const dragGesture = Gesture.Pan()
     .averageTouches(true)
     .onBegin(() => {
@@ -96,12 +101,6 @@ export default function CanvasFrameOld({ item }: { item: CanvasFrame }) {
     });
 
   const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
-  const handleCancel = () => {
-    setBottomBarVisible(true);
-  };
-  const handleExit = () => {
-    setBottomBarVisible(true);
-  };
   const handleEdit = () => {
     //add something related to the canvasprovider here
     updateCanvasItem(item.id, item);
@@ -109,33 +108,31 @@ export default function CanvasFrameOld({ item }: { item: CanvasFrame }) {
   };
   return (
     <AnimatePresence>
-      (
-      <StyledMotiView
-        // exit={{ opacity: 0 }}
-        // from={{ opacity: 0 }}
-        // animate={{ opacity: 1 }}
-        // transition={{ type: "timing", duration: 300 }}
-        key={"frame-" + item.id}
-        style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
-      >
-        {editMode && (
-          <GestureDetector gesture={composed}>
-            <Pressable onPress={handleEdit}>
-              <Image
-                source={{ uri: item.path }} // Replace with your image URL or source
-                style={{ width: 150, height: 150, borderRadius: 10 }}
+      {/* Masked image with the slot */}
+      <GestureDetector gesture={composed}>
+        <StyledMotiView style={[animatedFrameGroupStyles, { position: "absolute" }]}>
+          <StyledMaskedView
+            className="w-full h-full"
+            maskElement={
+              <StyledImage
+                //   className={`w-[${item.width}px] h-[${item.height}px]`}
+                className="flex-1"
+                source={{ uri: item.slots[0].maskPath }}
               />
-            </Pressable>
-          </GestureDetector>
-        )}
-        {!editMode && (
-          <Image
-            source={{ uri: item.path }} // Replace with your image URL or source
-            style={{ width: 150, height: 150, borderRadius: 10 }}
-          />
-        )}
-      </StyledMotiView>
-      )
+            }>
+            {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={{ uri: item.slots[0].image.url }} />}
+          </StyledMaskedView>
+
+          {/* Frame image that goes on top of the masked image */}
+          <StyledMotiView className="absolute inset-0 w-full h-full">
+            <StyledPressable className="flex-1" onPress={handleEdit}>
+              <StyledMotiView className={`flex-1`}>
+                <StyledImage className="flex-1" source={{ uri: item.path }} />
+              </StyledMotiView>
+            </StyledPressable>
+          </StyledMotiView>
+        </StyledMotiView>
+      </GestureDetector>
     </AnimatePresence>
   );
 }
