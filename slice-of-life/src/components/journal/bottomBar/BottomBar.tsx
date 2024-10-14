@@ -17,6 +17,8 @@ import TemplateTab from "./TemplateTab";
 import { useJournal } from "@/src/contexts/JournalProvider";
 import Drawer from "../../shared/Drawer";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
+import { BlurView } from "expo-blur";
+import { StyledPressable } from "../canvas/CanvasFrameHolder";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -25,6 +27,7 @@ const StyledFeather = styled(Feather);
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const { width, height } = Dimensions.get("window");
+const StyledBlurView = styled(BlurView);
 export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSave: () => void }) {
   const { canvasHasChanges } = useCanvas();
   const { editMode, bottomBarVisible } = useJournal();
@@ -87,61 +90,54 @@ export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSa
   };
   return (
     <AnimatePresence>
-      {selectedTab && (
-        <Pressable
-          key="bottom-bar deselect"
-          style={{
-            position: "absolute",
-            right: 0,
-            top: 0,
-            left: 0,
-            bottom: 0,
-          }}
-          onPress={() => {
-            if (selectedTab) setSelectedTab(null);
-          }}
-        />
-      )}
       {editMode && bottomBarVisible && (
         <StyledMotiView
-          className="absolute bottom-6 right-4 left-4 p-6  bg-black/80 rounded-xl flex-col justify-end"
+          key="bottom-bar"
+          className="flex-1"
           from={{ opacity: 0, translateY: 20 }}
           animate={{ opacity: 1, translateY: 0 }}
           exit={{ opacity: 0, translateY: 20 }}
           exitTransition={{ type: "timing", duration: 200 }}
           transition={{ type: "timing", duration: 200 }}>
-          <AnimatePresence>
-            {selectedTab && (
-              <StyledMotiView
-                key="bottom-bar-data"
-                from={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: height * 0.6 }}
-                exit={{ opacity: 0, height: 0 }}
-                exitTransition={{ type: "timing", duration: 300 }}
-                transition={{ type: "timing", duration: 400 }}>
-                {/* This is where the tab data */}
-                {selectedTab && getSelectedTab()}
+          <StyledPressable
+            onPress={() => handleSelect()}
+            className="absolute bottom-0 right-0 left-0 top-0"></StyledPressable>
+          <StyledMotiView className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden">
+            <StyledBlurView intensity={80} tint="dark" className="p-6 flex-1">
+              <AnimatePresence>
+                {selectedTab && (
+                  <StyledMotiView
+                    key="bottom-bar-data"
+                    from={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: height * 0.6 }}
+                    exit={{ opacity: 0, height: 0 }}
+                    exitTransition={{ type: "timing", duration: 300 }}
+                    transition={{ type: "timing", duration: 400 }}>
+                    {/* This is where the tab data */}
+                    {selectedTab && getSelectedTab()}
+                  </StyledMotiView>
+                )}
+              </AnimatePresence>
+              <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center ">
+                <BottomBarButton onPress={handleExit} buttonType={ButtonType.X} />
+                <BottomBarButton
+                  selected={selectedTab === BottomBarTab.Template}
+                  onPress={handleTemplate}
+                  buttonType={ButtonType.Template}
+                />
+                <BottomBarButton
+                  selected={selectedTab === BottomBarTab.Frame}
+                  onPress={handleFrame}
+                  buttonType={ButtonType.Frame}
+                />
+                <BottomBarButton
+                  selected={selectedTab === BottomBarTab.Font}
+                  onPress={handleText}
+                  buttonType={ButtonType.Text}
+                />
+                <BottomBarButton onPress={onSave} buttonType={ButtonType.Save} />
               </StyledMotiView>
-            )}
-          </AnimatePresence>
-          <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center ">
-            <BottomBarButton onPress={handleExit} buttonType={ButtonType.X} />
-            <BottomBarButton
-              selected={selectedTab === BottomBarTab.Template}
-              onPress={handleTemplate}
-              buttonType={ButtonType.Template}
-            />
-            <BottomBarButton
-              selected={selectedTab === BottomBarTab.Frame}
-              onPress={handleFrame}
-              buttonType={ButtonType.Frame}
-            />
-            <BottomBarButton
-              selected={selectedTab === BottomBarTab.Font}
-              onPress={handleText}
-              buttonType={ButtonType.Text}
-            />
-            <BottomBarButton onPress={onSave} buttonType={ButtonType.Save} />
+            </StyledBlurView>
           </StyledMotiView>
         </StyledMotiView>
       )}

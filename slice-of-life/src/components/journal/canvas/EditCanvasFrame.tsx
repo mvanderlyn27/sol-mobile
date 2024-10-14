@@ -14,6 +14,7 @@ import { useAuth } from "@/src/contexts/AuthProvider";
 import * as FileSystem from "expo-file-system";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { Skeleton } from "moti/skeleton";
+import { BlurView } from "expo-blur";
 
 const StyledMotiView = styled(MotiView);
 const StyledBottomDrawer = styled(BottomDrawer);
@@ -22,7 +23,8 @@ const StyledIon = styled(Ionicons);
 const StyledMaskedView = styled(MaskedView);
 const StyledPressable = styled(Pressable);
 const { width, height } = Dimensions.get("window");
-export const StyledImage = styled(Image);
+const StyledImage = styled(Image);
+const StyledBlurView = styled(BlurView);
 
 export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
   //might need to recheck this math
@@ -99,7 +101,7 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
   console.log("scale", scale, scaledWidth, scaledHeight, width, height);
 
   return (
-    <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 bg-black/80">
+    <StyledBlurView className="absolute top-0 bottom-0 right-0 left-0 bg-black/50" intensity={50}>
       {/* Centered image */}
       <StyledMotiView className="flex-1 justify-center items-center">
         <StyledMotiView className="flex-col items-center justify-center ">
@@ -182,11 +184,12 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
       </StyledMotiView>
       {showBottomDrawer && (
         <Drawer
+          onClose={() => setShowBottomDrawer(false)}
           key="edit-frame-bottom-drawer"
           text={"Are you sure you want to delete?"}
           buttons={[{ action: handleDelete, text: "Yep, Delete it!", color: "bg-red-500" }]}
         />
       )}
-    </StyledMotiView>
+    </StyledBlurView>
   );
 }

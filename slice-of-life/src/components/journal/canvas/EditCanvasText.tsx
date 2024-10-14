@@ -8,12 +8,14 @@ import Slider from "@react-native-community/slider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Drawer from "../../shared/Drawer";
 import { useState } from "react";
+import { BlurView } from "expo-blur";
 
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 const StyledTextInput = styled(TextInput);
 const StyledPressable = styled(Pressable);
 const StyledIon = styled(Ionicons);
+const StyledBlurView = styled(BlurView);
 
 export default function EditCanvasText({ item }: { item: CanvasText }) {
   const { saveCanvasItemEdits, exitEditCanvasItem, removeCanvasItem, exitEditCanvas } = useCanvas();
@@ -46,7 +48,7 @@ export default function EditCanvasText({ item }: { item: CanvasText }) {
     setBottomBarVisible(true);
   };
   return (
-    <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 bg-black/80 z-[1000]">
+    <StyledBlurView className="absolute top-0 bottom-0 right-0 left-0 bg-black/50" intensity={50}>
       {/* Centered text input and slider */}
       <StyledMotiView className="flex-1 justify-center items-center">
         <StyledMotiView className="flex-col justify-center items-center">
@@ -110,11 +112,12 @@ export default function EditCanvasText({ item }: { item: CanvasText }) {
       </StyledMotiView>
       {showBottomDrawer && (
         <Drawer
+          onClose={() => setShowBottomDrawer(false)}
           key="edit-text-drawer"
           text={"Are you sure you want to delete?"}
           buttons={[{ action: handleDelete, text: "Yep, Delete it!", color: "bg-red-500" }]}
         />
       )}
-    </StyledMotiView>
+    </StyledBlurView>
   );
 }

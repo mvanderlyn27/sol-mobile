@@ -122,7 +122,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (selectedDate !== null) {
       setHasSelectedDate(pagesMap.has(selectedDate));
-      setDailyEntryAvailable(pagesMap.has(toDayString(new Date())));
+      setDailyEntryAvailable(!pagesMap.has(toDayString(new Date())));
     }
   }, [pagesMap, selectedDate]);
   useEffect(() => {
