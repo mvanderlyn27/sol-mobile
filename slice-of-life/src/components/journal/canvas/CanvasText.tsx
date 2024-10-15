@@ -127,29 +127,9 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
   };
 
   return (
-    <AnimatePresence>
-      {/* {isEditing && (
-        <StyledMotiView
-          exit={{ opacity: 0 }}
-          from={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ type: "timing", duration: 300 }}
-          key="edit"
-          style={{ flex: 1 }} // Added position: 'absolute' for proper placement
-        >
-          <EditCanvasText item={item} onCancel={handleCancel} onExit={handleExit} />
-        </StyledMotiView>
-      )} */}
-      (
-      <StyledMotiView
-        // exit={{ opacity: 0 }}
-        // from={{ opacity: 0 }}
-        // animate={{ opacity: 1 }}
-        // transition={{ type: "timing", duration: 100 }}
-        key={"frame-" + item.id}
-        style={[animatedStyles, { position: "absolute" }]} // Added position: 'absolute' for proper placement
-      >
-        {editMode && (
+    <>
+      {editMode && (
+        <StyledMotiView key={"frame-" + item.id} style={[animatedStyles, { position: "absolute" }]}>
           <GestureDetector gesture={composed}>
             <Pressable onPress={handleEdit}>
               <StyledText
@@ -162,8 +142,20 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
               </StyledText>
             </Pressable>
           </GestureDetector>
-        )}
-        {!editMode && (
+        </StyledMotiView>
+      )}
+      {!editMode && (
+        <StyledMotiView
+          key={"frame-" + item.id}
+          style={{
+            position: "absolute",
+            zIndex: item.z,
+            transform: [
+              { translateX: item.x }, // Initial translation from dragging
+              { translateY: item.y }, // Initial translation from dragging
+              { rotateZ: `${item.rotation}rad` }, // Rotate from the gesture's focal point
+            ],
+          }}>
           <StyledText
             style={{
               fontFamily: item.fontType || "Inkfree",
@@ -172,9 +164,8 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
             }}>
             {item.textContent}
           </StyledText>
-        )}
-      </StyledMotiView>
-      )
-    </AnimatePresence>
+        </StyledMotiView>
+      )}
+    </>
   );
 }
