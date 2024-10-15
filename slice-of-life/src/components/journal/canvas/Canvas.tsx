@@ -63,7 +63,7 @@ export default function CanvasHolder() {
           exit={{ opacity: 0, translateY: -10 }}
           transition={{
             type: "timing",
-            duration: 200,
+            duration: 400,
           }}>
           {!canvasLoading &&
             curCanvas &&

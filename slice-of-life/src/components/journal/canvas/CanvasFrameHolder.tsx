@@ -27,13 +27,10 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const savedScale = useSharedValue(item.scale);
   const rotation = useSharedValue(item.rotation);
   const savedRotation = useSharedValue(0);
-  console.log("animation vals start:" + offset.value.x + "," + offset.value.y);
-  console.log("item vals: " + item.x + "," + item.y);
 
   const animatedFrameGroupStyles = useAnimatedStyle(() => {
     const scaledWidth = item.width * scale.value;
     const scaledHeight = item.height * scale.value;
-    console.log("animation vals:" + offset.value.x + "," + offset.value.y);
     return {
       zIndex: item.z,
       width: scaledWidth,
@@ -55,7 +52,10 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
     savedRotation.value = item.rotation;
 
     // Trigger a re-render to update the UI immediately
-  }, [item, canvas, tempCanvas]);
+    runOnJS(() => {
+      console.log("lol", item.x, item.y);
+    })();
+  }, [item, canvas]);
 
   const handleGestureStart = () => {
     if (!tempCanvas) {
@@ -82,6 +82,8 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
       };
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
+        scale: scale.value,
+        rotation: rotation.value,
         x: start.value.x,
         y: start.value.y,
       });
@@ -98,7 +100,13 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
     })
     .onEnd(() => {
       savedScale.value = scale.value;
-      runOnJS(updateCanvasItem)(item.id, { ...item, scale: scale.value });
+      runOnJS(updateCanvasItem)(item.id, {
+        ...item,
+        scale: scale.value,
+        rotation: rotation.value,
+        x: start.value.x,
+        y: start.value.y,
+      });
     })
     .enabled(editMode);
 
@@ -114,7 +122,10 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
       savedRotation.value = rotation.value;
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
+        scale: scale.value,
         rotation: rotation.value,
+        x: start.value.x,
+        y: start.value.y,
       });
     })
     .enabled(editMode);
@@ -127,27 +138,58 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
     setBottomBarVisible(false);
   };
   return (
-    <GestureDetector gesture={composed}>
-      <StyledMotiView style={[animatedFrameGroupStyles, { position: "absolute" }]}>
-        <StyledMaskedView
-          className="w-full h-full"
-          maskElement={
-            <StyledImage
-              //   className={`w-[${item.width}px] h-[${item.height}px]`}
-              className="flex-1"
-              source={{ uri: item.slots[0].maskPath }}
-            />
-          }>
-          {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={item.slots[0].image.url} />}
-        </StyledMaskedView>
-        <StyledMotiView className="absolute inset-0 w-full h-full">
-          <StyledPressable className="flex-1" onPress={editMode ? handleEdit : null}>
-            <StyledMotiView className={`flex-1`}>
-              <StyledImage className="flex-1" source={{ uri: item.path }} />
+    <>
+      {editMode && (
+        <GestureDetector gesture={composed}>
+          <StyledMotiView key={item.id} style={[animatedFrameGroupStyles, { position: "absolute" }]}>
+            <StyledMaskedView
+              className="w-full h-full"
+              maskElement={
+                <StyledImage
+                  //   className={`w-[${item.width}px] h-[${item.height}px]`}
+                  className="flex-1"
+                  source={{ uri: item.slots[0].maskPath }}
+                />
+              }>
+              {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={item.slots[0].image.url} />}
+            </StyledMaskedView>
+            <StyledMotiView className="absolute inset-0 w-full h-full">
+              <StyledPressable className="flex-1" onPress={editMode ? handleEdit : null}>
+                <StyledMotiView className={`flex-1`}>
+                  <StyledImage className="flex-1" source={{ uri: item.path }} />
+                </StyledMotiView>
+              </StyledPressable>
             </StyledMotiView>
-          </StyledPressable>
+          </StyledMotiView>
+        </GestureDetector>
+      )}
+      {!editMode && (
+        <StyledMotiView
+          style={{
+            position: "absolute",
+            zIndex: item.z,
+            width: item.width * item.scale,
+            height: item.height * item.scale,
+            transform: [
+              { translateX: item.x }, // Initial translation from dragging
+              { translateY: item.y }, // Initial translation from dragging
+              { rotateZ: `${item.rotation}rad` }, // Rotate from the gesture's focal point
+            ],
+          }}>
+          <StyledMaskedView
+            className="w-full h-full"
+            maskElement={<StyledImage className="flex-1" source={{ uri: item.slots[0].maskPath }} />}>
+            {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={item.slots[0].image.url} />}
+          </StyledMaskedView>
+          <StyledMotiView className="absolute inset-0 w-full h-full">
+            <StyledPressable className="flex-1" onPress={editMode ? handleEdit : null}>
+              <StyledMotiView className={`flex-1`}>
+                <StyledImage className="flex-1" source={{ uri: item.path }} />
+              </StyledMotiView>
+            </StyledPressable>
+          </StyledMotiView>
         </StyledMotiView>
-      </StyledMotiView>
-    </GestureDetector>
+      )}
+    </>
   );
 }

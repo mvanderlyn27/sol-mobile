@@ -79,11 +79,12 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   }, [selectedDate]);
   useEffect(() => {
     if (pagesLoading === false && pagesMap && selectedDate) {
-      console.log("loading canvas: ", selectedDate);
+      console.log("loaddding canvas: ", selectedDate);
       // console.log(pagesMap, pagesMap.get(selectedDate));
       const curPage = pagesMap.get(selectedDate);
       if (curPage) {
         setCurrentPage(curPage);
+        setCanvas(defaultCanvas);
         loadCanvasFromJsonString(curPage.canvas as string);
       } else {
         setCurrentPage(null);
