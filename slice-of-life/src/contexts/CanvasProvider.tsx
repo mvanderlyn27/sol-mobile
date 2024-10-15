@@ -73,7 +73,14 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
   const [curEditingCanvasItem, setCurEditingCanvasItem] = useState<number | null>(null);
   const [uploadingImage, setUploadingImage] = useState<boolean>(false);
   useEffect(() => {
+    if (selectedDate) {
+      setCanvasLoading(true);
+    }
+  }, [selectedDate]);
+  useEffect(() => {
     if (pagesLoading === false && pagesMap && selectedDate) {
+      console.log("loading canvas: ", selectedDate);
+      // console.log(pagesMap, pagesMap.get(selectedDate));
       const curPage = pagesMap.get(selectedDate);
       if (curPage) {
         setCurrentPage(curPage);

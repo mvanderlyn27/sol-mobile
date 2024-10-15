@@ -14,10 +14,12 @@ import CanvasItemEditor from "../journal/canvas/CanvasItemEditor";
 import DateSelector from "../journal/DateSelector";
 import { StyledMotiView } from "../shared/CircleButton";
 import { runOnJS } from "react-native-reanimated";
+import { useData } from "@/src/contexts/DataProvider";
 
 const StyledView = styled(View);
 
 export default function JournalScreen() {
+  const { selectedDate } = useData();
   const { menuOpen, setMenuOpen, navMenuVisible, setNavMenuVisible } = useNav();
   const { startEditCanvas, exitEditCanvas, saveCanvasEdits, curEditingCanvasItem } = useCanvas();
   const {
@@ -82,7 +84,7 @@ export default function JournalScreen() {
     <StyledView className="absolute top-0 bottom-0 right-0 left-0 ">
       <GestureHandlerRootView style={{ flex: 1 }}>
         <GestureDetector gesture={tapGesture}>
-          <CanvasHolder />
+          <CanvasHolder key={selectedDate} />
         </GestureDetector>
       </GestureHandlerRootView>
       <AnimatePresence>

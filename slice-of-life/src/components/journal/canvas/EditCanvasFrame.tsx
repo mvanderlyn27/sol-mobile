@@ -55,30 +55,30 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
     setShowBottomDrawer(false);
     setBottomBarVisible(true);
   };
-  // const resizeImage = async (uri: string, originalWidth: number, originalHeight: number) => {
-  //   //ensure image is max the size of the screen
-  //   // Get screen dimensions
+  const resizeImage = async (uri: string, originalWidth: number, originalHeight: number) => {
+    //ensure image is max the size of the screen
+    // Get screen dimensions
 
-  //   // Calculate aspect ratio
-  //   const aspectRatio = originalWidth / originalHeight;
+    // Calculate aspect ratio
+    const aspectRatio = originalWidth / originalHeight;
 
-  //   let newWidth = Math.min(screenWidth, originalWidth); // Set a max width (80% of screen width)
-  //   let newHeight = newWidth / aspectRatio; // Calculate height based on aspect ratio
+    let newWidth = Math.min(screenWidth, originalWidth); // Set a max width (80% of screen width)
+    let newHeight = newWidth / aspectRatio; // Calculate height based on aspect ratio
 
-  //   // If the calculated height exceeds the screen height, adjust
-  //   if (newHeight < screenHeight && originalHeight > screenHeight) {
-  //     newHeight = screenHeight;
-  //     newWidth = newHeight * aspectRatio; // Recalculate width based on new height
-  //   }
+    // If the calculated height exceeds the screen height, adjust
+    if (newHeight < screenHeight && originalHeight > screenHeight) {
+      newHeight = screenHeight;
+      newWidth = newHeight * aspectRatio; // Recalculate width based on new height
+    }
 
-  //   const manipResult = await ImageManipulator.manipulateAsync(
-  //     uri,
-  //     [{ resize: { width: Math.round(newWidth), height: Math.round(newHeight) } }],
-  //     { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-  //   );
+    const manipResult = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: Math.round(newWidth), height: Math.round(newHeight) } }],
+      { compress: 0.7, format: ImageManipulator.SaveFormat.WEBP }
+    );
 
-  //   return manipResult;
-  // };
+    return manipResult;
+  };
   const handleAddPhoto = async () => {
     if (!session) {
       console.debug("not logged in");
@@ -94,14 +94,14 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
     // Save image if not cancelled
     if (!result.canceled) {
       const img = result.assets[0];
-      // const resizedImage = await resizeImage(img.uri, img.width, img.height);
+      const resizedImage = await resizeImage(img.uri, img.width, img.height);
       const fullFileName = img.uri.split("/").pop();
       const fileName = fullFileName?.substring(0, fullFileName.lastIndexOf(".")) || fullFileName; // File name without extension
       const fileExtension = fullFileName?.split(".").pop(); // File extension
       const base64 = await FileSystem.readAsStringAsync(img.uri, { encoding: "base64" });
       console.log("file type", fullFileName);
 
-      updateCanvasItemImage(item.id, base64, fileName || "image" + Date.now(), fileExtension || "jpg");
+      updateCanvasItemImage(item.id, base64, fileName || "image" + Date.now(), "webp");
       // await supabase.storage.from('files').upload(filePath, decode(base64), { contentType });
       // loadImages();
     }
@@ -173,7 +173,7 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
                 from={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 500 }}>
+                transition={{ duration: 200 }}>
                 {!item.slots[0].image && (
                   <RectangleButton
                     text="Select Photo"
@@ -199,7 +199,7 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
                 from={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 500 }}>
+                transition={{ duration: 200 }}>
                 <StyledText className={`text-darkPrimary text-lg font-bold`}>Uploading...</StyledText>
               </StyledMotiView>
             )}

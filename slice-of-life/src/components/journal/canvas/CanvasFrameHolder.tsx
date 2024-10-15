@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Pressable } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
@@ -9,6 +9,7 @@ import MaskedView from "@react-native-masked-view/masked-view";
 import { CanvasFrame } from "@/src/types/shared.types";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { useJournal } from "@/src/contexts/JournalProvider";
+import { useData } from "@/src/contexts/DataProvider";
 
 export const StyledMaskedView = styled(MaskedView);
 export const StyledMotiView = styled(Animated.View);
@@ -16,18 +17,23 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
+  // console.log("frame item", item);
+  const { selectedDate } = useData();
   const { editMode, setBottomBarVisible } = useJournal();
-  const { editCanvasItem, tempCanvas, updateCanvasItem } = useCanvas();
+  const { editCanvasItem, canvas, tempCanvas, updateCanvasItem } = useCanvas();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const scale = useSharedValue(item.scale);
   const savedScale = useSharedValue(item.scale);
   const rotation = useSharedValue(item.rotation);
   const savedRotation = useSharedValue(0);
+  console.log("animation vals start:" + offset.value.x + "," + offset.value.y);
+  console.log("item vals: " + item.x + "," + item.y);
 
   const animatedFrameGroupStyles = useAnimatedStyle(() => {
     const scaledWidth = item.width * scale.value;
     const scaledHeight = item.height * scale.value;
+    console.log("animation vals:" + offset.value.x + "," + offset.value.y);
     return {
       zIndex: item.z,
       width: scaledWidth,
@@ -40,6 +46,16 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
       ],
     };
   });
+  useEffect(() => {
+    offset.value = { x: item.x, y: item.y };
+    start.value = { x: item.x, y: item.y };
+    scale.value = item.scale;
+    savedScale.value = item.scale;
+    rotation.value = item.rotation;
+    savedRotation.value = item.rotation;
+
+    // Trigger a re-render to update the UI immediately
+  }, [item, canvas, tempCanvas]);
 
   const handleGestureStart = () => {
     if (!tempCanvas) {
@@ -111,32 +127,27 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
     setBottomBarVisible(false);
   };
   return (
-    <AnimatePresence>
-      {/* Masked image with the slot */}
-      <GestureDetector gesture={composed}>
-        <StyledMotiView style={[animatedFrameGroupStyles, { position: "absolute" }]}>
-          <StyledMaskedView
-            className="w-full h-full"
-            maskElement={
-              <StyledImage
-                //   className={`w-[${item.width}px] h-[${item.height}px]`}
-                className="flex-1"
-                source={{ uri: item.slots[0].maskPath }}
-              />
-            }>
-            {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={item.slots[0].image.url} />}
-          </StyledMaskedView>
-
-          {/* Frame image that goes on top of the masked image */}
-          <StyledMotiView className="absolute inset-0 w-full h-full">
-            <StyledPressable className="flex-1" onPress={editMode ? handleEdit : null}>
-              <StyledMotiView className={`flex-1`}>
-                <StyledImage className="flex-1" source={{ uri: item.path }} />
-              </StyledMotiView>
-            </StyledPressable>
-          </StyledMotiView>
+    <GestureDetector gesture={composed}>
+      <StyledMotiView style={[animatedFrameGroupStyles, { position: "absolute" }]}>
+        <StyledMaskedView
+          className="w-full h-full"
+          maskElement={
+            <StyledImage
+              //   className={`w-[${item.width}px] h-[${item.height}px]`}
+              className="flex-1"
+              source={{ uri: item.slots[0].maskPath }}
+            />
+          }>
+          {item?.slots[0]?.image?.url && <StyledImage className="flex-1" source={item.slots[0].image.url} />}
+        </StyledMaskedView>
+        <StyledMotiView className="absolute inset-0 w-full h-full">
+          <StyledPressable className="flex-1" onPress={editMode ? handleEdit : null}>
+            <StyledMotiView className={`flex-1`}>
+              <StyledImage className="flex-1" source={{ uri: item.path }} />
+            </StyledMotiView>
+          </StyledPressable>
         </StyledMotiView>
-      </GestureDetector>
-    </AnimatePresence>
+      </StyledMotiView>
+    </GestureDetector>
   );
 }
