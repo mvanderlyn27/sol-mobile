@@ -69,6 +69,8 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
         ...item,
         x: start.value.x,
         y: start.value.y,
+        rotation: rotation.value,
+        scale: scale.value,
       });
     });
 
@@ -82,7 +84,13 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
     })
     .onEnd(() => {
       savedScale.value = scale.value;
-      runOnJS(updateCanvasItem)(item.id, { ...item, scale: scale.value });
+      runOnJS(updateCanvasItem)(item.id, {
+        ...item,
+        x: start.value.x,
+        y: start.value.y,
+        rotation: rotation.value,
+        scale: scale.value,
+      });
     });
 
   // Gesture to handle rotation
@@ -97,7 +105,10 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
       savedRotation.value = rotation.value;
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
+        x: start.value.x,
+        y: start.value.y,
         rotation: rotation.value,
+        scale: scale.value,
       });
     });
 

@@ -17,7 +17,6 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
-  // console.log("frame item", item);
   const { selectedDate } = useData();
   const { editMode, setBottomBarVisible } = useJournal();
   const { editCanvasItem, canvas, tempCanvas, updateCanvasItem } = useCanvas();
@@ -38,24 +37,10 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
       transform: [
         { translateX: offset.value.x }, // Initial translation from dragging
         { translateY: offset.value.y }, // Initial translation from dragging
-        // { scale: scale.value }, // Scale from the gesture's focal point
         { rotateZ: `${rotation.value}rad` }, // Rotate from the gesture's focal point
       ],
     };
   });
-  useEffect(() => {
-    offset.value = { x: item.x, y: item.y };
-    start.value = { x: item.x, y: item.y };
-    scale.value = item.scale;
-    savedScale.value = item.scale;
-    rotation.value = item.rotation;
-    savedRotation.value = item.rotation;
-
-    // Trigger a re-render to update the UI immediately
-    runOnJS(() => {
-      console.log("lol", item.x, item.y);
-    })();
-  }, [item, canvas]);
 
   const handleGestureStart = () => {
     if (!tempCanvas) {
@@ -133,7 +118,6 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
   const composed = Gesture.Simultaneous(dragGesture, Gesture.Simultaneous(zoomGesture, rotateGesture));
   const handleEdit = () => {
     //add something related to the canvasprovider here
-    console.log("edit clicked");
     editCanvasItem(item.id);
     setBottomBarVisible(false);
   };
