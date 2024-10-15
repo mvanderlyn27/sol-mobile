@@ -154,11 +154,7 @@ export default function CanvasFrameHolder({ item }: { item: CanvasFrame }) {
             zIndex: item.z,
             width: item.width * item.scale,
             height: item.height * item.scale,
-            transform: [
-              { translateX: item.x }, // Initial translation from dragging
-              { translateY: item.y }, // Initial translation from dragging
-              { rotateZ: `${item.rotation}rad` }, // Rotate from the gesture's focal point
-            ],
+            transform: [{ translateX: item.x }, { translateY: item.y }, { rotateZ: `${item.rotation}rad` }],
           }}>
           <StyledMaskedView
             className="w-full h-full"

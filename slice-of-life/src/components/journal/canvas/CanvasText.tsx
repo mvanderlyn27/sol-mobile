@@ -151,9 +151,11 @@ export default function CanvasTextHolder({ item }: { item: CanvasText }) {
             position: "absolute",
             zIndex: item.z,
             transform: [
-              { translateX: item.x }, // Initial translation from dragging
-              { translateY: item.y }, // Initial translation from dragging
-              { rotateZ: `${item.rotation}rad` }, // Rotate from the gesture's focal point
+              { translateX: item.x },
+              { translateY: item.y },
+              { rotateZ: `${item.rotation}rad` },
+              //should just have scale update fontSize probably to avoid blurriness
+              { scale: item.scale },
             ],
           }}>
           <StyledText
