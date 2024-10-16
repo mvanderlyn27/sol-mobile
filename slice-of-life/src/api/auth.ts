@@ -48,21 +48,31 @@ export class AuthService {
     }
     return { success: true };
   }
-  static async updatePassword(password: string): Promise<SupabaseResponse<null>> {
+  static async updatePassword(password: string): Promise<SupabaseResponse<Session>> {
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
       console.error("Error updating password:", error);
       return { success: false, error: error.message };
     }
-    return { success: true };
+    const { data, error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError) {
+      console.error("Error refreshing", refreshError);
+      return { success: false, error: refreshError.message };
+    }
+    return { success: true, data: data.session };
   }
-  static async updateEmail(email: string): Promise<SupabaseResponse<null>> {
+  static async updateEmail(email: string): Promise<SupabaseResponse<Session>> {
     const { error } = await supabase.auth.updateUser({ email });
     if (error) {
       console.error("Error updating email:", error);
       return { success: false, error: error.message };
     }
-    return { success: true };
+    const { data, error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError) {
+      console.error("Error refreshing", refreshError);
+      return { success: false, error: refreshError.message };
+    }
+    return { success: true, data: data.session };
   }
   static async sendResetPasswordEmail(email: string): Promise<SupabaseResponse<null>> {
     const { error } = await supabase.auth.resetPasswordForEmail(email);

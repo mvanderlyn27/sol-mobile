@@ -19,23 +19,26 @@ const StyledSafeAreaView = styled(SafeAreaView);
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Feather from "@expo/vector-icons/Feather";
+import AccountSection from "../settings/AccountSection";
+import HelpSection from "../settings/HelpSection";
+import AboutSection from "../settings/AboutSection";
 export default function SettingsScreen() {
   const sections = [
     {
       title: "ACCOUNT",
-      content: <StyledText className="text-secondary">This is the content of Section 1</StyledText>,
+      content: <AccountSection />,
       iconActive: <MaterialCommunityIcons name="account-circle-outline" size={30} color="#262326" />,
       iconInactive: <MaterialCommunityIcons name="account-circle-outline" size={30} color="#E7DBCB" />,
     },
     {
       title: "HELP & SUPPORT",
-      content: <StyledText>This is the content of Section 2</StyledText>,
+      content: <HelpSection />,
       iconActive: <MaterialIcons name="question-answer" size={30} color="#262326" />,
       iconInactive: <MaterialIcons name="question-answer" size={30} color="#E7DBCB" />,
     },
     {
       title: "ABOUT",
-      content: <StyledText>This is the content of Section 3</StyledText>,
+      content: <AboutSection />,
       iconActive: <Feather name="info" size={30} color="#262326" />,
       iconInactive: <Feather name="info" size={30} color="#E7DBCB" />,
     },
@@ -45,15 +48,17 @@ export default function SettingsScreen() {
   function renderHeader(section: any, index: number, isActive: boolean) {
     return (
       <StyledView
-        className={`p-4 border-b-0 border-secondary flex-row gap-4 items-center ${isActive ? "bg-secondary" : ""}`}>
-        {isActive ? section.iconActive : section.iconInactive}
+        className={`p-4 border-b-2 border-secondary flex-row gap-4 items-center ${
+          isActive && false ? "bg-secondary" : ""
+        }`}>
+        {isActive && false ? section.iconActive : section.iconInactive}
         <StyledText
-          className={`font-xl ${isActive ? "text-darkPrimary" : "text-secondary"}`}
+          className={`font-xl ${isActive && false ? "text-darkPrimary" : "text-secondary"}`}
           style={{ fontFamily: "PragmaticaExtended" }}>
           {section.title}
         </StyledText>
         <StyledMotiView className="absolute right-8">
-          <AntDesign name={isActive ? "up" : "down"} size={30} color={!isActive ? "#E7DBCB" : "#262326"} />
+          <AntDesign name={isActive ? "up" : "down"} size={20} color={isActive || true ? "#E7DBCB" : "#262326"} />
         </StyledMotiView>
       </StyledView>
     );
