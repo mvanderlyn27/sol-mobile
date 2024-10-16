@@ -61,18 +61,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsReady(true);
     return;
   };
+  const joinEmailList = async (email: string, name: string) => {
+    const formBody = `userGroup=newUsers&mailingLists=cm2cbg6pf00em0mk36f0wenxk&email=${encodeURIComponent(
+      email
+    )}&firstName=${encodeURIComponent(name)}`;
 
+    fetch("https://app.loops.so/api/newsletter-form/cm2canqzn00eo12mp68bgy30l", {
+      method: "POST",
+      body: formBody,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+  };
   const signUp = async (email: string, password: string, name: string) => {
     setIsReady(false);
     setError(null);
     const response = await AuthService.signUp(email, password, name);
-
+    joinEmailList(email, name);
     if (response.success) {
       setSession(response.data || null);
       setError(null);
     } else {
       setError(response.error || "Error signing up");
-      console.error("Error signing up:", response.error);
+      console.debug("Error signing up:", response.error);
       Toast.show("Error signing up, please try again", { duration: 3000 });
     }
     setIsReady(true);

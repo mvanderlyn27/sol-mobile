@@ -82,6 +82,7 @@ export default function SignupForm() {
           className="w-full text-secondary text-center"
           style={{ fontFamily: "PragmaticaExtended-light" }}
           autoCapitalize="none"
+          secureTextEntry={true}
         />
       </StyledMotiView>
 
