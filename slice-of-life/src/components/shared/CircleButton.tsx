@@ -7,6 +7,7 @@ import { MotiView } from "moti";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
+
 import { Button } from "@rneui/themed";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 
@@ -58,6 +59,15 @@ export default function RoundButton({
         return <StyledMaterial className={`text-center ${getTextColor(buttonType)}`} name="ios-share" size={50} />;
       case "x":
         return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="close" size={50} />;
+      case "settings":
+        return (
+          <Ionicons
+            name="settings-outline"
+            className={`text-center ${getTextColor(buttonType)}`}
+            size={50}
+            color="#E7DBCB"
+          />
+        );
       default:
         return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="menu" size={50} />;
     }
@@ -76,6 +86,9 @@ export default function RoundButton({
       return backgroundColor;
     }
     switch (buttonType) {
+      case "settings": {
+        return "bg-darkPrimary";
+      }
       case "x": {
         return "bg-red-500";
       }
@@ -98,6 +111,9 @@ export default function RoundButton({
       return borderColor;
     }
     switch (buttonType) {
+      case "settings": {
+        return "border-secondary";
+      }
       default: {
         return "border-darkPrimary";
       }
@@ -120,6 +136,9 @@ export default function RoundButton({
     switch (buttonType) {
       case "x": {
         return "text-white";
+      }
+      case "settings": {
+        return "text-secondary";
       }
       default: {
         return "text-darkPrimary";

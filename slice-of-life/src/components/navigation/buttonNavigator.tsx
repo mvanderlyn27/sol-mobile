@@ -25,7 +25,7 @@ export default function ButtonNavigator(): JSX.Element {
 
   const handleTabPress = (route: string): void => {
     if (route && route !== currentRoute) {
-      router.push(route as Href);
+      router.replace(route as Href);
     }
     setMenuOpen(false);
   };

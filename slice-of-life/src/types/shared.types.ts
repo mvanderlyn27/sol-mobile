@@ -24,6 +24,7 @@ export enum ButtonType {
   Text = "text",
   Frame = "frame",
   Template = "template",
+  Settings = "settings",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {

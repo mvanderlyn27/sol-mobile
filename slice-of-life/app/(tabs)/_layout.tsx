@@ -1,18 +1,11 @@
-import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, StyleSheet, Dimensions, Text, Pressable } from "react-native";
-import { Href, Redirect, Slot, useRouter } from "expo-router";
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
-import { useAuth } from "@/src/contexts/AuthProvider";
 import ButtonNavigator from "@/src/components/navigation/ButtonNavigator";
+import { useAuth } from "@/src/contexts/AuthProvider";
 import { DataProvider } from "@/src/contexts/DataProvider";
 import { NavigationProvider } from "@/src/contexts/NavigationProvider";
-import { AnimatePresence } from "moti";
-import SplashScreen from "@/src/components/shared/SplashScreen";
+import { Redirect } from "expo-router";
+import { Stack } from "expo-router/stack";
 
-const buttonHeight = 50; // Height for each button
-const spacing = 10; // Space between buttons
-
-export default function Layout(): JSX.Element {
+export default function Layout() {
   const { session } = useAuth();
   if (session === null) {
     console.log("not authenticated", session);
@@ -22,7 +15,15 @@ export default function Layout(): JSX.Element {
   return (
     <DataProvider>
       <NavigationProvider>
-        <Slot />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+          }}>
+          {/* <Stack.Screen name="index" options={{ animation: "fade" }} /> */}
+          <Stack.Screen name="journal" options={{ animation: "fade" }} />
+          <Stack.Screen name="profile" options={{ animation: "fade" }} />
+          <Stack.Screen name="settings" options={{ animation: "fade" }} />
+        </Stack>
         <ButtonNavigator />
       </NavigationProvider>
     </DataProvider>
