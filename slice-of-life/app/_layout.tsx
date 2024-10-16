@@ -7,8 +7,12 @@ import { PostHogProvider } from "posthog-react-native";
 import { useEffect } from "react";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import { getImageFromPath } from "@/src/assets/images/images";
+import { MotiView } from "moti";
+import { ImageBackground } from "expo-image";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
+export const StyledMotiView = styled(MotiView);
 export default function RootLayout() {
   let [loaded, error] = useFonts({
     Calibri: require("@/src/assets/fonts/Calibri.ttf"),
@@ -25,6 +29,7 @@ export default function RootLayout() {
   });
   useEffect(() => {
     if (loaded || error) {
+      //maybe add loading data here
       SplashScreen.hideAsync();
     }
   }, [loaded, error]);
@@ -32,17 +37,21 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <AuthProvider>
-      <PostHogProvider
-        apiKey={process.env.EXPO_PUBLIC_POSTHOG_API!}
-        options={{
-          host: "https://us.i.posthog.com",
-        }}>
+    <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0">
+      <ImageBackground style={{ flex: 1 }} source={getImageFromPath("bg_03")}>
         <RootSiblingParent>
-          {/* maybe add stack here for navigation? xD */}
-          <Slot />
+          <PostHogProvider
+            apiKey={process.env.EXPO_PUBLIC_POSTHOG_API!}
+            options={{
+              host: "https://us.i.posthog.com",
+            }}>
+            <AuthProvider>
+              {/* maybe add stack here for navigation? xD */}
+              <Slot />
+            </AuthProvider>
+          </PostHogProvider>
         </RootSiblingParent>
-      </PostHogProvider>
-    </AuthProvider>
+      </ImageBackground>
+    </StyledMotiView>
   );
 }

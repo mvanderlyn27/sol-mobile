@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 import { useNav } from "@/src/contexts/NavigationProvider";
 import { router } from "expo-router";
 import { ImageBackground } from "expo-image";
-import SettingsTopBar from "../settings/SettingsTopBar";
+import SettingsTopBar from "../settings/SettingsHeader";
 import Accordion from "react-native-collapsible/Accordion";
 import AntDesign from "@expo/vector-icons/AntDesign";
 const StyledView = styled(View);
@@ -69,14 +69,14 @@ export default function SettingsScreen() {
   }
   return (
     <StyledView className="flex-1">
-      <ImageBackground source={getImageFromPath("bg_03")} resizeMode="cover" style={{ flex: 1 }}>
+      <ImageBackground source={getImageFromPath("bg_03")} style={{ flex: 1 }}>
         <StyledMotiView
           from={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ type: "timing", duration: 1000 }}
           className="flex-1 justify-top items-center">
-          <StyledSafeAreaView className="absolute top-0 left-0 right-0 p-4 flex-col">
+          <StyledSafeAreaView className="flex-1">
             <SettingsTopBar />
             <Accordion
               align="top"

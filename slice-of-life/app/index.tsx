@@ -2,10 +2,6 @@ import { Redirect } from "expo-router";
 import { View } from "react-native";
 
 const Index = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <Redirect href="/journal" />
-    </View>
-  );
+  return <Redirect href="/journal" />;
 };
 export default Index;

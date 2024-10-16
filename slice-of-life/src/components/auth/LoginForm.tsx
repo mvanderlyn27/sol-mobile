@@ -34,10 +34,11 @@ export default function SignupForm() {
   return (
     <StyledMotiView className="flex-col items-center justify-center">
       <StyledMotiView
-        className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between px-4 py-3"
+        className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between p-4"
         from={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ type: "timing", duration: 500 }}>
+        exit={{ opacity: 0 }}
+        transition={{ type: "timing", duration: 300 }}>
         <StyledTextInput
           value={email}
           placeholder="EMAIL ADDRESS"
@@ -49,10 +50,11 @@ export default function SignupForm() {
         />
       </StyledMotiView>
       <StyledMotiView
-        className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between px-4 py-3"
+        className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between p-4"
         from={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ type: "timing", duration: 500 }}>
+        exit={{ opacity: 0 }}
+        transition={{ type: "timing", duration: 300 }}>
         <StyledTextInput
           value={password}
           placeholder="PASSWORD"

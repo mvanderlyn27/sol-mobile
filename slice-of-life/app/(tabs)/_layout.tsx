@@ -1,9 +1,12 @@
 import ButtonNavigator from "@/src/components/navigation/ButtonNavigator";
+import SettingsHeader from "@/src/components/settings/SettingsHeader";
 import { useAuth } from "@/src/contexts/AuthProvider";
 import { DataProvider } from "@/src/contexts/DataProvider";
 import { NavigationProvider } from "@/src/contexts/NavigationProvider";
+import { Ionicons } from "@expo/vector-icons";
 import { Redirect } from "expo-router";
 import { Stack } from "expo-router/stack";
+import { Pressable, Text } from "react-native";
 
 export default function Layout() {
   const { session } = useAuth();
@@ -22,7 +25,12 @@ export default function Layout() {
           {/* <Stack.Screen name="index" options={{ animation: "fade" }} /> */}
           <Stack.Screen name="journal" options={{ animation: "fade" }} />
           <Stack.Screen name="profile" options={{ animation: "fade" }} />
-          <Stack.Screen name="settings" options={{ animation: "fade" }} />
+          <Stack.Screen
+            name="settings"
+            options={{
+              animation: "fade",
+            }}
+          />
         </Stack>
         <ButtonNavigator />
       </NavigationProvider>

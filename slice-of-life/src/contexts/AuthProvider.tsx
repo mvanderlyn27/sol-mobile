@@ -4,7 +4,10 @@ import { AuthService } from "@/src/api/auth";
 import { Session } from "@supabase/supabase-js";
 import { ActivityIndicator, View } from "react-native";
 import { SupabaseResponse } from "../lib/supabase";
-import SplashScreen from "../components/shared/SplashScreen";
+import LoadingScreen from "../components/screens/LoadingScreen";
+import Toast from "react-native-root-toast";
+import { Redirect } from "expo-router";
+import { AnimatePresence, MotiView } from "moti";
 
 // Define the context type
 interface AuthContextType {
@@ -52,7 +55,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsReady(true);
     } else {
       setError(response.error || "Error signing in");
-      console.error("Error signing in:", response.error);
+      console.debug("Error signing in:", response.error);
+      Toast.show("Error logging in", { duration: 3000 });
+      setIsReady(true);
     }
   };
 
@@ -66,6 +71,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsReady(true);
     } else {
       setError(response.error || "Error signing up");
+      console.error("Error signing up:", response.error);
+      Toast.show("Error signing up, please try again", { duration: 3000 });
+      setIsReady(true);
     }
   };
 
@@ -112,15 +120,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setError(response.error || "Error resetting password");
     }
   };
-
   if (!isReady) {
-    return <SplashScreen />;
+    return;
   }
+
   return (
-    <AuthContext.Provider
-      value={{ session, signIn, signUp, signOut, updateEmail, updatePassword, sendResetPasswordEmail, isReady, error }}>
-      {children}
-    </AuthContext.Provider>
+    <AnimatePresence>
+      {!isReady && (
+        <MotiView
+          style={{ flex: 1, backgroundColor: "transparent" }}
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 500 }}>
+          <LoadingScreen />
+        </MotiView>
+      )}
+      {isReady && (
+        <MotiView
+          style={{ flex: 1, backgroundColor: "transparent" }}
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 500 }}>
+          <AuthContext.Provider
+            value={{
+              session,
+              signIn,
+              signUp,
+              signOut,
+              updateEmail,
+              updatePassword,
+              sendResetPasswordEmail,
+              isReady,
+              error,
+            }}>
+            {children}
+          </AuthContext.Provider>
+        </MotiView>
+      )}
+    </AnimatePresence>
   );
 };
 

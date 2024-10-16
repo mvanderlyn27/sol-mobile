@@ -13,7 +13,7 @@ export class AuthService {
     const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name: name } } });
 
     if (error) {
-      console.error("Sign-up error:", error);
+      console.debug("Sign-up error:", error);
       return { success: false, error: error.message };
     }
     return { success: true, data: data.session };
@@ -29,7 +29,7 @@ export class AuthService {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      console.error("Sign-in error:", error);
+      console.debug("Sign-in error:", error);
       return { success: false, error: error.message };
     }
     return { success: true, data: data.session };
@@ -43,7 +43,7 @@ export class AuthService {
     const { error } = await supabase.auth.signOut();
 
     if (error) {
-      console.error("Sign-out error:", error);
+      console.debug("Sign-out error:", error);
       return { success: false, error: error.message };
     }
     return { success: true };
@@ -51,12 +51,12 @@ export class AuthService {
   static async updatePassword(password: string): Promise<SupabaseResponse<Session>> {
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-      console.error("Error updating password:", error);
+      console.debug("Error updating password:", error);
       return { success: false, error: error.message };
     }
     const { data, error: refreshError } = await supabase.auth.refreshSession();
     if (refreshError) {
-      console.error("Error refreshing", refreshError);
+      console.debug("Error refreshing", refreshError);
       return { success: false, error: refreshError.message };
     }
     return { success: true, data: data.session };
@@ -64,12 +64,12 @@ export class AuthService {
   static async updateEmail(email: string): Promise<SupabaseResponse<Session>> {
     const { error } = await supabase.auth.updateUser({ email });
     if (error) {
-      console.error("Error updating email:", error);
+      console.debug("Error updating email:", error);
       return { success: false, error: error.message };
     }
     const { data, error: refreshError } = await supabase.auth.refreshSession();
     if (refreshError) {
-      console.error("Error refreshing", refreshError);
+      console.debug("Error refreshing", refreshError);
       return { success: false, error: refreshError.message };
     }
     return { success: true, data: data.session };
@@ -77,7 +77,7 @@ export class AuthService {
   static async sendResetPasswordEmail(email: string): Promise<SupabaseResponse<null>> {
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) {
-      console.error("Error sending reset password email:", error);
+      console.debug("Error sending reset password email:", error);
       return { success: false, error: error.message };
     }
     return { success: true };

@@ -9,7 +9,7 @@ const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 
-export default function SettingsTopBar() {
+export default function SettingsHeader() {
   const { setNavMenuVisible } = useNav();
   const handleBack = () => {
     setNavMenuVisible(true);
