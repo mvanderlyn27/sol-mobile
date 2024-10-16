@@ -18,7 +18,7 @@ export default function LoginScreen() {
       <ImageBackground style={{ flex: 1 }} source={getImageFromPath("bg_03")}>
         <StyledSafeAreaView className="absolute top-0 left-0 right-0 bottom-0">
           <StyledText
-            className="text-white text-4xl tracking-widest text-secondary text-center"
+            className="text-white text-xl tracking-widest text-secondary text-center"
             style={{ fontFamily: "PragmaticaExtended" }}>
             SLICE OF LIFE
           </StyledText>
@@ -33,6 +33,10 @@ export default function LoginScreen() {
               <StyledMotiView
                 animate={{
                   left: selectedTab === "signup" ? 0 : "50%", // Moves from left-0 to right-0
+                  borderTopLeftRadius: selectedTab !== "signup" ? 0 : 12,
+                  borderBottomLeftRadius: selectedTab !== "signup" ? 0 : 12,
+                  borderTopRightRadius: selectedTab === "signup" ? 0 : 12,
+                  borderBottomRightRadius: selectedTab === "signup" ? 0 : 12,
                 }}
                 transition={{ type: "spring", damping: 15 }}
                 className="absolute top-0 bottom-0 w-1/2 bg-secondary rounded-xl"
