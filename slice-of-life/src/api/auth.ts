@@ -9,8 +9,8 @@ export class AuthService {
    * @param password - The user's password.
    * @returns SupabaseResponse containing success status, data, or error.
    */
-  static async signUp(email: string, password: string): Promise<SupabaseResponse<Session>> {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  static async signUp(email: string, password: string, name: string): Promise<SupabaseResponse<Session>> {
+    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name: name } } });
 
     if (error) {
       console.error("Sign-up error:", error);

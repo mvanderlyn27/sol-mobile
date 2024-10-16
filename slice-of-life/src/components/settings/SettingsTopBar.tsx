@@ -17,7 +17,7 @@ export default function SettingsTopBar() {
   };
   return (
     <StyledMotiView className="p-4 justify-center items-center">
-      <StyledPressable className="absolute left-4" onPress={handleBack}>
+      <StyledPressable className="absolute left-4 px-6" onPress={handleBack}>
         <Ionicons name="chevron-back" size={24} color="#E7DBCB" />
       </StyledPressable>
       <StyledText style={{ fontFamily: "PragmaticaExtended" }} className="text-3xl text-secondary">

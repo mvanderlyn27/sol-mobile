@@ -9,6 +9,8 @@ import { useData } from "@/src/contexts/DataProvider";
 import { useAuth } from "@/src/contexts/AuthProvider";
 import { useEffect } from "react";
 import { useNav } from "@/src/contexts/NavigationProvider";
+import ProfilePic from "../profile/ProfilePic";
+import ProfileName from "../profile/ProfileName";
 const StyledView = styled(View);
 const StyledMotiView = styled(MotiView);
 const StyledSafeAreaView = styled(SafeAreaView);
@@ -26,8 +28,33 @@ export default function ProfileScreen() {
           exit={{ opacity: 0 }}
           transition={{ type: "timing", duration: 1000 }}
           className="flex-1">
-          <StyledSafeAreaView className="absolute top-0 left-0 right-0 p-4">
-            <StyledText className="text-white text-xl font-bold text-center">Profile Screen</StyledText>
+          <StyledSafeAreaView className="absolute top-0 left-0 right-0">
+            <StyledMotiView
+              className="flex-1 flex-col items-center"
+              from={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ type: "timing", duration: 1000 }}>
+              <StyledText
+                className="text-white text-3xl tracking-widest text-secondary text-center"
+                style={{ fontFamily: "PragmaticaExtended" }}>
+                SLICE OF LIFE
+              </StyledText>
+              <StyledText
+                className="text-white text-[10px]  text-secondary text-center"
+                style={{ fontFamily: "PragmaticaExtended-light" }}>
+                ORDINARY MUNDANE. BUT UNIQUELY YOURS
+              </StyledText>
+              <StyledView className="w-full items-center">
+                <StyledText
+                  className="text-white text-6xl text-center py-6 text-secondary"
+                  style={{ fontFamily: "PragmaticaExtended-bold" }}>
+                  STARRING
+                </StyledText>
+              </StyledView>
+              <ProfilePic />
+              <ProfileName />
+            </StyledMotiView>
           </StyledSafeAreaView>
         </StyledMotiView>
         <ProfileMenu />

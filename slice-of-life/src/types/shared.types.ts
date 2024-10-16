@@ -154,7 +154,7 @@ export type CreateProfileInput = {
 export type UpdateProfileInput = {
   //   file?: File | Blob;
   file?: FileUploadInput;
-  name: string;
+  name?: string;
 };
 export type FileUploadInput = {
   bucket: string;
