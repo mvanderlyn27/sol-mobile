@@ -61,6 +61,7 @@ interface DataContextType {
   profileError: string | null;
   fetchProfile: () => void;
   updateProfile: (content: UpdateProfileInput) => void;
+  removeProfilePicture: () => void;
   //template
   templates: Template[];
   templatesLoading: boolean;
@@ -343,6 +344,33 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setProfileLoading(false);
     setProfileLoading(false);
   };
+  const removeProfilePicture = async () => {
+    setProfileLoading(true);
+    setProfileError(null);
+    if (!profile) {
+      setProfileError("no user logged in");
+      return;
+    }
+    if (!profile.avatar_url) {
+      console.log("no avatar to delete");
+      return;
+    }
+    const { data, error } = await StorageService.deleteFile("avatars", profile.avatar_url);
+    if (error) {
+      setProfileError(error);
+      setProfileLoading(false);
+      return;
+    }
+
+    const { success } = await ProfileService.updateProfile(profile.id, { ...profile, avatar_url: null });
+    if (!success) {
+      setProfileError("failed to updated profile after storage delete");
+      setProfileLoading(false);
+      return;
+    }
+    setProfileLoading(false);
+    setProfile({ ...profile, avatar_url: null });
+  };
   const updateProfile = async (content: UpdateProfileInput) => {
     setProfileLoading(true);
     setProfileError(null);
@@ -472,6 +500,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         profileError,
         fetchProfile,
         updateProfile,
+        removeProfilePicture,
         //template
         templates,
         templatesLoading,

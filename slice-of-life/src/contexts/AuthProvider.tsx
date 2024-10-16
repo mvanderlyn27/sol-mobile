@@ -10,7 +10,7 @@ import SplashScreen from "../components/shared/SplashScreen";
 interface AuthContextType {
   session: Session | null;
   signIn: (email: string, password: string) => void;
-  signUp: (email: string, password: string) => void;
+  signUp: (email: string, password: string, name: string) => void;
   signOut: () => void;
   updateEmail: (email: string) => void;
   updatePassword: (password: string) => void;
@@ -46,17 +46,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const response = await AuthService.signIn(email, password);
 
     if (response.success) {
+      console.log("logged in");
       setSession(response.data || null);
       setError(null);
       setIsReady(true);
     } else {
       setError(response.error || "Error signing in");
+      console.error("Error signing in:", response.error);
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, name: string) => {
     setIsReady(false);
-    const response = await AuthService.signUp(email, password);
+    const response = await AuthService.signUp(email, password, name);
 
     if (response.success) {
       setSession(response.data || null);

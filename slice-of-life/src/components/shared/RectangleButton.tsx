@@ -28,7 +28,11 @@ export default function RectangleButton({
     <StyledPressable
       onPress={action}
       className={`${color} px-7 py-3 rounded-full shadow-md flex justify-center items-center`}>
-      <StyledText className={`${textColor ?? "text-white"} text-lg font-bold`}>{text}</StyledText>
+      <StyledText
+        className={`${textColor ?? "text-white"} text-lg font-bold`}
+        style={{ fontFamily: "PragmaticaExtended-light" }}>
+        {text}
+      </StyledText>
     </StyledPressable>
   );
 }

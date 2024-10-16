@@ -28,7 +28,7 @@ export default function ProfileScreen() {
           exit={{ opacity: 0 }}
           transition={{ type: "timing", duration: 1000 }}
           className="flex-1">
-          <StyledSafeAreaView className="absolute top-0 left-0 right-0">
+          <StyledSafeAreaView className="absolute top-0 left-0 right-0 bottom-0">
             <StyledMotiView
               className="flex-1 flex-col items-center"
               from={{ opacity: 0 }}

@@ -12,7 +12,9 @@ export default function LogoutButton() {
         signOut();
       }}
       className="w-full py-3 mb-2 bg-transparent border border-secondary rounded-lg">
-      <StyledText className="text-center text-white">Log out</StyledText>
+      <StyledText className="text-center text-secondary" style={{ fontFamily: "PragmaticaExtended" }}>
+        Log out
+      </StyledText>
     </StyledPressable>
   );
 }

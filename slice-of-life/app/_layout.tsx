@@ -39,6 +39,7 @@ export default function RootLayout() {
           host: "https://us.i.posthog.com",
         }}>
         <RootSiblingParent>
+          {/* maybe add stack here for navigation? xD */}
           <Slot />
         </RootSiblingParent>
       </PostHogProvider>

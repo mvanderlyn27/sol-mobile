@@ -86,7 +86,9 @@ export default function DateSelector() {
               )}
             </StyledPressable>
 
-            <StyledText className="text-white p-4 text-secondary">{formatDateString(curDay)}</StyledText>
+            <StyledText className="text-white p-4 text-secondary" style={{ fontFamily: "PragmaticaExtended" }}>
+              {formatDateString(curDay)}
+            </StyledText>
 
             <StyledPressable onPress={onForward} disabled={isToday}>
               {({ pressed }) => (

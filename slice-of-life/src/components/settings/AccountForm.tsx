@@ -62,59 +62,67 @@ const AccountForm = () => {
   };
 
   return (
-    <StyledView className="w-full justify-center items-center  bg-black">
+    <StyledView className="w-full justify-center items-start bg-black">
       {/* Email Field */}
+      <StyledText className="text-secondary mb-2" style={{ fontFamily: "PragmaticaExtended" }}>
+        EMAIL
+      </StyledText>
       <StyledMotiView
         className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between px-4 py-3"
         from={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ type: "timing", duration: 500 }}>
-        <StyledText className="text-secondary">Email</StyledText>
+        {/* <StyledText className="text-secondary">Email</StyledText> */}
         <StyledTextInput
           value={email}
           //   editable={isEditing.email}
+          placeholder="EMAIL ADDRESS"
+          placeholderTextColor={"#B0B0B0"}
           onChangeText={setEmail}
-          className="flex-1 ml-4 text-secondary"
+          className="w-full text-secondary text-center"
+          style={{ fontFamily: "PragmaticaExtended-light" }}
         />
-        {/* <StyledPressable onPress={() => setIsEditing({ ...isEditing, email: !isEditing.email })}> */}
-        <Ionicons name="pencil" size={20} color="#E7DBCB" />
-        {/* </StyledPressable> */}
       </StyledMotiView>
 
       {/* Password Field */}
+      <StyledText className="text-secondary mb-2" style={{ fontFamily: "PragmaticaExtended" }}>
+        PASSWORD
+      </StyledText>
       <StyledMotiView
         className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between px-4 py-3"
         from={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ type: "timing", duration: 500 }}>
-        <StyledText className="text-secondary">Password</StyledText>
+        {/* <StyledText className="text-secondary">Password</StyledText> */}
         <StyledTextInput
           value={password}
           //   editable={isEditing.password}
+          placeholder="PASSWORD"
+          placeholderTextColor={"#B0B0B0"}
           secureTextEntry={true}
           onChangeText={setPassword}
-          className="flex-1 ml-4 text-secondary"
+          className="w-full text-secondary text-center"
+          style={{ fontFamily: "PragmaticaExtended-light" }}
         />
-        {/* <StyledPressable onPress={() => setIsEditing({ ...isEditing, password: !isEditing.password })}> */}
-        <Ionicons name="pencil" size={20} color="#E7DBCB" />
-        {/* </StyledPressable> */}
       </StyledMotiView>
+      <StyledText className="text-secondary mb-2" style={{ fontFamily: "PragmaticaExtended" }}>
+        CONFIRM
+      </StyledText>
       <StyledMotiView
         className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between px-4 py-3"
         from={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ type: "timing", duration: 500 }}>
-        <StyledText className="text-secondary">Confirm Password</StyledText>
         <StyledTextInput
+          placeholder="CONFIRM PASSWORD"
+          placeholderTextColor={"#B0B0B0"}
           value={confirmPassword}
           //   editable={isEditing.password}
           secureTextEntry={true}
           onChangeText={setConfirmPassword}
-          className="flex-1 ml-4 text-secondary"
+          className="w-full text-secondary text-center"
+          style={{ fontFamily: "PragmaticaExtended-light" }}
         />
-        {/* <StyledPressable onPress={() => setIsEditing({ ...isEditing, password: !isEditing.password })}> */}
-        <Ionicons name="pencil" size={20} color="#E7DBCB" />
-        {/* </StyledPressable> */}
       </StyledMotiView>
 
       {/* save */}
@@ -124,7 +132,9 @@ const AccountForm = () => {
         className={`w-full py-3 mb-2 ${
           !hasChanges || updating ? "bg-gray-400" : "bg-secondary"
         } border border-darkPrimary rounded-lg`}>
-        <StyledText className="text-center text-darkPrimary">Save Changes</StyledText>
+        <StyledText className="text-center text-darkPrimary" style={{ fontFamily: "PragmaticaExtended" }}>
+          Save Changes
+        </StyledText>
       </StyledPressable>
     </StyledView>
   );

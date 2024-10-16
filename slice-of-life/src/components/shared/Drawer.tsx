@@ -38,7 +38,9 @@ export default function Drawer({
       initialHeight={height * 0.2}
       customStyles={{ container: { backgroundColor: "#E7DBCB" }, handle: { backgroundColor: "#262326" } }}>
       <StyledMotiView className="flex flex-col justify-center items-center gap-4 mb-4">
-        <StyledText className="text-lg font-semibold text-gray-800">{text}</StyledText>
+        <StyledText className="text-lg font-semibold text-darkPriamry" style={{ fontFamily: "PragmaticaExtended" }}>
+          {text}
+        </StyledText>
         <StyledMotiView className="w-full flex flex-row justify-center items-center gap-4">
           {buttons.map((item, index) => (
             <StyledMotiView key={index} className="mx-4">
