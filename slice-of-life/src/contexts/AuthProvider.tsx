@@ -62,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return;
   };
   const joinEmailList = async (email: string, name: string) => {
-    const formBody = `userGroup=newUsers&mailingLists=cm2cbg6pf00em0mk36f0wenxk&email=${encodeURIComponent(
+    const formBody = `userGroup=newUsers&mailingLists=cm2ccf528010n0ll77ael39hn&email=${encodeURIComponent(
       email
     )}&firstName=${encodeURIComponent(name)}`;
 
