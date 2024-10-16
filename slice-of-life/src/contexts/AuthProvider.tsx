@@ -46,35 +46,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     setIsReady(false);
+    setError(null);
     const response = await AuthService.signIn(email, password);
 
     if (response.success) {
       console.log("logged in");
       setSession(response.data || null);
       setError(null);
-      setIsReady(true);
     } else {
       setError(response.error || "Error signing in");
       console.debug("Error signing in:", response.error);
       Toast.show("Error logging in", { duration: 3000 });
-      setIsReady(true);
     }
+    setIsReady(true);
+    return;
   };
 
   const signUp = async (email: string, password: string, name: string) => {
     setIsReady(false);
+    setError(null);
     const response = await AuthService.signUp(email, password, name);
 
     if (response.success) {
       setSession(response.data || null);
       setError(null);
-      setIsReady(true);
     } else {
       setError(response.error || "Error signing up");
       console.error("Error signing up:", response.error);
       Toast.show("Error signing up, please try again", { duration: 3000 });
-      setIsReady(true);
     }
+    setIsReady(true);
+    return;
   };
 
   const signOut = async () => {

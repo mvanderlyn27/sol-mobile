@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Alert, StyleSheet, View, Text, TextInput, Pressable } from "react-native";
+import { Text, TextInput, Pressable } from "react-native";
 import { useAuth } from "../../contexts/AuthProvider";
-import Toast from "react-native-root-toast";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Link } from "expo-router";
@@ -21,13 +20,6 @@ export default function SignupForm() {
   async function handleSignin() {
     setLoading(true);
     await signIn(email, password);
-
-    if (error) {
-      console.log("error signing in", error);
-      Toast.show("Request failed to send.", {
-        duration: Toast.durations.LONG,
-      });
-    }
     setLoading(false);
   }
 

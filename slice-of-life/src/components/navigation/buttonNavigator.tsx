@@ -38,33 +38,44 @@ export default function ButtonNavigator(): JSX.Element {
     };
   };
   const getListItems = (): VerticalStackItem[] => {
-    return [
+    let options: VerticalStackItem[] = [
       {
         onClick: () => setMenuOpen(false),
         buttonType: ButtonType.X,
       },
-      {
-        onClick: () => handleTabPress("/profile"),
-        primary: false,
-        selected: currentRoute === "/profile",
-        buttonType: ButtonType.Profile,
-        disabled: false,
-      },
-      {
-        onClick: () => handleTabPress("/journal"),
-        primary: false,
-        selected: currentRoute === "/journal",
-        buttonType: ButtonType.JournalCheck,
-        disabled: false,
-      },
-      // {
-      //   onClick: () => handleTabPress("/library"),
-      //   primary: false,
-      //   selected: currentRoute === "/library",
-      //   buttonType: ButtonType.Library,
-      //   disabled: false,
-      // },
     ];
+    if (currentRoute === "/journal") {
+      options = [
+        ...options,
+        {
+          onClick: () => handleTabPress("/profile"),
+          primary: false,
+          selected: false,
+          buttonType: ButtonType.Profile,
+          disabled: false,
+        },
+      ];
+    } else {
+      options = [
+        ...options,
+        {
+          onClick: () => handleTabPress("/journal"),
+          primary: false,
+          selected: false,
+          buttonType: ButtonType.JournalCheck,
+          disabled: false,
+        },
+      ];
+    }
+    return options;
+
+    // {
+    //   onClick: () => handleTabPress("/library"),
+    //   primary: false,
+    //   selected: currentRoute === "/library",
+    //   buttonType: ButtonType.Library,
+    //   disabled: false,
+    // },
   };
   return (
     <StyledView key="menu-container" pointerEvents="box-none" className={`absolute top-0 right-0 bottom-0 left-0 `}>
