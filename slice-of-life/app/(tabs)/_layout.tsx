@@ -28,8 +28,8 @@ export default function Layout() {
           {/* <Stack.Screen name="index" options={{ animation: "fade" }} /> */}
           <Stack.Screen name="journal" options={{ animation: "fade" }} />
           <Stack.Screen name="profile" options={{ animation: "fade" }} />
+          <Stack.Screen name="tutorial" options={{ animation: "fade" }} />
           <Stack.Screen name="resetPassword" options={{ animation: "fade" }} />
-          <Stack.Screen name="verifyEmail" options={{ animation: "fade" }} />
           <Stack.Screen
             name="settings"
             options={{

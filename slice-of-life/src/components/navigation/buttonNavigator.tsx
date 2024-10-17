@@ -16,7 +16,7 @@ export const StyledView = styled(View);
 
 export default function ButtonNavigator(): JSX.Element {
   const router = useRouter();
-  const { isReady } = useData();
+  const { isReady, dailyEntryAvailable } = useData();
   const currentRoute = usePathname();
   const { navMenuVisible, menuOpen, setMenuOpen } = useNav();
   // const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -44,29 +44,34 @@ export default function ButtonNavigator(): JSX.Element {
         buttonType: ButtonType.X,
       },
     ];
-    if (currentRoute === "/journal") {
-      options = [
-        ...options,
-        {
-          onClick: () => handleTabPress("/profile"),
-          primary: false,
-          selected: false,
-          buttonType: ButtonType.Profile,
-          disabled: false,
-        },
-      ];
-    } else {
-      options = [
-        ...options,
-        {
-          onClick: () => handleTabPress("/journal"),
-          primary: false,
-          selected: false,
-          buttonType: ButtonType.JournalCheck,
-          disabled: false,
-        },
-      ];
+    if (currentRoute !== "/profile") {
+      options.push({
+        onClick: () => handleTabPress("/profile"),
+        primary: false,
+        selected: false,
+        buttonType: ButtonType.Profile,
+        disabled: false,
+      });
     }
+    if (currentRoute !== "/journal") {
+      options.push({
+        onClick: () => handleTabPress("/journal"),
+        primary: dailyEntryAvailable,
+        selected: false,
+        buttonType: ButtonType.JournalCheck,
+        disabled: false,
+      });
+    }
+    if (currentRoute !== "/tutorial") {
+      options.push({
+        onClick: () => handleTabPress("/tutorial"),
+        primary: false,
+        selected: false,
+        buttonType: ButtonType.Tutorial,
+        disabled: false,
+      });
+    }
+    console.log("options", options);
     return options;
 
     // {

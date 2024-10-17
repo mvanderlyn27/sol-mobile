@@ -405,6 +405,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       updateContent.avatar_url = publicFilePath;
       hasChanges = true;
     }
+    if (content.new !== undefined && content.new !== profile.new) {
+      updateContent.new = content.new;
+      hasChanges = true;
+    }
     if (hasChanges) {
       const { data, error } = await ProfileService.updateProfile(profile.id, updateContent);
       if (error) {

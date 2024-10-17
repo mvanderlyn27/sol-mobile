@@ -57,6 +57,8 @@ export default function RoundButton({
         return <StyledFA className={`text-center ${getTextColor(buttonType)}`} name="book" size={50} />;
       case "share":
         return <StyledMaterial className={`text-center ${getTextColor(buttonType)}`} name="ios-share" size={50} />;
+      case "tutorial":
+        return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="infocirlceo" size={50} />;
       case "x":
         return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="close" size={50} />;
       case "settings":

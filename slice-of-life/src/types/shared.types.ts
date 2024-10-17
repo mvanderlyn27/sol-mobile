@@ -25,6 +25,7 @@ export enum ButtonType {
   Frame = "frame",
   Template = "template",
   Settings = "settings",
+  Tutorial = "tutorial",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {
@@ -155,6 +156,7 @@ export type UpdateProfileInput = {
   //   file?: File | Blob;
   file?: FileUploadInput;
   name?: string;
+  new?: boolean;
 };
 export type FileUploadInput = {
   bucket: string;
