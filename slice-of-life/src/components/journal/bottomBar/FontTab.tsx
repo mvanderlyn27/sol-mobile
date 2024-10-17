@@ -8,6 +8,7 @@ import { styled } from "nativewind";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { CanvasItem, Font } from "@/src/types/shared.types";
 const StyledMotiView = styled(MotiView);
+const StyledText = styled(Text);
 
 export default function FontTab({ onSelect }: { onSelect: () => void }) {
   const { fonts } = useData(); // Fetch frames from the context
@@ -46,6 +47,9 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
   };
   return (
     <View style={{ flex: 1 }}>
+      <StyledText className="text-secondary text-xl" style={{ fontFamily: "PragmaticaExtended" }}>
+        FONTS
+      </StyledText>
       <PagerView
         style={{ flex: 1 }}
         initialPage={0}

@@ -28,6 +28,7 @@ interface CanvasContextType {
   clearCanvas: () => void;
   exitEditCanvas: () => void;
   loadCanvasFromJsonString: (json: string) => void;
+  useTemplate: (templateString: string) => void;
   jsonToCanvas: (json: string) => Canvas | null;
   canvasToJson: (canvas: Canvas) => Json;
   editCanvasItem: (index: number) => void;
@@ -341,6 +342,20 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     setEditingCanvas(false);
     setTempCanvas(null);
   };
+
+  //template
+  const useTemplate = (templateString: string) => {
+    setCanvasError(null);
+    setCanvasHasChanges(false);
+    const newCanvas = jsonToCanvas(templateString);
+    if (!newCanvas) {
+      setCanvasError("failed parsing template string");
+      console.debug("failed parsing template string");
+      return;
+    }
+    setTempCanvas(newCanvas);
+    setCanvasHasChanges(true);
+  };
   const canvasToJson = (canvas: Canvas): Json => {
     return JSON.stringify(canvas);
   };
@@ -376,6 +391,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
         startEditCanvas,
         saveCanvasEdits,
         exitEditCanvas,
+        useTemplate,
         loadCanvasFromJsonString,
         jsonToCanvas,
         canvasToJson,
