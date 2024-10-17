@@ -8,11 +8,14 @@ import LoadingScreen from "../components/screens/LoadingScreen";
 import Toast from "react-native-root-toast";
 import { Redirect } from "expo-router";
 import { AnimatePresence, MotiView } from "moti";
+import * as Linking from "expo-linking";
+import { router } from "expo-router";
 
 // Define the context type
 interface AuthContextType {
   session: Session | null;
   signIn: (email: string, password: string) => void;
+  signInWithToken: (tokenHash: string, method?: string) => void;
   signUp: (email: string, password: string, name: string) => void;
   signOut: () => void;
   updateEmail: (email: string) => void;
@@ -81,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     joinEmailList(email, name);
     if (response.success) {
       setSession(response.data || null);
+      Toast.show("Check email for verification", { duration: 3000 });
       setError(null);
     } else {
       setError(response.error || "Error signing up");
@@ -125,18 +129,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   const sendResetPasswordEmail = async (email: string) => {
+    const resetPasswordURL = Linking.createURL("/resetPassword");
     const response = await AuthService.sendResetPasswordEmail(email);
     if (response.success) {
       setSession(null);
       setError(null);
+      Toast.show("Check your email to reset your password", {});
       setIsReady(true);
     } else {
       setError(response.error || "Error resetting password");
+      setIsReady(true);
     }
   };
-  if (!isReady) {
-    return;
-  }
+
+  const signInWithToken = async (tokenHash: string, method?: string) => {
+    const response = await AuthService.signInWithToken(tokenHash);
+    if (response.success) {
+      setSession(response.data || null);
+      setError(null);
+      setIsReady(true);
+      if (method === "verifyEmail") {
+        router.push("/resetPassword");
+      } else if (method === "resetPassword") {
+        router.push("/resetPassword");
+      }
+    } else {
+      setIsReady(true);
+      setError(response.error || "Error logging in");
+      router.push("/login");
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -161,6 +183,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             value={{
               session,
               signIn,
+              signInWithToken,
               signUp,
               signOut,
               updateEmail,

@@ -1,6 +1,7 @@
 // src/services/AuthService.ts
 import { SupabaseResponse, supabase } from "@/src/lib/supabase";
-import { Session } from "@supabase/supabase-js";
+import { Session, VerifyTokenHashParams } from "@supabase/supabase-js";
+import * as Linking from "expo-linking";
 
 export class AuthService {
   /**
@@ -10,7 +11,11 @@ export class AuthService {
    * @returns SupabaseResponse containing success status, data, or error.
    */
   static async signUp(email: string, password: string, name: string): Promise<SupabaseResponse<Session>> {
-    const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { name: name } } });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name: name } },
+    });
 
     if (error) {
       console.debug("Sign-up error:", error);
@@ -30,6 +35,14 @@ export class AuthService {
 
     if (error) {
       console.debug("Sign-in error:", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, data: data.session };
+  }
+  static async signInWithToken(tokenHash: string): Promise<SupabaseResponse<Session>> {
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "email" });
+    if (error) {
+      console.debug("Error signing in with token:", error);
       return { success: false, error: error.message };
     }
     return { success: true, data: data.session };
@@ -75,7 +88,8 @@ export class AuthService {
     return { success: true, data: data.session };
   }
   static async sendResetPasswordEmail(email: string): Promise<SupabaseResponse<null>> {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    // const resetPasswordURL = Linking.createURL("callback/resetPassword");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {});
     if (error) {
       console.debug("Error sending reset password email:", error);
       return { success: false, error: error.message };

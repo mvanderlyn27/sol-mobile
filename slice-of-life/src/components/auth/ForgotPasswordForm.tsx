@@ -13,18 +13,18 @@ const StyledLink = styled(Link);
 
 export default function SignupForm() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, error } = useAuth();
+  const { sendResetPasswordEmail } = useAuth();
 
-  async function handleSignin() {
+  async function handleRequestPasswordReset() {
     setLoading(true);
-    await signIn(email, password);
+    await sendResetPasswordEmail(email);
+    setEmail("");
     setLoading(false);
   }
 
   return (
-    <StyledMotiView className="flex-col items-center justify-center">
+    <StyledMotiView className="flex-col w-full items-start justify-center">
       <StyledMotiView
         className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between p-4"
         from={{ opacity: 0 }}
@@ -41,37 +41,12 @@ export default function SignupForm() {
           autoCapitalize="none"
         />
       </StyledMotiView>
-      <StyledMotiView
-        className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between p-4"
-        from={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ type: "timing", duration: 300 }}>
-        <StyledTextInput
-          value={password}
-          placeholder="PASSWORD"
-          placeholderTextColor="#B0B0B0"
-          onChangeText={setPassword}
-          className="w-full text-secondary text-center"
-          style={{ fontFamily: "PragmaticaExtended-light" }}
-          secureTextEntry={true}
-          autoCapitalize="none"
-        />
-      </StyledMotiView>
-      {/* <Link
-        href="/forgotPassword"
-        className="text-[#B0B0B0] text-xs text-center underline"
-        style={{ fontFamily: "PragmaticaExtended-light" }}>
-        FORGOT PASSWORD?
-      </Link> */}
       <StyledPressable
-        onPress={handleSignin}
+        onPress={handleRequestPasswordReset}
         disabled={loading}
-        className={`w-full py-3 mb-2 mt-8 ${
-          loading ? "bg-gray-400" : "bg-secondary"
-        } border border-darkPrimary rounded-lg`}>
+        className={`w-full py-3 my-2 ${loading ? "bg-gray-400" : "bg-secondary"} border border-darkPrimary rounded-lg`}>
         <StyledText className="text-center text-darkPrimary" style={{ fontFamily: "PragmaticaExtended" }}>
-          LOGIN
+          SUBMIT
         </StyledText>
       </StyledPressable>
     </StyledMotiView>

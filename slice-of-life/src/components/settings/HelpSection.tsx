@@ -1,7 +1,8 @@
 import { useData } from "@/src/contexts/DataProvider";
 import { MotiView, Text } from "moti";
 import { styled } from "nativewind";
-import { Linking, Pressable } from "react-native";
+import { Pressable } from "react-native";
+import * as Linking from "expo-linking";
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 export default function HelpSection() {

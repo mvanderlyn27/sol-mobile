@@ -3,11 +3,11 @@ import { styled } from "nativewind";
 import { useState } from "react";
 import SignupForm from "../auth/SignupForm";
 import LoginForm from "../auth/LoginForm";
-import { Text, SafeAreaView } from "react-native";
-import { StyledPressable } from "../journal/canvas/CanvasFrameHolder";
+import { Text, SafeAreaView, Pressable } from "react-native";
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 const StyledSafeAreaView = styled(SafeAreaView);
+const StyledPressable = styled(Pressable);
 export default function LoginScreen() {
   //login | signup
   const [selectedTab, setSelectedTab] = useState("login");

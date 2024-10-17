@@ -23,12 +23,6 @@ export default function SignupForm() {
   async function handleSignUp() {
     setLoading(true);
     await signUp(email, password, username);
-
-    if (error) {
-      let toast = Toast.show("Request failed to send.", {
-        duration: Toast.durations.LONG,
-      });
-    }
     setLoading(false);
   }
 
