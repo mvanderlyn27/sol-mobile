@@ -16,12 +16,12 @@ export default function HelpSection() {
     <StyledMotiView className="px-12">
       <StyledText style={{ fontFamily: "PragmaticaExtended" }} className="text-md text-secondary">
         For support, reach out to us
-        <Pressable onPress={handleEmailPress} style={{}}>
-          <StyledText className="text-md text-secondary underline" style={{ fontFamily: "PragmaticaExtended-bold" }}>
-            your-email@example.com
-          </StyledText>
-        </Pressable>
       </StyledText>
+      <Pressable onPress={handleEmailPress} style={{}}>
+        <StyledText className="text-md text-secondary underline" style={{ fontFamily: "PragmaticaExtended-bold" }}>
+          support@sliceoflifeapp.com
+        </StyledText>
+      </Pressable>
     </StyledMotiView>
   );
 }
