@@ -3,7 +3,7 @@ import { useJournal } from "@/src/contexts/JournalProvider";
 import { BottomDrawerType, CanvasText } from "@/src/types/shared.types";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
-import { Pressable, Text, TextInput } from "react-native";
+import { Dimensions, Pressable, Text, TextInput } from "react-native";
 import Slider from "@react-native-community/slider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Drawer from "../../shared/Drawer";
@@ -47,6 +47,8 @@ export default function EditCanvasText({ item }: { item: CanvasText }) {
     setShowBottomDrawer(false);
     setBottomBarVisible(true);
   };
+  const screenWidth = Dimensions.get("window").width; // Get the screen width
+  const padding = 40; //
   return (
     <StyledBlurView className="absolute top-0 bottom-0 right-0 left-0 bg-black/50" intensity={50}>
       {/* Centered text input and slider */}
@@ -55,10 +57,16 @@ export default function EditCanvasText({ item }: { item: CanvasText }) {
           <StyledMotiView className="justify-center items-center">
             <StyledTextInput
               className="text-white"
+              textAlignVertical="center"
+              multiline={true}
               style={{
                 fontFamily: item.fontType ?? "System",
                 fontSize: updatedFontSize,
                 color: updatedFontColor,
+                textAlign: "center",
+                justifyContent: "center",
+                // maxWidth: screenWidth - padding,
+                // height: Dimensions.get("screen").height - padding,
               }}
               onChangeText={setTextInput}
               autoFocus
@@ -71,7 +79,7 @@ export default function EditCanvasText({ item }: { item: CanvasText }) {
             <Slider
               style={{ width: 200, height: 40 }}
               minimumValue={10}
-              maximumValue={200}
+              maximumValue={100}
               minimumTrackTintColor={updatedFontColor}
               thumbTintColor={updatedFontColor}
               maximumTrackTintColor="#000000"

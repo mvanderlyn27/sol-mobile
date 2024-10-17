@@ -20,7 +20,7 @@ export default function SettingsHeader() {
       <StyledPressable className="absolute left-4 px-6" onPress={handleBack}>
         <Ionicons name="chevron-back" size={24} color="#E7DBCB" />
       </StyledPressable>
-      <StyledText style={{ fontFamily: "PragmaticaExtended" }} className="text-3xl text-secondary">
+      <StyledText style={{ fontFamily: "PragmaticaExtended-bold" }} className="text-3xl text-secondary">
         SETTINGS
       </StyledText>
     </StyledMotiView>

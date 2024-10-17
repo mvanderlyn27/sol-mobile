@@ -13,7 +13,7 @@ export default function LoadingScreen() {
     <StyledSafeAreaView className="absolute top-0 left-0 right-0 bottom-0">
       <StyledText
         className="text-white text-xl tracking-widest text-secondary text-center"
-        style={{ fontFamily: "PragmaticaExtended" }}>
+        style={{ fontFamily: "PragmaticaExtended-bold" }}>
         SLICE OF LIFE
       </StyledText>
       <StyledText
