@@ -7,16 +7,16 @@ export const BG_06 = require("./backgrounds/BG_Paper_06.jpg");
 export const BG_07 = require("./backgrounds/BG_Paper_07.jpg");
 export const BG_08 = require("./backgrounds/BG_Paper_08.jpg");
 export const BG_09 = require("./backgrounds/BG_Paper_09.jpg");
-export const Tutorial_01 = require("./tutorial/Tutorials_p01.jpg");
-export const Tutorial_02 = require("./tutorial/Tutorials_p02.jpg");
-export const Tutorial_03 = require("./tutorial/Tutorials_p03.jpg");
-export const Tutorial_04 = require("./tutorial/Tutorials_p04.jpg");
-export const Tutorial_05 = require("./tutorial/Tutorials_p05.jpg");
-export const Tutorial_06 = require("./tutorial/Tutorials_p06.jpg");
-export const Tutorial_07 = require("./tutorial/Tutorials_p07.jpg");
-export const Tutorial_08 = require("./tutorial/Tutorials_p08.jpg");
-export const Tutorial_09 = require("./tutorial/Tutorials_p09.jpg");
-export const Tutorial_10 = require("./tutorial/Tutorials_p10.jpg");
+export const Tutorial_01 = require("./tutorial/Tutorials_p01.png");
+export const Tutorial_02 = require("./tutorial/Tutorials_p02.png");
+export const Tutorial_03 = require("./tutorial/Tutorials_p03.png");
+export const Tutorial_04 = require("./tutorial/Tutorials_p04.png");
+export const Tutorial_05 = require("./tutorial/Tutorials_p05.png");
+export const Tutorial_06 = require("./tutorial/Tutorials_p06.png");
+export const Tutorial_07 = require("./tutorial/Tutorials_p07.png");
+export const Tutorial_08 = require("./tutorial/Tutorials_p08.png");
+export const Tutorial_09 = require("./tutorial/Tutorials_p09.png");
+export const Tutorial_10 = require("./tutorial/Tutorials_p10.png");
 export const DefaultAvatar = require("./Default_Avatar.jpg");
 
 //maybe in the future store in the cloud?
