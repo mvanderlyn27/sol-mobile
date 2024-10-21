@@ -19,10 +19,15 @@ export default function TutorialScreen() {
   const [currentPage, setCurrentPage] = useState(0);
   const { profile, updateProfile } = useData();
   const totalPages = 10; // Number of pages in the tutorial
-  const handleContinue = () => {
-    if (profile?.new) {
+
+  useEffect(() => {
+    // Trigger the updateProfile only when the tutorial reaches the last page
+    if (currentPage === totalPages - 1 && profile?.new) {
       updateProfile({ new: false });
     }
+  }, [currentPage, profile, updateProfile, totalPages]);
+
+  const handleContinue = () => {
     router.push("/journal");
   };
   return (
@@ -40,11 +45,6 @@ export default function TutorialScreen() {
         </StyledText>
 
         <StyledMotiView className="flex-1">
-          <StyledText
-            className="mt-10 text-2xl tracking-widest text-secondary text-center"
-            style={{ fontFamily: "PragmaticaExtended" }}>
-            TUTORIAL
-          </StyledText>
           <StyledPagerView
             className="flex-1"
             initialPage={0}
@@ -58,32 +58,27 @@ export default function TutorialScreen() {
               </StyledView>
             ))}
           </StyledPagerView>
-
-          {/* Continue Button */}
-          {currentPage === totalPages - 1 && (
-            <AnimatePresence>
-              <StyledMotiView
-                className="absolute bottom-10 left-1/2"
-                from={{ opacity: 0, translateY: 20 }}
-                animate={{ opacity: 1, translateY: 0 }}
-                exit={{ opacity: 0, translateY: 20 }}
-                transition={{ type: "timing", duration: 300 }}>
-                <StyledPressable
-                  className=" bg-secondary py-3 px-10 rounded-full"
-                  onPress={() => {
-                    // Handle the continue action here, like navigating to the next screen
-                    handleContinue();
-                  }}>
-                  <StyledText
-                    className="text-white text-lg tracking-wider"
-                    style={{ fontFamily: "PragmaticaExtended-bold" }}>
-                    CONTINUE
-                  </StyledText>
-                </StyledPressable>
-              </StyledMotiView>
-            </AnimatePresence>
-          )}
         </StyledMotiView>
+
+        {/* Continue Button */}
+        {currentPage === totalPages - 1 && (
+          <AnimatePresence>
+            <StyledMotiView
+              className="absolute bottom-10 right-5"
+              from={{ opacity: 0, translateY: 20 }}
+              animate={{ opacity: 1, translateY: 0 }}
+              exit={{ opacity: 0, translateY: 20 }}
+              transition={{ type: "timing", duration: 300 }}>
+              <StyledPressable className=" bg-secondary py-3 px-10 rounded-full" onPress={handleContinue}>
+                <StyledText
+                  className="text-white text-lg tracking-wider"
+                  style={{ fontFamily: "PragmaticaExtended-bold" }}>
+                  CONTINUE
+                </StyledText>
+              </StyledPressable>
+            </StyledMotiView>
+          </AnimatePresence>
+        )}
       </StyledSafeAreaView>
     </ImageBackground>
   );
