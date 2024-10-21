@@ -11,7 +11,7 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint",
-    "seed": "npx tsx seed.ts > seed.sql"
+    "genUsers": "npx tsx genUsers.ts" 
   },
   "jest": {
     "preset": "jest-expo"
@@ -23,6 +23,7 @@
     "@react-native-masked-view/masked-view": "0.3.1",
     "@react-navigation/native": "^6.0.2",
     "@rneui/themed": "^4.0.0-rc.8",
+    "@snaplet/copycat": "^5.1.0",
     "@supabase/supabase-js": "^2.45.4",
     "aes-js": "^3.1.2",
     "base64-arraybuffer": "^1.0.2",
@@ -67,8 +68,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
-    "@snaplet/copycat": "^5.1.0",
-    "@snaplet/seed": "0.98.0",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.2.45",
     "@types/react-test-renderer": "^18.0.7",

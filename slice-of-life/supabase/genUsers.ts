@@ -1,16 +1,13 @@
 import { Database } from "@/src/types/supabase.types";
-import { createSeedClient } from "@snaplet/seed";
-import { SupabaseClient, createClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import { copycat, faker } from "@snaplet/copycat";
-
 // Number of days for which to create page entries in the past
 const DAYS_IN_PAST = 5;
+const FRAME_BUCKET_NAME = "frames";
+const FRAME_FOLDER_PATH = "storage/frames";
 
 const main = async () => {
-  const seed = await createSeedClient({ dryRun: true });
-
   // Truncate all tables in the database
-  await seed.$resetDatabase();
 
   // Seed the database with 10 waitlist entries
   const supabase = createClient<Database>(
@@ -48,28 +45,9 @@ const main = async () => {
       console.error(`Failed to update avatar URL for profile: ${profile.name}`);
       continue;
     }
-
-    // Create page entries for the current day and the past DAYS_IN_PAST days
-    for (let dayOffset = 0; dayOffset <= DAYS_IN_PAST; dayOffset++) {
-      const date = new Date();
-      date.setDate(date.getDate() - dayOffset);
-
-      const formattedDate = date.toISOString().split("T")[0]; // Format the date as YYYY-MM-DD
-
-      // Uncomment to insert a new page entry associated with the profile
-      // await supabase
-      //   .from("pages")
-      //   .insert({
-      //     created_by: profile.id,
-      //     created_at: formattedDate,
-      //     title: `Journal Entry for ${formattedDate}`,
-      //     content: `This is a sample content for ${formattedDate}`,
-      //   });
-
-      // console.log(`Created page entry for ${profile.name} on ${formattedDate}`);
-    }
   }
 
+  console.log("Database user creation completed successfully!");
   process.exit();
 };
 
