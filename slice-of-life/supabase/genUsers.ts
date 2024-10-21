@@ -6,6 +6,10 @@ const DAYS_IN_PAST = 5;
 const FRAME_BUCKET_NAME = "frames";
 const FRAME_FOLDER_PATH = "storage/frames";
 
+const syncWait = (ms: number) => {
+  const end = Date.now() + ms;
+  while (Date.now() < end) continue;
+};
 const main = async () => {
   // Truncate all tables in the database
 
@@ -31,7 +35,8 @@ const main = async () => {
       },
     });
   }
-
+  //timeout to wait for profiles to be made
+  syncWait(1000);
   // Since `supabase.auth.signUp` creates a user, we should now have all the profiles created as well
   const { data: databaseProfiles } = await supabase.from("profiles").select("*");
 

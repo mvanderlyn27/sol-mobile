@@ -219,6 +219,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
       filePath: filePath,
       base64: base64,
       fileExtension: fileExtension,
+      mimeType: "image/" + fileExtension,
     });
     if (error) {
       console.debug(error);

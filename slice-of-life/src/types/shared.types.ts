@@ -163,6 +163,7 @@ export type FileUploadInput = {
   filePath: string;
   base64: string;
   fileExtension: string;
+  mimeType: string;
 };
 
 // Sticker Types

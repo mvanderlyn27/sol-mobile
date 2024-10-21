@@ -85,24 +85,24 @@ enabled = true
 [storage.buckets.frames]
 public = true
 file_size_limit = "50MiB"
-allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "text/xml"]
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/jpg", "text/xml"]
 objects_path = "./storage/frames"
 
 [storage.buckets.template_photos]
 public = true
 file_size_limit = "50MiB"
-allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"]
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/jpg", "image/svg+xml"]
 objects_path = "./storage/template_photos"
 
 [storage.buckets.avatars]
 public = true
 file_size_limit = "50MiB"
-allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"]
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/jpg", "image/svg+xml"]
 
 [storage.buckets.book_photos]
 public = true
 file_size_limit = "50MiB"
-allowed_mime_types = ["image/png", "image/jpeg", "image/webp"]
+allowed_mime_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
 
 [auth]
 enabled = true

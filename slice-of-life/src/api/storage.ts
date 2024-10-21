@@ -15,7 +15,7 @@ export default class StorageService {
   static async uploadFile(info: FileUploadInput): Promise<SupabaseResponse<string>> {
     const { data, error } = await supabase.storage
       .from(info.bucket)
-      .upload(info.filePath, decode(info.base64), { contentType: "image", upsert: true });
+      .upload(info.filePath, decode(info.base64), { contentType: info.mimeType, upsert: true });
 
     if (error) {
       return { success: false, data: null, error: error.message };
