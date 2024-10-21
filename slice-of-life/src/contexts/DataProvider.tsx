@@ -126,6 +126,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       const hasToday = pagesMap.has(toDayString(new Date()));
       if (hasToday) {
         //if canvas is empty set dailyEntryAvailable to true
+        //some bug rn if first user enters for today, it doesn't set dailyEntryAvailable to be false immediately
+        // also won't trigger wehn a user makes an enntry then clears it
+        // maybe update the trigger to not create a page for new users, and just remove this extra check, just set
+        // dailyEntryAvailable to be true if the pageMap is empty for today's date
         const entry = pagesMap.get(selectedDate);
         setDailyEntryAvailable(entry?.canvas === null);
       } else {
