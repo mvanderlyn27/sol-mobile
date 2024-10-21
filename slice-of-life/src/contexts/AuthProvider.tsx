@@ -65,6 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return;
   };
   const joinEmailList = async (email: string, name: string) => {
+    if (process.env.NODE_ENV !== "production") return;
     const formBody = `userGroup=newUsers&mailingLists=cm2ccf528010n0ll77ael39hn&email=${encodeURIComponent(
       email
     )}&firstName=${encodeURIComponent(name)}`;

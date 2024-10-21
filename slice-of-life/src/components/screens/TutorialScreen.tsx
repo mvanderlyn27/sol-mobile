@@ -19,12 +19,10 @@ export default function TutorialScreen() {
   const [currentPage, setCurrentPage] = useState(0);
   const { profile, updateProfile } = useData();
   const totalPages = 10; // Number of pages in the tutorial
-  useEffect(() => {
+  const handleContinue = () => {
     if (profile?.new) {
       updateProfile({ new: false });
     }
-  }, []);
-  const handleContinue = () => {
     router.push("/journal");
   };
   return (
