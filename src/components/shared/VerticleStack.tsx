@@ -1,6 +1,6 @@
 import { styled } from "nativewind";
 import { MotiView } from "moti";
-import CircleButton from "../shared/CircleButton"; // Assuming this is your button component
+import CircleButton from "./CircleButton"; // Assuming this is your button component
 import { VerticalStackItem } from "@/src/types/shared.types";
 
 export const StyledMotiView = styled(MotiView);
