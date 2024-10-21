@@ -123,7 +123,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (selectedDate !== null) {
       setHasSelectedDate(pagesMap.has(selectedDate));
-      setDailyEntryAvailable(!pagesMap.has(toDayString(new Date())));
+      const hasToday = pagesMap.has(toDayString(new Date()));
+      if (hasToday) {
+        //if canvas is empty set dailyEntryAvailable to true
+        const entry = pagesMap.get(selectedDate);
+        setDailyEntryAvailable(entry?.canvas === null);
+      } else {
+        setDailyEntryAvailable(true);
+      }
     }
   }, [pagesMap, selectedDate]);
   useEffect(() => {
