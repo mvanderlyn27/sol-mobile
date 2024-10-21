@@ -11,7 +11,7 @@
     "web": "expo start --web",
     "test": "jest --watchAll",
     "lint": "expo lint",
-    "genUsers": "npx tsx genUsers.ts" 
+    "genUsers": "npx tsx genUsers.ts"
   },
   "jest": {
     "preset": "jest-expo"
