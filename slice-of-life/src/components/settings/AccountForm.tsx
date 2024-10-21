@@ -62,7 +62,7 @@ const AccountForm = () => {
   };
 
   return (
-    <StyledView className="w-full justify-center items-start bg-black">
+    <StyledView className="w-full justify-center items-start ">
       {/* Email Field */}
       <StyledText className="text-secondary mb-2" style={{ fontFamily: "PragmaticaExtended" }}>
         EMAIL

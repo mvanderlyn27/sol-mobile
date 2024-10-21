@@ -93,6 +93,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [framesLoading, setFramesLoading] = useState<boolean>(false);
   const [framesError, setFramesError] = useState<string | null>(null);
   //page state
+  // IMPORTANT: Page map is mutable, so in order to update state propeerly, we need to create a new map every time
+  // we change its values
   const [pagesMap, setPageMap] = useState<Map<string, Page>>(new Map<string, Page>());
   // MIGHT NEED A DEFAULT VALUE OF THE DAY MINUS HOURS/MINUTES
   //Might also not need to be in this provider, maybe have it just in the journal page?
@@ -306,9 +308,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     pagesMap!.set(data.date, data);
-    setPageMap(pagesMap!);
+    setPageMap(new Map([...pagesMap!]));
     setPagesLoading(false);
   };
+
   const deletePage = async (dayString: string) => {
     if (!pagesMap.has(dayString)) {
       setPagesError("Can't delete, page does not exist yet");
@@ -327,7 +330,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       return;
     }
     pagesMap!.delete(dayString);
-    setPageMap(pagesMap!);
+    setPageMap(new Map([...pagesMap!]));
     setPagesLoading(false);
   };
   const setCurrentPageDate = (dayString: string) => {
