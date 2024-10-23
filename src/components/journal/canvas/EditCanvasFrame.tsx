@@ -159,7 +159,7 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
                 />
               </StyledMaskedView>
             )}
-            <StyledMotiView className="absolute inset-0 w-full h-full p-4">
+            <StyledMotiView className="absolute inset-0 w-full h-full">
               <StyledMotiView className={`flex-1`}>
                 <StyledImage className="flex-1" source={{ uri: item.path }} />
               </StyledMotiView>

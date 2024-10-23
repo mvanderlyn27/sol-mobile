@@ -3,9 +3,9 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "dotenv -c development -- expo start",
-    "start:test": "dotenv -c test -- expo start",
-    "start:prod": "dotenv -c production && expo start",
+    "start": "NODE_ENV=development expo start",
+    "start:test": "NODE_ENV=test expo start",
+    "start:prod": "NODE_ENV=production expo start",
     "build-ios-local:dev": "dotenv -c development -- eas build --platform ios --profile development --local",
     "build-ios-local:test": "dotenv -c test -- eas build --platform ios --profile preview --local",
     "build-ios-local:prod": "dotenv -c production -- eas build --platform ios --profile production --local",
