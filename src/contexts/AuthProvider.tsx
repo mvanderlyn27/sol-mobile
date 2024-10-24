@@ -10,6 +10,7 @@ import { Redirect } from "expo-router";
 import { AnimatePresence, MotiView } from "moti";
 import * as Linking from "expo-linking";
 import { router } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 
 // Define the context type
 interface AuthContextType {
@@ -32,6 +33,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const posthog = usePostHog();
 
   useEffect(() => {
     AuthService.getSession()
@@ -54,9 +56,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     if (response.success) {
       console.log("logged in");
-      setSession(response.data || null);
-      setError(null);
+      if (response?.data?.user) {
+        posthog.identify(response.data.user.id, { email, user: response.data.user });
+        posthog.capture("user-logged-in", { email });
+        setSession(response.data);
+        setError(null);
+      } else {
+        posthog.capture("user-failed-login", { email, error: "no user session returned" });
+        setSession(null);
+        setError("no user session returned");
+      }
     } else {
+      posthog.capture("user-failed-login", { email, error: response.error });
       setError(response.error || "Error signing in");
       console.debug("Error signing in:", response.error);
       Toast.show("Error logging in", { duration: 3000 });
@@ -85,6 +96,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     joinEmailList(email, name);
     if (response.success) {
       setSession(response.data || null);
+      posthog.capture("user-signup", { email });
       Toast.show("Check email for verification", {
         duration: 3000,
         position: Toast.positions.BOTTOM,
@@ -96,6 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setError(null);
     } else {
       setError(response.error || "Error signing up");
+      posthog.capture("user-signup-error", { email, error: response.error });
       console.debug("Error signing up:", response.error);
       Toast.show("Error signing up, please try again", {
         duration: 3000,
@@ -110,12 +123,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     setIsReady(false);
+    const email = session?.user?.email;
     const response = await AuthService.signOut();
     if (response.success) {
+      posthog.capture("user-logout", { email: email });
+      posthog.reset();
       setSession(null);
       setError(null);
       setIsReady(true);
     } else {
+      posthog.capture("user-logout-error", { email: email, error: response.error });
       setError(response.error || "Error signing out");
     }
   };
@@ -123,10 +140,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const response = await AuthService.updateEmail(email);
 
     if (response.success) {
+      posthog.capture("user-update-email", { email });
       setSession(response.data || null);
       setError(null);
       setIsReady(true);
     } else {
+      posthog.capture("user-update-email-error", { email, error: response.error });
       setError(response.error || "Error updating email");
     }
   };
@@ -134,10 +153,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const response = await AuthService.updatePassword(password);
 
     if (response.success) {
+      posthog.capture("user-update-password", { email: session?.user?.email });
       setSession(response.data || null);
       setError(null);
       setIsReady(true);
     } else {
+      posthog.capture("user-update-password-error", { email: session?.user?.email, error: response.error });
       setError(response.error || "Error updating password");
     }
   };
@@ -147,9 +168,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (response.success) {
       setSession(null);
       setError(null);
+      posthog.capture("user-reset-password", { email });
       Toast.show("Check your email to reset your password", {});
       setIsReady(true);
     } else {
+      posthog.capture("user-reset-password-error", { email, error: response.error });
       setError(response.error || "Error resetting password");
       setIsReady(true);
     }
@@ -158,7 +181,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signInWithToken = async (tokenHash: string, method?: string) => {
     const response = await AuthService.signInWithToken(tokenHash);
     if (response.success) {
-      setSession(response.data || null);
+      const session = response.data;
+      if (session === null || session === undefined) {
+        setIsReady(true);
+        setError("Error logging in");
+        posthog.capture("user-logged-in-with-token-error", { method: method, token: tokenHash, error: response.error });
+        router.push("/login");
+        return;
+      }
+      setSession(session);
+      posthog.identify(session.user.id, { email: session.user.email, user: session.user });
+      posthog.capture("user-logged-in-with-token", {
+        method: method,
+        tokenHash: tokenHash,
+        email: response?.data?.user?.email,
+      });
       setError(null);
       setIsReady(true);
       if (method === "verifyEmail") {
@@ -168,6 +205,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } else {
       setIsReady(true);
+      posthog.capture("user-logged-in-with-token-error", { method: method, token: tokenHash, error: response.error });
       setError(response.error || "Error logging in");
       router.push("/login");
     }

@@ -23,6 +23,7 @@ import FrameService from "../api/frame";
 import PageService from "../api/page";
 import ProfileService from "../api/profile";
 import StorageService from "../api/storage";
+import { usePostHog } from "posthog-react-native";
 
 interface DataContextType {
   //books
@@ -112,6 +113,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [templatesLoading, setTemplatesLoading] = useState<boolean>(false);
   const [templatesError, setTemplatesError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState<boolean>(false);
+  const posthog = usePostHog();
 
   useEffect(() => {
     //load book, and other info
@@ -150,6 +152,10 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       await Promise.all([fetchBooks(), fetchTemplates(), fetchFrames(), fetchFonts(), fetchProfile()]);
     }
   };
+  const trackEvent = (eventName: string, properties: any) => {
+    posthog.capture(eventName, properties);
+  };
+
   const loadPagesData = async () => {
     if (currentBook !== null) {
       await fetchPagesMap();
@@ -165,6 +171,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setBooksError(null);
     const { data, error } = await BookService.getBooks();
     if (error) {
+      trackEvent("fetchBooks-failed", { error: error });
       setBooksError(error);
       setBooksLoading(false);
       return;
@@ -172,6 +179,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       setBooksLoading(false);
       return;
     }
+
+    trackEvent("fetchBooks-success", { books: data });
     setBooks(data);
     if (data.length > 0) {
       //currently just get users first book, need logic later for when users have multiple books
@@ -184,6 +193,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const deleteBook = async (id: number) => {
     const { error } = await BookService.deleteBook(id);
     if (error) {
+      trackEvent("deleteBooks-failed", { error: error });
       console.error("Error deleting Book:", error);
       return;
     }
@@ -196,6 +206,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const updateBook = async (id: number, content: Book) => {
     const { error } = await BookService.updateBook(id, content);
     if (error) {
+      trackEvent("updateBook-failed", { id, error: error });
       console.error("Error updating Book:", error);
       return;
     }
@@ -204,6 +215,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const createBook = async (content: CreateBookInput) => {
     const { error } = await BookService.createBook(content);
     if (error) {
+      trackEvent("createBook-failed", { error: error });
       console.error("Error creating Book:", error);
       return;
     }
@@ -211,6 +223,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
   const selectBook = (ind: number) => {
     if (ind < 0 || ind >= books.length) {
+      trackEvent("selectBook-failed", { error: "invalid id " + ind });
       setBooksError("Invalid book index");
       return;
     }
@@ -223,6 +236,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setFontsError(null);
     const { data, error } = await FontService.getFonts();
     if (error) {
+      trackEvent("fetchFonts-failed", { error });
       setFontsError(error);
       setFontsLoading(false);
       return;
@@ -240,6 +254,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setFramesError(null);
     const { data, error } = await FrameService.getFrames();
     if (error) {
+      trackEvent("fetchFrames-failed", { error });
       setFramesError(error);
       setFramesLoading(false);
       return;
@@ -257,6 +272,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setPagesError(null);
     const { data, error } = await PageService.getPages();
     if (error) {
+      trackEvent("fetchPages-failed", { error });
       setPagesError(error);
       setPagesLoading(false);
       return;
@@ -276,6 +292,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setPagesError(null);
     const { data, error } = await PageService.createPage(content);
     if (error) {
+      trackEvent("createPages-failed", { error });
       setPagesError(error);
       setPagesLoading(false);
       return;
@@ -293,13 +310,15 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   };
   const updatePage = async (dayString: string, content: Page) => {
     if (!pagesMap.has(dayString)) {
-      setPagesError("Can't updaate, page does not exist yet");
+      trackEvent("updatePages-failed", { error: "page does not exist yet" });
+      setPagesError("Can't update, page does not exist yet");
       return;
     }
     setPagesLoading(true);
     setPagesError(null);
     const { data, error } = await PageService.updatePage(content.id, content);
     if (error) {
+      trackEvent("updatePages-failed", { error });
       setPagesError(error);
       setPagesLoading(false);
       return;
@@ -314,6 +333,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
   const deletePage = async (dayString: string) => {
     if (!pagesMap.has(dayString)) {
+      trackEvent("deletePages-failed", { error: "page does not exist yet" });
       setPagesError("Can't delete, page does not exist yet");
       return;
     }
@@ -322,6 +342,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     const page = pagesMap.get(dayString)!;
     const { data, error } = await PageService.deletePage(page.id);
     if (error) {
+      trackEvent("deletePages-failed", { error });
       setPagesError(error);
       setPagesLoading(false);
       return;
@@ -340,6 +361,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   // profile functions
   const fetchProfile = async () => {
     if (!session) {
+      trackEvent("fetchProfile-failed", { error: "no user session" });
       setProfileError("no user logged in");
       return;
     }
@@ -347,6 +369,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setProfileError(null);
     const { data, error } = await ProfileService.getProfile(session.user.id);
     if (error) {
+      trackEvent("fetchProfile-failed", { error });
       setProfileError(error);
       setProfileLoading(false);
       return;
@@ -362,6 +385,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setProfileLoading(true);
     setProfileError(null);
     if (!profile) {
+      trackEvent("removeProfilePic-failed", { error: "no user session" });
       setProfileError("no user logged in");
       return;
     }
@@ -371,6 +395,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     }
     const { data, error } = await StorageService.deleteFile("avatars", profile.avatar_url);
     if (error) {
+      trackEvent("fetchProfile-failed", { error });
       setProfileError(error);
       setProfileLoading(false);
       return;
@@ -378,6 +403,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
 
     const { success } = await ProfileService.updateProfile(profile.id, { ...profile, avatar_url: null });
     if (!success) {
+      trackEvent("removeProfilePic-failed", { error: "failed to update profile after storage delete" });
       setProfileError("failed to updated profile after storage delete");
       setProfileLoading(false);
       return;
@@ -389,6 +415,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setProfileLoading(true);
     setProfileError(null);
     if (!profile) {
+      trackEvent("updateProfile-failed", { error: "no user session" });
       setProfileError("no user logged in");
       return;
     }
@@ -397,12 +424,14 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       const uploadResponse = await StorageService.uploadFile(content.file);
 
       if (!uploadResponse.success || !uploadResponse.data) {
+        trackEvent("updateProfile-failed", { error: "failed to upload avatar image" });
         setProfileError(uploadResponse.error || "Failed to upload avatar image.");
         setProfileLoading(false);
         return;
       }
       const urlResponse = await StorageService.getPublicUrl(content.file.bucket, content.file.filePath);
       if (!urlResponse.success || !urlResponse.data) {
+        trackEvent("updateProfile-failed", { error: "failed to generate avatar image" });
         setProfileError(urlResponse.error || "Failed to generate public URL for the avatar image.");
         setProfileLoading(false);
         return;
@@ -426,6 +455,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     if (hasChanges) {
       const { data, error } = await ProfileService.updateProfile(profile.id, updateContent);
       if (error) {
+        trackEvent("updateProfile-failed", { error });
         setProfileError(error);
         setProfileLoading(false);
         return;
@@ -443,6 +473,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setTemplatesError(null);
     const { data, error } = await TemplateService.getTemplates();
     if (error) {
+      trackEvent("fetchTemplates-failed", { error });
       setTemplatesError(error);
       setTemplatesLoading(false);
       return;
