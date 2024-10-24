@@ -10,6 +10,7 @@ npm-debug.*
 *.orig.*
 web-build/
 ios/
+android/
 .env
 .env*
 # macOS

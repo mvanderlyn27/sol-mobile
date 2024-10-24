@@ -17,6 +17,7 @@ export default {
     ios: {
       supportsTablet: true,
       bundleIdentifier: IS_DEV ? "com.sliceoflifeapp.dev" : IS_PRE ? "com.sliceoflifeapp.pre" : "com.sliceoflifeapp",
+      usesAppleSignIn: true,
       config: {
         usesNonExemptEncryption: false 
       }
@@ -36,6 +37,7 @@ export default {
     plugins: [
       "expo-router",
       "expo-secure-store",
+      "expo-apple-authentication",
       [
         "expo-font"
       ]

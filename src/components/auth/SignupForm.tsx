@@ -6,6 +6,7 @@ import Toast from "react-native-root-toast";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Ionicons } from "@expo/vector-icons";
+import AppleAuthButton from "./AppleAuthButton";
 
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
@@ -101,11 +102,12 @@ export default function SignupForm() {
       <StyledPressable
         onPress={handleSignUp}
         disabled={loading}
-        className={`w-full py-3 mb-2 ${loading ? "bg-gray-400" : "bg-secondary"} border border-darkPrimary rounded-lg`}>
+        className={`w-full py-3 mb-4 ${loading ? "bg-gray-400" : "bg-secondary"} border border-darkPrimary rounded-lg`}>
         <StyledText className="text-center text-darkPrimary" style={{ fontFamily: "PragmaticaExtended" }}>
           SUBMIT
         </StyledText>
       </StyledPressable>
+      <AppleAuthButton type="signUp" />
     </StyledMotiView>
   );
 }

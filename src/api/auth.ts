@@ -47,7 +47,14 @@ export class AuthService {
     }
     return { success: true, data: data.session };
   }
-
+  static async signInWithIdToken(idToken: string, provider: string): Promise<SupabaseResponse<Session>> {
+    const { data, error } = await supabase.auth.signInWithIdToken({ provider, token: idToken });
+    if (error) {
+      console.debug("Error signing in with ID token:", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, data: data.session };
+  }
   /**
    * Sign out the current user.
    * @returns SupabaseResponse indicating whether the sign-out was successful.

@@ -22,6 +22,7 @@ interface AuthContextType {
   updateEmail: (email: string) => void;
   updatePassword: (password: string) => void;
   sendResetPasswordEmail: (email: string) => void;
+  signInWithApple: (token: string) => void;
   isReady: boolean;
   error: string | null;
 }
@@ -210,6 +211,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       router.push("/login");
     }
   };
+  const signInWithApple = async (token: string) => {
+    const response = await AuthService.signInWithIdToken(token, "apple");
+    if (response.success && response?.data?.user) {
+      posthog.identify(response.data.user.id, { email: response.data.user.email, user: response.data.user });
+      posthog.capture("sign-in-with-apple-success", { email: response.data.user.email });
+      setSession(response.data);
+      setIsReady(true);
+    } else {
+      setIsReady(true);
+      posthog.capture("sign-in-with-apple-failed", { error: response.error || "missing user" });
+      setError(response.error || "Error signing in");
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -240,6 +254,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               updateEmail,
               updatePassword,
               sendResetPasswordEmail,
+              signInWithApple,
               isReady,
               error,
             }}>

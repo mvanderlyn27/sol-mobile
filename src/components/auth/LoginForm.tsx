@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthProvider";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Link } from "expo-router";
+import AppleAuthButton from "./AppleAuthButton";
 
 const StyledMotiView = styled(MotiView);
 const StyledTextInput = styled(TextInput);
@@ -67,13 +68,14 @@ export default function SignupForm() {
       <StyledPressable
         onPress={handleSignin}
         disabled={loading}
-        className={`w-full py-3 mb-2 mt-8 ${
+        className={`w-full py-3 mb-4  ${
           loading ? "bg-gray-400" : "bg-secondary"
         } border border-darkPrimary rounded-lg`}>
         <StyledText className="text-center text-darkPrimary" style={{ fontFamily: "PragmaticaExtended" }}>
           LOGIN
         </StyledText>
       </StyledPressable>
+      <AppleAuthButton type="signin" />
     </StyledMotiView>
   );
 }
