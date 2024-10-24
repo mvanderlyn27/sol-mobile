@@ -1,8 +1,6 @@
 const IS_DEV = process.env.APP_VARIANT === 'development';
 const IS_PRE = process.env.APP_VARIANT === 'preview';
 
-console.log("process.env.APP_VARIANT", process.env.APP_VARIANT);
-console.log("process.env.NODE_ENV", process.env.NODE_ENV);
 export default {
     name: IS_DEV ? "SOL(Dev)" : IS_PRE ? "SOL (Preview)" : "Slice of Life App",
     slug: "slice-of-life",

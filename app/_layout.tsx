@@ -36,7 +36,6 @@ export default function RootLayout() {
   if (!loaded && !error) {
     return null;
   }
-  console.log("node env", process.env.NODE_ENV);
   return (
     <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0">
       <ImageBackground style={{ flex: 1 }} source={getImageFromPath("bg_03")}>
@@ -45,7 +44,7 @@ export default function RootLayout() {
             apiKey={process.env.EXPO_PUBLIC_POSTHOG_API!}
             options={{
               host: "https://us.i.posthog.com",
-              disabled: process.env.NODE_ENV == "development",
+              disabled: process.env.EXPO_PUBLIC_ENV == "development",
               enableSessionReplay: true,
               sessionReplayConfig: {
                 maskAllImages: false,
