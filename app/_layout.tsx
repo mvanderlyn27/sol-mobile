@@ -44,8 +44,8 @@ export default function RootLayout() {
             apiKey={process.env.EXPO_PUBLIC_POSTHOG_API!}
             options={{
               host: "https://us.i.posthog.com",
-              disabled: process.env.EXPO_PUBLIC_ENV == "development",
-              enableSessionReplay: process.env.EXPO_PUBLIC_ENV == "development",
+              disabled: process.env.EXPO_PUBLIC_ENV === "development",
+              enableSessionReplay: process.env.EXPO_PUBLIC_ENV !== "development",
               sessionReplayConfig: {
                 maskAllImages: false,
               },
