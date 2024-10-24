@@ -55,8 +55,8 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
       path: frame.path,
       width: frame.width,
       height: frame.height,
-      y: x, // Centered
-      x: y, // Centered
+      y: y, // Centered
+      x: x, // Centered
       z: tempCanvas.maxZIndex + 1,
       scale: scale,
       rotation: 0,
