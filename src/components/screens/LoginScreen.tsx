@@ -14,12 +14,12 @@ export default function LoginScreen() {
   return (
     <StyledSafeAreaView className="absolute top-0 left-0 right-0 bottom-0">
       <StyledText
-        className="text-white text-4xl tracking-widest text-secondary text-center"
+        className="text-4xl tracking-widest text-secondary text-center"
         style={{ fontFamily: "PragmaticaExtended-bold" }}>
         SLICE OF LIFE
       </StyledText>
       <StyledText
-        className="text-white text-[10px] tracking-widest text-secondary text-center"
+        className="text-[10px] tracking-widest text-secondary text-center"
         style={{ fontFamily: "PragmaticaExtended" }}>
         ORDINARY. MUNDANE. BUT UNIQUELY YOURS
       </StyledText>
