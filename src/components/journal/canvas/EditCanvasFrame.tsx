@@ -133,7 +133,7 @@ export default function EditCanvasFrame({ item }: { item: CanvasFrame }) {
             source={{ uri: item.path }} // Replace with your image URL or source
             style={{ width: maxFrameWidth, height: maxFrameWidth / aspectRatio, borderRadius: 10 }}
           /> */}
-          <StyledMotiView style={{ width: scaledWidth, height: scaledHeight, padding: 4 }}>
+          <StyledMotiView style={{ width: scaledWidth, height: scaledHeight }}>
             {!uploadingImage ? (
               <StyledMaskedView
                 className="w-full h-full"
