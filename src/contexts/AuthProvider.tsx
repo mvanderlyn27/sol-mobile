@@ -85,12 +85,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     joinEmailList(email, name);
     if (response.success) {
       setSession(response.data || null);
-      Toast.show("Check email for verification", { duration: 3000 });
+      Toast.show("Check email for verification", {
+        duration: 3000,
+        position: Toast.positions.BOTTOM,
+        backgroundColor: "#E7DBCB",
+        opacity: 1,
+        shadow: false,
+        textColor: "#262326",
+      });
       setError(null);
     } else {
       setError(response.error || "Error signing up");
       console.debug("Error signing up:", response.error);
-      Toast.show("Error signing up, please try again", { duration: 3000 });
+      Toast.show("Error signing up, please try again", {
+        duration: 3000,
+        position: Toast.positions.BOTTOM,
+        backgroundColor: "red",
+        textColor: "white",
+      });
     }
     setIsReady(true);
     return;
