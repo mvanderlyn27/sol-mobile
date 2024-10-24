@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, TouchableOpacity } from "react-native";
+import { View, Text, Pressable, FlatList } from "react-native";
 import PagerView from "react-native-pager-view";
 import { MotiView } from "moti";
 import { useData } from "@/src/contexts/DataProvider";
@@ -15,7 +15,7 @@ const StyledMotiView = styled(MotiView);
 export default function FontTab({ onSelect }: { onSelect: () => void }) {
   const { fonts } = useData(); // Fetch fonts from the context
   const { canvas, tempCanvas, addCanvasItem } = useCanvas();
-  const itemsPerPage = 9; // Number of items to display per page
+  const itemsPerPage = 12; // Number of items to display per page
   const [currentPage, setCurrentPage] = useState(0);
 
   // Calculate the number of pages based on the data
@@ -49,6 +49,35 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
     onSelect();
   };
 
+  const renderFontItem = ({ item: font }: { item: Font }) => (
+    <StyledPressable key={font.id} onPress={() => handleAddText(font)} className="w-[33%] items-center ">
+      <StyledText className="text-white text-3xl text-center p-5" style={{ fontFamily: font.type }}>
+        Aa
+      </StyledText>
+    </StyledPressable>
+  );
+
+  const renderPage = (pageIndex: number) => {
+    const pageFonts = getPageFonts(pageIndex);
+    return (
+      <StyledView key={pageIndex} className="p-0">
+        <StyledMotiView
+          from={{ opacity: 0, translateY: 10 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: "timing", duration: 500 }}
+          className="flex-1">
+          <FlatList
+            data={pageFonts}
+            renderItem={renderFontItem}
+            keyExtractor={(font) => font.id.toString()}
+            numColumns={3} // 3-column grid
+            contentContainerStyle={{ padding: 10 }} // Padding around the grid
+          />
+        </StyledMotiView>
+      </StyledView>
+    );
+  };
+
   return (
     <StyledView className="flex-1">
       <StyledText className="text-secondary text-xl mb-2" style={{ fontFamily: "PragmaticaExtended" }}>
@@ -59,26 +88,7 @@ export default function FontTab({ onSelect }: { onSelect: () => void }) {
         style={{ flex: 1 }}
         initialPage={0}
         onPageSelected={(e: any) => setCurrentPage(e.nativeEvent.position)}>
-        {Array.from({ length: totalPages }).map((_, pageIndex) => (
-          <StyledView key={pageIndex} className="p-0">
-            <StyledMotiView
-              from={{ opacity: 0, translateY: 10 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              transition={{ type: "timing", duration: 500 }}
-              className="flex flex-wrap justify-start items-start">
-              {getPageFonts(pageIndex).map((font) => (
-                <StyledPressable
-                  key={font.id}
-                  onPress={() => handleAddText(font)}
-                  className="w-[30%] m-1.5 items-center">
-                  <StyledText className="text-white text-3xl text-center p-5" style={{ fontFamily: font.type }}>
-                    Aa
-                  </StyledText>
-                </StyledPressable>
-              ))}
-            </StyledMotiView>
-          </StyledView>
-        ))}
+        {Array.from({ length: totalPages }).map((_, pageIndex) => renderPage(pageIndex))}
       </PagerView>
 
       {/* Pagination Indicators */}

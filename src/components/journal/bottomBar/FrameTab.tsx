@@ -25,12 +25,29 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
     return frames.slice(startIndex, startIndex + itemsPerPage);
   };
 
+  const getScale = (frameWidth: number, frameHeight: number, screenWidth: number, screenHeight: number): number => {
+    // Calculate 70% of screen dimensions
+    const targetWidth = screenWidth * 0.7;
+    const targetHeight = screenHeight * 0.7;
+
+    // Calculate the scaling factors for both width and height
+    const scaleWidth = targetWidth / frameWidth;
+    const scaleHeight = targetHeight / frameHeight;
+
+    // The maximum scale is the smaller of the two scaling factors
+    return Math.min(scaleWidth, scaleHeight);
+  };
   const handleAddFrame = (frame: Frame) => {
     if (!tempCanvas) {
       console.log("no temp canvas");
       return;
     }
-
+    const scale = getScale(frame.width, frame.height, tempCanvas.screenWidth, tempCanvas.screenHeight);
+    const scaledWidth = scale * frame.width;
+    const scaledHeight = scale * frame.height;
+    const { width, height } = Dimensions.get("window");
+    const x = (width - scaledWidth) / 2;
+    const y = (height - scaledHeight) / 2;
     const newFrame: CanvasItem = {
       id: tempCanvas.curId + 1,
       dbId: frame.id,
@@ -38,10 +55,10 @@ export default function FrameTab({ onSelect }: { onSelect: () => void }) {
       path: frame.path,
       width: frame.width,
       height: frame.height,
-      y: (tempCanvas.screenHeight - frame.height) / 2, // Centered
-      x: (tempCanvas.screenWidth - frame.width) / 2, // Centered
+      y: x, // Centered
+      x: y, // Centered
       z: tempCanvas.maxZIndex + 1,
-      scale: 1,
+      scale: scale,
       rotation: 0,
       slots: [{ maskPath: frame.maskPath ?? "" }],
     };
