@@ -36,18 +36,18 @@ export default function ProfileScreen() {
               exit={{ opacity: 0 }}
               transition={{ type: "timing", duration: 1000 }}>
               <StyledText
-                className="text-white text-3xl tracking-widest text-secondary text-center"
+                className="text-3xl tracking-widest text-secondary text-center"
                 style={{ fontFamily: "PragmaticaExtended-bold" }}>
                 SLICE OF LIFE
               </StyledText>
               <StyledText
-                className="text-white text-[10px]  text-secondary text-center"
+                className="text-[10px]  text-secondary text-center"
                 style={{ fontFamily: "PragmaticaExtended" }}>
-                ORDINARY MUNDANE. BUT UNIQUELY YOURS
+                ORDINARY MUNDANE. BUT UNIQUELY YOURS.
               </StyledText>
               <StyledView className="w-full items-center invisible">
                 <StyledText
-                  className="text-secondary text-6xl text-center py-6 text-secondary "
+                  className=" text-6xl text-center py-6 text-secondary "
                   style={{ fontFamily: "PragmaticaExtended-bold", color: "transparent" }}>
                   STARRING
                 </StyledText>

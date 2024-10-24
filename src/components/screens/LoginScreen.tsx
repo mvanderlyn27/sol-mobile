@@ -21,7 +21,7 @@ export default function LoginScreen() {
       <StyledText
         className="text-[10px] tracking-widest text-secondary text-center"
         style={{ fontFamily: "PragmaticaExtended" }}>
-        ORDINARY. MUNDANE. BUT UNIQUELY YOURS
+        ORDINARY. MUNDANE. BUT UNIQUELY YOURS.
       </StyledText>
       <StyledMotiView className="flex-1 flex-col px-10 justify-center items-center">
         <StyledMotiView className="flex-row items-center border border-secondary rounded-xl py-2 my-4 relative ">
