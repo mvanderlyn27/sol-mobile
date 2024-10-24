@@ -37,7 +37,7 @@ export default function SettingsScreen() {
       iconInactive: <MaterialIcons name="question-answer" size={30} color="#E7DBCB" />,
     },
     {
-      title: "ABOUT",
+      title: "THANK YOU!",
       content: <AboutSection />,
       iconActive: <Feather name="info" size={30} color="#262326" />,
       iconInactive: <Feather name="info" size={30} color="#E7DBCB" />,
