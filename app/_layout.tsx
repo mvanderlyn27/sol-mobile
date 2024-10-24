@@ -45,7 +45,7 @@ export default function RootLayout() {
             options={{
               host: "https://us.i.posthog.com",
               disabled: process.env.EXPO_PUBLIC_ENV == "development",
-              enableSessionReplay: true,
+              enableSessionReplay: process.env.EXPO_PUBLIC_ENV == "development",
               sessionReplayConfig: {
                 maskAllImages: false,
               },
