@@ -48,5 +48,11 @@ export default {
         projectId: "ce0eb959-ac1b-41d5-8b08-416d64c88369"
       }
     },
+    updates: {
+        url: "https://u.expo.dev/ce0eb959-ac1b-41d5-8b08-416d64c88369"
+      },
+      runtimeVersion: {
+        "policy": "appVersion"
+    },
     owner: "sliceoflife"
 };
