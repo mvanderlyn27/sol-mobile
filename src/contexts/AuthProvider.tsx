@@ -224,6 +224,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setError(response.error || "Error signing in");
     }
   };
+  const signInWithGoogle = async (token: string) => {
+    const response = await AuthService.signInWithIdToken(token, "google");
+    if (response.success && response?.data?.user) {
+      posthog.identify(response.data.user.id, { email: response.data.user.email, user: response.data.user });
+      posthog.capture("sign-in-with-google-success", { email: response.data.user.email });
+      setSession(response.data);
+      setIsReady(true);
+    } else {
+      setIsReady(true);
+      posthog.capture("sign-in-with-google-failed", { error: response.error || "missing user" });
+      setError(response.error || "Error signing in");
+    }
+  };
 
   return (
     <AnimatePresence>

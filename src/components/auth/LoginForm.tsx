@@ -5,6 +5,7 @@ import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Link } from "expo-router";
 import AppleAuthButton from "./AppleAuthButton";
+import GoogleAuthButton from "./GoogleAuthButton";
 
 const StyledMotiView = styled(MotiView);
 const StyledTextInput = styled(TextInput);
@@ -76,6 +77,7 @@ export default function SignupForm() {
         </StyledText>
       </StyledPressable>
       <AppleAuthButton type="signin" />
+      <GoogleAuthButton />
     </StyledMotiView>
   );
 }

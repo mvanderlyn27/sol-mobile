@@ -39,7 +39,7 @@ export default function AppleAuthButton({ type }: { type: string }) {
   if (Platform.OS !== "ios") return null;
   return (
     <StyledAppleButton
-      className="w-full h-[50px] rounded-lg"
+      className="w-full h-[50px] rounded-lg mb-2"
       cornerRadius={5}
       buttonType={
         type === "signin"
