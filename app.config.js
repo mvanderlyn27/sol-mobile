@@ -37,9 +37,24 @@ export default {
     plugins: [
       "expo-router",
       "expo-secure-store",
+      [
+
+      "expo-build-properties",
+      {
+        "android": {
+            "enableProguardInReleaseBuilds": true
+        }
+      }
+      ],
       "expo-apple-authentication",
       [
         "expo-font"
+      ],
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": process.env.EXPO_PUBLIC_GOOGLE_OAUTH_IOS_URL,
+        }
       ]
     ],
     experiments: {
