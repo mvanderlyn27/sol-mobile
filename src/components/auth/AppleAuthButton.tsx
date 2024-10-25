@@ -21,7 +21,7 @@ export default function AppleAuthButton({ type }: { type: string }) {
       });
       // logged in
       if (credential.identityToken) {
-        await signInWithApple(credential.identityToken);
+        await signInWithApple(credential.identityToken, credential.fullName?.givenName || "");
       } else {
         posthog.capture("sign-in-with-apple-failed", { error: "missing identity token" });
         Toast.show("Failed to sign in with Apple missing auth token", {});

@@ -1,11 +1,12 @@
 import { GoogleSignin, GoogleSigninButton, statusCodes } from "@react-native-google-signin/google-signin";
-import { supabase } from "@/src/lib/supabase";
 import { usePostHog } from "posthog-react-native";
 import Toast from "react-native-root-toast";
 import { styled } from "nativewind";
 import { Platform } from "react-native";
+import { useAuth } from "@/src/contexts/AuthProvider";
 const StyledGoogleButton = styled(GoogleSigninButton);
 export default function GoogleAuthButton() {
+  const { signInWithGoogle } = useAuth();
   //temporarily disable for android lol
   if (Platform.OS !== "ios") return null;
   const posthog = usePostHog();
@@ -31,15 +32,7 @@ export default function GoogleAuthButton() {
           await GoogleSignin.hasPlayServices();
           const userInfo = await GoogleSignin.signIn();
           if (userInfo?.data?.idToken) {
-            const { error } = await supabase.auth.signInWithIdToken({
-              provider: "google",
-              token: userInfo.data.idToken,
-            });
-            if (error) {
-              console.error(error);
-              posthog.capture("google-signin-error", { error: error.message });
-              Toast.show("Error signing in, please try again soon", { duration: 3000 });
-            }
+            await signInWithGoogle(userInfo.data.idToken, userInfo?.data?.user?.name || "");
           } else {
             console.error("no id token");
             posthog.capture("google-signin-error", { error: "no id token" });
