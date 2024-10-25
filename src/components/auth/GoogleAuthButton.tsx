@@ -3,8 +3,11 @@ import { supabase } from "@/src/lib/supabase";
 import { usePostHog } from "posthog-react-native";
 import Toast from "react-native-root-toast";
 import { styled } from "nativewind";
+import { Platform } from "react-native";
 const StyledGoogleButton = styled(GoogleSigninButton);
 export default function GoogleAuthButton() {
+  //temporarily disable for android lol
+  if (Platform.OS !== "ios") return null;
   const posthog = usePostHog();
   if (!process.env.EXPO_PUBLIC_GOOGLE_OAUTH_IOS_CLIENT_ID) {
     //if not oauth client don't render, won't show up for dev
