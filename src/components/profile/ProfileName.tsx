@@ -77,7 +77,7 @@ export default function ProfileName() {
           onPress={() => setEditMode(true)}
           className="flex-row py-4 gap-2 justify-center items-center w-full">
           <StyledText className="text-xl text-secondary" style={{ fontFamily: "PragmaticaExtended" }}>
-            {name?.toUpperCase()}
+            {name?.toUpperCase() || "YOUR NAME"}
           </StyledText>
           <Ionicons name="pencil" size={20} color="#E7DBCB" />
         </StyledPressable>
