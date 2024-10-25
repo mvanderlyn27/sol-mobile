@@ -34,9 +34,9 @@ export default function GoogleAuthButton() {
           if (userInfo?.data?.idToken) {
             await signInWithGoogle(userInfo.data.idToken, userInfo?.data?.user?.name || "");
           } else {
-            console.error("no id token");
-            posthog.capture("google-signin-error", { error: "no id token" });
-            Toast.show("Error signing in", { duration: 3000 });
+            console.error("no id token/canelled login");
+            posthog.capture("google-signin-error", { error: "no id token, or canceled login" });
+            Toast.show("Didn't log in, please try again", { duration: 3000 });
           }
         } catch (error: any) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {
