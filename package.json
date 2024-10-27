@@ -19,6 +19,8 @@
     "build-android-local-apk:prod": "dotenv -c production -- eas build --platform android --profile production-apk --local",
     "build-ios-eas": "dotenv -c production -- eas build --platform ios --profile production",
     "build-android-eas": "dotenv -c production -- eas build --platform android --profile production",
+    "submit-ios" : "dotenv -c production -- eas submit --platform ios",
+    "submit-android" : "dotenv -c production -- eas submit --platform android",
     "test": "jest --watchAll",
     "lint": "expo lint",
     "genUsers": "npx tsx genUsers.ts"
