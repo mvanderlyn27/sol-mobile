@@ -4,18 +4,22 @@ import PagerView from "react-native-pager-view";
 import { format, addDays, parseISO } from "date-fns";
 import { useJournalStore } from "@/src/stores/JournalStore";
 import { styled } from "nativewind";
+import CanvasHolder from "./canvas/Canvas";
+import { useBookStore } from "@/src/stores/BookStore";
 
 const StyledView = styled(View);
 
 export default function JournalView() {
   const { leftPage, currentPage, rightPage, selectedDate, initializeStore, setSelectedDate } = useJournalStore();
+  const currentBook = useBookStore((state) => state.currentBook);
   const ref = useRef<PagerView>(null);
   const [canScroll, setCanScroll] = useState(true);
 
   // Initial load for today's page and its neighbors
   useEffect(() => {
+    if (!currentBook) return;
     initializeStore();
-  }, []);
+  }, [currentBook]);
 
   const handlePageSelected = async (e: any) => {
     if (!selectedDate) return;
@@ -31,7 +35,7 @@ export default function JournalView() {
     await setSelectedDate(newDate);
 
     // Ensure ref exists before calling method
-    ref.current?.setPageWithoutAnimation(1);
+    ref.current?.setPage(1);
     setCanScroll(true);
   };
 
@@ -55,16 +59,21 @@ export default function JournalView() {
       overdrag
       offscreenPageLimit={5}>
       {rightPage
-        ? [leftPage, currentPage, rightPage].map((page, index) => (
-            <StyledView key={page.date + "-" + index} className="flex-1" style={{ backgroundColor: "white" }}>
-              <Text>{format(parseISO(page.date), "MMM d, yyyy")}</Text>
-            </StyledView>
-          ))
-        : [leftPage, currentPage].map((page, index) => (
-            <StyledView key={page.date + "-" + index} className="flex-1" style={{ backgroundColor: "white" }}>
-              <Text>{format(parseISO(page.date), "MMM d, yyyy")}</Text>
-            </StyledView>
-          ))}
+        ? [leftPage, currentPage, rightPage].map((page, index) => {
+            return (
+              <StyledView key={page.date + "-" + index} className="flex-1" style={{ backgroundColor: "white" }}>
+                <CanvasHolder canvas={page.canvas} />
+              </StyledView>
+            );
+          })
+        : [leftPage, currentPage].map((page, index) => {
+            console.log("page", page.canvas);
+            return (
+              <StyledView key={page.date + "-" + index} className="flex-1" style={{ backgroundColor: "white" }}>
+                <CanvasHolder canvas={page.canvas} />
+              </StyledView>
+            );
+          })}
     </PagerView>
   );
 }

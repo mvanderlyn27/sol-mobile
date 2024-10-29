@@ -17,12 +17,18 @@ import { runOnJS } from "react-native-reanimated";
 import { useData } from "@/src/contexts/DataProvider";
 import { useUIStore } from "@/src/stores/UIStore";
 import JournalView from "../journal/JournalView";
+import { useBookStore } from "@/src/stores/BookStore";
 
 const StyledView = styled(View);
 
 export default function JournalScreen() {
-  // const { selectedDate } = useData();
+  const { initializeBookStore } = useBookStore();
+  const curBook = useBookStore((state) => state.currentBook);
   const displayBottomBar = useUIStore((state) => state.displayBottomBar);
+
+  useEffect(() => {
+    initializeBookStore();
+  }, []);
 
   const startEditMode = () => {
     // setMenuOpen(false);

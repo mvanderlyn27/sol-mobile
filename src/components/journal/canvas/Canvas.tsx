@@ -28,10 +28,11 @@ export default function CanvasHolder({ canvas }: { canvas: Canvas }) {
   //   canvasLoading,
   //   addCanvasItem,
   // } = useCanvas();
-  const { editMode } = useJournal();
+  // const { editMode } = useJournal();
   //if editmode is trye, the tempcanvas is not null
   // const curCanvas = editingCanvas && tempCanvas ? tempCanvas : { ...canvas };
   // console.debug(curCanvas.items.map((item) => item.type + ":" + item.id + ", (" + item.x + "," + item.y + ")"));
+  console.log("canvas", canvas);
   return (
     <StyledMotiView key={`canvas-${canvas.curId}`} className=" absolute top-0 bottom-0 right-0 left-0">
       {/*  <StyledMotiView className="flex-1 "> */}
@@ -54,7 +55,7 @@ export default function CanvasHolder({ canvas }: { canvas: Canvas }) {
             type: "timing",
             duration: 400,
           }}>
-          {canvas.items?.map((item) => {
+          {canvas.items.map((item) => {
             if (item.type === "frame") {
               // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
               return <CanvasFrameHolder key={`frame-${canvas ? "temp-" : "-"}${item.id}-}`} item={{ ...item }} />;

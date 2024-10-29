@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { format, addDays, parseISO } from "date-fns"; // for date calculations
-import { fetchPageByDay, insertDefaultPageByDay } from "../api/local-journal";
+import { fetchPageByDay } from "../api/local-journal";
 import Page from "../localDb/models/Page";
 import { Canvas, CanvasItem, ImageType } from "../types/shared.types";
 import { Dimensions } from "react-native";
+import { useBookStore } from "./BookStore";
 
 type JournalStore = {
   leftPage: Page | null;
@@ -44,28 +45,22 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
     //we want to update the current date, and load the pages to the left and right of
     const selectedDate = get().selectedDate;
     if (!selectedDate) return;
+    const { currentBook } = useBookStore.getState();
+    if (!currentBook?.id) {
+      console.warn("No current book selected");
+      return;
+    }
     const parsedDate = parseISO(selectedDate);
     const today = format(new Date(), "yyyy-MM-dd");
     const prevDate = format(addDays(parsedDate, -1), "yyyy-MM-dd");
     const nextDate = format(addDays(parsedDate, +1), "yyyy-MM-dd");
     console.log(prevDate, selectedDate, nextDate);
-    let leftPage: Page | null = await fetchPageByDay(prevDate);
-    let currentPage: Page | null = await fetchPageByDay(selectedDate);
+    let leftPage: Page | null = await fetchPageByDay(currentBook, prevDate);
+    let currentPage: Page | null = await fetchPageByDay(currentBook, selectedDate);
     let rightPage: Page | null = null;
-    if (!leftPage) {
-      console.log("no left page, creating one");
-      leftPage = await insertDefaultPageByDay(prevDate);
-    }
-    if (!currentPage) {
-      console.log("no cur page, creating one");
-      currentPage = await insertDefaultPageByDay(selectedDate);
-    }
+
     if (selectedDate !== today) {
-      rightPage = await fetchPageByDay(nextDate);
-      if (!rightPage) {
-        console.log("no right page, creating one");
-        rightPage = await insertDefaultPageByDay(nextDate);
-      }
+      rightPage = await fetchPageByDay(currentBook, nextDate);
     }
 
     console.log("left", leftPage?.date, "cur", currentPage?.date, "right", rightPage?.date);
