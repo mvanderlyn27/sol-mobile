@@ -41,6 +41,7 @@
     "@react-native-masked-view/masked-view": "0.3.1",
     "@react-navigation/native": "^6.0.2",
     "@rneui/themed": "^4.0.0-rc.8",
+    "@shopify/flash-list": "1.6.4",
     "@snaplet/copycat": "^5.1.0",
     "@supabase/supabase-js": "^2.45.4",
     "aes-js": "^3.1.2",

@@ -1,46 +1,55 @@
 import React, { useEffect, useRef, useState } from "react";
 import { View, Text } from "react-native";
 import PagerView from "react-native-pager-view";
-import { format, addDays, parseISO } from "date-fns";
 import { useJournalStore } from "@/src/stores/JournalStore";
 import { styled } from "nativewind";
 import CanvasHolder from "./canvas/Canvas";
 import { useBookStore } from "@/src/stores/BookStore";
+import Page from "@/src/localDb/models/Page";
 
 const StyledView = styled(View);
 
 export default function JournalView() {
-  const { leftPage, currentPage, rightPage, selectedDate, initializeStore, setSelectedDate } = useJournalStore();
+  const { initializeStore, pagesByDate, loadMorePages } = useJournalStore();
   const currentBook = useBookStore((state) => state.currentBook);
   const ref = useRef<PagerView>(null);
-  const [canScroll, setCanScroll] = useState(true);
+  //   const [canScroll, setCanScroll] = useState(true);
+  const [pages, setPages] = useState<Page[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Initial load for today's page and its neighbors
+  // Load initial pages and set loading state
   useEffect(() => {
     if (!currentBook) return;
-    initializeStore();
+
+    const loadPages = async () => {
+      setLoading(true);
+      await initializeStore();
+      setLoading(false);
+    };
+
+    loadPages();
   }, [currentBook]);
 
+  // Convert pagesByDate to a sorted array and set to pages
+  useEffect(() => {
+    const pagesAr = Object.values(pagesByDate)
+      .filter((page): page is Page => page !== null) // Filter out null values
+      .sort((a, b) => b.date.localeCompare(a.date)); //reverse  Sort by date
+    setPages(pagesAr);
+  }, [pagesByDate]);
+
   const handlePageSelected = async (e: any) => {
-    if (!selectedDate) return;
+    console.log("page selected", e.nativeEvent.position);
     const newPosition = e.nativeEvent.position;
-    if (newPosition === 1) return;
-    setCanScroll(false);
-    const direction = newPosition === 0 ? -1 : 1;
 
-    // Convert selectedDate back to Date object for addDays
-    const parsedDate = parseISO(selectedDate);
-    const newDate = addDays(parsedDate, direction);
-    console.log("new date", newDate);
-    await setSelectedDate(newDate);
-
-    // Ensure ref exists before calling method
-    ref.current?.setPage(1);
-    setCanScroll(true);
+    // Check if the user is nearing the end of the available pages
+    if (newPosition >= pages.length - 2) {
+      await loadMorePages(); // This will add more pages to the store
+    }
   };
 
-  // Render nothing until both required pages are loaded
-  if (!leftPage || !currentPage) {
+  // Render a loading state until pages are available
+  if (loading) {
     return (
       <StyledView className="flex-1" style={{ backgroundColor: "blue" }}>
         <Text>Loading...</Text>
@@ -52,28 +61,16 @@ export default function JournalView() {
     <PagerView
       ref={ref}
       style={{ flex: 1 }}
-      layoutDirection="ltr"
-      scrollEnabled={canScroll}
-      initialPage={1}
+      layoutDirection="rtl"
+      initialPage={0}
       onPageSelected={handlePageSelected}
       overdrag
-      offscreenPageLimit={5}>
-      {rightPage
-        ? [leftPage, currentPage, rightPage].map((page, index) => {
-            return (
-              <StyledView key={page.date + "-" + index} className="flex-1" style={{ backgroundColor: "white" }}>
-                <CanvasHolder canvas={page.canvas} />
-              </StyledView>
-            );
-          })
-        : [leftPage, currentPage].map((page, index) => {
-            console.log("page", page.canvas);
-            return (
-              <StyledView key={page.date + "-" + index} className="flex-1" style={{ backgroundColor: "white" }}>
-                <CanvasHolder canvas={page.canvas} />
-              </StyledView>
-            );
-          })}
+      offscreenPageLimit={3}>
+      {pages.map((page, index) => (
+        <StyledView key={page.date + "-" + index} className="flex-1" style={{ backgroundColor: "white" }}>
+          <CanvasHolder canvas={page.canvas} />
+        </StyledView>
+      ))}
     </PagerView>
   );
 }
