@@ -1,4 +1,4 @@
-import { Slot } from "expo-router";
+import { Slot, Stack } from "expo-router";
 import { AuthProvider } from "@/src/contexts/AuthProvider";
 import { Text, View } from "react-native";
 import { styled } from "nativewind";
@@ -10,6 +10,8 @@ import * as SplashScreen from "expo-splash-screen";
 import { getImageFromPath } from "@/src/assets/images/images";
 import { MotiView } from "moti";
 import { ImageBackground } from "expo-image";
+import { DatabaseProvider } from "@nozbe/watermelondb/react";
+import { database } from "@/src/localDb/database";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -27,6 +29,7 @@ export default function RootLayout() {
     "PragmaticaExtended-Light": require("@/src/assets/fonts/PragmaticaExtended-light.otf"),
     PragmaticaExtended: require("@/src/assets/fonts/PragmaticaExtended.otf"),
   });
+
   useEffect(() => {
     if (loaded || error) {
       //maybe add loading data here
@@ -56,10 +59,9 @@ export default function RootLayout() {
               captureLifecycleEvents: true,
               noCaptureProp: "ph-no-capture",
             }}>
-            <AuthProvider>
-              {/* maybe add stack here for navigation? xD */}
-              <Slot />
-            </AuthProvider>
+            <DatabaseProvider database={database}>
+              <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
+            </DatabaseProvider>
           </PostHogProvider>
         </RootSiblingParent>
       </ImageBackground>

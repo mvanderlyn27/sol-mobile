@@ -14,18 +14,21 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 const { height } = Dimensions.get("window");
 export default function RectangleButton({
+  disabled,
   action,
   color,
   textColor,
   text,
 }: {
   action?: () => void;
+  disabled: boolean;
   color: string;
   textColor: string;
   text: string;
 }) {
   return (
     <StyledPressable
+      disabled={disabled}
       onPress={action}
       className={`${color}  px-7 py-3 rounded-full shadow-md flex justify-center items-center`}>
       <StyledText

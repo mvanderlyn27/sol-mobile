@@ -37,12 +37,12 @@ export default {
     plugins: [
       "expo-router",
       "expo-secure-store",
+      ["@morrowdigital/watermelondb-expo-plugin"],
       [
-
       "expo-build-properties",
       {
-        "android": {
-            "enableProguardInReleaseBuilds": true
+        android: {
+            enableProguardInReleaseBuilds: true,
         }
       }
       ],
@@ -53,7 +53,7 @@ export default {
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": process.env.EXPO_PUBLIC_GOOGLE_OAUTH_IOS_URL,
+          iosUrlScheme: process.env.EXPO_PUBLIC_GOOGLE_OAUTH_IOS_URL,
         }
       ]
     ],

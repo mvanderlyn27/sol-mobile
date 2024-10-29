@@ -15,33 +15,23 @@ import DateSelector from "../journal/DateSelector";
 import { StyledMotiView } from "../shared/CircleButton";
 import { runOnJS } from "react-native-reanimated";
 import { useData } from "@/src/contexts/DataProvider";
+import { useUIStore } from "@/src/stores/UIStore";
+import JournalView from "../journal/JournalView";
 
 const StyledView = styled(View);
 
 export default function JournalScreen() {
-  const { selectedDate } = useData();
-  const { menuOpen, setMenuOpen, navMenuVisible, setNavMenuVisible } = useNav();
-  const { startEditCanvas, exitEditCanvas, saveCanvasEdits, curEditingCanvasItem } = useCanvas();
-  const {
-    setDateSelectorVisible,
-    viewMode,
-    setViewMode,
-    journalMenuVisible,
-    setJournalMenuVisible,
-    bottomBarVisible,
-    setBottomBarVisible,
-    editMode,
-    setEditMode,
-  } = useJournal();
+  // const { selectedDate } = useData();
+  const displayBottomBar = useUIStore((state) => state.displayBottomBar);
 
   const startEditMode = () => {
-    setMenuOpen(false);
-    setNavMenuVisible(false);
-    setEditMode(true);
-    setJournalMenuVisible(false);
-    setDateSelectorVisible(false);
-    setBottomBarVisible(true);
-    startEditCanvas();
+    // setMenuOpen(false);
+    // setNavMenuVisible(false);
+    // setEditMode(true);
+    // setJournalMenuVisible(false);
+    // setDateSelectorVisible(false);
+    // setBottomBarVisible(true);
+    // startEditCanvas();
   };
 
   const handleShare = () => {
@@ -49,69 +39,65 @@ export default function JournalScreen() {
   };
 
   const handleSave = () => {
-    console.log("saving");
-    let toast = Toast.show("Saving Changes", {
-      duration: 1000,
-      position: Toast.positions.CENTER,
-    });
-    saveCanvasEdits();
+    // console.log("saving");
+    // let toast = Toast.show("Saving Changes", {
+    //   duration: 1000,
+    //   position: Toast.positions.CENTER,
+    // });
+    // saveCanvasEdits();
   };
 
   const exitEditMode = () => {
-    exitEditCanvas();
-    setNavMenuVisible(true);
-    setDateSelectorVisible(true);
-    setEditMode(false);
-    setJournalMenuVisible(false);
-    setBottomBarVisible(true);
+    // exitEditCanvas();
+    // setNavMenuVisible(true);
+    // setDateSelectorVisible(true);
+    // setEditMode(false);
+    // setJournalMenuVisible(false);
+    // setBottomBarVisible(true);
   };
 
   const handleBackgroundTap = () => {
-    if (!editMode) {
-      setViewMode(!viewMode);
-      setNavMenuVisible(!navMenuVisible);
-    }
+    // if (!editMode) {
+    //   setViewMode(!viewMode);
+    //   setNavMenuVisible(!navMenuVisible);
+    // }
   };
 
   // Create the tap gesture using the modern Gesture API
-  const tapGesture = Gesture.Tap()
-    .numberOfTaps(viewMode ? 1 : 2)
-    .onStart(() => {
-      runOnJS(handleBackgroundTap)();
-    });
+  // const tapGesture = Gesture.Tap()
+  // .numberOfTaps(viewMode ? 1 : 2)
+  // .onStart(() => {
+  //   runOnJS(handleBackgroundTap)();
+  // });
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <GestureDetector gesture={tapGesture}>
-        <StyledView className="absolute top-0 bottom-0 right-0 left-0 ">
-          <CanvasHolder key={selectedDate} />
-          <AnimatePresence>
-            {!viewMode && (
-              <StyledMotiView
-                from={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ type: "timing", duration: 200 }}
-                className="absolute top-0 bottom-0 right-0 left-0 " // Allow pointer events to pass through
-                style={{
-                  pointerEvents: "box-none",
-                }}
-                // className="flex-1" // Allow pointer events to pass through
-              >
-                <BottomBar key="bottom-bar" onExit={() => exitEditMode()} onSave={() => handleSave()} />
-                <JournalMenu
-                  key="journal-menu"
-                  onEditClick={() => startEditMode()}
-                  onShareClick={() => handleShare()}
-                />
-                <DateSelector />
-              </StyledMotiView>
-            )}
-          </AnimatePresence>
+      {/* <GestureDetector gesture={tapGesture}> */}
+      <StyledView className="absolute top-0 bottom-0 right-0 left-0 ">
+        <JournalView />
+        <AnimatePresence>
+          {displayBottomBar && (
+            <StyledMotiView
+              from={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ type: "timing", duration: 200 }}
+              className="absolute top-0 bottom-0 right-0 left-0 " // Allow pointer events to pass through
+              style={{
+                pointerEvents: "box-none",
+              }}
+              // className="flex-1" // Allow pointer events to pass through
+            >
+              {/* <BottomBar key="bottom-bar" onExit={() => {}} onSave={() => {}} /> */}
+              {/* <JournalMenu key="journal-menu" onEditClick={() => {}} onShareClick={() => {}} /> */}
+              {/* <DateSelector /> */}
+            </StyledMotiView>
+          )}
+        </AnimatePresence>
 
-          <AnimatePresence>{curEditingCanvasItem && <CanvasItemEditor />}</AnimatePresence>
-        </StyledView>
-      </GestureDetector>
+        {/* <AnimatePresence>{curEditingCanvasItem && <CanvasItemEditor />}</AnimatePresence> */}
+      </StyledView>
+      {/* </GestureDetector> */}
     </GestureHandlerRootView>
   );
 }
