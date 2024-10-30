@@ -26,6 +26,10 @@ export enum ButtonType {
   Template = "template",
   Settings = "settings",
   Tutorial = "tutorial",
+  Background = "background",
+  Image = "image",
+  Font = "font",
+  Sticker = "sticker",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {
@@ -38,8 +42,10 @@ export type VerticalStackItem = {
 //Canvas Types
 export enum BottomBarTab {
   Template = "template",
-  Frame = "frame",
-  Font = "font",
+  Background = "background",
+  Image = "image",
+  Text = "Text",
+  Sticker = "sticker",
 }
 export enum BottomDrawerType {
   Destructive = "destructive",
@@ -177,4 +183,11 @@ export type CreateTemplateInput = {
   path: string;
   name: string;
   data: Json;
+};
+
+//Quick Actions
+export type QuickActionInfo = {
+  icon: string;
+  label: string;
+  onPress: () => void;
 };

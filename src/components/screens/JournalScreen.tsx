@@ -18,6 +18,7 @@ import { useData } from "@/src/contexts/DataProvider";
 import { useUIStore } from "@/src/stores/UIStore";
 import JournalView from "../journal/JournalView";
 import { useBookStore } from "@/src/stores/BookStore";
+import QuickActionsOverlay from "../journal/quickActionsOverlay/QuickActionsOverlay";
 
 const StyledView = styled(View);
 
@@ -81,27 +82,7 @@ export default function JournalScreen() {
       {/* <GestureDetector gesture={tapGesture}> */}
       <StyledView className="absolute top-0 bottom-0 right-0 left-0 ">
         <JournalView />
-        <AnimatePresence>
-          {displayBottomBar && (
-            <StyledMotiView
-              from={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ type: "timing", duration: 200 }}
-              className="absolute top-0 bottom-0 right-0 left-0 " // Allow pointer events to pass through
-              style={{
-                pointerEvents: "box-none",
-              }}
-              // className="flex-1" // Allow pointer events to pass through
-            >
-              {/* <BottomBar key="bottom-bar" onExit={() => {}} onSave={() => {}} /> */}
-              {/* <JournalMenu key="journal-menu" onEditClick={() => {}} onShareClick={() => {}} /> */}
-              {/* <DateSelector /> */}
-            </StyledMotiView>
-          )}
-        </AnimatePresence>
-
-        {/* <AnimatePresence>{curEditingCanvasItem && <CanvasItemEditor />}</AnimatePresence> */}
+        <QuickActionsOverlay />
       </StyledView>
       {/* </GestureDetector> */}
     </GestureHandlerRootView>

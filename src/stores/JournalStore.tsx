@@ -28,15 +28,18 @@ const DEFAULT_PAGE = {
 type JournalStore = {
   pagesByDate: Record<string, Page | null>;
   selectedDate: string | null;
+  editMode: boolean;
   initializeStore: () => Promise<void>;
   setSelectedDate: (date: Date) => Promise<void>;
   loadInitialPages: () => Promise<void>;
   loadMorePages: () => Promise<void>;
+  setEditMode: (val: boolean) => void;
 };
 
 export const useJournalStore = create<JournalStore>((set, get) => ({
   pagesByDate: {},
   selectedDate: null,
+  editMode: true,
 
   initializeStore: async () => {
     const today = format(new Date(), "yyyy-MM-dd");
@@ -120,4 +123,5 @@ export const useJournalStore = create<JournalStore>((set, get) => ({
       },
     }));
   },
+  setEditMode: (val: boolean) => set({ editMode: val }),
 }));

@@ -10,9 +10,10 @@ import { CanvasItem, Frame } from "@/src/types/shared.types";
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 
-export default function FrameTab({ onSelect }: { onSelect: () => void }) {
-  const { frames } = useData(); // Fetch frames from the context
-  const { tempCanvas, addCanvasItem } = useCanvas();
+export default function ImageTab({ onSelect }: { onSelect: () => void }) {
+  // const { frames } = useData(); // Fetch frames from the context
+  const frames: Frame[] = [];
+  // const { tempCanvas, addCanvasItem } = useCanvas();
   const [currentPage, setCurrentPage] = useState(0);
 
   const itemsPerPage = 6; // Number of items you want to display per page

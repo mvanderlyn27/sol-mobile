@@ -12,13 +12,17 @@ import Feather from "@expo/vector-icons/Feather";
 //<Feather name="layout" size={24} color="black" />
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontTab from "./FontTab";
-import FrameTab from "./FrameTab";
+import ImageTab from "./ImageTab";
 import TemplateTab from "./TemplateTab";
 import { useJournal } from "@/src/contexts/JournalProvider";
 import Drawer from "../../shared/Drawer";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { BlurView } from "expo-blur";
 import { StyledPressable } from "../canvas/CanvasFrameHolder";
+import Foundation from "@expo/vector-icons/Foundation";
+import { useUIStore } from "@/src/stores/UIStore";
+import BackgroundTab from "./BackgroundTab";
+import StickerTab from "./StickerTab";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -26,31 +30,34 @@ const StyledMaterialCommunity = styled(MaterialCommunityIcons);
 const StyledFeather = styled(Feather);
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
+const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
-export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSave: () => void }) {
-  const { canvasHasChanges } = useCanvas();
-  const { editMode, bottomBarVisible } = useJournal();
+export default function BottomBar() {
+  // const { canvasHasChanges } = useCanvas();
+  // const { editMode, bottomBarVisible } = useJournal();
+  const displayJournalEditMenu = useUIStore((state) => state.displayJournalEditMenu);
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
   const handleExit = () => {
     if (selectedTab) setSelectedTab(null);
-    if (canvasHasChanges) {
-      setShowCancelDrawer(true);
-    } else {
-      onExit();
-    }
+    // if (canvasHasChanges) {
+    setShowCancelDrawer(true);
+    // } else {
+    // onExit();
+    // }
   };
+  const handleSave = () => {};
   const handleDrawerSave = () => {
     setShowCancelDrawer(false);
-    onSave();
+    // onSave();
     if (selectedTab) setSelectedTab(null);
-    onExit();
+    // onExit();
   };
   const handleDrawerExit = () => {
     setShowCancelDrawer(false);
     if (selectedTab) setSelectedTab(null);
-    onExit();
+    // onExit();
   };
   const handleTemplate = () => {
     if (selectedTab === BottomBarTab.Template) {
@@ -60,29 +67,33 @@ export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSa
     setSelectedTab(BottomBarTab.Template);
   };
   const handleFrame = () => {
-    if (selectedTab === BottomBarTab.Frame) {
+    if (selectedTab === BottomBarTab.Image) {
       setSelectedTab(null);
       return;
     }
-    setSelectedTab(BottomBarTab.Frame);
+    setSelectedTab(BottomBarTab.Image);
   };
   const handleText = () => {
-    if (selectedTab === BottomBarTab.Font) {
+    if (selectedTab === BottomBarTab.Text) {
       setSelectedTab(null);
       return;
     }
-    setSelectedTab(BottomBarTab.Font);
+    setSelectedTab(BottomBarTab.Text);
   };
   const handleSelect = () => {
     setSelectedTab(null);
   };
   const getSelectedTab = () => {
     switch (selectedTab) {
+      case BottomBarTab.Background:
+        return <BackgroundTab onSelect={handleSelect} />;
+      case BottomBarTab.Sticker:
+        return <StickerTab onSelect={handleSelect} />;
       case BottomBarTab.Template:
         return <TemplateTab onSelect={handleSelect} />;
-      case BottomBarTab.Frame:
-        return <FrameTab onSelect={handleSelect} />;
-      case BottomBarTab.Font:
+      case BottomBarTab.Image:
+        return <ImageTab onSelect={handleSelect} />;
+      case BottomBarTab.Text:
         return <FontTab onSelect={handleSelect} />;
       default:
         return null;
@@ -90,7 +101,8 @@ export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSa
   };
   return (
     <AnimatePresence>
-      {editMode && bottomBarVisible && (
+      {/* {editMode && bottomBarVisible && ( */}
+      {displayJournalEditMenu && (
         <StyledMotiView
           key="bottom-bar"
           className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden z-10"
@@ -99,7 +111,7 @@ export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSa
           exit={{ opacity: 0, translateY: 20 }}
           exitTransition={{ type: "timing", duration: 200 }}
           transition={{ type: "timing", duration: 200 }}>
-          <StyledBlurView intensity={80} tint="dark" className="p-6 flex-1">
+          <StyledBlurView intensity={80} tint="dark" className="p-4 flex-1 rounded-[40px] bg-black">
             <AnimatePresence>
               {selectedTab && (
                 <StyledMotiView
@@ -114,24 +126,28 @@ export default function BottomBar({ onExit, onSave }: { onExit: () => void; onSa
                 </StyledMotiView>
               )}
             </AnimatePresence>
-            <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center ">
-              <BottomBarButton onPress={handleExit} buttonType={ButtonType.X} />
+            <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center rounded-full ">
               <BottomBarButton
-                selected={selectedTab === BottomBarTab.Template}
-                onPress={handleTemplate}
+                onPress={handleExit}
                 buttonType={ButtonType.Template}
+                selected={selectedTab === BottomBarTab.Template}
               />
               <BottomBarButton
-                selected={selectedTab === BottomBarTab.Frame}
+                selected={selectedTab === BottomBarTab.Background}
+                onPress={handleTemplate}
+                buttonType={ButtonType.Background}
+              />
+              <BottomBarButton
+                selected={selectedTab === BottomBarTab.Image}
                 onPress={handleFrame}
-                buttonType={ButtonType.Frame}
+                buttonType={ButtonType.Image}
               />
               <BottomBarButton
-                selected={selectedTab === BottomBarTab.Font}
+                selected={selectedTab === BottomBarTab.Text}
                 onPress={handleText}
                 buttonType={ButtonType.Text}
               />
-              <BottomBarButton onPress={onSave} buttonType={ButtonType.Save} />
+              <BottomBarButton onPress={handleSave} buttonType={ButtonType.Sticker} />
             </StyledMotiView>
           </StyledBlurView>
         </StyledMotiView>
@@ -171,12 +187,16 @@ function BottomBarButton({
         );
       case "save":
         return <StyledMaterialCommunity name="content-save-outline" size={24} className="text-primary" />;
-      case "frame":
+      case "image":
         return <StyledFeather name="image" size={24} className={selected ? "text-darkPrimary" : "text-secondary"} />;
       case "template":
         return <StyledFeather name="layout" size={24} className={selected ? "text-darkPrimary" : "text-secondary"} />;
       case "x":
         return <StyledAnt name="closecircleo" size={24} className="text-red-500" />;
+      case "sticker":
+        return <StyledAnt name="smile-circle" size={24} className="text-secondary" />;
+      case "background":
+        return <StyledFoundation name="page" size={24} className={"text-secondary"} />;
 
       default:
         return null;
