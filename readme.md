@@ -3,7 +3,12 @@
 ## setup
 
 - downlaod bun
-  - curl -fsSL <https://bun.sh/install> | bash
+  - curl
+    - curl -fsSL <https://bun.sh/install> | bash
+  - or brew
+    - brew install oven-sh/bun/bun # for macOS and Linux
+  - or with npm
+    - npm install -g bun # the last `npm` command you'll ever need
 - download packages
   - bun install
 - setup env vars
