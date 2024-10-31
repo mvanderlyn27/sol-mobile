@@ -37,7 +37,6 @@ export default {
     plugins: [
       "expo-router",
       "expo-secure-store",
-      ["@morrowdigital/watermelondb-expo-plugin"],
       [
       "expo-build-properties",
       {

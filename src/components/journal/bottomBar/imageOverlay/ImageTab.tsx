@@ -39,32 +39,32 @@ export default function ImageTab({ onSelect }: { onSelect: () => void }) {
     return Math.min(scaleWidth, scaleHeight);
   };
   const handleAddFrame = (frame: Frame) => {
-    if (!tempCanvas) {
-      console.log("no temp canvas");
-      return;
-    }
-    const scale = getScale(frame.width, frame.height, tempCanvas.screenWidth, tempCanvas.screenHeight);
-    const scaledWidth = scale * frame.width;
-    const scaledHeight = scale * frame.height;
-    const { width, height } = Dimensions.get("window");
-    const x = (width - scaledWidth) / 2;
-    const y = (height - scaledHeight) / 2;
-    const newFrame: CanvasItem = {
-      id: tempCanvas.curId + 1,
-      dbId: frame.id,
-      type: "frame",
-      path: frame.path,
-      width: frame.width,
-      height: frame.height,
-      y: y, // Centered
-      x: x, // Centered
-      z: tempCanvas.maxZIndex + 1,
-      scale: scale,
-      rotation: 0,
-      slots: [{ maskPath: frame.maskPath ?? "" }],
-    };
-    addCanvasItem(newFrame);
-    onSelect();
+    // if (!tempCanvas) {
+    //   console.log("no temp canvas");
+    //   return;
+    // }
+    // const scale = getScale(frame.width, frame.height, tempCanvas.screenWidth, tempCanvas.screenHeight);
+    // const scaledWidth = scale * frame.width;
+    // const scaledHeight = scale * frame.height;
+    // const { width, height } = Dimensions.get("window");
+    // const x = (width - scaledWidth) / 2;
+    // const y = (height - scaledHeight) / 2;
+    // const newFrame: CanvasItem = {
+    //   id: tempCanvas.curId + 1,
+    //   dbId: frame.id,
+    //   type: "frame",
+    //   path: frame.path,
+    //   width: frame.width,
+    //   height: frame.height,
+    //   y: y, // Centered
+    //   x: x, // Centered
+    //   z: tempCanvas.maxZIndex + 1,
+    //   scale: scale,
+    //   rotation: 0,
+    //   slots: [{ maskPath: frame.maskPath ?? "" }],
+    // };
+    // addCanvasItem(newFrame);
+    // onSelect();
   };
 
   const renderFrameItem = ({ item }: { item: Frame }) => (

@@ -15,20 +15,18 @@ import DateSelector from "../journal/DateSelector";
 import { StyledMotiView } from "../shared/CircleButton";
 import { runOnJS } from "react-native-reanimated";
 import { useData } from "@/src/contexts/DataProvider";
-import { useUIStore } from "@/src/stores/UIStore";
 import JournalView from "../journal/JournalView";
-import { useBookStore } from "@/src/stores/BookStore";
+// import { useBookStore } from "@/src/stores/BookStore";
 import QuickActionsOverlay from "../journal/quickActionsOverlay/QuickActionsOverlay";
 
 const StyledView = styled(View);
 
 export default function JournalScreen() {
-  const { initializeBookStore } = useBookStore();
-  const curBook = useBookStore((state) => state.currentBook);
-  const displayBottomBar = useUIStore((state) => state.displayBottomBar);
+  // const { initializeBookStore } = useBookStore();
+  // const curBook = useBookStore((state) => state.currentBook);
 
   useEffect(() => {
-    initializeBookStore();
+    // initializeBookStore();
   }, []);
 
   const startEditMode = () => {

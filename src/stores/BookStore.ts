@@ -1,22 +1,39 @@
-import { create } from "zustand";
-import Book from "../localDb/models/Book";
-import { createJSONStorage, persist } from "zustand/middleware";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetchDefaultBook, insertDefaultBook } from "../api/local-journal";
-interface BookState {
-  currentBook: Book | null;
-  setCurrentBook: (book: Book) => void;
-  initializeBookStore: () => void;
+import { observable } from "@legendapp/state";
+import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
+import { supabase } from "../lib/supabase";
+import { v4 as uuidv4 } from "uuid";
+import { Book, BookType } from "../types/shared.types";
+const generateId = () => uuidv4();
+configureSyncedSupabase({
+  generateId,
+});
+interface BookStore {
+  selectedBook: string | null;
+  //   books: Book | null;
+  addBook: (type: BookType) => void;
 }
-export const useBookStore = create<BookState>((set, get) => ({
-  currentBook: null,
-  setCurrentBook: (book: Book) => set(() => ({ currentBook: book })),
-  initializeBookStore: async () => {
-    let book = await fetchDefaultBook();
-    if (!book) {
-      book = await insertDefaultBook();
-    }
-    console.log(book?.type);
-    set(() => ({ currentBook: book }));
+
+export const books$ = observable(
+  syncedSupabase({
+    supabase,
+    collection: "books",
+    select: (from) => from.select("*"),
+    actions: ["read", "create", "update", "delete"],
+    // persist: { name: "books", retrySync: true },
+    // changeSince: 'last-sync'
+  })
+);
+
+export const bookStore$ = observable<BookStore>({
+  selectedBook: null,
+  // books: books$.get()
+  addBook: (type: BookType) => {
+    const id = generateId();
+    // books$[id].set({
+    //   id,
+    //   type,
+    //   created_at: null,
+    //   updated_at: null,
+    // });
   },
-}));
+});

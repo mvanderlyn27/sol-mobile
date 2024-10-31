@@ -1,22 +1,23 @@
-import { useUIStore } from "@/src/stores/UIStore";
 import { BlurView } from "expo-blur";
 import { AnimatePresence } from "moti";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import QuickAction from "./QuickAction";
 import { StyledText } from "../canvas/CanvasText";
+import { uiStore$ } from "@/src/stores/UIStore";
+import { observer } from "@legendapp/state/react";
 const StyledMotiView = styled(MotiView);
 const StyledBlurView = styled(BlurView);
 
-export default function QuickActionsOverlay() {
-  const { displayQuickActionsOverlay, setQuickActionsOverlayDisplay } = useUIStore();
+const QuickActionsOverlay = observer(function QuickActionsOverlay() {
+  const displayQuickActionsOverlay = uiStore$.displayQuickActionsOverlay.get();
   const quickActions = [
     {
       icon: "photo",
       label: "Photo",
       onPress: () => {
         console.log("photo");
-        setQuickActionsOverlayDisplay(false);
+        // setQuickActionsOverlayDisplay(false);
       },
     },
     {
@@ -24,7 +25,7 @@ export default function QuickActionsOverlay() {
       label: "Templates",
       onPress: () => {
         console.log("template");
-        setQuickActionsOverlayDisplay(false);
+        // setQuickActionsOverlayDisplay(false);
       },
     },
     {
@@ -32,7 +33,7 @@ export default function QuickActionsOverlay() {
       label: "Text",
       onPress: () => {
         console.log("text");
-        setQuickActionsOverlayDisplay(false);
+        // setQuickActionsOverlayDisplay(false);
       },
     },
   ];
@@ -56,4 +57,6 @@ export default function QuickActionsOverlay() {
       )}
     </AnimatePresence>
   );
-}
+});
+
+export default QuickActionsOverlay;

@@ -6,6 +6,8 @@ import { styled } from "nativewind";
 import { Link } from "expo-router";
 import AppleAuthButton from "./AppleAuthButton";
 import GoogleAuthButton from "./GoogleAuthButton";
+import { observer } from "@legendapp/state/react";
+import authStore$ from "@/src/stores/AuthStore";
 
 const StyledMotiView = styled(MotiView);
 const StyledTextInput = styled(TextInput);
@@ -13,15 +15,14 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 const StyledLink = styled(Link);
 
-export default function SignupForm() {
+const SignupForm = observer(function SignupForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, error } = useAuth();
 
   async function handleSignin() {
     setLoading(true);
-    await signIn(email, password);
+    await authStore$.signIn(email, password);
     setLoading(false);
   }
 
@@ -80,4 +81,5 @@ export default function SignupForm() {
       <GoogleAuthButton />
     </StyledMotiView>
   );
-}
+});
+export default SignupForm;

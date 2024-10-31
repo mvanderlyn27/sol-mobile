@@ -202,9 +202,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setError(null);
       setIsReady(true);
       if (method === "verifyEmail") {
-        router.push("/resetPassword");
+        // router.push("/resetPassword");
       } else if (method === "resetPassword") {
-        router.push("/resetPassword");
+        // router.push("/resetPassword");
       }
     } else {
       setIsReady(true);

@@ -1,4 +1,4 @@
-import { Slot, Stack } from "expo-router";
+import { Slot, Stack, router } from "expo-router";
 import { AuthProvider } from "@/src/contexts/AuthProvider";
 import { Text, View } from "react-native";
 import { styled } from "nativewind";
@@ -10,12 +10,12 @@ import * as SplashScreen from "expo-splash-screen";
 import { getImageFromPath } from "@/src/assets/images/images";
 import { MotiView } from "moti";
 import { ImageBackground } from "expo-image";
-import { DatabaseProvider } from "@nozbe/watermelondb/react";
-import { database } from "@/src/localDb/database";
+import { observer } from "@legendapp/state/react";
+import authStore$ from "@/src/stores/AuthStore";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
-export default function RootLayout() {
+export const RootLayout = observer(function RootLayout() {
   let [loaded, error] = useFonts({
     Calibri: require("@/src/assets/fonts/Calibri.ttf"),
     "Calibri-Bold": require("@/src/assets/fonts/Calibri-bold.ttf"),
@@ -29,11 +29,15 @@ export default function RootLayout() {
     "PragmaticaExtended-Light": require("@/src/assets/fonts/PragmaticaExtended-light.otf"),
     PragmaticaExtended: require("@/src/assets/fonts/PragmaticaExtended.otf"),
   });
-
+  useEffect(() => {
+    //setup initial store
+    authStore$.init();
+  }, []);
   useEffect(() => {
     if (loaded || error) {
       //maybe add loading data here
       SplashScreen.hideAsync();
+      router.push("/loading");
     }
   }, [loaded, error]);
   if (!loaded && !error) {
@@ -59,12 +63,12 @@ export default function RootLayout() {
               captureLifecycleEvents: true,
               noCaptureProp: "ph-no-capture",
             }}>
-            <DatabaseProvider database={database}>
-              <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
-            </DatabaseProvider>
+            <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
           </PostHogProvider>
         </RootSiblingParent>
       </ImageBackground>
     </StyledMotiView>
   );
-}
+});
+
+export default RootLayout;

@@ -11,8 +11,8 @@ import Feather from "@expo/vector-icons/Feather";
 //<Feather name="image" size={24} color="black" />
 //<Feather name="layout" size={24} color="black" />
 import AntDesign from "@expo/vector-icons/AntDesign";
-import FontTab from "./FontTab";
-import ImageTab from "./ImageTab";
+import FontTab from "./textOverlay/FontTab";
+import ImageTab from "./imageOverlay/ImageTab";
 import TemplateTab from "./TemplateTab";
 import { useJournal } from "@/src/contexts/JournalProvider";
 import Drawer from "../../shared/Drawer";
@@ -20,9 +20,10 @@ import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { BlurView } from "expo-blur";
 import { StyledPressable } from "../canvas/CanvasFrameHolder";
 import Foundation from "@expo/vector-icons/Foundation";
-import { useUIStore } from "@/src/stores/UIStore";
 import BackgroundTab from "./BackgroundTab";
 import StickerTab from "./StickerTab";
+import { observer } from "@legendapp/state/react";
+import { uiStore$ } from "@/src/stores/UIStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -33,10 +34,10 @@ const StyledView = styled(View);
 const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
-export default function BottomBar() {
+const BottomBar = observer(function BottomBar() {
   // const { canvasHasChanges } = useCanvas();
   // const { editMode, bottomBarVisible } = useJournal();
-  const displayJournalEditMenu = useUIStore((state) => state.displayJournalEditMenu);
+  const displayJournalEditMenu = uiStore$.displayJournalEditMenu.get();
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
   const handleExit = () => {
@@ -99,6 +100,9 @@ export default function BottomBar() {
         return null;
     }
   };
+  const handleBackground = () => {};
+  const handleImage = () => {};
+  const handleSticker = () => {};
   return (
     <AnimatePresence>
       {/* {editMode && bottomBarVisible && ( */}
@@ -128,18 +132,18 @@ export default function BottomBar() {
             </AnimatePresence>
             <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center rounded-full ">
               <BottomBarButton
-                onPress={handleExit}
+                onPress={handleTemplate}
                 buttonType={ButtonType.Template}
                 selected={selectedTab === BottomBarTab.Template}
               />
               <BottomBarButton
                 selected={selectedTab === BottomBarTab.Background}
-                onPress={handleTemplate}
+                onPress={handleBackground}
                 buttonType={ButtonType.Background}
               />
               <BottomBarButton
                 selected={selectedTab === BottomBarTab.Image}
-                onPress={handleFrame}
+                onPress={handleImage}
                 buttonType={ButtonType.Image}
               />
               <BottomBarButton
@@ -147,7 +151,7 @@ export default function BottomBar() {
                 onPress={handleText}
                 buttonType={ButtonType.Text}
               />
-              <BottomBarButton onPress={handleSave} buttonType={ButtonType.Sticker} />
+              <BottomBarButton onPress={handleSticker} buttonType={ButtonType.Sticker} />
             </StyledMotiView>
           </StyledBlurView>
         </StyledMotiView>
@@ -165,7 +169,7 @@ export default function BottomBar() {
       )}
     </AnimatePresence>
   );
-}
+});
 
 function BottomBarButton({
   onPress,
@@ -226,3 +230,5 @@ function BottomBarButton({
     </Pressable>
   );
 }
+
+export default BottomBar;

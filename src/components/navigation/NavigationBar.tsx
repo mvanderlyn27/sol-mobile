@@ -8,8 +8,9 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { BlurView } from "expo-blur";
-import { useUIStore } from "@/src/stores/UIStore";
 import { router, usePathname } from "expo-router";
+import { uiStore$ } from "@/src/stores/UIStore";
+import { observer } from "@legendapp/state/react";
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);
@@ -18,12 +19,12 @@ const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
-export default function NavigationBar() {
-  const displayBottomBar = useUIStore((state) => state.displayBottomBar);
+const NavigationBar = observer(function NavigationBar() {
   const curRoute = usePathname();
+  const display = uiStore$.displayNavigationBar.get();
   return (
     <AnimatePresence>
-      {displayBottomBar && (
+      {display && (
         <StyledMotiView
           key="bottom-bar"
           className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden z-10"
@@ -55,7 +56,7 @@ export default function NavigationBar() {
       )}
     </AnimatePresence>
   );
-}
+});
 
 function BottomBarButton({
   onPress,
@@ -112,3 +113,5 @@ function BottomBarButton({
     </Pressable>
   );
 }
+
+export default NavigationBar;

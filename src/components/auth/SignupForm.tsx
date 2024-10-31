@@ -8,23 +8,26 @@ import { styled } from "nativewind";
 import { Ionicons } from "@expo/vector-icons";
 import AppleAuthButton from "./AppleAuthButton";
 import GoogleAuthButton from "./GoogleAuthButton";
+import authStore$ from "@/src/stores/AuthStore";
+import { observer } from "@legendapp/state/react";
 
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 const StyledTextInput = styled(TextInput);
 const StyledPressable = styled(Pressable);
 
-export default function SignupForm() {
+const SignupForm = observer(function SignupForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp, error } = useAuth();
+  // const { signIn, signUp, error } = useAuth();
 
   async function handleSignUp() {
     setLoading(true);
-    await signUp(email, password, username);
+    await authStore$.signUp(email, password, username);
+    Toast.show("Check email for verification", {});
     setLoading(false);
   }
 
@@ -112,4 +115,6 @@ export default function SignupForm() {
       <GoogleAuthButton />
     </StyledMotiView>
   );
-}
+});
+
+export default SignupForm;

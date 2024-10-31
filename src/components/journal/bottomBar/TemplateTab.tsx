@@ -11,23 +11,23 @@ const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 
 export default function TemplateTab({ onSelect }: { onSelect: () => void }) {
-  const { templates } = useData(); // Fetch templates from the context
-  const { useTemplate } = useCanvas();
+  // const { templates } = useData(); // Fetch templates from the context
+  // const { useTemplate } = useCanvas();
   const itemsPerPage = 6; // Number of items you want to display per page
   const [currentPage, setCurrentPage] = useState(0);
 
   // Calculate the number of pages based on the data
-  const totalPages = Math.ceil(templates.length / itemsPerPage);
+  // const totalPages = Math.ceil(templates.length / itemsPerPage);
 
   const getPageTemplates = (page: number) => {
     const startIndex = page * itemsPerPage;
-    return templates.slice(startIndex, startIndex + itemsPerPage);
+    // return templates.slice(startIndex, startIndex + itemsPerPage);
   };
 
   const handleSelectTemplate = (template: Template) => {
     onSelect();
     console.log("select template");
-    useTemplate(template.data as string);
+    // useTemplate(template.data as string);
   };
 
   const renderTemplateItem = ({ item }: { item: Template }) => (
@@ -61,7 +61,8 @@ export default function TemplateTab({ onSelect }: { onSelect: () => void }) {
       </StyledText>
 
       <FlatList
-        data={getPageTemplates(currentPage)} // Get templates for the current page
+        // data={getPageTemplates(currentPage)} // Get templates for the current page
+        data={[]}
         renderItem={renderTemplateItem}
         keyExtractor={(item) => item.id.toString()}
         numColumns={3} // Set number of columns to 3
@@ -72,7 +73,7 @@ export default function TemplateTab({ onSelect }: { onSelect: () => void }) {
 
       {/* Pagination Indicators */}
       <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: 10 }}>
-        {Array.from({ length: totalPages }).map((_, index) => (
+        {/* {Array.from({ length: totalPages }).map((_, index) => (
           <TouchableOpacity
             key={index}
             onPress={() => setCurrentPage(index)}
@@ -84,7 +85,7 @@ export default function TemplateTab({ onSelect }: { onSelect: () => void }) {
               marginHorizontal: 5,
             }}
           />
-        ))}
+        ))} */}
       </View>
     </View>
   );
