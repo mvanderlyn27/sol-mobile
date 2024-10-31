@@ -1,39 +1,69 @@
-import { observable } from "@legendapp/state";
+import { observable, observe, syncState, when, whenReady } from "@legendapp/state";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
 import { supabase } from "../lib/supabase";
 import { v4 as uuidv4 } from "uuid";
 import { Book, BookType } from "../types/shared.types";
-const generateId = () => uuidv4();
-configureSyncedSupabase({
-  generateId,
-});
+import authStore$ from "./AuthStore";
+import { syncObservable } from "@legendapp/state/sync";
+import { customSupabaseSynced, generateId, persistOptions } from "./AsyncStorage";
 interface BookStore {
   selectedBook: string | null;
-  //   books: Book | null;
-  addBook: (type: BookType) => void;
+  isReady: boolean;
 }
 
 export const books$ = observable(
-  syncedSupabase({
+  customSupabaseSynced({
     supabase,
     collection: "books",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
     // persist: { name: "books", retrySync: true },
-    // changeSince: 'last-sync'
+    // retry: {
+    // infinite: true,
+    // },
   })
 );
 
 export const bookStore$ = observable<BookStore>({
-  selectedBook: null,
-  // books: books$.get()
-  addBook: (type: BookType) => {
-    const id = generateId();
-    // books$[id].set({
-    //   id,
-    //   type,
-    //   created_at: null,
-    //   updated_at: null,
-    // });
-  },
+  selectedBook: books$.get() ? books$.get()[0].id : null,
+  isReady: false,
 });
+export const initBookStore = async () => {
+  console.log("book store init");
+  const status$ = syncState(books$);
+  observe(() => {
+    // This will re-run as the status changes
+    const { isLoaded, error } = status$.get();
+    if (error) {
+      console.error(error);
+      // Handle error
+    } else if (isLoaded) {
+      console.log("loaded");
+      // Do the thing
+      const selectedBook = bookStore$.selectedBook;
+      const books = books$.get();
+      if (!selectedBook) {
+        bookStore$.selectedBook.set(books[0].id);
+        console.log("books", books);
+      }
+      bookStore$.isReady.set(true);
+    }
+  });
+};
+export const addBook = (type: BookType): string | null => {
+  console.log("trying to add book");
+  const userId = authStore$.session.get()?.user.id;
+  if (!userId) {
+    console.log("Error: user not logged in");
+    return null;
+  }
+  const id = generateId();
+  books$[id].set({
+    id,
+    type,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    created_by: userId,
+  });
+  return id;
+};

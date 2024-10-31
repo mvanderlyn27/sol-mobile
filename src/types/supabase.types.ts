@@ -13,20 +13,23 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
-          id: number
+          id: string
           type: Database["public"]["Enums"]["book_type"]
+          updated_at: string
         }
         Insert: {
           created_at?: string
           created_by?: string
-          id?: number
+          id?: string
           type?: Database["public"]["Enums"]["book_type"]
+          updated_at?: string
         }
         Update: {
           created_at?: string
           created_by?: string
-          id?: number
+          id?: string
           type?: Database["public"]["Enums"]["book_type"]
+          updated_at?: string
         }
         Relationships: [
           {
@@ -94,33 +97,33 @@ export type Database = {
       }
       pages: {
         Row: {
-          book: number | null
+          book_id: string | null
           canvas: Json | null
           created_at: string
           date: string
-          id: number
-          last_edited: string | null
+          id: string
+          updated_at: string | null
         }
         Insert: {
-          book?: number | null
+          book_id?: string | null
           canvas?: Json | null
           created_at?: string
           date: string
-          id?: number
-          last_edited?: string | null
+          id: string
+          updated_at?: string | null
         }
         Update: {
-          book?: number | null
+          book_id?: string | null
           canvas?: Json | null
           created_at?: string
           date?: string
-          id?: number
-          last_edited?: string | null
+          id?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "pages_book_fkey"
-            columns: ["book"]
+            foreignKeyName: "pages_book_id_fkey"
+            columns: ["book_id"]
             isOneToOne: false
             referencedRelation: "books"
             referencedColumns: ["id"]

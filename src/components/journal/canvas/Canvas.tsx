@@ -12,6 +12,8 @@ import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { useJournal } from "@/src/contexts/JournalProvider";
 import CanvasItemEditor from "./CanvasItemEditor";
 import { useData } from "@/src/contexts/DataProvider";
+import { Json } from "@/src/types/supabase.types";
+import { jsonToCanvas } from "@/src/services/Canvas";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
@@ -61,11 +63,11 @@ export default function CanvasHolder({ canvas }: { canvas: Canvas }) {
           {canvas.items.map((item) => {
             if (item.type === "frame") {
               // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
-              return <CanvasFrameHolder key={`frame-${canvas ? "temp-" : "-"}${item.id}-}`} item={{ ...item }} />;
+              return <CanvasFrameHolder key={`frame-${canvas ? "temp-" : "-"}${item.id}-}`} item={item} />;
             }
 
             if (item.type === "text") {
-              return <CanvasTextHolder key={`text-${canvas ? "temp-" : "-"}${item.id}-`} item={{ ...item }} />;
+              return <CanvasTextHolder key={`text-${canvas ? "temp-" : "-"}${item.id}-`} item={item} />;
             }
             return null; // Return null if the type is unrecognized
           })}

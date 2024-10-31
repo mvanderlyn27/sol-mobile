@@ -1,7 +1,7 @@
 import { observable } from "@legendapp/state";
 
 export const uiStore$ = observable({
-  displayNavigationBar: true,
+  displayNavigationBar: false,
   displayBottomBar: false,
   displayQuickActionsOverlay: false,
   displayJournalEditMenu: true,
