@@ -14,6 +14,7 @@ import CanvasItemEditor from "./CanvasItemEditor";
 import { useData } from "@/src/contexts/DataProvider";
 import { Json } from "@/src/types/supabase.types";
 import { jsonToCanvas } from "@/src/services/Canvas";
+import CanvasMenu from "./canvasMenu/canvasMenu";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);

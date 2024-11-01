@@ -64,6 +64,7 @@ export const addBook = (type: BookType): string | null => {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     created_by: userId,
+    deleted: false,
   });
   return id;
 };

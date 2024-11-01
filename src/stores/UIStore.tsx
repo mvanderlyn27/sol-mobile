@@ -2,9 +2,9 @@ import { observable } from "@legendapp/state";
 
 export const uiStore$ = observable({
   displayNavigationBar: false,
-  displayBottomBar: false,
+  displayCanvasMenu: false,
   displayQuickActionsOverlay: false,
-  displayJournalEditMenu: true,
+  displayJournalMenu: true,
   showNotification: () => {
     //probably add to a notifcation context to get the toast hook
     // Toast.show("Check email for verification", {

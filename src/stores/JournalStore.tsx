@@ -1,6 +1,6 @@
 import { computed, observable, observe, syncState, when, whenReady } from "@legendapp/state";
 import { format, addDays, parseISO, startOfDay } from "date-fns";
-import { Canvas, CanvasItem, ImageType } from "../types/shared.types";
+import { Canvas, CanvasItem, ImageType, Page } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { supabase } from "../lib/supabase";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
@@ -41,22 +41,26 @@ export const pages$ = observable(
     },
   })
 );
+interface JournalStore {
+  pageMap: Map<string, Page>;
+  selectedDate: string;
+  currentDates: string[];
+  loading: boolean;
+  editMode: boolean;
+}
 //@ts-ignore
-export const journalStore$ = observable({
-  pages: computed(() =>
-    Object.values(pages$.get()).reduce((acc: Record<string, Json>, page) => {
-      const dateKey = format(new Date(page.date), "yyyy-MM-dd");
-      acc[dateKey] = page;
-      return acc;
-    }, {})
-  ),
+export const journalStore$ = observable<JournalStore>({
+  pageMap: pages$.get()
+    ? Object.values(pages$.get()).reduce((acc: Map<string, Page>, page: Page) => {
+        const dateKey = format(new Date(page.date), "yyyy-MM-dd");
+        acc.set(dateKey, page); // Use `.set()` instead of `acc[dateKey]`
+        return acc;
+      }, new Map<string, Page>())
+    : new Map<string, Page>(), // Return a Map directly as expected by the type
   selectedDate: format(new Date(), "yyyy-MM-dd"),
   currentDates: [format(new Date(), "yyyy-MM-dd")],
   loading: false,
   editMode: false,
-
-  updatePage: () => {},
-  deletePage: () => {},
 });
 export const addPage = (date?: string | undefined, canvas?: Canvas): string | null => {
   console.log("trying to add book");
@@ -78,6 +82,7 @@ export const addPage = (date?: string | undefined, canvas?: Canvas): string | nu
     canvas: JSON.stringify(canvas || defaultCanvas),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    deleted: false,
   });
   return id;
 };

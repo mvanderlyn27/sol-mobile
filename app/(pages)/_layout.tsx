@@ -1,4 +1,4 @@
-import BottomBar from "@/src/components/journal/bottomBar/BottomBar";
+import BottomBar from "@/src/components/journal/journalMenu/JournalMenu";
 import NavigationBar from "@/src/components/navigation/NavigationBar";
 import authStore$ from "@/src/stores/AuthStore";
 import { observer } from "@legendapp/state/react";

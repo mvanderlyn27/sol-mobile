@@ -11,17 +11,10 @@ import Feather from "@expo/vector-icons/Feather";
 //<Feather name="image" size={24} color="black" />
 //<Feather name="layout" size={24} color="black" />
 import AntDesign from "@expo/vector-icons/AntDesign";
-import FontTab from "./textOverlay/FontTab";
-import ImageTab from "./imageOverlay/ImageTab";
-import TemplateTab from "./TemplateTab";
 import { useJournal } from "@/src/contexts/JournalProvider";
-import Drawer from "../../shared/Drawer";
 import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { BlurView } from "expo-blur";
-import { StyledPressable } from "../canvas/CanvasFrameHolder";
 import Foundation from "@expo/vector-icons/Foundation";
-import BackgroundTab from "./BackgroundTab";
-import StickerTab from "./StickerTab";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
@@ -34,10 +27,10 @@ const StyledView = styled(View);
 const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
-const BottomBar = observer(function BottomBar() {
+const CanvasBar = observer(function CanvasBar() {
   // const { canvasHasChanges } = useCanvas();
   // const { editMode, bottomBarVisible } = useJournal();
-  const displayJournalEditMenu = uiStore$.displayJournalEditMenu.get();
+  const displayCanvasMenu = uiStore$.displayCanvasMenu.get();
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
   const handleExit = () => {
@@ -84,94 +77,78 @@ const BottomBar = observer(function BottomBar() {
   const handleSelect = () => {
     setSelectedTab(null);
   };
-  const getSelectedTab = () => {
-    switch (selectedTab) {
-      case BottomBarTab.Background:
-        return <BackgroundTab onSelect={handleSelect} />;
-      case BottomBarTab.Sticker:
-        return <StickerTab onSelect={handleSelect} />;
-      case BottomBarTab.Template:
-        return <TemplateTab onSelect={handleSelect} />;
-      case BottomBarTab.Image:
-        return <ImageTab onSelect={handleSelect} />;
-      case BottomBarTab.Text:
-        return <FontTab onSelect={handleSelect} />;
-      default:
-        return null;
-    }
-  };
+  //   const getSelectedTab = () => {
+  //     switch (selectedTab) {
+  //       case BottomBarTab.Background:
+  //         return <BackgroundTab onSelect={handleSelect} />;
+  //       case BottomBarTab.Sticker:
+  //         return <StickerTab onSelect={handleSelect} />;
+  //       case BottomBarTab.Template:
+  //         return <TemplateTab onSelect={handleSelect} />;
+  //       case BottomBarTab.Image:
+  //         return <ImageTab onSelect={handleSelect} />;
+  //       case BottomBarTab.Text:
+  //         return <FontTab onSelect={handleSelect} />;
+  //       default:
+  //         return null;
+  //     }
+  //   };
   const handleBackground = () => {};
   const handleImage = () => {};
   const handleSticker = () => {};
   return (
-    <AnimatePresence>
-      {/* {editMode && bottomBarVisible && ( */}
-      {displayJournalEditMenu && (
-        <StyledMotiView
-          key="bottom-bar"
-          className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden z-10"
-          from={{ opacity: 0, translateY: 20 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          exit={{ opacity: 0, translateY: 20 }}
-          exitTransition={{ type: "timing", duration: 200 }}
-          transition={{ type: "timing", duration: 200 }}>
-          <StyledBlurView intensity={80} tint="dark" className="p-4 flex-1 rounded-[40px] bg-black">
-            <AnimatePresence>
-              {selectedTab && (
-                <StyledMotiView
-                  key="bottom-bar-data"
-                  from={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: height * 0.6 }}
-                  exit={{ opacity: 0, height: 0 }}
-                  exitTransition={{ type: "timing", duration: 300 }}
-                  transition={{ type: "timing", duration: 400 }}>
-                  {/* This is where the tab data */}
-                  {selectedTab && getSelectedTab()}
-                </StyledMotiView>
-              )}
-            </AnimatePresence>
-            <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center rounded-full ">
-              <BottomBarButton
-                onPress={handleTemplate}
-                buttonType={ButtonType.Template}
-                selected={selectedTab === BottomBarTab.Template}
-              />
-              <BottomBarButton
-                selected={selectedTab === BottomBarTab.Background}
-                onPress={handleBackground}
-                buttonType={ButtonType.Background}
-              />
-              <BottomBarButton
-                selected={selectedTab === BottomBarTab.Image}
-                onPress={handleImage}
-                buttonType={ButtonType.Image}
-              />
-              <BottomBarButton
-                selected={selectedTab === BottomBarTab.Text}
-                onPress={handleText}
-                buttonType={ButtonType.Text}
-              />
-              <BottomBarButton onPress={handleSticker} buttonType={ButtonType.Sticker} />
+    <StyledMotiView
+      key="bottom-bar"
+      className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden z-10"
+      from={{ opacity: 0, translateY: 20 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      exit={{ opacity: 0, translateY: 20 }}
+      exitTransition={{ type: "timing", duration: 200 }}
+      transition={{ type: "timing", duration: 200 }}>
+      <StyledBlurView intensity={80} tint="dark" className="p-4 flex-1 rounded-[40px] bg-black">
+        <AnimatePresence>
+          {selectedTab && (
+            <StyledMotiView
+              key="bottom-bar-data"
+              from={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: height * 0.6 }}
+              exit={{ opacity: 0, height: 0 }}
+              exitTransition={{ type: "timing", duration: 300 }}
+              transition={{ type: "timing", duration: 400 }}>
+              {/* This is where the tab data */}
+              {/* {selectedTab && getSelectedTab()} */}
             </StyledMotiView>
-          </StyledBlurView>
+          )}
+        </AnimatePresence>
+        <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center rounded-full ">
+          <CanvasBarButton
+            onPress={handleTemplate}
+            buttonType={ButtonType.Template}
+            selected={selectedTab === BottomBarTab.Template}
+          />
+          <CanvasBarButton
+            selected={selectedTab === BottomBarTab.Background}
+            onPress={handleBackground}
+            buttonType={ButtonType.Background}
+          />
+          <CanvasBarButton
+            selected={selectedTab === BottomBarTab.Image}
+            onPress={handleImage}
+            buttonType={ButtonType.Image}
+          />
+          <CanvasBarButton
+            selected={selectedTab === BottomBarTab.Text}
+            onPress={handleText}
+            buttonType={ButtonType.Text}
+          />
+          <CanvasBarButton onPress={handleSticker} buttonType={ButtonType.Sticker} />
         </StyledMotiView>
-      )}
-      {showCancelDrawer && (
-        <Drawer
-          key="bottom-bar-cancel-drawer"
-          text={"Save unsaved changes?"}
-          onClose={() => setShowCancelDrawer(false)}
-          buttons={[
-            { action: handleDrawerSave, text: "Save", color: "bg-primary" },
-            { action: () => handleDrawerExit(), text: "Leave", color: "bg-red-500" },
-          ]}
-        />
-      )}
-    </AnimatePresence>
+      </StyledBlurView>
+    </StyledMotiView>
   );
 });
 
-function BottomBarButton({
+function CanvasBarButton({
   onPress,
   disabled = false,
   buttonType,
@@ -231,4 +208,4 @@ function BottomBarButton({
   );
 }
 
-export default BottomBar;
+export default CanvasBar;

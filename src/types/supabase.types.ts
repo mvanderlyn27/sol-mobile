@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          deleted: boolean
           id: string
           type: Database["public"]["Enums"]["book_type"]
           updated_at: string
@@ -20,6 +21,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string
+          deleted?: boolean
           id?: string
           type?: Database["public"]["Enums"]["book_type"]
           updated_at?: string
@@ -27,6 +29,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string
+          deleted?: boolean
           id?: string
           type?: Database["public"]["Enums"]["book_type"]
           updated_at?: string
@@ -97,28 +100,31 @@ export type Database = {
       }
       pages: {
         Row: {
-          book_id: string | null
+          book_id: string
           canvas: Json | null
           created_at: string
           date: string
+          deleted: boolean
           id: string
-          updated_at: string | null
+          updated_at: string
         }
         Insert: {
-          book_id?: string | null
+          book_id: string
           canvas?: Json | null
           created_at?: string
           date: string
+          deleted?: boolean
           id: string
-          updated_at?: string | null
+          updated_at: string
         }
         Update: {
-          book_id?: string | null
+          book_id?: string
           canvas?: Json | null
           created_at?: string
           date?: string
+          deleted?: boolean
           id?: string
-          updated_at?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -134,23 +140,29 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          deleted: boolean
           id: string
           name: string | null
           new: boolean
+          updated_at: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          deleted?: boolean
           id?: string
           name?: string | null
           new?: boolean
+          updated_at?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          deleted?: boolean
           id?: string
           name?: string | null
           new?: boolean
+          updated_at?: string
         }
         Relationships: []
       }

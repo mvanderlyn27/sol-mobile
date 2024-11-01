@@ -38,24 +38,20 @@ const QuickActionsOverlay = observer(function QuickActionsOverlay() {
     },
   ];
   return (
-    <AnimatePresence>
-      {displayQuickActionsOverlay && (
-        <StyledMotiView
-          className="absolute top-0 bottom-0 right-0 left-0  justify-center items-center"
-          key="quick-actions-overlay"
-          from={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ type: "timing", duration: 200 }}>
-          <StyledBlurView intensity={10} className="w-full h-full items-center justify-center flex-column ">
-            <StyledText className="text-slate-500 font-bold text-2xl text-center mb-5">How was your day?</StyledText>
-            {quickActions.map((action) => (
-              <QuickAction action={action} key={action.label} />
-            ))}
-          </StyledBlurView>
-        </StyledMotiView>
-      )}
-    </AnimatePresence>
+    <StyledMotiView
+      className="absolute top-0 bottom-0 right-0 left-0  justify-center items-center"
+      key="quick-actions-overlay"
+      from={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ type: "timing", duration: 200 }}>
+      <StyledBlurView intensity={10} className="w-full h-full items-center justify-center flex-column ">
+        <StyledText className="text-slate-500 font-bold text-2xl text-center mb-5">How was your day?</StyledText>
+        {quickActions.map((action) => (
+          <QuickAction action={action} key={action.label} />
+        ))}
+      </StyledBlurView>
+    </StyledMotiView>
   );
 });
 
