@@ -73,7 +73,7 @@ export default observer(function JournalView() {
   return (
     <StyledView className="flex-1">
       <PagerView
-        // scrollEnabled={!editMode}
+        scrollEnabled={!journalStore$.editMode.get()}
         ref={ref}
         style={{ flex: 1 }}
         layoutDirection="rtl"

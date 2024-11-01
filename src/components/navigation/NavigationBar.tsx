@@ -11,6 +11,7 @@ import { BlurView } from "expo-blur";
 import { router, usePathname } from "expo-router";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { observer } from "@legendapp/state/react";
+import { beginBatch, endBatch } from "@legendapp/state";
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);
@@ -22,6 +23,15 @@ const StyledBlurView = styled(BlurView);
 const NavigationBar = observer(function NavigationBar() {
   const curRoute = usePathname();
   const display = uiStore$.displayNavigationBar.get();
+  const handleJournal = () => {
+    if (curRoute !== "/journal") {
+      router.push("/journal");
+    }
+    beginBatch();
+    uiStore$.displayNavigationBar.set(false);
+    uiStore$.displayJournalMenu.set(true);
+    endBatch();
+  };
   return (
     <AnimatePresence>
       {display && (
@@ -35,11 +45,7 @@ const NavigationBar = observer(function NavigationBar() {
           transition={{ type: "timing", duration: 200 }}>
           <StyledBlurView intensity={80} tint="dark" className="p-6 flex-1">
             <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center ">
-              <BottomBarButton
-                selected={false}
-                onPress={() => router.push("/journal")}
-                buttonType={ButtonType.Template}
-              />
+              <BottomBarButton selected={false} onPress={handleJournal} buttonType={ButtonType.Template} />
               <BottomBarButton
                 selected={false}
                 onPress={() => router.push("/calendar")}

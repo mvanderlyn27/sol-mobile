@@ -1,4 +1,4 @@
-import { View, Pressable, Dimensions } from "react-native";
+import { View, Pressable, Dimensions, Text } from "react-native";
 import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
 import { useState } from "react";
@@ -17,6 +17,10 @@ import { BlurView } from "expo-blur";
 import Foundation from "@expo/vector-icons/Foundation";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
+import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
+import { journalStore$ } from "@/src/stores/JournalStore";
+import MenuButton from "@/src/components/shared/MenuButton";
+import OverlayTextButton from "@/src/components/shared/OverlayTextButton";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -27,11 +31,11 @@ const StyledView = styled(View);
 const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
-const CanvasBar = observer(function CanvasBar() {
+const ImageMenu = observer(function ImageMenu() {
   // const { canvasHasChanges } = useCanvas();
   // const { editMode, bottomBarVisible } = useJournal();
   const displayCanvasMenu = uiStore$.displayCanvasMenu.get();
-  const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
+  const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null); //(BottomBarTab.Background);
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
   const handleExit = () => {
     if (selectedTab) setSelectedTab(null);
@@ -41,7 +45,7 @@ const CanvasBar = observer(function CanvasBar() {
     // onExit();
     // }
   };
-  const handleSave = () => {};
+
   const handleDrawerSave = () => {
     setShowCancelDrawer(false);
     // onSave();
@@ -96,54 +100,62 @@ const CanvasBar = observer(function CanvasBar() {
   const handleBackground = () => {};
   const handleImage = () => {};
   const handleSticker = () => {};
+  const { height, width } = Dimensions.get("screen");
+  // const maxHeight = height * 0.66;
+  const maxHeight = 400;
   return (
     <StyledMotiView
       key="bottom-bar"
-      className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden z-10"
+      className={`w-full px-4`}
       from={{ opacity: 0, translateY: 20 }}
       animate={{ opacity: 1, translateY: 0 }}
       exit={{ opacity: 0, translateY: 20 }}
-      exitTransition={{ type: "timing", duration: 200 }}
-      transition={{ type: "timing", duration: 200 }}>
-      <StyledBlurView intensity={80} tint="dark" className="p-4 flex-1 rounded-[40px] bg-black">
+      transition={{ type: "timing", duration: 100 }}>
+      <StyledView className={`bg-black w-full rounded-[50px] z-10 flex-col`}>
         <AnimatePresence>
           {selectedTab && (
             <StyledMotiView
               key="bottom-bar-data"
+              className="w-full"
               from={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: height * 0.6 }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               exitTransition={{ type: "timing", duration: 300 }}
               transition={{ type: "timing", duration: 400 }}>
-              {/* This is where the tab data */}
-              {/* {selectedTab && getSelectedTab()} */}
+              {/* Tab content can go here */}
+              <StyledView className="w-full bg-blue h-[500px]"></StyledView>
             </StyledMotiView>
           )}
         </AnimatePresence>
-        <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center rounded-full ">
+
+        <StyledView className="w-full h-[75px] flex-row items-center justify-between  px-10">
           <CanvasBarButton
-            onPress={handleTemplate}
+            onPress={() => {}}
             buttonType={ButtonType.Template}
             selected={selectedTab === BottomBarTab.Template}
           />
           <CanvasBarButton
-            selected={selectedTab === BottomBarTab.Background}
-            onPress={handleBackground}
+            onPress={() => {}}
             buttonType={ButtonType.Background}
+            selected={selectedTab === BottomBarTab.Background}
           />
           <CanvasBarButton
-            selected={selectedTab === BottomBarTab.Image}
-            onPress={handleImage}
+            onPress={() => {}}
             buttonType={ButtonType.Image}
+            selected={selectedTab === BottomBarTab.Image}
           />
           <CanvasBarButton
-            selected={selectedTab === BottomBarTab.Text}
-            onPress={handleText}
+            onPress={() => {}}
             buttonType={ButtonType.Text}
+            selected={selectedTab === BottomBarTab.Text}
           />
-          <CanvasBarButton onPress={handleSticker} buttonType={ButtonType.Sticker} />
-        </StyledMotiView>
-      </StyledBlurView>
+          <CanvasBarButton
+            onPress={() => {}}
+            buttonType={ButtonType.Sticker}
+            selected={selectedTab === BottomBarTab.Sticker}
+          />
+        </StyledView>
+      </StyledView>
     </StyledMotiView>
   );
 });
@@ -208,4 +220,4 @@ function CanvasBarButton({
   );
 }
 
-export default CanvasBar;
+export default ImageMenu;

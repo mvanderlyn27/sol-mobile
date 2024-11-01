@@ -2,24 +2,17 @@ import { View, Text } from "react-native";
 import { styled } from "nativewind";
 import { CanvasProvider, useCanvas } from "@/src/contexts/CanvasProvider";
 import CanvasHolder from "@/src/components/journal/canvas/Canvas";
-import JournalMenu from "../journal/JournalMenu";
 import { useEffect, useState } from "react";
 import { useNav } from "@/src/contexts/NavigationProvider";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
-import BottomBar from "../journal/journalMenu/JournalMenu";
 import { AnimatePresence } from "moti";
 import { useJournal } from "@/src/contexts/JournalProvider";
 import Toast from "react-native-root-toast";
-import CanvasItemEditor from "../journal/canvas/CanvasItemEditor";
-import DateSelector from "../journal/DateSelector";
-import { StyledMotiView } from "../shared/CircleButton";
 import { runOnJS } from "react-native-reanimated";
 import { useData } from "@/src/contexts/DataProvider";
-import JournalView from "../journal/JournalView";
 // import { useBookStore } from "@/src/stores/BookStore";
-import QuickActionsOverlay from "../journal/quickActionsOverlay/QuickActionsOverlay";
-import CanvasMenu from "../journal/canvas/canvasMenu/canvasMenu";
-import JournalOverlays from "./JournalOverlays";
+import JournalOverlays from "../journal/JournalOverlays";
+import JournalView from "../journal/JournalView";
 
 const StyledView = styled(View);
 
@@ -82,6 +75,9 @@ export default function JournalScreen() {
       {/* <GestureDetector gesture={tapGesture}> */}
       <StyledView className="absolute top-0 bottom-0 right-0 left-0 ">
         <JournalView />
+      </StyledView>
+      {/* need to fix the cursor to go through here, or adjust the size propery */}
+      <StyledView className="absolute top-0 bottom-0 right-0 left-0 " pointerEvents="box-none">
         <JournalOverlays />
       </StyledView>
       {/* </GestureDetector> */}
