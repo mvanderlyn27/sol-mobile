@@ -14,17 +14,12 @@ const Loading = observer(function Loading() {
   const [pagesReady, setPagesReady] = useState(false);
   const [bookReady, setBookReady] = useState(false);
   const session = authStore$.session.get();
-  useEffect(() => {
-    if (!session) {
-      router.push("/login");
-    }
-  }, [session]);
   const books = books$.get();
   const pages = pages$.get();
   console.log("info", books, pages);
   return (
     <StyledView className="absolute top-0 bottom-0 right-0 left-0">
-      {session && books && pages && <Redirect href="/journal" />}
+      {session && books && pages && <Redirect href="/home" />}
       <ImageBackground style={{ flex: 1 }} source={getImageFromPath("bg_03")}>
         <LoadingScreen />
       </ImageBackground>

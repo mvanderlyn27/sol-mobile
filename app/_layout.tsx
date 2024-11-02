@@ -34,12 +34,15 @@ export const RootLayout = observer(function RootLayout() {
     authStore$.init();
   }, []);
   useEffect(() => {
-    if (loaded || error) {
+    if (loaded && !authStore$.loading.get()) {
       //maybe add loading data here
       SplashScreen.hideAsync();
-      router.push("/loading");
+      if (authStore$.session.get() !== null) {
+        console.log("logged in: ", authStore$.session.get()?.user.email);
+        router.push("/loading");
+      }
     }
-  }, [loaded, error]);
+  }, [loaded, error, authStore$.loading.get()]);
   if (!loaded && !error) {
     return null;
   }

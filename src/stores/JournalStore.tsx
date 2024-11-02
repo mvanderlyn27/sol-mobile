@@ -4,7 +4,7 @@ import { Canvas, CanvasItem, ImageType, Page } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { supabase } from "../lib/supabase";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
-import { customSupabaseSynced, generateId, persistOptions } from "./AsyncStorage";
+import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import { configureSynced, syncObservable } from "@legendapp/state/sync";
 import { bookStore$ } from "./BookStore";
 import { Json } from "../types/supabase.types";

@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Book, BookType } from "../types/shared.types";
 import authStore$ from "./AuthStore";
 import { syncObservable } from "@legendapp/state/sync";
-import { customSupabaseSynced, generateId, persistOptions } from "./AsyncStorage";
+import { customSupabaseSynced, generateId } from "./AsyncStorage";
 interface BookStore {
   selectedBook: string | null;
   isReady: boolean;
@@ -13,14 +13,10 @@ interface BookStore {
 
 export const books$ = observable(
   customSupabaseSynced({
-    supabase,
+    // supabase,
     collection: "books",
     select: (from) => from.select("*"),
-    actions: ["read", "create", "update", "delete"],
-    // persist: { name: "books", retrySync: true },
-    // retry: {
-    // infinite: true,
-    // },
+    persist: { name: "books" },
   })
 );
 
@@ -57,14 +53,23 @@ export const addBook = (type: BookType): string | null => {
     console.log("Error: user not logged in");
     return null;
   }
+  console.log(userId);
   const id = generateId();
   books$[id].set({
     id,
     type,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    created_by: userId,
-    deleted: false,
+    // created_at: new Date().toISOString(),
+    // updated_at: new Date().toISOString(),
+    // created_by: userId,
+    // deleted: false,
   });
   return id;
+};
+
+export const deleteBook = (id: string) => {
+  console.log("removing id", id);
+  if (!books$[id]) {
+    console.log("id not in list");
+  }
+  books$[id].delete();
 };

@@ -19,15 +19,18 @@ interface AuthStore {
 const authStore$ = observable<AuthStore>({
   session: null,
   error: null,
-  loading: false,
+  loading: true,
   init: () => {
+    authStore$.loading.set(true);
     AuthService.getSession()
-      .then((session) => {
+      .then((session: Session | null) => {
         authStore$.session.set(session);
+        authStore$.loading.set(false);
       })
       .catch((error) => {
         console.debug("Error getting session:", error);
         authStore$.session.set(null);
+        authStore$.loading.set(false);
       });
     AuthService.setupSessionListener(authStore$.session.set);
   },

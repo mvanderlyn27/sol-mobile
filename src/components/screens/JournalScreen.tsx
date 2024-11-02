@@ -13,6 +13,7 @@ import { useData } from "@/src/contexts/DataProvider";
 // import { useBookStore } from "@/src/stores/BookStore";
 import JournalOverlays from "../journal/JournalOverlays";
 import JournalView from "../journal/JournalView";
+import PagerTest from "../playground/pagetTest";
 
 const StyledView = styled(View);
 
@@ -75,6 +76,7 @@ export default function JournalScreen() {
       {/* <GestureDetector gesture={tapGesture}> */}
       <StyledView className="absolute top-0 bottom-0 right-0 left-0 ">
         <JournalView />
+        {/* <PagerTest /> */}
       </StyledView>
       {/* need to fix the cursor to go through here, or adjust the size propery */}
       <StyledView className="absolute top-0 bottom-0 right-0 left-0 " pointerEvents="box-none">

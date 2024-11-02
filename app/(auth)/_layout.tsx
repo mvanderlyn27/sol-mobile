@@ -11,7 +11,7 @@ const Layout = observer(function Layout() {
   const session = authStore$.session.get();
   if (session !== null) {
     console.log("logged in already", session);
-    return <Redirect href="/journal" />;
+    return <Redirect href="/home" />;
   }
   return (
     <StyledView className="absolute top-0 bottom-0 right-0 left-0">

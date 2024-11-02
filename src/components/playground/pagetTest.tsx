@@ -11,11 +11,16 @@ const exampleData = [
 
 export default function PagerTest() {
   return (
-    <ScrollView pagingEnabled showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
+    <ScrollView
+      pagingEnabled
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+      style={{ flex: 1 }}>
       {exampleData.map((columnData, columnIndex) => (
         <ScrollView
           key={columnIndex}
           horizontal
+          showsHorizontalScrollIndicator={false}
           pagingEnabled
           showsVerticalScrollIndicator={false}
           style={{ width, height }}>
