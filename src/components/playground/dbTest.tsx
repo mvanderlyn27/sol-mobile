@@ -8,6 +8,7 @@ import RectangleButton from "../shared/RectangleButton";
 import { useEffect } from "react";
 import LogoutButton from "../auth/LogoutButton";
 import { observe, syncState } from "@legendapp/state";
+import { Link } from "expo-router";
 const StyledView = styled(View);
 const StyledPressable = styled(Pressable);
 const DbTest = observer(function DbTest() {
@@ -48,7 +49,8 @@ const DbTest = observer(function DbTest() {
           textColor={""}
           text={"add book"}
         />
-        <LogoutButton />
+        {/* <LogoutButton /> */}
+        <Link href="/modals/group/1/groupDetails">MODAL</Link>
       </SafeAreaView>
     </StyledView>
   );

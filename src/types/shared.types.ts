@@ -191,3 +191,17 @@ export type QuickActionInfo = {
   label: string;
   onPress: () => void;
 };
+
+export type Group = {
+  id: string;
+  name: string;
+  coverUrl: string;
+  groupMembers: Member[];
+};
+
+export type Member = {
+  avatar_url: string;
+  id: string;
+  name: string;
+  group_id: string;
+};

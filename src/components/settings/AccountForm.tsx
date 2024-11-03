@@ -14,17 +14,18 @@ const StyledPressable = styled(Pressable);
 const StyledMotiView = styled(MotiView);
 
 const AccountForm = () => {
-  const { session, updateEmail, updatePassword } = useAuth();
-  const [email, setEmail] = useState(session?.user.email);
+  // const { session, updateEmail, updatePassword } = useAuth();
+  // const [email, setEmail] = useState(session?.user.email);
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [updating, setUpdating] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   useEffect(() => {
-    const isEmailChanged = email !== session?.user.email;
+    // const isEmailChanged = email !== session?.user.email;
     const isPasswordChanged = password !== "";
 
-    setHasChanges(isEmailChanged || (isPasswordChanged && password === confirmPassword));
+    // setHasChanges(isEmailChanged || (isPasswordChanged && password === confirmPassword));
   }, [email, password, confirmPassword]);
   const checkEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -35,7 +36,7 @@ const AccountForm = () => {
     setUpdating(true);
     if (!email) {
       Toast.show("Please fill out email, and try again", {});
-      setEmail(session?.user.email);
+      // setEmail(session?.user.email);
       setUpdating(false);
       return;
     }
@@ -45,9 +46,9 @@ const AccountForm = () => {
       setUpdating(false);
       return;
     }
-    if (email === session?.user.email) {
-      await updateEmail(email);
-    }
+    // if (email === session?.user.email) {
+    // await updateEmail(email);
+    // }
     if (password !== confirmPassword) {
       console.log("Passwords do not match");
       Toast.show("Passwords do not match", {});
@@ -55,7 +56,7 @@ const AccountForm = () => {
       return;
     }
     if (password !== "") {
-      await updatePassword(password);
+      // await updatePassword(password);
     }
     Toast.show("Update Finished", {});
     setUpdating(false);
