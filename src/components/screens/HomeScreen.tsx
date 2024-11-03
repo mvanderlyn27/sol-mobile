@@ -6,6 +6,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import HomeButtons from "../home/HomeButtons";
 import CreateGroupButton from "../home/CreateGroupButton";
+import { groups$ } from "@/src/stores/GroupStore";
 
 const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);
@@ -61,7 +62,9 @@ const HomeScreen = observer(function HomeScreen() {
   ];
 
   // Chunk the example data into rows with 2 items each
-  const rows = chunkArray(exampleData, 2);
+  const groupsMap = groups$.get();
+  const groupAr = groupsMap ? Object.values(groupsMap) : [];
+  const rows = chunkArray(groupAr, 2);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -83,7 +86,7 @@ const HomeScreen = observer(function HomeScreen() {
           </StyledView>
         ))}
 
-        {rows[rows.length - 1]?.length === 2 && (
+        {(groupAr.length === 0 || rows[rows.length - 1]?.length === 2) && (
           <StyledView key={"create"} className="flex-row justify-between mb-4">
             <StyledView style={{ width: "48%", height: 325 }}>
               <CreateGroupButton />
