@@ -36,17 +36,6 @@ export default function EditGroupMember() {
 
   return (
     <StyledView className="flex-1 flex-col px-8 bg-[#F5EEE5]">
-      <StyledView className="absolute left-0 top-0 z-10">
-        <StyledPressable
-          onPress={() => {
-            console.log("back");
-            router.back();
-          }}
-          className="p-4">
-          <AntDesign name="left" size={24} color="black" />
-        </StyledPressable>
-      </StyledView>
-
       <StyledView className="flex-1 justify-center items-center w-full ">
         <StyledView className="flex-row px-4">
           <ProfilePic />

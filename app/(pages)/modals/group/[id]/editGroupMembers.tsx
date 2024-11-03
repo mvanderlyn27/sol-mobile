@@ -45,7 +45,7 @@ export default function EditGroupMember() {
       <StyledView className="flex-1 justify-start items-center w-full ">
         <StyledScrollView className="flex-col w-full mb-4 ">
           {membersList.map((member: Member, index: number) => (
-            <StyledView key={index} className="flex-row p-4 items-center">
+            <StyledView key={index} className="flex-row py-4 items-center">
               <UserPic />
               <StyledView className="flex-row justify-start flex-1 pl-4  ">
                 <Text>{member.name}</Text>
