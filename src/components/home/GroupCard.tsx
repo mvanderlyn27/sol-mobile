@@ -40,7 +40,7 @@ const GroupCard = observer(function GroupCard({ group }: { group: Group }) {
       <StyledPressable onPress={handleEdit}>
         <StyledView className="flex-row justify-center px-2">
           <StyledText className="text-lg">{group.name}</StyledText>
-          <StyledFeather name="edit-2" size={24} color="black" className="px-2" />
+          {/* <StyledFeather name="edit-2" size={24} color="black" className="px-2" /> */}
         </StyledView>
         {groupMembers ? (
           <StyledView className="flex-row justify-between ">
