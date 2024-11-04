@@ -6,6 +6,7 @@ import { groupMembers$ } from "@/src/stores/MemberStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, Profile } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";
+import { observer } from "@legendapp/state/react";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import { styled } from "nativewind";
 import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
@@ -13,7 +14,7 @@ const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
-export default function EditGroupMember() {
+const EditGroupMembers = observer(function EditGroupMembers() {
   let groupId = useLocalSearchParams().id;
   console.log(groupId);
   if (Array.isArray(groupId)) {
@@ -71,4 +72,5 @@ export default function EditGroupMember() {
       <Link href="/home"></Link>
     </StyledView>
   );
-}
+});
+export default EditGroupMembers;

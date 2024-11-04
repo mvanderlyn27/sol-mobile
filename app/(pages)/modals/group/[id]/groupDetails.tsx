@@ -46,7 +46,7 @@ const GroupDetails = observer(function GroupDetails() {
     <View style={{ flex: 1, padding: 10, backgroundColor: "#F5EEE5" }}>
       <StyledView className="pt-10 flex-col justify-center items-center flex-1">
         <StyledView className="flex-row h-[250px] px-10">
-          <GroupPic source={selectedGroup.cover_url} placeholder={selectedGroup.cover_placeholder} />
+          <GroupPic groupId={selectedGroup.id} />
         </StyledView>
         <EditableText placeholder={selectedGroup.name} action={handleUpdateName} />
         <MemberList groupId={selectedGroup.id} />

@@ -5,6 +5,7 @@ import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
 import { groups$ } from "@/src/stores/GroupStore";
 import { groupMembers$ } from "@/src/stores/MemberStore";
+import { profiles$ } from "@/src/stores/ProfileStore";
 import { Group } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";
 import { observer } from "@legendapp/state/react";
@@ -23,7 +24,7 @@ const UserProfile = observer(function UserProfile() {
   if (Array.isArray(userId)) {
     userId = userId[0];
   }
-  const groupsSeen = new Set();
+  const profile = profiles$[userId].get();
   const groupList = Array.from(
     new Set(
       Object.values(groupMembers$.get())
@@ -53,10 +54,10 @@ const UserProfile = observer(function UserProfile() {
 
       <StyledView className="flex-1 justify-center items-center w-full ">
         <StyledView className="flex-row px-10">
-          <ProfilePic />
+          <ProfilePic userId={userId} />
         </StyledView>
         <StyledView className="flex-row px-10 p-4">
-          <StyledText>UsER NAME</StyledText>
+          <StyledText>{profile.username || profile.name}</StyledText>
         </StyledView>
 
         {/* Separator */}
@@ -67,7 +68,11 @@ const UserProfile = observer(function UserProfile() {
 
           {/* Horizontal ScrollView for GroupPics */}
           <StyledView className="mt-2 w-full h-[200px]">
-            <StyledScrollView horizontal showsHorizontalScrollIndicator={false} className="flex-1 ">
+            <StyledScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="flex-1"
+              contentContainerStyle={{ width: "100%" }}>
               {groupList.map((groupId: string, index: number) => {
                 return (
                   <StyledView key={index} className="w-col px-2 items-center w-[125px] h-[200px]">

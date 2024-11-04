@@ -16,9 +16,9 @@ import { observer } from "@legendapp/state/react";
 import { Skeleton } from "moti/skeleton";
 const StyledView = styled(View);
 const StyledPressable = styled(Pressable);
-const ProfilePic = observer(function ProfilePic({ editable }: { editable?: boolean }) {
+const ProfilePic = observer(function ProfilePic({ editable, userId }: { editable?: boolean; userId?: string }) {
   const [loading, setLoading] = useState(false);
-  const curUserId = authStore$.session.get()?.user.id;
+  const curUserId = userId ? userId : authStore$.session.get()?.user.id;
   if (curUserId === undefined) return null;
   const profile = profiles$[curUserId].get();
   console.log("cur profile", profile);
