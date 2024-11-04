@@ -1,5 +1,6 @@
 import GroupPic from "@/src/components/modals/GroupPic";
 import ProfilePic from "@/src/components/modals/ProfilePic";
+import EditableText from "@/src/components/shared/EditableText";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
@@ -10,9 +11,11 @@ import { pages$ } from "@/src/stores/PagesStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, Page } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
+import { observer } from "@legendapp/state/react";
 import { Link, router } from "expo-router";
 import { styled } from "nativewind";
 import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
+import Toast from "react-native-root-toast";
 
 const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
@@ -20,7 +23,7 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 const StyledFeather = styled(Feather);
 
-export default function EditGroupMember() {
+const CurProfile = observer(function CurProfile() {
   const handleRemove = (userId: string) => {};
   const handleInvite = () => {
     router.push("./inviteGroupMember");
@@ -35,6 +38,10 @@ export default function EditGroupMember() {
   const entriesCount = pages$.get()
     ? Object.values(pages$.get()).filter((item: Page) => item.created_by === curUserId).length
     : 0;
+  const handleUpdateUsername = (val: string) => {
+    profiles$[curUserId].username.set(val);
+    Toast.show("name updated");
+  };
   return (
     <StyledView className="flex-1 flex-col px-8 bg-[#F5EEE5]">
       <StyledView className="flex-1 justify-center items-center w-full ">
@@ -42,8 +49,9 @@ export default function EditGroupMember() {
           <ProfilePic />
         </StyledView>
         <StyledView className="flex-row  items-center px-10 p-4">
-          <StyledText>{profile.username || "Username"}</StyledText>
-          <StyledFeather name="edit-2" size={24} color="black" className="p-2" />
+          {/* <StyledText>{profile.username || "Username"}</StyledText> */}
+          {/* <StyledFeather name="edit-2" size={24} color="black" className="p-2" /> */}
+          <EditableText placeholder={profile.username || "Username"} action={handleUpdateUsername} />
         </StyledView>
 
         {/* Separator */}
@@ -72,4 +80,5 @@ export default function EditGroupMember() {
       <Link href="/home"></Link>
     </StyledView>
   );
-}
+});
+export default CurProfile;
