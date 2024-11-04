@@ -1,9 +1,12 @@
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
+import authStore$ from "@/src/stores/AuthStore";
+import { groupMembers$ } from "@/src/stores/MemberStore";
+import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, Profile } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";
-import { Link, router } from "expo-router";
+import { Link, router, useLocalSearchParams } from "expo-router";
 import { styled } from "nativewind";
 import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
 const StyledView = styled(View);
@@ -11,19 +14,19 @@ const StyledScrollView = styled(ScrollView);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 export default function EditGroupMember() {
-  // const membersList = [
-  //   { avatar_url: "", id: "1", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "2", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "3", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "4", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "5", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "6", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "7", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "8", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "9", name: "cool", group_id: "" },
-  //   { avatar_url: "", id: "10", name: "cool", group_id: "" },
-  // ];
-  const membersList: Profile[] = [];
+  let groupId = useLocalSearchParams().id;
+  console.log(groupId);
+  if (Array.isArray(groupId)) {
+    groupId = groupId[0];
+  }
+  const userId = authStore$.session.get()?.user.id;
+  if (!userId) return null;
+  const groupMembersMap = Object.entries(groupMembers$.get()).reduce((acc: any, [_, member]) => {
+    (acc[member.group_id] = acc[member.group_id] || []).push(member);
+    return acc;
+  }, {});
+  const groupMembers = groupMembersMap[groupId];
+  if (!groupMembers) return null;
   const handleRemove = (userId: string) => {};
   const handleInvite = () => {
     router.push("./inviteGroupMember");
@@ -45,11 +48,11 @@ export default function EditGroupMember() {
       </StyledView>
       <StyledView className="flex-1 justify-start items-center w-full ">
         <StyledScrollView className="flex-col w-full mb-4 ">
-          {membersList.map((member: Profile, index: number) => (
+          {groupMembers.map((member: GroupMember, index: number) => (
             <StyledView key={index} className="flex-row py-4 items-center">
-              <UserPic />
+              <UserPic userId={member.user_id} />
               <StyledView className="flex-row justify-start flex-1 pl-4  ">
-                <Text>{member.username}</Text>
+                <Text>{profiles$[member.user_id].username.get() || profiles$[member.user_id].name.get()}</Text>
               </StyledView>
               <ModalButton
                 disabled={false}

@@ -16,6 +16,7 @@ import { Link, router } from "expo-router";
 import { styled } from "nativewind";
 import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
 import Toast from "react-native-root-toast";
+import { useLocalSearchParams } from "expo-router";
 
 const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
@@ -24,6 +25,7 @@ const StyledPressable = styled(Pressable);
 const StyledFeather = styled(Feather);
 
 const CurProfile = observer(function CurProfile() {
+  const { back } = useLocalSearchParams();
   const handleRemove = (userId: string) => {};
   const handleInvite = () => {
     router.push("./inviteGroupMember");
@@ -45,6 +47,18 @@ const CurProfile = observer(function CurProfile() {
 
   return (
     <StyledView className="flex-1 flex-col px-8 bg-[#F5EEE5]">
+      {back && (
+        <StyledView className="absolute left-0 top-0 z-10">
+          <StyledPressable
+            onPress={() => {
+              console.log("back");
+              router.back();
+            }}
+            className="p-4">
+            <AntDesign name="left" size={24} color="black" />
+          </StyledPressable>
+        </StyledView>
+      )}
       <StyledView className="flex-1 justify-center items-center w-full ">
         <StyledView className="flex-row px-4">
           <ProfilePic editable />

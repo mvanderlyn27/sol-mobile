@@ -1,23 +1,12 @@
 import GroupPic from "@/src/components/modals/GroupPic";
 import ProfilePic from "@/src/components/modals/ProfilePic";
 import ModalButton from "@/src/components/shared/ModalButton";
-import RectangleButton from "@/src/components/shared/RectangleButton";
-import UserPic from "@/src/components/shared/UserPic";
-import { groups$ } from "@/src/stores/GroupStore";
 import { groupMembers$ } from "@/src/stores/MemberStore";
-import { Group } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";
-import { observer } from "@legendapp/state/react";
 import { Link, router, useLocalSearchParams } from "expo-router";
-import { styled } from "nativewind";
-import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
+import { StyledView, StyledPressable, StyledText, StyledScrollView } from "./[id]";
 
-const StyledView = styled(View);
-const StyledScrollView = styled(ScrollView);
-const StyledText = styled(Text);
-const StyledPressable = styled(Pressable);
-
-const UserProfile = observer(function UserProfile() {
+const EditGroupMember = observer(function EditGroupMember() {
   let userId = useLocalSearchParams().id;
   console.log(userId);
   if (Array.isArray(userId)) {
@@ -72,7 +61,7 @@ const UserProfile = observer(function UserProfile() {
                 return (
                   <StyledView key={index} className="w-col px-2 items-center w-[125px] h-[200px]">
                     <GroupPic groupId={groupId} />
-                    <StyledText className="p-2">{groups$[groupId].name.get()}</StyledText>
+                    <StyledText className="p-2">Name</StyledText>
                   </StyledView>
                 );
               })}
@@ -89,4 +78,3 @@ const UserProfile = observer(function UserProfile() {
     </StyledView>
   );
 });
-export default UserProfile;

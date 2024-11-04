@@ -35,7 +35,7 @@ const GroupCard = observer(function GroupCard({ group }: { group: Group }) {
       className="flex-1 flex-col justify-center items-center rounded-xl  bg-[#F5EEE5]"
       onPress={handleSelect}>
       <StyledView className="flex-row p-4 flex-1">
-        <GroupPic source={group.cover_url} placeholder={group.cover_placeholder} />
+        <GroupPic groupId={group.id} />
       </StyledView>
       <StyledPressable onPress={handleEdit}>
         <StyledView className="flex-row justify-center px-2">

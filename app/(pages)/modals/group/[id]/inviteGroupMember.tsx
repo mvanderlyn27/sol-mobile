@@ -4,6 +4,8 @@ import { View, Text, TextInput, Pressable } from "react-native";
 import ModalButton from "@/src/components/shared/ModalButton"; // Assuming this is a styled button
 import { router, useLocalSearchParams } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import authStore$ from "@/src/stores/AuthStore";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -12,7 +14,11 @@ const StyledPressable = styled(Pressable);
 
 export default function InviteGroupMember() {
   const [username, setUsername] = useState("");
-
+  let groupId = useLocalSearchParams().id;
+  console.log(groupId);
+  if (Array.isArray(groupId)) {
+    groupId = groupId[0];
+  }
   const handleAddUser = () => {
     if (username.trim()) {
       console.log(`Adding user: ${username}`);
@@ -24,7 +30,7 @@ export default function InviteGroupMember() {
   };
 
   return (
-    <StyledView className="flex-col px-8 bg-[#F5EEE5]">
+    <StyledView className="flex-col flex-1 px-8 bg-[#F5EEE5]">
       <StyledView className="flex-row justify-center items-center p-4 pb-20">
         <StyledText className="text-lg font-bold">Edit Members</StyledText>
       </StyledView>

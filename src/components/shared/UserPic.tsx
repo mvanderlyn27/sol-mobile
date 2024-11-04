@@ -20,7 +20,6 @@ const UserPic = observer(function UserPic({
   if (userId) {
     const profile = profiles$[userId].get();
     const shortId = userId.slice(0, 8);
-    console.log("user pic info", profile, shortId);
     return (
       <StyledPressable
         pointerEvents={action !== undefined ? "auto" : "none"}
