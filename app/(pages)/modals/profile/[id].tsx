@@ -19,11 +19,16 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 
 const UserProfile = observer(function UserProfile() {
-  let userId = useLocalSearchParams().id;
+  let { id: userId } = useLocalSearchParams();
   console.log(userId);
   if (Array.isArray(userId)) {
     userId = userId[0];
   }
+  let { groupId } = useLocalSearchParams();
+  if (Array.isArray(groupId)) {
+    groupId = groupId[0];
+  }
+
   const profile = profiles$[userId].get();
   const groupList = Array.from(
     new Set(
@@ -34,7 +39,7 @@ const UserProfile = observer(function UserProfile() {
   );
   console.log("g list", groupList);
 
-  const handleRemove = (userId: string) => {};
+  const handleRemove = () => {};
   const handleInvite = () => {
     router.push("./inviteGroupMember");
   };
@@ -52,30 +57,29 @@ const UserProfile = observer(function UserProfile() {
         </StyledPressable>
       </StyledView>
 
-      <StyledView className="flex-1 justify-center items-center w-full ">
-        <StyledView className="flex-row px-10">
+      <StyledView className="flex-1 pt-20 justify-center items-center w-full ">
+        <StyledView className="flex-row px-20">
           <ProfilePic userId={userId} />
         </StyledView>
         <StyledView className="flex-row px-10 p-4">
-          <StyledText>{profile.username || profile.name}</StyledText>
+          <StyledText className="font-bold">{profile.username || profile.name}</StyledText>
         </StyledView>
 
         {/* Separator */}
         <StyledView className="w-full h-[1px] my-4 bg-slate-400" />
 
-        <StyledView className="flex-col pb-4">
-          <StyledText className="mb-2">Groups:</StyledText>
+        <StyledView className="flex-col ">
+          <StyledText className="font-bold my-4">Groups:</StyledText>
 
           {/* Horizontal ScrollView for GroupPics */}
-          <StyledView className="mt-2 w-full h-[200px]">
+          <StyledView className=" w-full h-[125px]">
             <StyledScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              className="flex-1"
               contentContainerStyle={{ width: "100%" }}>
               {groupList.map((groupId: string, index: number) => {
                 return (
-                  <StyledView key={index} className="w-col px-2 items-center w-[125px] h-[200px]">
+                  <StyledView key={index} className="w-col px-2 items-center w-[85px] h-[125px]">
                     <GroupPic groupId={groupId} />
                     <StyledText className="p-2">{groups$[groupId].name.get()}</StyledText>
                   </StyledView>
@@ -85,9 +89,16 @@ const UserProfile = observer(function UserProfile() {
           </StyledView>
         </StyledView>
 
-        <StyledView className="flex-row px-10 mt-4">
-          <ModalButton disabled={false} action={handleInvite} color={"bg-primary"} text="Invite friend" />
-        </StyledView>
+        {groupId && (
+          <StyledView className="flex-row flex-none px-10 ">
+            <ModalButton
+              disabled={false}
+              action={handleRemove}
+              color={"bg-red-500"}
+              text={`remove from ${groups$[groupId].name.get()}`}
+            />
+          </StyledView>
+        )}
       </StyledView>
 
       <Link href="/home"></Link>

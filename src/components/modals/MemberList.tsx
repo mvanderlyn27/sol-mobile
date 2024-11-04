@@ -38,13 +38,13 @@ export default function MemberList({ groupId }: { groupId: string }) {
     if (memberId === userId) {
       router.push(`/modals/profile?back=true`);
     } else {
-      router.push(`/modals/profile/${memberId}`);
+      router.push(`/modals/profile/${memberId + "?groupId=" + groupId}`);
     }
   };
   return (
     <PagerView style={{ flex: 1, width: "100%" }} initialPage={0} overdrag overScrollMode={"auto"}>
       {pages.map((page, pageIndex) => (
-        <StyledView key={pageIndex} className=" justify-start items-center p-4">
+        <StyledView key={pageIndex} className=" justify-start items-start p-4">
           <StyledView className="flex-row flex-wrap ">
             {page.map((member: GroupMember, index) => {
               return (
@@ -52,7 +52,7 @@ export default function MemberList({ groupId }: { groupId: string }) {
                   pointerEvents="box-only"
                   onPress={() => visitMember(member.user_id)}
                   key={index}
-                  className="w-1/4  pt-4 justify-center items-center">
+                  className="px-2 justify-center items-center">
                   {/* <UserPic source={ member.avatar_url } /> */}
                   <UserPic userId={member.user_id} />
                   <StyledText className="text-center mt-2">

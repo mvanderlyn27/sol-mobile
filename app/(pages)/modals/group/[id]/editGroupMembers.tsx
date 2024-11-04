@@ -28,7 +28,17 @@ const EditGroupMembers = observer(function EditGroupMembers() {
   }, {});
   const groupMembers = groupMembersMap[groupId];
   if (!groupMembers) return null;
-  const handleRemove = (userId: string) => {};
+  const handleRemove = (userId: string) => {
+    const id = Object.entries(groupMembers$.get()).find(
+      ([, groupMember]) => groupMember.group_id === groupId && groupMember.user_id === userId
+    )?.[0];
+    console.log("id", id);
+    if (!id) {
+      console.log("user not found");
+      return;
+    }
+    groupMembers$[id].delete();
+  };
   const handleInvite = () => {
     router.push("./inviteGroupMember");
   };

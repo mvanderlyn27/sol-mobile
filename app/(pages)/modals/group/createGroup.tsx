@@ -78,7 +78,7 @@ export default function CreateGroupModal() {
     <StyledView className="flex-1 items-center justify-center " style={{ padding: 10 }}>
       {/* Modal Content */}
       {/* Group Image Placeholder */}
-      <StyledPressable className="flex-row px-10" onPress={pickImage}>
+      <StyledPressable className="flex-row px-20" onPress={pickImage}>
         <AnimatePresence exitBeforeEnter>
           {!loading && !image && (
             <StyledMotiView
@@ -117,7 +117,7 @@ export default function CreateGroupModal() {
       </StyledPressable>
 
       {/* Group Name Input */}
-      <StyledView className="flex-row px-10">
+      <StyledView className="flex-row px-20">
         <StyledTextInput
           value={groupName}
           onChangeText={setGroupName}
@@ -128,7 +128,7 @@ export default function CreateGroupModal() {
       </StyledView>
 
       {/* Create Button */}
-      <StyledView className="flex-row px-10">
+      <StyledView className="flex-row px-24">
         <ModalButton action={handleCreateGroup} text="Create" color="bg-[#FFA500]" />
       </StyledView>
     </StyledView>

@@ -73,7 +73,7 @@ export default function Modal() {
               duration: 300,
             }}
             // style={{ width: "80%", height: "70%", backgroundColor: "#F5EEE5", borderRadius: 20, overflow: "hidden" }}
-            className="w-[80%] h-[80%] rounded-2xl overflow-hidden">
+            className="w-[90%] h-[60%] rounded-2xl overflow-hidden">
             <Stack
               screenOptions={{
                 // presentation: "transparentModal", // Use transparent modal presentation for all child screens

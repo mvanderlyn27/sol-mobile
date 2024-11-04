@@ -104,7 +104,9 @@ export default function ProfilePic() {
       console.log("file type", fullFileName);
 
       const filePath = `/${session.user.id}/avatar.webp`;
-      await updateProfile({ file: { bucket: "avatars", filePath: filePath, base64: base64, fileExtension: "webp" } });
+      await updateProfile({
+        file: { bucket: "avatars", filePath: filePath, base64: base64, fileExtension: "webp", mimeType: "/image/webp" },
+      });
       setUploadingImage(false);
     }
   };

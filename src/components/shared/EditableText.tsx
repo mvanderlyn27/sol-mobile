@@ -20,6 +20,7 @@ export default function EditableText({ placeholder, action }: { placeholder: str
     if (newValue === "") {
       Toast.show("Please enter a username to update");
       console.error("please enter username");
+      return;
     }
     setIsEditing(false);
     action(newValue);
@@ -27,10 +28,10 @@ export default function EditableText({ placeholder, action }: { placeholder: str
   return (
     <AnimatePresence>
       {!isEditing && (
-        <StyledPressable onPress={() => setIsEditing(true)} className="flex-row items-center px-10 p-4">
+        <StyledPressable onPress={() => setIsEditing(true)} className="flex-row items-center ">
           <StyledMotiView className="flex-row justify-center items-center">
-            <StyledText>{placeholder}</StyledText>
-            <StyledFeather name="edit-2" size={24} color="black" className="p-2" />
+            <StyledText className="text-lg">{placeholder}</StyledText>
+            <StyledFeather name="edit-2" size={12} color="black" className="p-2" />
           </StyledMotiView>
         </StyledPressable>
       )}

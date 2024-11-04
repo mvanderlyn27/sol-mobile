@@ -44,13 +44,17 @@ const GroupDetails = observer(function GroupDetails() {
   };
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: "#F5EEE5" }}>
-      <StyledView className="pt-10 flex-col justify-center items-center flex-1">
-        <StyledView className="flex-row h-[250px] px-10">
+      <StyledView className="pt-6 flex-col justify-center items-center flex-1">
+        <StyledView className="flex-row flex-1 px-[25%]">
           <GroupPic groupId={selectedGroup.id} />
         </StyledView>
-        <EditableText placeholder={selectedGroup.name} action={handleUpdateName} />
-        <MemberList groupId={selectedGroup.id} />
-        <StyledView className="flex-row px-4 pb-4 justify-between">
+        <StyledView className="flex-row flex-none px-10">
+          <EditableText placeholder={selectedGroup.name} action={handleUpdateName} />
+        </StyledView>
+        <StyledView className="px-4 w-full h-[150px] flex-none justify-between">
+          <MemberList groupId={selectedGroup.id} />
+        </StyledView>
+        <StyledView className="flex-row flex-none  px-4 pb-4 justify-between">
           <ModalButton
             action={handleEdit}
             color="bg-black"
@@ -66,9 +70,6 @@ const GroupDetails = observer(function GroupDetails() {
             textColor={"text-white"}
           />
         </StyledView>
-      </StyledView>
-      <StyledView className="flex-row px-4 pb-4 justify-between">
-        <ModalButton action={handleDelete} color="bg-red-500" text="delete" disabled={false} textColor={"text-white"} />
       </StyledView>
     </View>
   );
