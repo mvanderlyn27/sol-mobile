@@ -5,6 +5,7 @@ import { styled } from "nativewind";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import AccountForm from "./AccountForm";
+import LogoutButton from "../auth/LogoutButton";
 
 const StyledView = styled(View);
 const StyledTextInput = styled(TextInput);
@@ -26,7 +27,9 @@ export default function SettingsSidebar() {
       <StyledText className="text-secondary text-md ">
         Thanks for testing out the beta of the Slice of Life App! For latest updates, follow our social media:{" "}
       </StyledText>
-      <StyledView className="flex-row"></StyledView>
+      <StyledView className="flex-row py-4">
+        <LogoutButton />
+      </StyledView>
     </StyledView>
   );
 }

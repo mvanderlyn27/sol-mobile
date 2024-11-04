@@ -3,7 +3,6 @@ import ProfilePic from "@/src/components/modals/ProfilePic";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
-import { Member } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { styled } from "nativewind";

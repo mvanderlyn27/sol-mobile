@@ -4,7 +4,7 @@ import PagerView from "react-native-pager-view";
 import UserPic from "../shared/UserPic";
 import { router } from "expo-router";
 import GroupPic from "../modals/GroupPic";
-import { Group, Member } from "@/src/types/shared.types";
+import { Group } from "@/src/types/shared.types";
 import Feather from "@expo/vector-icons/Feather";
 
 const StyledView = styled(View);

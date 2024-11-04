@@ -19,7 +19,7 @@ import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
 import { StyledPressable } from "../canvas/CanvasFrameHolder";
-import { journalStore$ } from "@/src/stores/JournalStore";
+import { journalStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
 import * as ImagePicker from "expo-image-picker";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";

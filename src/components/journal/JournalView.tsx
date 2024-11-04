@@ -7,7 +7,7 @@ import CanvasHolder from "./canvas/Canvas";
 // import { useBookStore } from "@/src/stores/BookStore";
 // import Page from "@/src/localDb/models/Page";
 import BottomBar from "./journalMenu/JournalMenu";
-import { journalStore$, pages$ } from "@/src/stores/JournalStore";
+import { journalStore$, pages$ } from "@/src/stores/PagesStore";
 import { Canvas, ImageType, Page } from "@/src/types/shared.types";
 import { Json } from "@/src/types/supabase.types";
 import { jsonToCanvas } from "@/src/services/Canvas";

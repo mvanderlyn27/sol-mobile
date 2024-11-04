@@ -18,7 +18,7 @@ import Foundation from "@expo/vector-icons/Foundation";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
-import { journalStore$ } from "@/src/stores/JournalStore";
+import { journalStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
 import OverlayTextButton from "@/src/components/shared/OverlayTextButton";
 //<AntDesign name="closecircleo" size={24} color="black" />

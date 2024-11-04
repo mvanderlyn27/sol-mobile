@@ -1,7 +1,5 @@
 import { observer } from "@legendapp/state/react";
-import DbTest from "../playground/dbTest";
 import { ScrollView, View } from "react-native";
-import { Member } from "@/src/types/shared.types";
 import GroupCard from "../home/GroupCard";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";

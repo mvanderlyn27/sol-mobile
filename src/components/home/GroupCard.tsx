@@ -4,8 +4,10 @@ import PagerView from "react-native-pager-view";
 import UserPic from "../shared/UserPic";
 import { router } from "expo-router";
 import GroupPic from "../modals/GroupPic";
-import { Group, Member } from "@/src/types/shared.types";
+import { Group, GroupMember } from "@/src/types/shared.types";
 import Feather from "@expo/vector-icons/Feather";
+import { groupsStore$ } from "@/src/stores/GroupStore";
+import { groupMembers$, selectedGroupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -15,11 +17,14 @@ const StyledFeather = styled(Feather);
 export default function GroupCard({ group }: { group: Group }) {
   const handleSelect = () => {
     console.log("test");
-    router.push("/journal/1");
+    router.push(`/journal/${group.id}`);
   };
   const handleEdit = () => {
-    router.push("/modals/group/1/groupDetails");
+    console.log("group", group);
+    router.push(`/modals/group/${group.id}/groupDetails`);
   };
+  const groupMembers = groupMembers$.get();
+  console.log("members", groupMembers);
   return (
     <StyledPressable
       className="flex-1 flex-col justify-center items-center rounded-xl  bg-[#F5EEE5]"
@@ -32,11 +37,11 @@ export default function GroupCard({ group }: { group: Group }) {
           <StyledText className="text-lg">{group.name}</StyledText>
           <StyledFeather name="edit-2" size={24} color="black" />
         </StyledView>
-        {group.groupMembers.length <= 3 ? (
+        {groupMembers?.length <= 3 ? (
           <StyledView className="flex-row p-4 justify-between">
-            {group.groupMembers.map((member: Member, index: number) => (
+            {/* {group.groupMembers.map((member: GroupMember, index: number) => (
               <UserPic key={index + " " + member.id} />
-            ))}
+            ))} */}
           </StyledView>
         ) : (
           <StyledView className="flex-row p-2 justify-between">

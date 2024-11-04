@@ -3,6 +3,7 @@ import MemberList from "@/src/components/modals/MemberList";
 import ProfilePic from "@/src/components/profile/ProfilePic";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
+import { deleteGroup } from "@/src/stores/GroupStore";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import { styled } from "nativewind";
 import { View, Text, Dimensions, Pressable } from "react-native";
@@ -10,24 +11,24 @@ const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 export default function groupDetails() {
-  const group_id = useLocalSearchParams().id;
-  const membersList = [
-    { avatar_url: "", id: "1", name: "cool", group_id: "" },
-    { avatar_url: "", id: "2", name: "cool", group_id: "" },
-    { avatar_url: "", id: "3", name: "cool", group_id: "" },
-    { avatar_url: "", id: "4", name: "cool", group_id: "" },
-    { avatar_url: "", id: "5", name: "cool", group_id: "" },
-    { avatar_url: "", id: "6", name: "cool", group_id: "" },
-    { avatar_url: "", id: "7", name: "cool", group_id: "" },
-    { avatar_url: "", id: "8", name: "cool", group_id: "" },
-    { avatar_url: "", id: "9", name: "cool", group_id: "" },
-    { avatar_url: "", id: "10", name: "cool", group_id: "" },
-  ];
+  let group_id = useLocalSearchParams().id;
+  if (Array.isArray(group_id)) {
+    group_id = group_id[0];
+  }
+
   const handleEdit = () => {
     router.push("./editGroupMembers");
   };
   const handleInvite = () => {
     router.push("./inviteGroupMember");
+  };
+  const handleDelete = () => {
+    console.log("group_id", group_id);
+    if (Array.isArray(group_id)) {
+      group_id = group_id[0];
+    }
+    console.log("id", group_id);
+    deleteGroup(group_id);
   };
   return (
     <View style={{ flex: 1, padding: 10, backgroundColor: "#F5EEE5" }}>
@@ -36,7 +37,7 @@ export default function groupDetails() {
           <GroupPic />
         </StyledView>
         <StyledText>{group_id}</StyledText>
-        <MemberList members={membersList} />
+        {/* <MemberList members={membersList} /> */}
         <StyledView className="flex-row px-4 pb-4 justify-between">
           <ModalButton
             action={handleEdit}
@@ -53,6 +54,9 @@ export default function groupDetails() {
             textColor={"text-white"}
           />
         </StyledView>
+      </StyledView>
+      <StyledView className="flex-row px-4 pb-4 justify-between">
+        <ModalButton action={handleDelete} color="bg-red-500" text="delete" disabled={false} textColor={"text-white"} />
       </StyledView>
     </View>
   );

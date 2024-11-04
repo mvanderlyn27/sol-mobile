@@ -12,6 +12,7 @@ import { Blurhash } from "react-native-blurhash";
 import StorageService from "@/src/api/storage";
 import { addGroup } from "@/src/stores/GroupStore";
 import { AnimatePresence, MotiView } from "moti";
+import { resizeImage } from "@/src/services/Media";
 
 const StyledView = styled(View);
 const StyledMotiView = styled(MotiView);
@@ -39,21 +40,26 @@ export default function CreateGroupModal() {
 
     if (!result.canceled) {
       const selectedImageUri = result.assets[0].uri;
-
       // Resize the image to 100x100 using ImageManipulator
-      const resizedImage = await ImageManipulator.manipulateAsync(
+      const blurHashPromise = ImageManipulator.manipulateAsync(
         selectedImageUri,
         [{ resize: { width: 100, height: 100 } }],
-        { compress: 1, format: ImageManipulator.SaveFormat.PNG }
-      );
-      console.log("resizedImage");
-      // Generate the blurhash using the resized image's URI and its new dimensions
-      const blurhash = await Blurhash.encode(resizedImage.uri, 4, 3);
-      console.log("blurhash", blurhash);
-      setBlurhash(blurhash);
-      setImage(selectedImageUri); // Set the original image URI here for display purposes
+        {
+          compress: 0.5,
+          format: ImageManipulator.SaveFormat.PNG,
+        }
+      )
+        .then((resizedImage) => Blurhash.encode(resizedImage.uri, 4, 3))
+        .then((blurhash) => setBlurhash(blurhash))
+        .catch((error) => {
+          console.error("Error generating blurhash:", error);
+          // Alert.alert("Error", "Failed to generate blurhash.");
+        });
+      const resizedImagePromise = resizeImage(selectedImageUri, result.assets[0].width, result.assets[0].height)
+        .then((image) => setImage(image))
+        .catch((error) => console.log("error optimizing image"));
+      await Promise.all([blurHashPromise, resizedImagePromise]);
     }
-
     setLoading(false);
   };
 

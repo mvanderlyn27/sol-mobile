@@ -9,41 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      books: {
-        Row: {
-          created_at: string
-          created_by: string
-          deleted: boolean
-          id: string
-          type: Database["public"]["Enums"]["book_type"]
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string
-          deleted?: boolean
-          id?: string
-          type?: Database["public"]["Enums"]["book_type"]
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          deleted?: boolean
-          id?: string
-          type?: Database["public"]["Enums"]["book_type"]
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "books_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       fonts: {
         Row: {
           created_at: string
@@ -98,73 +63,245 @@ export type Database = {
         }
         Relationships: []
       }
+      group_members: {
+        Row: {
+          created_at: string
+          deleted: boolean | null
+          group_id: string
+          role: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deleted?: boolean | null
+          group_id: string
+          role?: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deleted?: boolean | null
+          group_id?: string
+          role?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      groups: {
+        Row: {
+          cover_placeholder: string | null
+          cover_url: string | null
+          created_at: string
+          deleted: boolean
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          cover_placeholder?: string | null
+          cover_url?: string | null
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          cover_placeholder?: string | null
+          cover_url?: string | null
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          deleted: boolean
+          id: string
+          is_read: boolean
+          notification_data: Json
+          recipient_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          is_read?: boolean
+          notification_data: Json
+          recipient_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          is_read?: boolean
+          notification_data?: Json
+          recipient_id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pages: {
         Row: {
-          book_id: string
           canvas: Json | null
           created_at: string
+          created_by: string
           date: string
           deleted: boolean
+          group_id: string
           id: string
           updated_at: string
         }
         Insert: {
-          book_id: string
           canvas?: Json | null
           created_at?: string
+          created_by?: string
           date: string
           deleted?: boolean
+          group_id: string
           id: string
           updated_at: string
         }
         Update: {
-          book_id?: string
           canvas?: Json | null
           created_at?: string
+          created_by?: string
           date?: string
           deleted?: boolean
+          group_id?: string
           id?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "pages_book_id_fkey"
-            columns: ["book_id"]
+            foreignKeyName: "pages_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "books"
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
       }
       profiles: {
         Row: {
+          avatar_placeholder: string | null
           avatar_url: string | null
           created_at: string
           deleted: boolean
           id: string
           name: string | null
           new: boolean
+          push_token: string | null
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_placeholder?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          name?: string | null
+          new?: boolean
+          push_token?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_placeholder?: string | null
+          avatar_url?: string | null
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          name?: string | null
+          new?: boolean
+          push_token?: string | null
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      reactions: {
+        Row: {
+          created_at: string
+          created_by: string
+          deleted: boolean
+          id: string
+          page_id: string
+          reaction: Json
           updated_at: string
         }
         Insert: {
-          avatar_url?: string | null
           created_at?: string
+          created_by?: string
           deleted?: boolean
           id?: string
-          name?: string | null
-          new?: boolean
+          page_id: string
+          reaction: Json
           updated_at?: string
         }
         Update: {
-          avatar_url?: string | null
           created_at?: string
+          created_by?: string
           deleted?: boolean
           id?: string
-          name?: string | null
-          new?: boolean
+          page_id?: string
+          reaction?: Json
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reactions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stickers: {
         Row: {

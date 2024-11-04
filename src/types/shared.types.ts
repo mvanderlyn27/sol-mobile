@@ -3,12 +3,14 @@ import { Database, Json } from "./supabase.types";
 //Supabase Types
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Page = Database["public"]["Tables"]["pages"]["Row"];
-export type Book = Database["public"]["Tables"]["books"]["Row"];
+export type Group = Database["public"]["Tables"]["groups"]["Row"];
+export type GroupMember = Database["public"]["Tables"]["group_members"]["Row"];
+export type Reaction = Database["public"]["Tables"]["reactions"]["Row"];
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 export type Font = Database["public"]["Tables"]["fonts"]["Row"];
 export type Sticker = Database["public"]["Tables"]["stickers"]["Row"];
 export type Template = Database["public"]["Tables"]["templates"]["Row"];
 export type Frame = Database["public"]["Tables"]["frames"]["Row"];
-export type BookType = Database["public"]["Enums"]["book_type"];
 
 //Button Types
 export enum ButtonType {
@@ -118,10 +120,6 @@ export type Canvas = {
   maxZIndex: number;
 };
 //Book Types
-export type CreateBookInput = {
-  type: BookType;
-};
-
 //Font Types
 export type CreateFontInput = {
   fontImage: CanvasImage;
@@ -192,16 +190,16 @@ export type QuickActionInfo = {
   onPress: () => void;
 };
 
-export type Group = {
-  id: string;
-  name: string;
-  coverUrl: string;
-  groupMembers: Member[];
-};
+// export type Group = {
+//   id: string;
+//   name: string;
+//   coverUrl: string;
+//   groupMembers: Member[];
+// };
 
-export type Member = {
-  avatar_url: string;
-  id: string;
-  name: string;
-  group_id: string;
-};
+// export type Member = {
+//   avatar_url: string;
+//   id: string;
+//   name: string;
+//   group_id: string;
+// };

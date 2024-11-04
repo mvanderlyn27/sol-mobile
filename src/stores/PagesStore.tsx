@@ -6,7 +6,6 @@ import { supabase } from "../lib/supabase";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
 import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import { configureSynced, syncObservable } from "@legendapp/state/sync";
-import { bookStore$ } from "./BookStore";
 import { Json } from "../types/supabase.types";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -33,7 +32,7 @@ export const pages$ = observable(
     supabase,
     collection: "pages",
     select: (from) => from.select("*"),
-    filter: (select) => select.eq("book_id", bookStore$.selectedBook),
+    // filter: (select) => select.eq("book_id", bookStore$.selectedBook),
     actions: ["read", "create", "update", "delete"],
     persist: { name: "pages", retrySync: true },
     retry: {
@@ -62,27 +61,27 @@ export const journalStore$ = observable<JournalStore>({
   loading: false,
   editMode: false,
 });
-export const addPage = (date?: string | undefined, canvas?: Canvas): string | null => {
-  console.log("trying to add book");
-  const curBook = bookStore$.selectedBook.get();
-  if (!curBook) {
-    console.error("no selected book can't add page");
-    return null;
-  }
-  if (!journalStore$.selectedDate.get() && !date) {
-    console.log("no selected date, or passed in date");
-    return null;
-  }
-  const id = generateId();
-  //@ts-ignore
-  pages$[id].set({
-    id,
-    book_id: curBook,
-    date: date ? format(date, "yyyy-MM-dd") : journalStore$.selectedDate.get(),
-    canvas: JSON.stringify(canvas || defaultCanvas),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    deleted: false,
-  });
-  return id;
-};
+// export const addPage = (date?: string | undefined, canvas?: Canvas): string | null => {
+// console.log("trying to add book");
+// // const curBook = bookStore$.selectedBook.get();
+// if (!curBook) {
+//   console.error("no selected book can't add page");
+//   return null;
+// }
+// if (!journalStore$.selectedDate.get() && !date) {
+//   console.log("no selected date, or passed in date");
+//   return null;
+// }
+// const id = generateId();
+// //@ts-ignore
+// pages$[id].set({
+//   id,
+//   book_id: curBook,
+//   date: date ? format(date, "yyyy-MM-dd") : journalStore$.selectedDate.get(),
+//   canvas: JSON.stringify(canvas || defaultCanvas),
+//   created_at: new Date().toISOString(),
+//   updated_at: new Date().toISOString(),
+//   deleted: false,
+// });
+// return id;
+// };
