@@ -3,6 +3,12 @@ import ProfilePic from "@/src/components/modals/ProfilePic";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
+import authStore$ from "@/src/stores/AuthStore";
+import { groups$ } from "@/src/stores/GroupStore";
+import { groupMembers$ } from "@/src/stores/MemberStore";
+import { pages$ } from "@/src/stores/PagesStore";
+import { profiles$ } from "@/src/stores/ProfileStore";
+import { GroupMember, Page } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { styled } from "nativewind";
@@ -15,24 +21,20 @@ const StyledPressable = styled(Pressable);
 const StyledFeather = styled(Feather);
 
 export default function EditGroupMember() {
-  const membersList = [
-    { avatar_url: "", id: "1", name: "cool", group_id: "" },
-    { avatar_url: "", id: "2", name: "cool", group_id: "" },
-    { avatar_url: "", id: "3", name: "cool", group_id: "" },
-    { avatar_url: "", id: "4", name: "cool", group_id: "" },
-    { avatar_url: "", id: "5", name: "cool", group_id: "" },
-    { avatar_url: "", id: "6", name: "cool", group_id: "" },
-    { avatar_url: "", id: "7", name: "cool", group_id: "" },
-    { avatar_url: "", id: "8", name: "cool", group_id: "" },
-    { avatar_url: "", id: "9", name: "cool", group_id: "" },
-    { avatar_url: "", id: "10", name: "cool", group_id: "" },
-  ];
-
   const handleRemove = (userId: string) => {};
   const handleInvite = () => {
     router.push("./inviteGroupMember");
   };
-
+  const curUserId = authStore$.session.get()?.user.id;
+  if (!curUserId) return null;
+  const profile = profiles$[curUserId].get();
+  const groupsCount = groups$.get() ? Object.keys(groups$.get()).length : 0;
+  const groupMembersCount = groupMembers$.get()
+    ? Object.values(groupMembers$.get()).filter((item: GroupMember) => item.user_id !== curUserId).length
+    : 0;
+  const entriesCount = pages$.get()
+    ? Object.values(pages$.get()).filter((item: Page) => item.created_by === curUserId).length
+    : 0;
   return (
     <StyledView className="flex-1 flex-col px-8 bg-[#F5EEE5]">
       <StyledView className="flex-1 justify-center items-center w-full ">
@@ -40,7 +42,7 @@ export default function EditGroupMember() {
           <ProfilePic />
         </StyledView>
         <StyledView className="flex-row  items-center px-10 p-4">
-          <StyledText>UsER NAME</StyledText>
+          <StyledText>{profile.username || "Username"}</StyledText>
           <StyledFeather name="edit-2" size={24} color="black" className="p-2" />
         </StyledView>
 
@@ -50,15 +52,15 @@ export default function EditGroupMember() {
         <StyledView className="flex-row justify-between pb-4 ">
           <StyledView className="flex-col flex-1 px-2 itmes-center">
             <StyledText className="font-bold">Groups</StyledText>
-            <StyledText className="p-4 text-lg">2</StyledText>
+            <StyledText className="p-4 text-lg">{groupsCount}</StyledText>
           </StyledView>
           <StyledView className="flex-col flex-1 px-2 items-center">
             <StyledText className="font-bold">Friends</StyledText>
-            <StyledText className="p-4 text-lg">7</StyledText>
+            <StyledText className="p-4 text-lg">{groupMembersCount}</StyledText>
           </StyledView>
           <StyledView className="flex-col flex-1 px-2 items-center">
             <StyledText className="font-bold">Entries</StyledText>
-            <StyledText className="p-4 text-lg">106</StyledText>
+            <StyledText className="p-4 text-lg">{entriesCount}</StyledText>
           </StyledView>
         </StyledView>
 

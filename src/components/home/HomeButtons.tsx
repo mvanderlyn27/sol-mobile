@@ -6,6 +6,7 @@ import { styled } from "nativewind";
 import UserPic from "../shared/UserPic";
 import SettingButton from "./SettingButton";
 import { router } from "expo-router";
+import authStore$ from "@/src/stores/AuthStore";
 const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);
 export default function HomeButtons() {
@@ -20,7 +21,7 @@ export default function HomeButtons() {
   return (
     <StyledView className="flex-row justify-between p-4">
       <SettingButton action={handleSettings} />
-      <UserPic action={handleProfile} />
+      <UserPic action={handleProfile} userId={authStore$.session.get()?.user.id} />
     </StyledView>
   );
 }
