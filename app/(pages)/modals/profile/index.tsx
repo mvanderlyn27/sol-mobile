@@ -42,11 +42,12 @@ const CurProfile = observer(function CurProfile() {
     profiles$[curUserId].username.set(val);
     Toast.show("name updated");
   };
+
   return (
     <StyledView className="flex-1 flex-col px-8 bg-[#F5EEE5]">
       <StyledView className="flex-1 justify-center items-center w-full ">
         <StyledView className="flex-row px-4">
-          <ProfilePic />
+          <ProfilePic editable />
         </StyledView>
         <StyledView className="flex-row  items-center px-10 p-4">
           {/* <StyledText>{profile.username || "Username"}</StyledText> */}

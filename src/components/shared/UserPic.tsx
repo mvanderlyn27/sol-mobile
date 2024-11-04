@@ -1,4 +1,5 @@
 import { profiles$ } from "@/src/stores/ProfileStore";
+import { observer } from "@legendapp/state/react";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { useEffect, useState } from "react";
@@ -6,7 +7,15 @@ import { Pressable, View, Text } from "react-native";
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
-export default function UserPic({ action, number, userId }: { action?: () => void; number?: number; userId?: string }) {
+const UserPic = observer(function UserPic({
+  action,
+  number,
+  userId,
+}: {
+  action?: () => void;
+  number?: number;
+  userId?: string;
+}) {
   if (!number && !userId) return null;
   if (userId) {
     const profile = profiles$[userId].get();
@@ -33,4 +42,5 @@ export default function UserPic({ action, number, userId }: { action?: () => voi
       </StyledView>
     );
   }
-}
+});
+export default UserPic;
