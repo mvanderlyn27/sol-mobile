@@ -12,24 +12,22 @@ export const groups$ = observable(
     collection: "groups",
     select: (from) => from.select("*"),
     // persist: { name: "groups" },
+    as: "object",
   })
 );
-export const groupsStore$ = observable({
-  selectedGroup: null,
-});
+
+interface GroupStore {
+  selectedGroup: string | null;
+}
+
 // addGroup
-export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string) => {
+export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {
   const session = authStore$.session.get();
   if (!session?.user.id) {
     console.error("not logged in, can't create group");
-    return;
+    return null;
   }
   const id = generateId();
-  groups$[id].set({
-    name,
-    created_by: session?.user.id,
-  });
-  console.log("initial creation done");
   const base64 = await FileSystem.readAsStringAsync(cover_uri, { encoding: "base64" });
   const { success, data, error } = await StorageService.uploadFile({
     bucket: "group_covers",
@@ -42,15 +40,20 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
   if (error || !data) {
     console.error("error uploading", error);
     //show notif here
-    return;
+    return null;
   }
   const path = supabase.storage.from("group_covers").getPublicUrl(`${id}/cover.webp`);
   console.log("starting last update");
+
   groups$[id].set({
+    id,
+    name,
+    created_by: session?.user.id,
     cover_url: path.data.publicUrl,
     cover_placeholder,
   });
   console.log("finished last update");
+  return id;
 };
 
 export const deleteGroup = async (group_id: string) => {

@@ -6,8 +6,7 @@ import { router } from "expo-router";
 import GroupPic from "../modals/GroupPic";
 import { Group, GroupMember } from "@/src/types/shared.types";
 import Feather from "@expo/vector-icons/Feather";
-import { groupsStore$ } from "@/src/stores/GroupStore";
-import { groupMembers$, selectedGroupMembers$ } from "@/src/stores/MemberStore";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -30,7 +29,7 @@ export default function GroupCard({ group }: { group: Group }) {
       className="flex-1 flex-col justify-center items-center rounded-xl  bg-[#F5EEE5]"
       onPress={handleSelect}>
       <StyledView className="flex-row p-4 flex-1">
-        <GroupPic />
+        <GroupPic source={group.cover_url} placeholder={group.cover_placeholder} />
       </StyledView>
       <StyledPressable onPress={handleEdit}>
         <StyledView className="flex-row justify-between p-2">

@@ -21,60 +21,21 @@ function chunkArray(array: any[], size: number) {
 }
 
 const HomeScreen = observer(function HomeScreen() {
-  // const membersList: Member[] = [
-  //   { avatar_url: "", id: "", name: "cool", group_id: "1" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "2" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "3" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "4" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "5" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "6" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "7" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "8" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "9" },
-  //   { avatar_url: "", id: "", name: "cool", group_id: "10" },
-  // ];
-
-  // const exampleData = [
-  //   {
-  //     id: "1",
-  //     name: "group 1",
-  //     coverUrl: "",
-  //     groupMembers: membersList,
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "group 2",
-  //     coverUrl: "",
-  //     groupMembers: membersList,
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "group 3",
-  //     coverUrl: "",
-  //     groupMembers: membersList,
-  //   },
-  //   // {
-  //   //   id: "4",
-  //   //   name: "group 3",
-  //   //   coverUrl: "",
-  //   //   groupMembers: membersList,
-  //   // },
-  // ];
-
-  // Chunk the example data into rows with 2 items each
+  // Retrieve the map of groups and convert it to an array with ids
   const groupsMap = groups$.get();
-  const groupAr = groupsMap ? Object.values(groupsMap) : [];
-  const rows = chunkArray(groupAr, 2);
-  console.log("groups", groups$.get());
+  const groupArray = groupsMap ? Object.entries(groupsMap).map(([id, group]) => ({ ...group, id })) : [];
+
+  // Chunk the array into rows with 2 items each
+  const rows = chunkArray(groupArray, 2);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <HomeButtons />
       <StyledScrollView className="flex-1">
-        {rows.map((row, rowIndex) => (
+        {rows.map((row, rowIndex: number) => (
           <StyledView key={rowIndex} className="flex-row justify-between mb-4">
-            {row.map((group: Group, colIndex) => (
-              <StyledView key={rowIndex + "-" + colIndex} style={{ width: "48%", height: 325 }}>
+            {row.map((group: any, colIndex: number) => (
+              <StyledView key={`${rowIndex}-${colIndex}`} style={{ width: "48%", height: 325 }}>
                 <GroupCard group={group} />
               </StyledView>
             ))}
@@ -87,7 +48,8 @@ const HomeScreen = observer(function HomeScreen() {
           </StyledView>
         ))}
 
-        {(groupAr.length === 0 || rows[rows.length - 1]?.length === 2) && (
+        {/* Add CreateGroupButton in case there are no groups or the last row is full */}
+        {(groupArray.length === 0 || rows[rows.length - 1]?.length === 2) && (
           <StyledView key={"create"} className="flex-row justify-between mb-4">
             <StyledView style={{ width: "48%", height: 325 }}>
               <CreateGroupButton />

@@ -1,9 +1,8 @@
-import { observable } from "@legendapp/state";
+import { computed, observable } from "@legendapp/state";
 import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import * as FileSystem from "expo-file-system";
 import StorageService from "../api/storage";
 import { GroupMember } from "../types/shared.types";
-import { groupsStore$ } from "./GroupStore";
 
 // const transformGroupMembers = (membersMap: Record<string,GroupMember[]>) => {
 //     const groupedMembersMap = {};
@@ -28,16 +27,6 @@ export const groupMembers$ = observable(
     collection: "group_members",
     select: (from) => from.select("*"),
     // persist: { name: "group_members" },
-  })
-);
-export const selectedGroupMembers$ = observable(
-  customSupabaseSynced({
-    // supabase,
-    collection: "group_members",
-    select: (from) => from.select("*"),
-    filter: (select) => select.eq("group_id", groupsStore$.selectedGroup.get()),
-    // persist: { name: "group_members" },
-    // as: "object",
   })
 );
 

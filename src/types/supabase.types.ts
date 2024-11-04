@@ -68,6 +68,7 @@ export type Database = {
           created_at: string
           deleted: boolean | null
           group_id: string
+          id: string
           role: string
           status: string | null
           updated_at: string
@@ -77,6 +78,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean | null
           group_id: string
+          id?: string
           role?: string
           status?: string | null
           updated_at?: string
@@ -86,18 +88,35 @@ export type Database = {
           created_at?: string
           deleted?: boolean | null
           group_id?: string
+          id?: string
           role?: string
           status?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       groups: {
         Row: {
           cover_placeholder: string | null
           cover_url: string | null
           created_at: string
+          created_by: string | null
           deleted: boolean
           id: string
           name: string
@@ -107,6 +126,7 @@ export type Database = {
           cover_placeholder?: string | null
           cover_url?: string | null
           created_at?: string
+          created_by?: string | null
           deleted?: boolean
           id?: string
           name: string
@@ -116,12 +136,21 @@ export type Database = {
           cover_placeholder?: string | null
           cover_url?: string | null
           created_at?: string
+          created_by?: string | null
           deleted?: boolean
           id?: string
           name?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -371,7 +400,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_group_admin: {
+        Args: {
+          p_user_id: string
+          p_group_id: string
+        }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: {
+          p_user_id: string
+          p_group_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       book_type: "journal" | "defaultJournal"

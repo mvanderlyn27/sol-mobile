@@ -66,7 +66,10 @@ export default function CreateGroupModal() {
   const handleCreateGroup = async () => {
     console.log(`Creating group: ${groupName} with blurh: ${blurhash}`);
     if (image && blurhash && groupName) {
-      addGroup(groupName, image, blurhash);
+      const id = await addGroup(groupName, image, blurhash);
+      if (id) {
+        router.push(`./${id}/groupDetails`);
+      }
     }
     // Add further functionality as needed
   };
