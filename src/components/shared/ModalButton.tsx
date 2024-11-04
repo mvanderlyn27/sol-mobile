@@ -1,0 +1,41 @@
+import { useCanvas } from "@/src/contexts/CanvasProvider";
+import { useJournal } from "@/src/contexts/JournalProvider";
+import { BottomDrawerType, CanvasFrame } from "@/src/types/shared.types";
+import { MotiView } from "moti";
+import { styled } from "nativewind";
+import { Pressable, Text, Dimensions } from "react-native";
+import BottomDrawer from "react-native-animated-bottom-drawer";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { useRef } from "react";
+
+const StyledMotiView = styled(MotiView);
+const StyledBottomDrawer = styled(BottomDrawer);
+const StyledText = styled(Text);
+const StyledPressable = styled(Pressable);
+const { height } = Dimensions.get("window");
+export default function ModalButton({
+  disabled,
+  action,
+  color,
+  textColor,
+  text,
+}: {
+  action?: () => void;
+  disabled?: boolean;
+  color?: string;
+  textColor?: string;
+  text?: string;
+}) {
+  return (
+    <StyledPressable
+      disabled={disabled}
+      onPress={action}
+      className={`${color} flex-1 mx-1 px-4 py-4 rounded-xl shadow-md flex justify-center items-center`}>
+      <StyledText
+        className={`${textColor ?? "text-white"} text-xs font-bold`}
+        style={{ fontFamily: "PragmaticaExtended-light" }}>
+        {text}
+      </StyledText>
+    </StyledPressable>
+  );
+}

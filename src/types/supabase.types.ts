@@ -9,35 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      books: {
-        Row: {
-          created_at: string
-          created_by: string
-          id: number
-          type: Database["public"]["Enums"]["book_type"]
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string
-          id?: number
-          type?: Database["public"]["Enums"]["book_type"]
-        }
-        Update: {
-          created_at?: string
-          created_by?: string
-          id?: number
-          type?: Database["public"]["Enums"]["book_type"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "books_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       fonts: {
         Row: {
           created_at: string
@@ -92,64 +63,274 @@ export type Database = {
         }
         Relationships: []
       }
-      pages: {
+      group_members: {
         Row: {
-          book: number | null
-          canvas: Json | null
           created_at: string
-          date: string
-          id: number
-          last_edited: string | null
+          deleted: boolean | null
+          group_id: string
+          id: string
+          role: string
+          status: string | null
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          book?: number | null
-          canvas?: Json | null
           created_at?: string
-          date: string
-          id?: number
-          last_edited?: string | null
+          deleted?: boolean | null
+          group_id: string
+          id?: string
+          role?: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          book?: number | null
-          canvas?: Json | null
           created_at?: string
-          date?: string
-          id?: number
-          last_edited?: string | null
+          deleted?: boolean | null
+          group_id?: string
+          id?: string
+          role?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "pages_book_fkey"
-            columns: ["book"]
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
             isOneToOne: false
-            referencedRelation: "books"
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          cover_placeholder: string | null
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          deleted: boolean
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          cover_placeholder?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted?: boolean
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          cover_placeholder?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted?: boolean
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          deleted: boolean
+          id: string
+          is_read: boolean
+          notification_data: Json
+          recipient_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          is_read?: boolean
+          notification_data: Json
+          recipient_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          is_read?: boolean
+          notification_data?: Json
+          recipient_id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pages: {
+        Row: {
+          canvas: Json | null
+          created_at: string
+          created_by: string
+          date: string
+          deleted: boolean
+          group_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          canvas?: Json | null
+          created_at?: string
+          created_by?: string
+          date: string
+          deleted?: boolean
+          group_id: string
+          id: string
+          updated_at: string
+        }
+        Update: {
+          canvas?: Json | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          deleted?: boolean
+          group_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pages_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
             referencedColumns: ["id"]
           },
         ]
       }
       profiles: {
         Row: {
+          avatar_placeholder: string | null
           avatar_url: string | null
           created_at: string
+          deleted: boolean
           id: string
           name: string | null
           new: boolean
+          push_token: string | null
+          updated_at: string
+          username: string | null
         }
         Insert: {
+          avatar_placeholder?: string | null
           avatar_url?: string | null
           created_at?: string
+          deleted?: boolean
           id?: string
           name?: string | null
           new?: boolean
+          push_token?: string | null
+          updated_at?: string
+          username?: string | null
         }
         Update: {
+          avatar_placeholder?: string | null
           avatar_url?: string | null
           created_at?: string
+          deleted?: boolean
           id?: string
           name?: string | null
           new?: boolean
+          push_token?: string | null
+          updated_at?: string
+          username?: string | null
         }
         Relationships: []
+      }
+      reactions: {
+        Row: {
+          created_at: string
+          created_by: string
+          deleted: boolean
+          id: string
+          page_id: string
+          reaction: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          deleted?: boolean
+          id?: string
+          page_id: string
+          reaction: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          deleted?: boolean
+          id?: string
+          page_id?: string
+          reaction?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reactions_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stickers: {
         Row: {
@@ -219,7 +400,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_group_admin: {
+        Args: {
+          p_user_id: string
+          p_group_id: string
+        }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: {
+          p_user_id: string
+          p_group_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       book_type: "journal" | "defaultJournal"

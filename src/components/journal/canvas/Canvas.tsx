@@ -12,48 +12,43 @@ import { useCanvas } from "@/src/contexts/CanvasProvider";
 import { useJournal } from "@/src/contexts/JournalProvider";
 import CanvasItemEditor from "./CanvasItemEditor";
 import { useData } from "@/src/contexts/DataProvider";
+import { Json } from "@/src/types/supabase.types";
+import { jsonToCanvas } from "@/src/services/Canvas";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 
-export default function CanvasHolder() {
-  const { selectedDate } = useData();
-  const {
-    canvas,
-    tempCanvas,
-    editingCanvas,
-    startEditCanvas,
-    exitEditCanvas,
-    saveCanvasEdits,
-    canvasLoading,
-    addCanvasItem,
-  } = useCanvas();
-  const { editMode } = useJournal();
+export default function CanvasHolder({ canvas }: { canvas: Canvas }) {
+  // const { selectedDate } = useData();
+  // const {
+  //   canvas,
+  //   tempCanvas,
+  //   editingCanvas,
+  //   startEditCanvas,
+  //   exitEditCanvas,
+  //   saveCanvasEdits,
+  //   canvasLoading,
+  //   addCanvasItem,
+  // } = useCanvas();
+  // const { editMode } = useJournal();
   //if editmode is trye, the tempcanvas is not null
-  const curCanvas = editingCanvas && tempCanvas ? tempCanvas : { ...canvas };
+  // const curCanvas = editingCanvas && tempCanvas ? tempCanvas : { ...canvas };
   // console.debug(curCanvas.items.map((item) => item.type + ":" + item.id + ", (" + item.x + "," + item.y + ")"));
+  // console.log("canvas", canvas);
   return (
-    <StyledMotiView key={`canvas-${selectedDate}`} className=" absolute top-0 bottom-0 right-0 left-0">
+    <StyledMotiView key={`canvas-${canvas.curId}`} className=" absolute top-0 bottom-0 right-0 left-0">
       {/*  <StyledMotiView className="flex-1 "> */}
-      {(canvasLoading || !curCanvas?.backgroundImage) && (
-        <StyledMotiView className="flex-1 justify-center items-center">
-          <Image
-            // maybe check if its a URL, or an enum, if its an enum we load locally, otherwise load from backend
-            key="backgroundImage"
-            source={getImageFromPath("bg_04")}
-            style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
-          />
-          {/* <ActivityIndicator size="large" /> */}
-        </StyledMotiView>
-      )}
-      {!canvasLoading && curCanvas && curCanvas.backgroundImage?.type === "Local" && (
+      {canvas.backgroundImage?.type === "Local" && (
         <Image
           // maybe check if its a URL, or an enum, if its an enum we load locally, otherwise load from backend
           key="backgroundImage"
-          source={getImageFromPath(curCanvas.backgroundImage.path)}
+          source={getImageFromPath(canvas.backgroundImage.path || "bg_04")}
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
         />
       )}
+      <StyledMotiView className="top-0 bottom-0 right-0 left-0 absolute  items-center justify-center z-2">
+        <Text> TEST {canvas.curId}</Text>
+      </StyledMotiView>
 
       {/* Render canvas items */}
       <AnimatePresence>
@@ -65,29 +60,17 @@ export default function CanvasHolder() {
             type: "timing",
             duration: 400,
           }}>
-          {!canvasLoading &&
-            curCanvas &&
-            { ...curCanvas }.items?.map((item) => {
-              if (item.type === "frame") {
-                // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
-                return (
-                  <CanvasFrameHolder
-                    key={`frame-${tempCanvas ? "temp-" : "-"}${item.id}-${selectedDate}`}
-                    item={{ ...item }}
-                  />
-                );
-              }
+          {canvas.items.map((item) => {
+            if (item.type === "frame") {
+              // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
+              return <CanvasFrameHolder key={`frame-${canvas ? "temp-" : "-"}${item.id}-}`} item={item} />;
+            }
 
-              if (item.type === "text") {
-                return (
-                  <CanvasTextHolder
-                    key={`text-${tempCanvas ? "temp-" : "-"}${item.id}-${selectedDate}`}
-                    item={{ ...item }}
-                  />
-                );
-              }
-              return null; // Return null if the type is unrecognized
-            })}
+            if (item.type === "text") {
+              return <CanvasTextHolder key={`text-${canvas ? "temp-" : "-"}${item.id}-`} item={item} />;
+            }
+            return null; // Return null if the type is unrecognized
+          })}
         </StyledMotiView>
       </AnimatePresence>
     </StyledMotiView>

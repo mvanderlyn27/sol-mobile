@@ -1,4 +1,4 @@
-import { Slot } from "expo-router";
+import { Slot, Stack, router } from "expo-router";
 import { AuthProvider } from "@/src/contexts/AuthProvider";
 import { Text, View } from "react-native";
 import { styled } from "nativewind";
@@ -10,10 +10,12 @@ import * as SplashScreen from "expo-splash-screen";
 import { getImageFromPath } from "@/src/assets/images/images";
 import { MotiView } from "moti";
 import { ImageBackground } from "expo-image";
+import { observer } from "@legendapp/state/react";
+import authStore$ from "@/src/stores/AuthStore";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
-export default function RootLayout() {
+export const RootLayout = observer(function RootLayout() {
   let [loaded, error] = useFonts({
     Calibri: require("@/src/assets/fonts/Calibri.ttf"),
     "Calibri-Bold": require("@/src/assets/fonts/Calibri-bold.ttf"),
@@ -28,11 +30,19 @@ export default function RootLayout() {
     PragmaticaExtended: require("@/src/assets/fonts/PragmaticaExtended.otf"),
   });
   useEffect(() => {
-    if (loaded || error) {
+    //setup initial store
+    authStore$.init();
+  }, []);
+  useEffect(() => {
+    if (loaded && !authStore$.loading.get()) {
       //maybe add loading data here
       SplashScreen.hideAsync();
+      if (authStore$.session.get() !== null) {
+        console.log("logged in: ", authStore$.session.get()?.user.email);
+        router.push("/loading");
+      }
     }
-  }, [loaded, error]);
+  }, [loaded, error, authStore$.loading.get()]);
   if (!loaded && !error) {
     return null;
   }
@@ -56,13 +66,12 @@ export default function RootLayout() {
               captureLifecycleEvents: true,
               noCaptureProp: "ph-no-capture",
             }}>
-            <AuthProvider>
-              {/* maybe add stack here for navigation? xD */}
-              <Slot />
-            </AuthProvider>
+            <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
           </PostHogProvider>
         </RootSiblingParent>
       </ImageBackground>
     </StyledMotiView>
   );
-}
+});
+
+export default RootLayout;

@@ -38,11 +38,10 @@ export default {
       "expo-router",
       "expo-secure-store",
       [
-
       "expo-build-properties",
       {
-        "android": {
-            "enableProguardInReleaseBuilds": true
+        android: {
+            enableProguardInReleaseBuilds: true,
         }
       }
       ],
@@ -53,7 +52,7 @@ export default {
       [
         "@react-native-google-signin/google-signin",
         {
-          "iosUrlScheme": process.env.EXPO_PUBLIC_GOOGLE_OAUTH_IOS_URL,
+          iosUrlScheme: process.env.EXPO_PUBLIC_GOOGLE_OAUTH_IOS_URL,
         }
       ]
     ],

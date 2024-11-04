@@ -17,6 +17,7 @@ export default function CallbackEmail() {
         </StyledText>
         <StyledPressable>
           <RectangleButton
+            disabled={false}
             action={() => router.push("/login")}
             text="CONTINUE"
             color={"bg-secondary"}

@@ -4,9 +4,11 @@ import Toast from "react-native-root-toast";
 import { styled } from "nativewind";
 import { Platform } from "react-native";
 import { useAuth } from "@/src/contexts/AuthProvider";
+import authStore$ from "@/src/stores/AuthStore";
+import { observer } from "@legendapp/state/react";
 const StyledGoogleButton = styled(GoogleSigninButton);
-export default function GoogleAuthButton() {
-  const { signInWithGoogle } = useAuth();
+const GoogleAuthButton = observer(function GoogleAuthButton() {
+  // const { signInWithGoogle } = useAuth();
   //temporarily disable for android lol
   if (Platform.OS !== "ios") return null;
   const posthog = usePostHog();
@@ -32,7 +34,7 @@ export default function GoogleAuthButton() {
           await GoogleSignin.hasPlayServices();
           const userInfo = await GoogleSignin.signIn();
           if (userInfo?.data?.idToken) {
-            await signInWithGoogle(userInfo.data.idToken, userInfo?.data?.user?.name || "");
+            await authStore$.signInGoogle(userInfo.data.idToken, userInfo?.data?.user?.name || "");
           } else {
             console.error("no id token/canelled login");
             posthog.capture("google-signin-error", { error: "no id token, or canceled login" });
@@ -56,4 +58,6 @@ export default function GoogleAuthButton() {
       }}
     />
   );
-}
+});
+
+export default GoogleAuthButton;

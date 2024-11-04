@@ -1,4 +1,6 @@
 import { useAuth } from "@/src/contexts/AuthProvider";
+import authStore$ from "@/src/stores/AuthStore";
+import { observer } from "@legendapp/state/react";
 import * as AppleAuthentication from "expo-apple-authentication";
 import { styled } from "nativewind";
 import { usePostHog } from "posthog-react-native";
@@ -8,8 +10,7 @@ import Toast from "react-native-root-toast";
 const StyledView = styled(View);
 const StyledAppleButton = styled(AppleAuthentication.AppleAuthenticationButton);
 
-export default function AppleAuthButton({ type }: { type: string }) {
-  const { signInWithApple } = useAuth();
+const AppleAuthButton = observer(function AppleAuthButton({ type }: { type: string }) {
   const posthog = usePostHog();
   const handleLogin = async () => {
     try {
@@ -21,7 +22,7 @@ export default function AppleAuthButton({ type }: { type: string }) {
       });
       // logged in
       if (credential.identityToken) {
-        await signInWithApple(credential.identityToken, credential.fullName?.givenName || "");
+        await authStore$.signInApple(credential.identityToken, credential.fullName?.givenName || "");
       } else {
         posthog.capture("sign-in-with-apple-failed", { error: "missing identity token" });
         Toast.show("Failed to sign in with Apple missing auth token", {});
@@ -50,4 +51,6 @@ export default function AppleAuthButton({ type }: { type: string }) {
       onPress={handleLogin}
     />
   );
-}
+});
+
+export default AppleAuthButton;

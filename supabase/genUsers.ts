@@ -31,6 +31,7 @@ const main = async () => {
       options: {
         data: {
           name: fullName,
+          username: userName,
         },
       },
     });
