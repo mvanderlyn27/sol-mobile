@@ -24,7 +24,7 @@ const UserPic = observer(function UserPic({
       <StyledPressable
         pointerEvents={action !== undefined ? "auto" : "none"}
         onPress={action}
-        className="rounded-full w-[50px] aspect-square bg-secondary overflow-hidden">
+        className="rounded-full w-[40px] aspect-square mr-1 bg-secondary overflow-hidden">
         {profile?.avatar_url ? (
           <Image style={{ flex: 1 }} source={profile.avatar_url} placeholder={profile.avatar_placeholder} />
         ) : (
@@ -34,7 +34,7 @@ const UserPic = observer(function UserPic({
     );
   } else {
     return (
-      <StyledView className="rounded-full w-[50px] aspect-square bg-secondary overflow-hidden">
+      <StyledView className="rounded-full w-[40px] mr-1 aspect-square bg-secondary overflow-hidden">
         <StyledView className="flex-1 justify-center items-center">
           <StyledText>{number}+</StyledText>
         </StyledView>

@@ -34,24 +34,24 @@ const GroupCard = observer(function GroupCard({ group }: { group: Group }) {
     <StyledPressable
       className="flex-1 flex-col justify-center items-center rounded-xl  bg-[#F5EEE5]"
       onPress={handleSelect}>
-      <StyledView className="flex-row p-4 flex-1">
+      <StyledView className="flex-row px-4 pt-4 flex-1">
         <GroupPic groupId={group.id} />
       </StyledView>
       <StyledPressable onPress={handleEdit}>
-        <StyledView className="flex-row justify-center px-2">
-          <StyledText className="text-lg">{group.name}</StyledText>
+        <StyledView className="flex-row justify-center px-4">
+          <StyledText className="text-md py-2 text-left w-full">{group.name}</StyledText>
           {/* <StyledFeather name="edit-2" size={24} color="black" className="px-2" /> */}
         </StyledView>
         {groupMembers ? (
           <StyledView className="flex-row justify-between ">
             {groupMembers?.length <= 3 ? (
-              <StyledView className="flex-row p-4 justify-between">
+              <StyledView className="flex-row px-4 pb-4 justify-between">
                 {groupMembers.map((member: GroupMember, index: number) => (
                   <UserPic key={index + " " + member.id} userId={member.user_id} />
                 ))}
               </StyledView>
             ) : (
-              <StyledView className="flex-row p-2 justify-between">
+              <StyledView className="flex-row px-4 pb-4 ">
                 <UserPic userId={groupMembers[0].id} />
                 <UserPic userId={groupMembers[1].id} />
                 <UserPic number={3} />
