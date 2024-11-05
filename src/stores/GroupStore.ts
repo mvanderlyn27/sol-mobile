@@ -25,6 +25,21 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     return null;
   }
   const id = generateId();
+
+  groups$[id].set({
+    id,
+    name,
+    created_by: session?.user.id,
+  });
+  const groupMemberId = generateId();
+  groupMembers$[groupMemberId].set({
+    id: groupMemberId,
+    user_id: session?.user.id,
+    group_id: id,
+    role: "admin",
+    status: "completed",
+  });
+  //upload image after we create new component for rls policies to work
   const base64 = await FileSystem.readAsStringAsync(cover_uri, { encoding: "base64" });
   const { success, data, error } = await StorageService.uploadFile({
     bucket: "group_covers",
@@ -33,22 +48,17 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     fileExtension: "webp",
     mimeType: "image/webp",
   });
+  const path = supabase.storage.from("group_covers").getPublicUrl(`${id}/cover.webp`);
+  console.log("starting last update");
+  groups$[id].cover_url.set(path.data.publicUrl);
+  groups$[id].cover_placeholder.set(cover_placeholder);
   console.log("done uploading", error, data, success);
   if (error || !data) {
     console.error("error uploading", error);
     //show notif here
     return null;
   }
-  const path = supabase.storage.from("group_covers").getPublicUrl(`${id}/cover.webp`);
-  console.log("starting last update");
 
-  groups$[id].set({
-    id,
-    name,
-    created_by: session?.user.id,
-    cover_url: path.data.publicUrl,
-    cover_placeholder,
-  });
   console.log("finished last update");
   return id;
 };
