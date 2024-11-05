@@ -16,7 +16,7 @@ import { styled } from "nativewind";
 import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
 import Toast from "react-native-root-toast";
 import { useLocalSearchParams } from "expo-router";
-import { filterMyGroups, groupMembers$ } from "@/src/stores/MemberStore";
+import { filterMyGroups, filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
@@ -34,11 +34,15 @@ const CurProfile = observer(function CurProfile() {
   if (!curUserId) return null;
   const profile = profiles$[curUserId].get();
   const groupsCount = groups$.get() ? Object.keys(groups$.get()).length : 0;
-  const groupMembersCount = groupMembers$.get()
-    ? Object.values(filterMyGroups(groupMembers$.get(), curUserId) || {}).filter(
-        (item: GroupMember) => item.user_id !== curUserId
-      ).length
-    : 0;
+  const myGroupIds = Object.values(filterMyGroups(groupMembers$.get(), curUserId) || {}).map((gm) => gm.group_id);
+  const set = new Set([curUserId]);
+  let friendCount = 0;
+  Object.values(filterOutPending(groupMembers$.get()) || {}).forEach((groupMember) => {
+    if (myGroupIds.includes(groupMember.group_id) && !set.has(groupMember.user_id)) {
+      set.add(groupMember.user_id);
+      friendCount += 1;
+    }
+  });
   const entriesCount = pages$.get()
     ? Object.values(pages$.get()).filter((item: Page) => item.created_by === curUserId).length
     : 0;
@@ -78,7 +82,7 @@ const CurProfile = observer(function CurProfile() {
           </StyledView>
           <StyledView className="flex-col flex-1 px-2 items-center">
             <StyledText className="font-bold">Friends</StyledText>
-            <StyledText className="p-4 text-lg">{groupMembersCount}</StyledText>
+            <StyledText className="p-4 text-lg">{friendCount}</StyledText>
           </StyledView>
           <StyledView className="flex-col flex-1 px-2 items-center">
             <StyledText className="font-bold">Entries</StyledText>

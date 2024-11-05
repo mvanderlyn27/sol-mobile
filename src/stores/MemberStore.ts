@@ -17,10 +17,8 @@ export const groupMembers$ = observable(
 );
 export const filterOutPending = (map: Record<string, GroupMember>): Record<string, GroupMember> | null => {
   if (!map) {
-    console.log("error ");
     return null;
   }
-  console.log("filtering pending");
   return Object.entries(map)
     .filter(([key, val]) => (val as GroupMember).status === "completed")
     .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
@@ -30,10 +28,8 @@ export const filterMyGroups = (
   userId: string
 ): Record<string, GroupMember> | null => {
   if (!map || !userId) {
-    console.log("error ");
     return null;
   }
-  console.log("filtering my groups");
   const out = Object.entries(map)
     .filter(([key, val]) => val.status === "completed" && val.user_id === userId)
     .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
@@ -45,10 +41,8 @@ export const filterMyInvites = (
   userId: string
 ): Record<string, GroupMember> | null => {
   if (!map || !userId) {
-    console.log("error ");
     return null;
   }
-  console.log("filtering invites");
   return Object.entries(map)
     .filter(([key, val]) => val.status === "pending" && val.user_id === userId)
     .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
@@ -56,7 +50,6 @@ export const filterMyInvites = (
 
 export const getMember = (groupId: string, userId: string) => {
   const groupMembers = groupMembers$.get();
-  console.log("group", groupMembers);
   console.log(groupId, userId);
   const id = Object.entries(groupMembers).find(
     ([, groupMember]) => groupMember.group_id === groupId && groupMember.user_id === userId
