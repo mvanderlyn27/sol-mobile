@@ -32,7 +32,6 @@ export default function MemberList({ groupId }: { groupId: string }) {
   }, {});
   const groupMembers = groupMembersMap[groupId];
   if (!groupMembers) return null;
-  console.log("members", groupMembers);
   const pages = chunkArray(groupMembers, 8);
   const visitMember = (memberId: string) => {
     console.log("clicked");

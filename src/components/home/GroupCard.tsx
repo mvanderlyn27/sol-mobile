@@ -20,17 +20,18 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
   const handleSelect = () => {
     console.log("test");
     if (invitation) {
-      router.push(`/journal/${group.id}`);
+      router.push(`/modals/group/${group.id}/groupInvitation`);
     } else {
-      router.push(`/modals/group/${group.id}/invitation`);
+      router.push(`/journal/${group.id}`);
     }
   };
   const handleEdit = () => {
     console.log("group", group);
     if (invitation) {
-      router.push(`/modals/group/${group.id}/groupDetails`);
+      router.push(`/modals/group/${group.id}/groupInvitation`);
     } else {
-      router.push(`/modals/group/${group.id}/invitation`);
+      console.log("invitation");
+      router.push(`/modals/group/${group.id}/groupDetails`);
     }
   };
   const groupMemberList = groupMembers$.get();

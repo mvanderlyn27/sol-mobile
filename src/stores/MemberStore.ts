@@ -57,7 +57,6 @@ export const getMember = (groupId: string, userId: string) => {
   const id = Object.entries(groupMembers).find(
     ([, groupMember]) => groupMember.group_id === groupId && groupMember.user_id === userId
   )?.[0];
-  console.log("id", id);
   return id;
 };
 export const removeMember = (groupId: string, userId: string) => {
@@ -74,7 +73,6 @@ export const checkAdmin = (groupId: string, userId: string) => {
     console.log("user not found");
     return;
   }
-  console.log("admin ? ", groupMembers$[id].get());
   return groupMembers$[id].role.get() === "admin";
 };
 export const inviteGroupMember = (groupId: string, username: string): string | null => {

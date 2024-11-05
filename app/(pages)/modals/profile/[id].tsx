@@ -31,7 +31,6 @@ const UserProfile = observer(function UserProfile() {
   const groupId = ensureNotArray(useLocalSearchParams().groupId);
 
   const isAdmin = currentUser ? checkAdmin(groupId, currentUser) : false;
-  console.log("admin: ", isAdmin);
 
   const profile = profiles$[userId].get();
   const groupList = Array.from(

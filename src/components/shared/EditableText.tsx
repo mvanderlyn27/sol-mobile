@@ -28,7 +28,7 @@ export default function EditableText({ placeholder, action }: { placeholder: str
   return (
     <AnimatePresence>
       {!isEditing && (
-        <StyledPressable onPress={() => setIsEditing(true)} className="flex-row items-center ">
+        <StyledPressable onPress={() => setIsEditing(true)} className="flex-row items-center py-2">
           <StyledMotiView className="flex-row justify-center items-center">
             <StyledText className="text-lg">{placeholder}</StyledText>
             <StyledFeather name="edit-2" size={12} color="black" className="p-2" />
@@ -49,7 +49,7 @@ export default function EditableText({ placeholder, action }: { placeholder: str
             onBlur={handleSubmit}
             autoFocus
             placeholder="Enter new username"
-            className="border-b border-gray-400 text-center p-2"
+            className="border-b border-gray-400 text-center p-2 text-lg"
           />
         </StyledMotiView>
       )}

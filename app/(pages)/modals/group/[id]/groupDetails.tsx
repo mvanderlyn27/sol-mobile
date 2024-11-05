@@ -4,8 +4,9 @@ import ProfilePic from "@/src/components/profile/ProfilePic";
 import EditableText from "@/src/components/shared/EditableText";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
+import authStore$ from "@/src/stores/AuthStore";
 import { deleteGroup, groups$ } from "@/src/stores/GroupStore";
-import { groupMembers$ } from "@/src/stores/MemberStore";
+import { checkAdmin, groupMembers$ } from "@/src/stores/MemberStore";
 import { observer } from "@legendapp/state/react";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import { styled } from "nativewind";
@@ -13,12 +14,17 @@ import { View, Text, Dimensions, Pressable } from "react-native";
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
-const GroupDetails = observer(function GroupDetails() {
-  let group_id = useLocalSearchParams().id;
-  console.log(group_id);
-  if (Array.isArray(group_id)) {
-    group_id = group_id[0];
+const ensureNotArray = (input: string | string[]) => {
+  if (Array.isArray(input)) {
+    return input[0];
   }
+  return input;
+};
+const GroupDetails = observer(function GroupDetails() {
+  let group_id = ensureNotArray(useLocalSearchParams().id);
+  console.log(group_id);
+  const currentUser = authStore$.session.get()?.user.id;
+
   const selectedGroup = groups$[group_id].get();
   // const groupMembers = groupMemberStore$?.groupMembersMap[group_id].get();
 
@@ -42,14 +48,21 @@ const GroupDetails = observer(function GroupDetails() {
     }
     groups$[group_id].name.set(val);
   };
+  const isAdmin = currentUser ? checkAdmin(group_id, currentUser) : false;
   return (
     <View style={{ flex: 1, backgroundColor: "#F5EEE5" }}>
       <StyledView className="pt-4 flex-col justify-center items-center flex-1">
         <StyledView className="flex-row flex-1 px-20">
-          <GroupPic groupId={selectedGroup.id} />
+          <GroupPic editable={isAdmin} groupId={selectedGroup.id} />
         </StyledView>
         <StyledView className="flex-row flex-none px-10">
-          <EditableText placeholder={selectedGroup.name} action={handleUpdateName} />
+          {isAdmin ? (
+            <EditableText placeholder={selectedGroup.name} action={handleUpdateName} />
+          ) : (
+            <StyledView className="flex-row flex-none px-10">
+              <StyledText className="font-bold text-md py-2">{selectedGroup.name}</StyledText>
+            </StyledView>
+          )}
         </StyledView>
         <StyledView className="px-8 w-full h-[150px] flex-none justify-between">
           <MemberList groupId={selectedGroup.id} />
