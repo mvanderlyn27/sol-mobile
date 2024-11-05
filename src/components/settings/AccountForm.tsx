@@ -5,6 +5,8 @@ import { MotiView } from "moti";
 import { Ionicons } from "@expo/vector-icons"; // Assuming you're using Expo's Ionicons
 import { useAuth } from "@/src/contexts/AuthProvider";
 import Toast from "react-native-root-toast";
+import authStore$ from "@/src/stores/AuthStore";
+import { router } from "expo-router";
 
 // Styled components using NativeWind
 const StyledView = styled(View);
@@ -15,17 +17,16 @@ const StyledMotiView = styled(MotiView);
 
 const AccountForm = () => {
   // const { session, updateEmail, updatePassword } = useAuth();
-  // const [email, setEmail] = useState(session?.user.email);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(authStore$.session.get()?.user.email);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [updating, setUpdating] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   useEffect(() => {
-    // const isEmailChanged = email !== session?.user.email;
+    const isEmailChanged = email !== authStore$.session.get()?.user.email;
     const isPasswordChanged = password !== "";
 
-    // setHasChanges(isEmailChanged || (isPasswordChanged && password === confirmPassword));
+    setHasChanges(isEmailChanged || (isPasswordChanged && password === confirmPassword));
   }, [email, password, confirmPassword]);
   const checkEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -46,9 +47,9 @@ const AccountForm = () => {
       setUpdating(false);
       return;
     }
-    // if (email === session?.user.email) {
-    // await updateEmail(email);
-    // }
+    if (email !== authStore$.session.get()?.user.email) {
+      await authStore$.updateEmail(email);
+    }
     if (password !== confirmPassword) {
       console.log("Passwords do not match");
       Toast.show("Passwords do not match", {});
@@ -56,7 +57,7 @@ const AccountForm = () => {
       return;
     }
     if (password !== "") {
-      // await updatePassword(password);
+      await authStore$.updatePassword(password);
     }
     Toast.show("Update Finished", {});
     setUpdating(false);

@@ -72,12 +72,16 @@ export default function Modal() {
               type: "timing",
               duration: 300,
             }}
+            exitTransition={{
+              type: "timing",
+              duration: 400,
+            }}
             // style={{ width: "80%", height: "70%", backgroundColor: "#F5EEE5", borderRadius: 20, overflow: "hidden" }}
             className="w-[90%] h-[60%] rounded-2xl overflow-hidden">
             <Stack
               screenOptions={{
                 // presentation: "transparentModal", // Use transparent modal presentation for all child screens
-                animation: "fade", // Apply fade animation to modals
+                // animation: "fade", // Apply fade animation to modals
                 headerShown: false, // Hide header for a cleaner look
               }}
             />

@@ -6,17 +6,21 @@ import { BlurView } from "expo-blur";
 import { useEffect, useState } from "react";
 import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
+import { uiStore$ } from "@/src/stores/UIStore";
+import { observer } from "@legendapp/state/react";
 const StyledMotiView = styled(MotiView);
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: "profile",
 };
-export default function Modal() {
-  const [visible, setVisible] = useState(true);
+const Modal = observer(function Modal() {
   const [animating, setAnimating] = useState(false);
   const [shouldExit, setShouldExit] = useState(false);
   const [shouldBack, setShouldBack] = useState(false);
   const path = usePathname();
+  useEffect(() => {
+    uiStore$.displaySideBar.set(true);
+  }, []);
   const handleClose = () => {
     const firstRoute = path.split("/")[1];
     // router.push(firstRoute ? (firstRoute as Href) : "/");
@@ -37,7 +41,7 @@ export default function Modal() {
   };
   const closeModal = () => {
     setAnimating(true);
-    setVisible(false);
+    uiStore$.displaySideBar.set(false);
   };
   useEffect(() => {
     if ((shouldExit || shouldBack) && !animating) {
@@ -54,7 +58,7 @@ export default function Modal() {
       {/* Dismiss modal when pressing outside */}
       <Pressable onPress={startExit} style={StyleSheet.absoluteFill} />
       <AnimatePresence onExitComplete={() => setAnimating(false)}>
-        {visible && (
+        {uiStore$.displaySideBar.get() && (
           <StyledMotiView
             from={{
               translateX: -300, // Start from below the screen
@@ -86,4 +90,5 @@ export default function Modal() {
       </AnimatePresence>
     </BlurView>
   );
-}
+});
+export default Modal;

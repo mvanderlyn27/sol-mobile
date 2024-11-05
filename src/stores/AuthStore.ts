@@ -142,7 +142,36 @@ const authStore$ = observable<AuthStore>({
     }
     authStore$.loading.set(false);
   },
-  updateEmail: async () => {},
-  updatePassword: async () => {},
+  updateEmail: async (email: string) => {
+    const response = await AuthService.updateEmail(email);
+
+    if (response.success) {
+      posthog.capture("user-update-email", { email });
+      authStore$.session.set(response.data || null);
+      authStore$.error.set(null);
+      authStore$.loading.set(false);
+    } else {
+      posthog.capture("user-update-email-error", { email, error: response.error });
+      authStore$.error.set(response.error + "");
+      authStore$.loading.set(false);
+    }
+  },
+  updatePassword: async (password: string) => {
+    const response = await AuthService.updatePassword(password);
+
+    if (response.success) {
+      posthog.capture("user-update-password", { password: password });
+      authStore$.session.set(response.data || null);
+      authStore$.error.set(null);
+      authStore$.loading.set(false);
+    } else {
+      posthog.capture("user-update-password-error", {
+        email: authStore$.session.get()?.user.email,
+        error: response.error,
+      });
+      authStore$.error.set(response.error + "");
+      authStore$.loading.set(false);
+    }
+  },
 });
 export default authStore$;

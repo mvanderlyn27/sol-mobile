@@ -24,7 +24,7 @@ const Layout = observer(function Layout() {
           name="modals"
           options={{
             presentation: "transparentModal",
-            animation: "fade",
+            // animation: "fade",
             headerShown: false,
           }}
         />
