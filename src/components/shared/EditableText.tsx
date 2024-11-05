@@ -15,7 +15,7 @@ const StyledTextInput = styled(TextInput);
 const StyledFeather = styled(Feather);
 export default function EditableText({ placeholder, action }: { placeholder: string; action: (val: string) => void }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [newValue, setNewValue] = useState("");
+  const [newValue, setNewValue] = useState(placeholder);
   const handleSubmit = () => {
     if (newValue === "") {
       Toast.show("Please enter a username to update");

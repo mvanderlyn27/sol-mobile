@@ -30,7 +30,7 @@ export default function ModalButton({
     <StyledPressable
       disabled={disabled}
       onPress={action}
-      className={`${color} flex-1 mx-1 px-4 py-4 rounded-xl shadow-md flex justify-center items-center`}>
+      className={`${color} flex-1 mx-1 px-4 py-3 rounded-xl shadow-md flex justify-center items-center`}>
       <StyledText
         className={`${textColor ?? "text-white"} text-xs font-bold`}
         style={{ fontFamily: "PragmaticaExtended-light" }}>

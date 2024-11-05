@@ -2,7 +2,7 @@ import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
 import authStore$ from "@/src/stores/AuthStore";
-import { groupMembers$ } from "@/src/stores/MemberStore";
+import { groupMembers$, removeMember } from "@/src/stores/MemberStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, Profile } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";
@@ -15,11 +15,14 @@ const StyledScrollView = styled(ScrollView);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 const EditGroupMembers = observer(function EditGroupMembers() {
-  let groupId = useLocalSearchParams().id;
-  console.log(groupId);
-  if (Array.isArray(groupId)) {
-    groupId = groupId[0];
-  }
+  const ensureNotArray = (input: string | string[]) => {
+    if (Array.isArray(input)) {
+      return input[0];
+    }
+    return input;
+  };
+  let groupId = ensureNotArray(useLocalSearchParams().id);
+
   const userId = authStore$.session.get()?.user.id;
   if (!userId) return null;
   const groupMembersMap = Object.entries(groupMembers$.get()).reduce((acc: any, [_, member]) => {
@@ -28,17 +31,7 @@ const EditGroupMembers = observer(function EditGroupMembers() {
   }, {});
   const groupMembers = groupMembersMap[groupId];
   if (!groupMembers) return null;
-  const handleRemove = (userId: string) => {
-    const id = Object.entries(groupMembers$.get()).find(
-      ([, groupMember]) => groupMember.group_id === groupId && groupMember.user_id === userId
-    )?.[0];
-    console.log("id", id);
-    if (!id) {
-      console.log("user not found");
-      return;
-    }
-    groupMembers$[id].delete();
-  };
+
   const handleInvite = () => {
     router.push("./inviteGroupMember");
   };
@@ -55,7 +48,7 @@ const EditGroupMembers = observer(function EditGroupMembers() {
         </StyledPressable>
       </StyledView>
       <StyledView className="flex-row justify-center items-center p-4 ">
-        <StyledText className="text-lg font-bold">Edit Group Members</StyledText>
+        <StyledText className="text-lg font-bold">Edit Members</StyledText>
       </StyledView>
       <StyledView className="flex-1 justify-start items-center w-full ">
         <StyledScrollView className="flex-col w-full mb-4 ">
@@ -65,17 +58,19 @@ const EditGroupMembers = observer(function EditGroupMembers() {
               <StyledView className="flex-row justify-start flex-1 pl-4  ">
                 <Text>{profiles$[member.user_id].username.get() || profiles$[member.user_id].name.get()}</Text>
               </StyledView>
-              <ModalButton
-                disabled={false}
-                action={() => handleRemove(member.id)}
-                color={"bg-red-500"}
-                textColor={"text-white"}
-                text={"Remove"}
-              />
+              <StyledView className="w-[90px] ">
+                <ModalButton
+                  disabled={false}
+                  action={() => removeMember(groupId, member.user_id)}
+                  color={"bg-red-500"}
+                  textColor={"text-white"}
+                  text={"Remove"}
+                />
+              </StyledView>
             </StyledView>
           ))}
         </StyledScrollView>
-        <StyledView className="flex-row px-10">
+        <StyledView className="flex-row px-20 ">
           <ModalButton disabled={false} action={handleInvite} color={"bg-primary"} text="Invite new" />
         </StyledView>
       </StyledView>

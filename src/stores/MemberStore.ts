@@ -3,6 +3,8 @@ import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import * as FileSystem from "expo-file-system";
 import StorageService from "../api/storage";
 import { GroupMember } from "../types/shared.types";
+import { profiles$ } from "./ProfileStore";
+import authStore$ from "./AuthStore";
 
 // const transformGroupMembers = (membersMap: Record<string,GroupMember[]>) => {
 //     const groupedMembersMap = {};
@@ -26,10 +28,73 @@ export const groupMembers$ = observable(
     // supabase,
     collection: "group_members",
     select: (from) => from.select("*"),
+    filter: (select) => select.neq("status", "pending"),
     // persist: { name: "group_members" },
   })
 );
-
+export const myPendingGroupMembers$ = observable(
+  customSupabaseSynced({
+    // supabase,
+    collection: "group_members",
+    select: (from) => from.select("*"),
+    filter: (select) => select.eq("status", "pending").eq("user_id", authStore$.session.get()?.user.id),
+    // persist: { name: "group_members" },
+  })
+);
+export const myGroupMemberships$ = observable(
+  customSupabaseSynced({
+    // supabase,
+    collection: "group_members",
+    select: (from) => from.select("*"),
+    filter: (select) => select.eq("status", "completed").eq("user_id", authStore$.session.get()?.user.id),
+    // persist: { name: "group_members" },
+  })
+);
+export const getMember = (groupId: string, userId: string) => {
+  const groupMembers = groupMembers$.get();
+  console.log("group", groupMembers);
+  console.log(groupId, userId);
+  const id = Object.entries(groupMembers).find(
+    ([, groupMember]) => groupMember.group_id === groupId && groupMember.user_id === userId
+  )?.[0];
+  console.log("id", id);
+  return id;
+};
+export const removeMember = (groupId: string, userId: string) => {
+  const id = getMember(groupId, userId);
+  if (!id) {
+    console.log("user not found");
+    return;
+  }
+  groupMembers$[id].delete();
+};
+export const checkAdmin = (groupId: string, userId: string) => {
+  const id = getMember(groupId, userId);
+  if (!id) {
+    console.log("user not found");
+    return;
+  }
+  console.log("admin ? ", groupMembers$[id].get());
+  return groupMembers$[id].role.get() === "admin";
+};
+export const inviteGroupMember = (groupId: string, username: string): string | null => {
+  console.log("profiles", profiles$.get());
+  const entry = Object.entries(profiles$.get()).find(([key, profile]) => profile.username === username);
+  if (!entry) {
+    console.error("can't find user");
+    return null;
+  }
+  const id = entry[0];
+  const inviteId = generateId();
+  groupMembers$[inviteId].set({
+    id: inviteId,
+    group_id: groupId,
+    user_id: id,
+    role: "member",
+    status: "pending",
+  });
+  return inviteId;
+};
 // addGroup
 export const addGroupMember = async (name: string, cover_uri: string, cover_placeholder: string) => {
   //   const id = generateId();

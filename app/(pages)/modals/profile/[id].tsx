@@ -3,8 +3,9 @@ import ProfilePic from "@/src/components/modals/ProfilePic";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
+import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
-import { groupMembers$ } from "@/src/stores/MemberStore";
+import { checkAdmin, groupMembers$, removeMember } from "@/src/stores/MemberStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { Group } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";
@@ -19,15 +20,18 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 
 const UserProfile = observer(function UserProfile() {
-  let { id: userId } = useLocalSearchParams();
-  console.log(userId);
-  if (Array.isArray(userId)) {
-    userId = userId[0];
-  }
-  let { groupId } = useLocalSearchParams();
-  if (Array.isArray(groupId)) {
-    groupId = groupId[0];
-  }
+  const ensureNotArray = (input: string | string[]) => {
+    if (Array.isArray(input)) {
+      return input[0];
+    }
+    return input;
+  };
+  const userId = ensureNotArray(useLocalSearchParams().id);
+  const currentUser = authStore$.session.get()?.user.id;
+  const groupId = ensureNotArray(useLocalSearchParams().groupId);
+
+  const isAdmin = currentUser ? checkAdmin(groupId, currentUser) : false;
+  console.log("admin: ", isAdmin);
 
   const profile = profiles$[userId].get();
   const groupList = Array.from(
@@ -39,7 +43,6 @@ const UserProfile = observer(function UserProfile() {
   );
   console.log("g list", groupList);
 
-  const handleRemove = () => {};
   const handleInvite = () => {
     router.push("./inviteGroupMember");
   };
@@ -89,19 +92,17 @@ const UserProfile = observer(function UserProfile() {
           </StyledView>
         </StyledView>
 
-        {groupId && (
-          <StyledView className="flex-row flex-none px-10 ">
+        {groupId && userId && isAdmin && (
+          <StyledView className="flex-row flex-none px-10 pb-8">
             <ModalButton
               disabled={false}
-              action={handleRemove}
+              action={() => removeMember(groupId, userId)}
               color={"bg-red-500"}
               text={`remove from ${groups$[groupId].name.get()}`}
             />
           </StyledView>
         )}
       </StyledView>
-
-      <Link href="/home"></Link>
     </StyledView>
   );
 });

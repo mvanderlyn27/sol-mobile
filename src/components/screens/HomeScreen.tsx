@@ -6,7 +6,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import HomeButtons from "../home/HomeButtons";
 import CreateGroupButton from "../home/CreateGroupButton";
-import { groups$ } from "@/src/stores/GroupStore";
+import { groups$, myGroups$, myPendingGroups$ } from "@/src/stores/GroupStore";
+import { myGroupMemberships$, myPendingGroupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);
@@ -22,11 +23,15 @@ function chunkArray(array: any[], size: number) {
 
 const HomeScreen = observer(function HomeScreen() {
   // Retrieve the map of groups and convert it to an array with ids
-  const groupsMap = groups$.get();
-  const groupArray = groupsMap ? Object.entries(groupsMap).map(([id, group]) => ({ ...group, id })) : [];
+  const myGroupInvites = myPendingGroups$.get();
+  const myGroups = myGroups$.get();
+  const myGroupArray = myGroups ? Object.entries(myGroups).map(([id, group]) => ({ ...group, id })) : [];
+  const groupInvitationArray = myGroupInvites
+    ? Object.entries(myGroupInvites).map(([id, group]) => ({ ...group, id }))
+    : [];
 
   // Chunk the array into rows with 2 items each
-  const rows = chunkArray(groupArray, 2);
+  const rows = chunkArray([...groupInvitationArray, ...myGroupArray], 2);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -36,7 +41,7 @@ const HomeScreen = observer(function HomeScreen() {
           <StyledView key={rowIndex} className="flex-row justify-between mb-4">
             {row.map((group: any, colIndex: number) => (
               <StyledView key={`${rowIndex}-${colIndex}`} style={{ width: "48%", height: 325 }}>
-                <GroupCard group={group} />
+                <GroupCard group={group} invitation={groupInvitationArray.includes(group)} />
               </StyledView>
             ))}
             {/* Render an additional CreateGroupButton if this is the last row and it has only one item */}
@@ -49,7 +54,7 @@ const HomeScreen = observer(function HomeScreen() {
         ))}
 
         {/* Add CreateGroupButton in case there are no groups or the last row is full */}
-        {(groupArray.length === 0 || rows[rows.length - 1]?.length === 2) && (
+        {(rows.length === 0 || rows[rows.length - 1]?.length === 2) && (
           <StyledView key={"create"} className="flex-row justify-between mb-4">
             <StyledView style={{ width: "48%", height: 325 }}>
               <CreateGroupButton />

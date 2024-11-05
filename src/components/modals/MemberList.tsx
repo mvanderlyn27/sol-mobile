@@ -24,8 +24,9 @@ function chunkArray(array: GroupMember[], size: number) {
 export default function MemberList({ groupId }: { groupId: string }) {
   // Split members into chunks of 8 for each page
   const userId = authStore$.session.get()?.user.id;
-  if (!userId) return null;
-  const groupMembersMap = Object.entries(groupMembers$.get()).reduce((acc: any, [_, member]) => {
+  const groupMembersRaw = groupMembers$.get();
+  if (!userId || !groupMembersRaw) return null;
+  const groupMembersMap = Object.entries(groupMembersRaw).reduce((acc: any, [_, member]) => {
     (acc[member.group_id] = acc[member.group_id] || []).push(member);
     return acc;
   }, {});

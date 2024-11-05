@@ -14,15 +14,24 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 const StyledFeather = styled(Feather);
 
-const GroupCard = observer(function GroupCard({ group }: { group: Group }) {
+const GroupCard = observer(function GroupCard({ group, invitation }: { group: Group; invitation?: boolean }) {
+  console.log("invitation", invitation);
   if (!group) return null;
   const handleSelect = () => {
     console.log("test");
-    router.push(`/journal/${group.id}`);
+    if (invitation) {
+      router.push(`/journal/${group.id}`);
+    } else {
+      router.push(`/modals/group/${group.id}/invitation`);
+    }
   };
   const handleEdit = () => {
     console.log("group", group);
-    router.push(`/modals/group/${group.id}/groupDetails`);
+    if (invitation) {
+      router.push(`/modals/group/${group.id}/groupDetails`);
+    } else {
+      router.push(`/modals/group/${group.id}/invitation`);
+    }
   };
   const groupMemberList = groupMembers$.get();
   const groupMembersMap = Object.entries(groupMemberList || {}).reduce((acc: any, [_, member]) => {
@@ -32,14 +41,16 @@ const GroupCard = observer(function GroupCard({ group }: { group: Group }) {
   const groupMembers = groupMembersMap[group.id];
   return (
     <StyledPressable
-      className="flex-1 flex-col justify-center items-center rounded-xl  bg-[#F5EEE5]"
+      className={`flex-1 flex-col justify-center items-center rounded-xl  ${
+        invitation ? "bg-primary" : "bg-[#F5EEE5]"
+      }`}
       onPress={handleSelect}>
       <StyledView className="flex-row px-4 pt-4 flex-1">
-        <GroupPic groupId={group.id} />
+        <GroupPic groupId={group.id} invitation={invitation} />
       </StyledView>
       <StyledPressable onPress={handleEdit}>
         <StyledView className="flex-row justify-center px-4">
-          <StyledText className="text-md py-2 text-left w-full">{group.name}</StyledText>
+          <StyledText className="text-md font-bold py-2 text-left w-full">{group.name}</StyledText>
           {/* <StyledFeather name="edit-2" size={24} color="black" className="px-2" /> */}
         </StyledView>
         {groupMembers ? (

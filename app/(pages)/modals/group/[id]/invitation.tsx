@@ -5,24 +5,33 @@ import ModalButton from "@/src/components/shared/ModalButton"; // Assuming this 
 import { router, useLocalSearchParams } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import authStore$ from "@/src/stores/AuthStore";
-import { groupMembers$ } from "@/src/stores/MemberStore";
+import { groupMembers$, inviteGroupMember } from "@/src/stores/MemberStore";
+import Toast from "react-native-root-toast";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledTextInput = styled(TextInput);
 const StyledPressable = styled(Pressable);
-
+const ensureNotArray = (input: string | string[]) => {
+  if (Array.isArray(input)) {
+    return input[0];
+  }
+  return input;
+};
 export default function InviteGroupMember() {
   const [username, setUsername] = useState("");
-  let groupId = useLocalSearchParams().id;
-  console.log(groupId);
-  if (Array.isArray(groupId)) {
-    groupId = groupId[0];
-  }
+  const groupId = ensureNotArray(useLocalSearchParams().id);
+
   const handleAddUser = () => {
     if (username.trim()) {
-      console.log(`Adding user: ${username}`);
+      console.log(`Adding user: ${username} ${groupId}`);
       // Add user logic here
+      const inviteId = inviteGroupMember(groupId, username);
+      if (!inviteId) {
+        console.log("failed inviting");
+      }
+      console.log("invited: ", inviteId);
+      Toast.show(`Invited ${username}`);
       setUsername(""); // Reset input after adding
     } else {
       console.log("Please enter a valid username or email");
@@ -32,7 +41,7 @@ export default function InviteGroupMember() {
   return (
     <StyledView className="flex-col flex-1 px-8 bg-[#F5EEE5]">
       <StyledView className="flex-row justify-center items-center p-4 pb-20">
-        <StyledText className="text-lg font-bold">Edit Members</StyledText>
+        <StyledText className="text-lg font-bold">Invite New Member</StyledText>
       </StyledView>
       <StyledView className="absolute left-0 z-10">
         <StyledPressable
@@ -45,9 +54,10 @@ export default function InviteGroupMember() {
         </StyledPressable>
       </StyledView>
       {/* Text Input for Username or Email */}
-      <StyledView className="flex-row mb-4 items-center">
+      <StyledView className="flex-row mb-4 items-center px-4">
         <StyledTextInput
           value={username}
+          autoCapitalize={"none"}
           onChangeText={setUsername}
           placeholder="Enter username"
           placeholderTextColor="#9c9c9c"
@@ -56,7 +66,7 @@ export default function InviteGroupMember() {
       </StyledView>
 
       {/* Add Button */}
-      <StyledView className="flex-row justify-end px-16">
+      <StyledView className="flex-row justify-end px-20">
         <ModalButton action={handleAddUser} text="Invite" color={"bg-primary"} />
       </StyledView>
     </StyledView>

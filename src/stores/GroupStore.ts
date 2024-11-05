@@ -2,10 +2,11 @@ import { observable } from "@legendapp/state";
 import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import * as FileSystem from "expo-file-system";
 import StorageService from "../api/storage";
-import { GroupMember } from "../types/shared.types";
+import { Group, GroupMember } from "../types/shared.types";
 import { supabase } from "../lib/supabase";
 import { resizeImage } from "../services/Media";
 import authStore$ from "./AuthStore";
+import { groupMembers$, myGroupMemberships$, myPendingGroupMembers$ } from "./MemberStore";
 
 export const groups$ = observable(
   customSupabaseSynced({
@@ -15,10 +16,32 @@ export const groups$ = observable(
     as: "object",
   })
 );
-
-interface GroupStore {
-  selectedGroup: string | null;
-}
+export const myGroups$ = observable(
+  customSupabaseSynced({
+    collection: "groups",
+    select: (from) => from.select("*"),
+    filter: (select) =>
+      select.in(
+        "id",
+        Object.values(myGroupMemberships$.get()).map((group) => group.group_id)
+      ),
+    // persist: { name: "groups" },
+    as: "object",
+  })
+);
+export const myPendingGroups$ = observable(
+  customSupabaseSynced({
+    collection: "groups",
+    select: (from) => from.select("*"),
+    filter: (select) =>
+      select.in(
+        "id",
+        Object.values(myPendingGroupMembers$.get()).map((group) => group.group_id)
+      ),
+    // persist: { name: "groups" },
+    as: "object",
+  })
+);
 
 // addGroup
 export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {

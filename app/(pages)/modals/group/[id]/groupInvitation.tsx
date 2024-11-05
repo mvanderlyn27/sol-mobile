@@ -36,7 +36,7 @@ export default function GroupInvitation() {
           <GroupPic />
         </StyledView>
         <StyledText>{group_id}</StyledText>
-        <MemberList members={membersList} />
+        {/* <MemberList members={membersList} /> */}
         <StyledView className="flex-row px-4 pb-4 justify-between">
           <ModalButton
             action={handleEdit}

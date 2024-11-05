@@ -43,18 +43,18 @@ const GroupDetails = observer(function GroupDetails() {
     groups$[group_id].name.set(val);
   };
   return (
-    <View style={{ flex: 1, padding: 10, backgroundColor: "#F5EEE5" }}>
-      <StyledView className="pt-6 flex-col justify-center items-center flex-1">
-        <StyledView className="flex-row flex-1 px-[25%]">
+    <View style={{ flex: 1, backgroundColor: "#F5EEE5" }}>
+      <StyledView className="pt-4 flex-col justify-center items-center flex-1">
+        <StyledView className="flex-row flex-1 px-20">
           <GroupPic groupId={selectedGroup.id} />
         </StyledView>
         <StyledView className="flex-row flex-none px-10">
           <EditableText placeholder={selectedGroup.name} action={handleUpdateName} />
         </StyledView>
-        <StyledView className="px-4 w-full h-[150px] flex-none justify-between">
+        <StyledView className="px-8 w-full h-[150px] flex-none justify-between">
           <MemberList groupId={selectedGroup.id} />
         </StyledView>
-        <StyledView className="flex-row flex-none  px-4 pb-4 justify-between">
+        <StyledView className="flex-row flex-none  px-8 pb-4 justify-between">
           <ModalButton
             action={handleEdit}
             color="bg-black"
