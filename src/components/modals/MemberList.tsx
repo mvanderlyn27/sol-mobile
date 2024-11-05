@@ -5,7 +5,7 @@ import UserPic from "../shared/UserPic";
 import { router } from "expo-router";
 import { GroupMember } from "@/src/types/shared.types";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { groupMembers$ } from "@/src/stores/MemberStore";
+import { filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
 import authStore$ from "@/src/stores/AuthStore";
 
 const StyledView = styled(View);
@@ -24,7 +24,7 @@ function chunkArray(array: GroupMember[], size: number) {
 export default function MemberList({ groupId }: { groupId: string }) {
   // Split members into chunks of 8 for each page
   const userId = authStore$.session.get()?.user.id;
-  const groupMembersRaw = groupMembers$.get();
+  const groupMembersRaw = filterOutPending(groupMembers$.get());
   if (!userId || !groupMembersRaw) return null;
   const groupMembersMap = Object.entries(groupMembersRaw).reduce((acc: any, [_, member]) => {
     (acc[member.group_id] = acc[member.group_id] || []).push(member);

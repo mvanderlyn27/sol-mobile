@@ -6,7 +6,7 @@ import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import authStore$ from "@/src/stores/AuthStore";
 import { deleteGroup, groups$ } from "@/src/stores/GroupStore";
-import { checkAdmin, groupMembers$ } from "@/src/stores/MemberStore";
+import { checkAdmin } from "@/src/stores/MemberStore";
 import { observer } from "@legendapp/state/react";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import { styled } from "nativewind";

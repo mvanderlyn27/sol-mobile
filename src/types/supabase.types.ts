@@ -70,7 +70,7 @@ export type Database = {
           group_id: string
           id: string
           role: string
-          status: string | null
+          status: string
           updated_at: string
           user_id: string
         }
@@ -80,7 +80,7 @@ export type Database = {
           group_id: string
           id?: string
           role?: string
-          status?: string | null
+          status?: string
           updated_at?: string
           user_id: string
         }
@@ -90,7 +90,7 @@ export type Database = {
           group_id?: string
           id?: string
           role?: string
-          status?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }
@@ -400,6 +400,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation: {
+        Args: {
+          invite_id: string
+        }
+        Returns: undefined
+      }
+      decline_invitation: {
+        Args: {
+          invite_id: string
+        }
+        Returns: undefined
+      }
       is_group_admin: {
         Args: {
           p_user_id: string

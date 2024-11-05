@@ -2,7 +2,7 @@ import authStore$ from "@/src/stores/AuthStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
-import { Pressable, View } from "react-native";
+import { Pressable } from "react-native";
 import * as FileSystem from "expo-file-system";
 import { supabase } from "@/src/lib/supabase";
 import StorageService from "@/src/api/storage";
@@ -14,7 +14,8 @@ import { resizeImage } from "@/src/services/Media";
 import { beginBatch, endBatch } from "@legendapp/state";
 import { observer } from "@legendapp/state/react";
 import { Skeleton } from "moti/skeleton";
-const StyledView = styled(View);
+import { AnimatePresence, MotiView } from "moti";
+const StyledView = styled(MotiView);
 const StyledPressable = styled(Pressable);
 const ProfilePic = observer(function ProfilePic({ editable, userId }: { editable?: boolean; userId?: string }) {
   const [loading, setLoading] = useState(false);
@@ -93,11 +94,42 @@ const ProfilePic = observer(function ProfilePic({ editable, userId }: { editable
     <StyledPressable
       className="rounded-full w-full aspect-square bg-secondary overflow-hidden"
       onPress={editable ? handleUpdatePic : null}>
-      {loading && <Skeleton width={"100%"} height={"100%"} />}
-      {!loading && profile?.avatar_url ? (
-        <Image style={{ flex: 1 }} source={profile.avatar_url} placeholder={profile.avatar_placeholder} />
-      ) : (
-        <Image style={{ flex: 1 }} source={`https://api.dicebear.com/9.x/miniavs/svg?seed=${shortId}`} />
+      {loading && (
+        <StyledView
+          key="loading"
+          className="flex-1"
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 350 }}>
+          <Skeleton width={"100%"} height={"100%"} />
+        </StyledView>
+      )}
+      {!loading && profile?.avatar_url && (
+        <StyledView
+          key="image"
+          className="flex-1"
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 350 }}>
+          <Image
+            style={{ flex: 1 }}
+            source={profile.avatar_url}
+            placeholder={{ blurhash: profile.avatar_placeholder }}
+          />
+        </StyledView>
+      )}
+      {!loading && !profile?.avatar_url && (
+        <StyledView
+          key="loading"
+          className="flex-1"
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 350 }}>
+          <Image style={{ flex: 1 }} source={`https://api.dicebear.com/9.x/miniavs/svg?seed=${shortId}`} />
+        </StyledView>
       )}
     </StyledPressable>
   );

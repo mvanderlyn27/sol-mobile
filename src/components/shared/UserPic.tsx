@@ -26,7 +26,11 @@ const UserPic = observer(function UserPic({
         onPress={action}
         className="rounded-full w-[40px] aspect-square mr-1 bg-secondary overflow-hidden">
         {profile?.avatar_url ? (
-          <Image style={{ flex: 1 }} source={profile.avatar_url} placeholder={profile.avatar_placeholder} />
+          <Image
+            style={{ flex: 1 }}
+            source={profile.avatar_url}
+            placeholder={{ blurhash: profile.avatar_placeholder }}
+          />
         ) : (
           <Image style={{ flex: 1 }} source={`https://api.dicebear.com/9.x/miniavs/svg?seed=${shortId}`} />
         )}

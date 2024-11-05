@@ -6,8 +6,8 @@ import { router } from "expo-router";
 import GroupPic from "../modals/GroupPic";
 import { Group, GroupMember } from "@/src/types/shared.types";
 import Feather from "@expo/vector-icons/Feather";
-import { groupMembers$ } from "@/src/stores/MemberStore";
 import { observer } from "@legendapp/state/react";
+import { filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -15,7 +15,6 @@ const StyledPressable = styled(Pressable);
 const StyledFeather = styled(Feather);
 
 const GroupCard = observer(function GroupCard({ group, invitation }: { group: Group; invitation?: boolean }) {
-  console.log("invitation", invitation);
   if (!group) return null;
   const handleSelect = () => {
     console.log("test");
@@ -26,15 +25,13 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
     }
   };
   const handleEdit = () => {
-    console.log("group", group);
     if (invitation) {
       router.push(`/modals/group/${group.id}/groupInvitation`);
     } else {
-      console.log("invitation");
       router.push(`/modals/group/${group.id}/groupDetails`);
     }
   };
-  const groupMemberList = groupMembers$.get();
+  const groupMemberList = filterOutPending(groupMembers$.get());
   const groupMembersMap = Object.entries(groupMemberList || {}).reduce((acc: any, [_, member]) => {
     (acc[member.group_id] = acc[member.group_id] || []).push(member);
     return acc;

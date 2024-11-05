@@ -102,72 +102,66 @@ const GroupPic = observer(function GroupPic({
   let group = null;
   group = groups$[groupId].get();
   if (!group) {
-    console.log("no group matching groupId", groupId);
     return null;
   }
 
-  if (invitation) {
-    console.log("group", group);
-  }
   return (
     <StyledPressable
       pointerEvents={editable && !loading ? "auto" : "none"}
       className={`rounded-md w-full aspect-auto flex-1 bg-secondary overflow-hidden`}
       onPress={editable ? handleUpdatePic : () => {}}>
-      <AnimatePresence exitBeforeEnter>
-        {invitation && (
-          <StyledView
-            key="invitation-banner"
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ type: "timing", duration: 350 }}
-            className="absolute top-2 right-2 w-[100px] items-center justify-center rounded-full overflow-hidden z-10 bg-primary">
-            <StyledText className="text-sm font-bold px-3 py-1 text-white">Invitation</StyledText>
-          </StyledView>
-        )}
-        {loading && (
-          <StyledView
-            key="loading"
-            className="flex-1"
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ type: "timing", duration: 350 }}>
-            <Skeleton width={"100%"} height={"100%"} />
-          </StyledView>
-        )}
-        {!loading && !group?.cover_url && (
-          <StyledView
-            key="placeholder"
-            className="flex-1"
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ type: "timing", duration: 350 }}>
-            <Image
-              style={{ flex: 1 }}
-              source={`https://api.dicebear.com/9.x/shapes/svg?backgroundColor=b6e3f4,c0aede,d1d4f9&seed=${groupId}`}
-            />
-          </StyledView>
-        )}
-        {!loading && group?.cover_url && (
-          <StyledView
-            key="image"
-            className="flex-1"
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ type: "timing", duration: 350 }}>
-            <Image
-              style={{ flex: 1 }}
-              source={group?.cover_url}
-              placeholder={{ blurhash: group?.cover_placeholder }}
-              transition={500}
-            />
-          </StyledView>
-        )}
-      </AnimatePresence>
+      {invitation && (
+        <StyledView
+          key="invitation-banner"
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 350 }}
+          className="absolute top-2 right-2 w-[100px] items-center justify-center rounded-full overflow-hidden z-10 bg-primary">
+          <StyledText className="text-sm font-bold px-3 py-1 text-white">Invitation</StyledText>
+        </StyledView>
+      )}
+      {loading && (
+        <StyledView
+          key="loading"
+          className="flex-1"
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 350 }}>
+          <Skeleton width={"100%"} height={"100%"} />
+        </StyledView>
+      )}
+      {!loading && !group?.cover_url && (
+        <StyledView
+          key="placeholder"
+          className="flex-1"
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 350 }}>
+          <Image
+            style={{ flex: 1 }}
+            source={`https://api.dicebear.com/9.x/shapes/svg?backgroundColor=b6e3f4,c0aede,d1d4f9&seed=${groupId}`}
+          />
+        </StyledView>
+      )}
+      {!loading && group?.cover_url && (
+        <StyledView
+          key="image"
+          className="flex-1"
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ type: "timing", duration: 350 }}>
+          <Image
+            style={{ flex: 1 }}
+            source={group?.cover_url}
+            placeholder={{ blurhash: group?.cover_placeholder }}
+            transition={500}
+          />
+        </StyledView>
+      )}
     </StyledPressable>
   );
 });

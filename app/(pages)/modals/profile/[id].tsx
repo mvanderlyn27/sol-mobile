@@ -5,7 +5,7 @@ import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
-import { checkAdmin, groupMembers$, removeMember } from "@/src/stores/MemberStore";
+import { checkAdmin, filterOutPending, groupMembers$, removeMember } from "@/src/stores/MemberStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { Group } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";
@@ -35,7 +35,7 @@ const UserProfile = observer(function UserProfile() {
   const profile = profiles$[userId].get();
   const groupList = Array.from(
     new Set(
-      Object.values(groupMembers$.get())
+      Object.values(filterOutPending(groupMembers$.get()) || {})
         .filter((groupMember) => groupMember.user_id === userId) // Filter by user_id
         .map((groupMember) => groupMember.group_id) // Extract group_id
     )

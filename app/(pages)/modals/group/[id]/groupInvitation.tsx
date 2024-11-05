@@ -4,8 +4,10 @@ import ProfilePic from "@/src/components/profile/ProfilePic";
 import EditableText from "@/src/components/shared/EditableText";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
+import { supabase } from "@/src/lib/supabase";
+import authStore$ from "@/src/stores/AuthStore";
 import { deleteGroup, groups$ } from "@/src/stores/GroupStore";
-import { groupMembers$ } from "@/src/stores/MemberStore";
+import { filterMyInvites, filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
 import { observer } from "@legendapp/state/react";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import { styled } from "nativewind";
@@ -13,35 +15,39 @@ import { View, Text, Dimensions, Pressable } from "react-native";
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
-const GroupDetails = observer(function GroupDetails() {
-  let group_id = useLocalSearchParams().id;
-  console.log(group_id);
-  if (Array.isArray(group_id)) {
-    group_id = group_id[0];
+const ensureNotArray = (input: string | string[]) => {
+  if (Array.isArray(input)) {
+    return input[0];
   }
-  const selectedGroup = groups$[group_id].get();
-  // const groupMembers = groupMemberStore$?.groupMembersMap[group_id].get();
+  return input;
+};
+const GroupDetails = observer(function GroupDetails() {
+  let group_id = ensureNotArray(useLocalSearchParams().id);
+  console.log(group_id);
 
-  const handleEdit = () => {
-    router.push("./editGroupMembers");
+  const selectedGroup = groups$[group_id].get();
+  const userId = authStore$.session.get()?.user.id;
+  const inviteId = Object.entries(filterMyInvites(groupMembers$.get(), userId || "") || {}).find(
+    ([, invite]) => invite.group_id === group_id && invite.user_id === userId
+  )?.[0];
+  console.log("invite id", inviteId);
+  if (!inviteId) {
+    console.log("no invite found for user");
+    return null;
+  }
+  const handleAccept = async () => {
+    // Update the Legend State observable with the fetched data
+    console.log("accept", inviteId);
+    groupMembers$[inviteId].status.set("completed");
+    router.dismissAll();
   };
-  const handleInvite = () => {
-    router.push("./inviteGroupMember");
+  const handleDecline = async () => {
+    // Update the Legend State observable with the fetched data
+    console.log("decline", inviteId);
+    groupMembers$[inviteId].status.set("declined");
+    router.dismissAll();
   };
-  const handleDelete = () => {
-    console.log("group_id", group_id);
-    if (Array.isArray(group_id)) {
-      group_id = group_id[0];
-    }
-    console.log("id", group_id);
-    deleteGroup(group_id);
-  };
-  const handleUpdateName = (val: string) => {
-    if (Array.isArray(group_id)) {
-      group_id = group_id[0];
-    }
-    groups$[group_id].name.set(val);
-  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#F5EEE5" }}>
       <StyledView className="pt-4 flex-col justify-center items-center flex-1">
@@ -55,9 +61,15 @@ const GroupDetails = observer(function GroupDetails() {
           <MemberList groupId={selectedGroup.id} />
         </StyledView>
         <StyledView className="flex-row flex-none  px-8 pb-4 justify-between">
-          <ModalButton action={handleEdit} color="bg-primary" text="Accept" disabled={false} textColor={"text-white"} />
           <ModalButton
-            action={handleInvite}
+            action={handleAccept}
+            color="bg-primary"
+            text="Accept"
+            disabled={false}
+            textColor={"text-white"}
+          />
+          <ModalButton
+            action={handleDecline}
             color="bg-red-500"
             text="Decline"
             disabled={false}

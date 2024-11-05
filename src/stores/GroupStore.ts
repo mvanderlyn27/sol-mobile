@@ -6,38 +6,12 @@ import { Group, GroupMember } from "../types/shared.types";
 import { supabase } from "../lib/supabase";
 import { resizeImage } from "../services/Media";
 import authStore$ from "./AuthStore";
-import { groupMembers$, myGroupMemberships$, myPendingGroupMembers$ } from "./MemberStore";
+import { filterMyGroups, filterMyInvites, groupMembers$ } from "./MemberStore";
 
 export const groups$ = observable(
   customSupabaseSynced({
     collection: "groups",
     select: (from) => from.select("*"),
-    // persist: { name: "groups" },
-    as: "object",
-  })
-);
-export const myGroups$ = observable(
-  customSupabaseSynced({
-    collection: "groups",
-    select: (from) => from.select("*"),
-    filter: (select) =>
-      select.in(
-        "id",
-        Object.values(myGroupMemberships$.get()).map((group) => group.group_id)
-      ),
-    // persist: { name: "groups" },
-    as: "object",
-  })
-);
-export const myPendingGroups$ = observable(
-  customSupabaseSynced({
-    collection: "groups",
-    select: (from) => from.select("*"),
-    filter: (select) =>
-      select.in(
-        "id",
-        Object.values(myPendingGroupMembers$.get()).map((group) => group.group_id)
-      ),
     // persist: { name: "groups" },
     as: "object",
   })

@@ -6,50 +6,54 @@ import { GroupMember } from "../types/shared.types";
 import { profiles$ } from "./ProfileStore";
 import authStore$ from "./AuthStore";
 
-// const transformGroupMembers = (membersMap: Record<string,GroupMember[]>) => {
-//     const groupedMembersMap = {};
-
-//     Object.values(membersMap).forEach(member => {
-//       const groupId = member.group_id;
-
-//       // Initialize the group if it doesn't exist
-//       if (!groupedMembersMap[groupId]) {
-//         groupedMembersMap[groupId] = [];
-//       }
-
-//       // Add the member to the corresponding group
-//       groupedMembersMap[groupId].push(member);
-//     });
-
-//     return groupedMembersMap;
-//   };
 export const groupMembers$ = observable(
   customSupabaseSynced({
     // supabase,
     collection: "group_members",
     select: (from) => from.select("*"),
-    filter: (select) => select.neq("status", "pending"),
+    // filter: (select) => select.eq("status", "completed"),
     // persist: { name: "group_members" },
   })
 );
-export const myPendingGroupMembers$ = observable(
-  customSupabaseSynced({
-    // supabase,
-    collection: "group_members",
-    select: (from) => from.select("*"),
-    filter: (select) => select.eq("status", "pending").eq("user_id", authStore$.session.get()?.user.id),
-    // persist: { name: "group_members" },
-  })
-);
-export const myGroupMemberships$ = observable(
-  customSupabaseSynced({
-    // supabase,
-    collection: "group_members",
-    select: (from) => from.select("*"),
-    filter: (select) => select.eq("status", "completed").eq("user_id", authStore$.session.get()?.user.id),
-    // persist: { name: "group_members" },
-  })
-);
+export const filterOutPending = (map: Record<string, GroupMember>): Record<string, GroupMember> | null => {
+  if (!map) {
+    console.log("error ");
+    return null;
+  }
+  console.log("filtering pending");
+  return Object.entries(map)
+    .filter(([key, val]) => (val as GroupMember).status === "completed")
+    .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
+};
+export const filterMyGroups = (
+  map: Record<string, GroupMember>,
+  userId: string
+): Record<string, GroupMember> | null => {
+  if (!map || !userId) {
+    console.log("error ");
+    return null;
+  }
+  console.log("filtering my groups");
+  const out = Object.entries(map)
+    .filter(([key, val]) => val.status === "completed" && val.user_id === userId)
+    .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
+  // console.log("filtered my groups", out);
+  return out;
+};
+export const filterMyInvites = (
+  map: Record<string, GroupMember>,
+  userId: string
+): Record<string, GroupMember> | null => {
+  if (!map || !userId) {
+    console.log("error ");
+    return null;
+  }
+  console.log("filtering invites");
+  return Object.entries(map)
+    .filter(([key, val]) => val.status === "pending" && val.user_id === userId)
+    .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
+};
+
 export const getMember = (groupId: string, userId: string) => {
   const groupMembers = groupMembers$.get();
   console.log("group", groupMembers);
@@ -93,6 +97,7 @@ export const inviteGroupMember = (groupId: string, username: string): string | n
   });
   return inviteId;
 };
+export const acceptGroupInvite = (groupId: string) => {};
 // addGroup
 export const addGroupMember = async (name: string, cover_uri: string, cover_placeholder: string) => {
   //   const id = generateId();

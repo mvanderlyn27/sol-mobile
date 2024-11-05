@@ -6,32 +6,51 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import HomeButtons from "../home/HomeButtons";
 import CreateGroupButton from "../home/CreateGroupButton";
-import { groups$, myGroups$, myPendingGroups$ } from "@/src/stores/GroupStore";
-import { myGroupMemberships$, myPendingGroupMembers$ } from "@/src/stores/MemberStore";
+import { filterMyGroups, filterMyInvites, groupMembers$ } from "@/src/stores/MemberStore";
+import authStore$ from "@/src/stores/AuthStore";
+import { groups$ } from "@/src/stores/GroupStore";
 
 const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);
 
 // Helper function to chunk data into rows with 2 items per row
-function chunkArray(array: any[], size: number) {
-  const result = [];
-  for (let i = 0; i < array.length; i += size) {
-    result.push(array.slice(i, i + size));
-  }
-  return result;
-}
 
 const HomeScreen = observer(function HomeScreen() {
-  // Retrieve the map of groups and convert it to an array with ids
-  const myGroupInvites = myPendingGroups$.get();
-  const myGroups = myGroups$.get();
-  const myGroupArray = myGroups ? Object.entries(myGroups).map(([id, group]) => ({ ...group, id })) : [];
-  const groupInvitationArray = myGroupInvites
-    ? Object.entries(myGroupInvites).map(([id, group]) => ({ ...group, id }))
+  function chunkArray(array: any[], size: number) {
+    const result = [];
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  }
+  const curUserId = authStore$.session.get()?.user.id;
+
+  // Get the group IDs from myGroups and myInvites
+  const myGroupsIds = Object.values(filterMyGroups(groupMembers$.get(), curUserId || "") || {}).map(
+    (groupMember) => groupMember.group_id
+  );
+
+  const myInvitesIds = Object.values(filterMyInvites(groupMembers$.get(), curUserId || "") || {}).map(
+    (groupMember) => groupMember.group_id
+  );
+
+  // Retrieve the map of groups
+  const groups = groups$.get();
+
+  // Create an array of GroupMember from groups based on myGroups and myInvites
+  const myGroupMembersArray = groups
+    ? Object.entries(groups).reduce((acc: Group[], [groupId, group]) => {
+        // Check if the groupId is in myGroups or myInvites
+        if (myGroupsIds.includes(groupId) || myInvitesIds.includes(groupId)) {
+          // Assuming that each group has a corresponding GroupMember object, add it to the array
+          acc.push({ ...group, group_id: groupId }); // Adjust based on your actual GroupMember structure
+        }
+        return acc;
+      }, [])
     : [];
 
   // Chunk the array into rows with 2 items each
-  const rows = chunkArray([...groupInvitationArray, ...myGroupArray], 2);
+  const rows = chunkArray(myGroupMembersArray, 2);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -41,7 +60,7 @@ const HomeScreen = observer(function HomeScreen() {
           <StyledView key={rowIndex} className="flex-row justify-between mb-4">
             {row.map((group: any, colIndex: number) => (
               <StyledView key={`${rowIndex}-${colIndex}`} style={{ width: "48%", height: 325 }}>
-                <GroupCard group={group} invitation={groupInvitationArray.includes(group)} />
+                <GroupCard group={group} invitation={myInvitesIds.includes(group.id)} />
               </StyledView>
             ))}
             {/* Render an additional CreateGroupButton if this is the last row and it has only one item */}
