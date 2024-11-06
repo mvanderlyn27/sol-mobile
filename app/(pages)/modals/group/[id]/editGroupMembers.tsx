@@ -2,7 +2,7 @@ import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
 import authStore$ from "@/src/stores/AuthStore";
-import { groupMembers$, removeMember } from "@/src/stores/MemberStore";
+import { filterOutPending, groupMembers$, removeMember } from "@/src/stores/MemberStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, Profile } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";
@@ -25,10 +25,13 @@ const EditGroupMembers = observer(function EditGroupMembers() {
 
   const userId = authStore$.session.get()?.user.id;
   if (!userId) return null;
-  const groupMembersMap = Object.entries(groupMembers$.get()).reduce((acc: any, [_, member]) => {
-    (acc[member.group_id] = acc[member.group_id] || []).push(member);
-    return acc;
-  }, {});
+  const groupMembersMap = Object.entries(filterOutPending(groupMembers$.get()) || {}).reduce(
+    (acc: any, [_, member]) => {
+      (acc[member.group_id] = acc[member.group_id] || []).push(member);
+      return acc;
+    },
+    {}
+  );
   const groupMembers = groupMembersMap[groupId];
   if (!groupMembers) return null;
 

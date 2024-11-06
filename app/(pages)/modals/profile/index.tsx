@@ -17,6 +17,7 @@ import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
 import Toast from "react-native-root-toast";
 import { useLocalSearchParams } from "expo-router";
 import { filterMyGroups, filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
+import { Share, Button } from "react-native";
 
 const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
@@ -27,9 +28,7 @@ const StyledFeather = styled(Feather);
 const CurProfile = observer(function CurProfile() {
   const { back } = useLocalSearchParams();
   const handleRemove = (userId: string) => {};
-  const handleInvite = () => {
-    router.push("./inviteGroupMember");
-  };
+
   const curUserId = authStore$.session.get()?.user.id;
   if (!curUserId) return null;
   const profile = profiles$[curUserId].get();
@@ -49,6 +48,25 @@ const CurProfile = observer(function CurProfile() {
   const handleUpdateUsername = (val: string) => {
     profiles$[curUserId].username.set(val);
     Toast.show("name updated");
+  };
+  const handleInvite = async () => {
+    try {
+      const result = await Share.share({
+        message: "Join my journal at https://sliceoflifeapp.com!",
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Optional: Handle specific activity type if needed
+        } else {
+          // Shared successfully
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // Optional: Handle dismissal if needed
+      }
+    } catch (error) {
+      console.error("Error sharing message:", error);
+    }
   };
 
   return (

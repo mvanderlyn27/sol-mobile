@@ -45,7 +45,10 @@ const UserProfile = observer(function UserProfile() {
   const handleInvite = () => {
     router.push("./inviteGroupMember");
   };
-
+  const handleRemove = () => {
+    removeMember(groupId, userId);
+    router.back();
+  };
   return (
     <StyledView className="flex-1 flex-col px-8 bg-[#F5EEE5]">
       <StyledView className="absolute left-0 top-0 z-10">
@@ -95,7 +98,7 @@ const UserProfile = observer(function UserProfile() {
           <StyledView className="flex-row flex-none px-10 pb-8">
             <ModalButton
               disabled={false}
-              action={() => removeMember(groupId, userId)}
+              action={handleRemove}
               color={"bg-red-500"}
               text={`remove from ${groups$[groupId].name.get()}`}
             />
