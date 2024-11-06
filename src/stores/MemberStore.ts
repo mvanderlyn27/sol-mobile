@@ -47,7 +47,17 @@ export const filterMyInvites = (
     .filter(([key, val]) => val.status === "pending" && val.user_id === userId)
     .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
 };
-
+export const filterGroupMembers = (
+  map: Record<string, GroupMember>,
+  groupId: string
+): Record<string, GroupMember> | null => {
+  if (!map || !groupId) {
+    return null;
+  }
+  return Object.entries(map)
+    .filter(([key, val]) => val.group_id === groupId)
+    .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
+};
 export const getMember = (groupId: string, userId: string) => {
   const groupMembers = groupMembers$.get();
   console.log(groupId, userId);

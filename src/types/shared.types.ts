@@ -203,3 +203,9 @@ export type QuickActionInfo = {
 //   name: string;
 //   group_id: string;
 // };
+export enum IconType {
+  Instagram = "instagram",
+  Facebook = "facebook",
+  Tiktok = "tiktok",
+  Twitter = "twitter",
+}

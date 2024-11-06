@@ -23,6 +23,7 @@ import { journalStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
 import * as ImagePicker from "expo-image-picker";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
+import RoundButton from "../../shared/CircleButton";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -126,66 +127,32 @@ const CanvasMenu = observer(function CanvasMenu() {
   };
   const handleSticker = () => {};
   return (
-    <SafeAreaView style={{ flex: 1 }} pointerEvents="box-none">
-      <StyledMotiView
-        className="flex flex-row justify-between px-8"
-        from={{ opacity: 0, translateY: -20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        exit={{ opacity: 0, translateY: -20 }}
-        exitTransition={{ type: "timing", duration: 100 }}
-        transition={{ type: "timing", duration: 100 }}>
-        <MenuButton onPress={handleClose} buttonType={ButtonType.X} />
-        <MenuButton onPress={handleSave} buttonType={ButtonType.Save} />
-      </StyledMotiView>
-      <StyledMotiView
-        key="bottom-bar"
-        className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden z-10"
-        from={{ opacity: 0, translateY: 20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        exit={{ opacity: 0, translateY: 20 }}
-        exitTransition={{ type: "timing", duration: 100 }}
-        transition={{ type: "timing", duration: 100 }}>
-        <StyledBlurView intensity={80} tint="dark" className="p-4 flex-1 rounded-[40px] bg-black">
-          <AnimatePresence>
-            {selectedTab && (
-              <StyledMotiView
-                key="bottom-bar-data"
-                from={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: height * 0.6 }}
-                exit={{ opacity: 0, height: 0 }}
-                exitTransition={{ type: "timing", duration: 300 }}
-                transition={{ type: "timing", duration: 400 }}>
-                {/* This is where the tab data */}
-                {/* {selectedTab && getSelectedTab()} */}
-              </StyledMotiView>
-            )}
-          </AnimatePresence>
-          <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center rounded-full ">
-            <CanvasBarButton
-              onPress={handleTemplate}
-              buttonType={ButtonType.Template}
-              selected={selectedTab === BottomBarTab.Template}
-            />
-            <CanvasBarButton
-              selected={selectedTab === BottomBarTab.Background}
-              onPress={handleBackground}
-              buttonType={ButtonType.Background}
-            />
-            <CanvasBarButton
-              selected={selectedTab === BottomBarTab.Image}
-              onPress={handleImage}
-              buttonType={ButtonType.Image}
-            />
-            <CanvasBarButton
-              selected={selectedTab === BottomBarTab.Text}
-              onPress={handleText}
-              buttonType={ButtonType.Text}
-            />
-            <CanvasBarButton onPress={handleSticker} buttonType={ButtonType.Sticker} />
-          </StyledMotiView>
-        </StyledBlurView>
-      </StyledMotiView>
-    </SafeAreaView>
+    <StyledMotiView
+      className="absolute bottom-0 left-0 right-0 flex-row items-center"
+      from={{ opacity: 0, translateY: -20 }}
+      animate={{ opacity: 1, translateY: 0 }}
+      exit={{ opacity: 0, translateY: -20 }}
+      exitTransition={{ type: "timing", duration: 100 }}
+      transition={{ type: "timing", duration: 100 }}>
+      <RoundButton
+        onClick={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        buttonType={ButtonType.Menu}
+      />
+      <RoundButton
+        onClick={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        buttonType={ButtonType.Menu}
+      />
+      <RoundButton
+        onClick={function (): void {
+          throw new Error("Function not implemented.");
+        }}
+        buttonType={ButtonType.Menu}
+      />
+    </StyledMotiView>
   );
 });
 

@@ -24,7 +24,7 @@ const Layout = observer(function Layout() {
           name="modals"
           options={{
             presentation: "transparentModal",
-            // animation: "fade",
+            animation: "fade",
             headerShown: false,
           }}
         />
@@ -33,6 +33,13 @@ const Layout = observer(function Layout() {
           options={{
             presentation: "transparentModal",
             animation: "fade",
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="journal/[id]"
+          options={{
+            animation: "slide_from_right",
             headerShown: false,
           }}
         />

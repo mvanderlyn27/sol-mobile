@@ -22,6 +22,7 @@ import { uiStore$ } from "@/src/stores/UIStore";
 import { journalStore$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
+import RoundButton from "../../shared/CircleButton";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -56,54 +57,69 @@ const JournalMenu = observer(function JournalMenu() {
   };
   console.log("journal day", journalStore$.selectedDate.get());
   return (
-    <StyledMotiView
-      key="bottom-bar"
-      className="absolute bottom-6 right-4 left-4 rounded-xl overflow-hidden z-10"
-      from={{ opacity: 0, translateY: 20 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      exit={{ opacity: 0, translateY: 20 }}
-      exitTransition={{ type: "timing", duration: 100 }}
-      transition={{ type: "timing", duration: 100 }}>
-      <StyledBlurView tint="dark" className="p-3">
-        <StyledMotiView key="bottom-bar" className="  flex-row justify-between items-center rounded-full ">
-          <MenuButton
-            onPress={handleMenu}
-            buttonType={ButtonType.Template}
-            selected={selectedTab === BottomBarTab.Template}
+    <>
+      <StyledMotiView
+        className="absolute top-10 right-10 "
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        exit={{ opacity: 0, translateY: -20 }}
+        exitTransition={{ type: "timing", duration: 100 }}
+        transition={{ type: "timing", duration: 100 }}>
+        <MenuButton
+          onPress={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          buttonType={ButtonType.Save}
+        />
+      </StyledMotiView>
+      <StyledMotiView
+        className="absolute top-10 left-10 "
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        exit={{ opacity: 0, translateY: -20 }}
+        exitTransition={{ type: "timing", duration: 100 }}
+        transition={{ type: "timing", duration: 100 }}>
+        <MenuButton
+          onPress={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          buttonType={ButtonType.X}
+        />
+      </StyledMotiView>
+
+      <StyledMotiView
+        className="absolute bottom-10 left-10 right-10 flex-row justify-center items-center"
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        exit={{ opacity: 0, translateY: -20 }}
+        exitTransition={{ type: "timing", duration: 100 }}
+        transition={{ type: "timing", duration: 100 }}>
+        <StyledView className="flex-1 justify-center items-center ">
+          <RoundButton
+            onClick={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+            buttonType={ButtonType.Menu}
           />
-          <AnimatePresence exitBeforeEnter={true}>
-            <MotiView
-              key={journalStore$.selectedDate.get()} // Reset animation on each text change
-              from={{
-                opacity: 0,
-                translateY: -50, // Start slightly above the frame
-                rotateX: "90deg", // Initial rotation to make it appear from top
-              }}
-              animate={{
-                opacity: 1,
-                translateY: 0,
-                rotateX: "0deg", // Rotate to bring text into view
-              }}
-              exit={{
-                opacity: 0,
-                translateY: 50, // Move out to bottom of frame
-                rotateX: "-90deg", // Rotate out to complete 3D effect
-              }}
-              transition={{
-                type: "timing",
-                duration: 200,
-              }}>
-              <Text style={{ fontSize: 24, color: "black" }}>{journalStore$.selectedDate.get()}</Text>
-            </MotiView>
-          </AnimatePresence>
-          <MenuButton
-            selected={selectedTab === BottomBarTab.Background}
-            onPress={handleEditMode}
-            buttonType={ButtonType.Background}
+        </StyledView>
+        <StyledView className="flex-1 justify-center items-center ">
+          <RoundButton
+            onClick={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+            buttonType={ButtonType.Menu}
           />
-        </StyledMotiView>
-      </StyledBlurView>
-    </StyledMotiView>
+        </StyledView>
+        <StyledView className="flex-1 justify-center items-center ">
+          <RoundButton
+            onClick={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+            buttonType={ButtonType.Menu}
+          />
+        </StyledView>
+      </StyledMotiView>
+    </>
   );
 });
 

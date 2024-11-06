@@ -46,9 +46,6 @@ export default function CanvasHolder({ canvas }: { canvas: Canvas }) {
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
         />
       )}
-      <StyledMotiView className="top-0 bottom-0 right-0 left-0 absolute  items-center justify-center z-2">
-        <Text> TEST {canvas.curId}</Text>
-      </StyledMotiView>
 
       {/* Render canvas items */}
       <AnimatePresence>
