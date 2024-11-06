@@ -67,22 +67,24 @@ const GroupDetails = observer(function GroupDetails() {
         <StyledView className="px-8 w-full h-[150px] flex-none justify-between">
           <MemberList groupId={selectedGroup.id} />
         </StyledView>
-        <StyledView className="flex-row flex-none  px-8 pb-4 justify-between">
-          <ModalButton
-            action={handleEdit}
-            color="bg-black"
-            text="Edit Members"
-            disabled={false}
-            textColor={"text-white"}
-          />
-          <ModalButton
-            action={handleInvite}
-            color="bg-primary"
-            text="Invite New"
-            disabled={false}
-            textColor={"text-white"}
-          />
-        </StyledView>
+        {isAdmin && (
+          <StyledView className="flex-row flex-none  px-8 pb-4 justify-between">
+            <ModalButton
+              action={handleEdit}
+              color="bg-black"
+              text="Edit Members"
+              disabled={false}
+              textColor={"text-white"}
+            />
+            <ModalButton
+              action={handleInvite}
+              color="bg-primary"
+              text="Invite New"
+              disabled={false}
+              textColor={"text-white"}
+            />
+          </StyledView>
+        )}
       </StyledView>
     </View>
   );

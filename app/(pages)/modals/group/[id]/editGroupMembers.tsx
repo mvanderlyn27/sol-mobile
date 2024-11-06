@@ -58,15 +58,27 @@ const EditGroupMembers = observer(function EditGroupMembers() {
               <StyledView className="flex-row justify-start flex-1 pl-4  ">
                 <Text>{profiles$[member.user_id].username.get() || profiles$[member.user_id].name.get()}</Text>
               </StyledView>
-              <StyledView className="w-[90px] ">
-                <ModalButton
-                  disabled={false}
-                  action={() => removeMember(groupId, member.user_id)}
-                  color={"bg-red-500"}
-                  textColor={"text-white"}
-                  text={"Remove"}
-                />
-              </StyledView>
+              {member.user_id !== userId ? (
+                <StyledView className="w-[90px] ">
+                  <ModalButton
+                    disabled={false}
+                    action={() => removeMember(groupId, member.user_id)}
+                    color={"bg-red-500"}
+                    textColor={"text-white"}
+                    text={"Remove"}
+                  />
+                </StyledView>
+              ) : (
+                <StyledView className="w-[90px] ">
+                  <ModalButton
+                    disabled={true}
+                    // action={() => removeMember(groupId, member.user_id)}
+                    color={"bg-slate-300"}
+                    textColor={"text-white"}
+                    text={"Its You!"}
+                  />
+                </StyledView>
+              )}
             </StyledView>
           ))}
         </StyledScrollView>

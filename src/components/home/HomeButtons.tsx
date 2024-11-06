@@ -7,6 +7,7 @@ import UserPic from "../shared/UserPic";
 import SettingButton from "./SettingButton";
 import { router } from "expo-router";
 import authStore$ from "@/src/stores/AuthStore";
+import ModalButton from "../shared/ModalButton";
 const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);
 export default function HomeButtons() {

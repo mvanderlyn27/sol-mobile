@@ -16,7 +16,6 @@ export const groups$ = observable(
     as: "object",
   })
 );
-
 // addGroup
 export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {
   const session = authStore$.session.get();
@@ -39,6 +38,14 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     role: "admin",
     status: "completed",
   });
+  const { data: gm, error: gme } = await supabase.from("group_members").insert({
+    // id: groupMemberId,
+    user_id: session?.user.id,
+    group_id: id,
+    role: "admin",
+    status: "completed",
+  });
+  console.log("supabase", gm, gme);
   //upload image after we create new component for rls policies to work
   const base64 = await FileSystem.readAsStringAsync(cover_uri, { encoding: "base64" });
   const { success, data, error } = await StorageService.uploadFile({
