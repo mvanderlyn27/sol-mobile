@@ -8,6 +8,8 @@ import { filterGroupMembers, groupMembers$ } from "@/src/stores/MemberStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { GroupMember, ImageType, Page } from "@/src/types/shared.types";
 import { addDays, format } from "date-fns";
+import debounce from "lodash/debounce";
+import authStore$ from "@/src/stores/AuthStore";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,9 +27,11 @@ const INITIAL_LOAD_DAYS = 5;
 const PagerTest = observer(({ groupId }) => {
   const [pageData, setPageData] = useState<Record<string, Page[]>>({});
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
-
-  const members = useMemo(() => Object.values(filterGroupMembers(groupMembers$.get(), groupId) || {}), [groupId]);
-
+  const user = authStore$.session.get()?.user;
+  const members = useMemo(() => {
+    const filteredMembers = Object.values(filterGroupMembers(groupMembers$.get(), groupId) || {});
+    return filteredMembers.sort((a, b) => (a.user_id === user?.id ? -1 : b.user_id === user?.id ? 1 : 0));
+  }, [groupId]);
   // Function to load additional days when necessary
   const loadPagesForUser = async (userIndex: number, daysToLoad: number) => {
     const member = members[userIndex];
@@ -61,17 +65,15 @@ const PagerTest = observer(({ groupId }) => {
   );
 
   const onPageViewableItemsChanged = useCallback(
-    ({ viewableItems }: any) => {
+    debounce(({ viewableItems }: any) => {
       const userPages = pageData[members[currentUserIndex]?.user_id] || [];
       const lastIndex = viewableItems[0]?.index;
-      journalStore$.currentDate.set(userPages[lastIndex].date);
+      journalStore$.currentDate.set(userPages[lastIndex]?.date);
 
-      // If close to the start of the data, load more previous days
       if (lastIndex < 2) {
-        console.log("loading pages");
         loadPagesForUser(currentUserIndex, userPages.length + INITIAL_LOAD_DAYS);
       }
-    },
+    }, 200), // Adjust debounce time based on UX
     [currentUserIndex, pageData, members]
   );
 
@@ -95,11 +97,13 @@ const PagerTest = observer(({ groupId }) => {
             onViewableItemsChanged={onPageViewableItemsChanged}
             viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
             keyExtractor={(page, index) => `page_${index}`}
-            renderItem={({ item: page }) => (
-              <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
-                <Canvas canvas={jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas} />
-              </View>
-            )}
+            renderItem={({ item: page }) => {
+              return (
+                <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
+                  <Canvas canvas={jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas} />
+                </View>
+              );
+            }}
           />
         )}
       />

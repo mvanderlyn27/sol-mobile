@@ -18,7 +18,7 @@ import { jsonToCanvas } from "@/src/services/Canvas";
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 
-export default function CanvasHolder({ canvas }: { canvas: Canvas }) {
+function CanvasHolder({ canvas }: { canvas: Canvas }) {
   // const { selectedDate } = useData();
   // const {
   //   canvas,
@@ -73,3 +73,5 @@ export default function CanvasHolder({ canvas }: { canvas: Canvas }) {
     </StyledMotiView>
   );
 }
+const MemoizedCanvas = React.memo(CanvasHolder);
+export default MemoizedCanvas;
