@@ -7,15 +7,15 @@ import { MotiView } from "moti";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import Ionicons from "@expo/vector-icons/Ionicons";
-
-import { Button } from "@rneui/themed";
-import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import Feather from "@expo/vector-icons/Feather";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledIon = styled(Ionicons);
 export const StyledAnt = styled(AntDesign);
 export const StyledFA = styled(FontAwesome);
 export const StyledMaterial = styled(MaterialIcons);
+const StyledFeather = styled(Feather);
 export default function RoundButton({
   onClick,
   buttonType,
@@ -46,32 +46,44 @@ export default function RoundButton({
   const getButtonIcon = (buttonType: ButtonType) => {
     switch (buttonType) {
       case "menu":
-        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="menu" size={50} />;
+        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="menu" size={40} />;
       case "profile":
-        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="person" size={50} />;
+        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="person" size={40} />;
       case "journal-check":
         return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="checksquareo" size={50} />;
       case "journal-edit":
-        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="pencil" size={50} />;
+        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="pencil" size={40} />;
       case "library":
-        return <StyledFA className={`text-center ${getTextColor(buttonType)}`} name="book" size={50} />;
+        return <StyledFA className={`text-center ${getTextColor(buttonType)}`} name="book" size={40} />;
       case "share":
-        return <StyledMaterial className={`text-center ${getTextColor(buttonType)}`} name="ios-share" size={50} />;
+        return <StyledMaterial className={`text-center ${getTextColor(buttonType)}`} name="ios-share" size={40} />;
       case "tutorial":
-        return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="infocirlceo" size={50} />;
+        return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="infocirlceo" size={40} />;
       case "x":
-        return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="close" size={50} />;
+        return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="close" size={40} />;
+      case "edit":
+        return <StyledFeather className={`text-center ${getTextColor(buttonType)}`} name="edit-2" size={40} />;
+      case "react":
+        return <StyledFA className={`text-center ${getTextColor(buttonType)}`} name="comment-o" size={40} />;
+      case "view":
+        return <StyledAnt className={`text-center ${getTextColor(buttonType)}`} name="eyeo" size={40} />;
+      case "background":
+        return <StyledMaterial name="wallpaper" className={`text-center ${getTextColor(buttonType)}`} size={40} />;
+      case "image":
+        return <StyledFeather name="image" className={`text-center ${getTextColor(buttonType)}`} size={40} />;
+      case "text":
+        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="text" size={40} />;
       case "settings":
         return (
           <Ionicons
             name="settings-outline"
             className={`text-center ${getTextColor(buttonType)}`}
-            size={50}
+            size={40}
             color="#E7DBCB"
           />
         );
       default:
-        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="menu" size={50} />;
+        return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="menu" size={40} />;
     }
   };
   const getButtonColor = (buttonType: ButtonType) => {

@@ -1,12 +1,16 @@
 import { computed, observable, observe, syncState, when, whenReady } from "@legendapp/state";
-import { format, addDays, parseISO, startOfDay } from "date-fns";
-import { Canvas, CanvasItem, ImageType, Page } from "../types/shared.types";
+import { format, addDays, parseISO, startOfDay, isBefore, isEqual, eachDayOfInterval, subDays } from "date-fns";
+import { Canvas, CanvasItem, GroupMember, ImageType, Page } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { supabase } from "../lib/supabase";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
 import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import { configureSynced, syncObservable } from "@legendapp/state/sync";
 import { Json } from "../types/supabase.types";
+import authStore$ from "./AuthStore";
+import { uiStore$ } from "./UIStore";
+import { groupStore$ } from "./GroupStore";
+import { filterGroupMembers, groupMembers$ } from "./MemberStore";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -19,11 +23,15 @@ const defaultCanvas: Canvas = {
   maxZIndex: 0,
 };
 
-const DEFAULT_PAGE = {
+const DEFAULT_PAGE: Page = {
   id: "",
-  bookId: "",
-  canvas: defaultCanvas,
-  date: "",
+  canvas: null,
+  date: format(new Date(), "yyyy-MM-dd"),
+  created_at: format(new Date(), "yyyy-MM-dd"),
+  updated_at: format(new Date(), "yyyy-MM-dd"),
+  deleted: false,
+  created_by: "",
+  group_id: "",
 };
 
 //@ts-ignore
@@ -31,8 +39,8 @@ export const pages$ = observable(
   customSupabaseSynced({
     supabase,
     collection: "pages",
-    select: (from) => from.select("*"),
-    // filter: (select) => select.eq("book_id", bookStore$.selectedBook),
+    select: (from: any) => from.select("*"),
+    filter: (select) => select.eq("group_id", groupStore$.selectedGroup.get() || ""),
     actions: ["read", "create", "update", "delete"],
     persist: { name: "pages", retrySync: true },
     retry: {
@@ -40,48 +48,84 @@ export const pages$ = observable(
     },
   })
 );
+
+export const getUsersPagesForDate = (curUser: string, daysToLoad: number, pagesMap: Record<string, Page>): Page[] => {
+  if (!curUser || !pagesMap || !daysToLoad) {
+    return [];
+  }
+
+  const today = startOfDay(new Date());
+  const selectedGroup = groupStore$.selectedGroup.get();
+
+  const userPages = Object.values(pagesMap)
+    .filter((page) => page.group_id === selectedGroup && page.created_by === curUser)
+    .reduce<Record<string, Page>>((acc, page) => {
+      acc[page.date] = page; // Store by date for quick lookup
+      return acc;
+    }, {});
+
+  const pages: Page[] = [];
+  let currentDate = today;
+
+  for (let i = 0; i < daysToLoad; i++) {
+    const dateKey = format(currentDate, "yyyy-MM-dd");
+    const pageForDate = userPages[dateKey];
+
+    pages.push(
+      pageForDate || {
+        ...DEFAULT_PAGE,
+        created_by: curUser,
+        date: dateKey,
+      }
+    );
+
+    currentDate = subDays(currentDate, 1); // Move back a day
+  }
+
+  return pages;
+};
+
 interface JournalStore {
-  pageMap: Map<string, Page>;
-  selectedDate: string;
-  currentDates: string[];
+  // pageMap: Map<string, Page>;
+  pages: Page[][];
+  currentDate: string;
+  currentUser?: string;
+  isUsersPage: boolean;
   loading: boolean;
   editMode: boolean;
+  reactionMode: boolean;
+  edit: () => void;
+  react: () => void;
+  saveReact: () => void;
+  saveEdit: () => void;
+  cancelEdit: () => void;
+  cancelReact: () => void;
 }
 //@ts-ignore
 export const journalStore$ = observable<JournalStore>({
-  pageMap: pages$.get()
-    ? Object.values(pages$.get()).reduce((acc: Map<string, Page>, page: Page) => {
-        const dateKey = format(new Date(page.date), "yyyy-MM-dd");
-        acc.set(dateKey, page); // Use `.set()` instead of `acc[dateKey]`
-        return acc;
-      }, new Map<string, Page>())
-    : new Map<string, Page>(), // Return a Map directly as expected by the type
-  selectedDate: format(new Date(), "yyyy-MM-dd"),
-  currentDates: [format(new Date(), "yyyy-MM-dd")],
+  //@ts-ignore
+  currentDate: format(new Date(), "yyyy-MM-dd"),
+  currentUser: authStore$.session.get()?.user.id,
+  isUsersPage: true,
   loading: false,
   editMode: false,
+  reactionMode: false,
+  edit: () => {
+    uiStore$.displayJournalMenu.set(false);
+    uiStore$.displayCanvasMenu.set(true);
+  },
+  react: () => {},
+  saveReact: () => {},
+  saveEdit: () => {
+    uiStore$.displayJournalMenu.set(true);
+    uiStore$.displayCanvasMenu.set(false);
+  },
+  cancelReact: () => {
+    uiStore$.displayJournalMenu.set(true);
+    uiStore$.displayReactMenu.set(false);
+  },
+  cancelEdit: () => {
+    uiStore$.displayJournalMenu.set(true);
+    uiStore$.displayCanvasMenu.set(false);
+  },
 });
-// export const addPage = (date?: string | undefined, canvas?: Canvas): string | null => {
-// console.log("trying to add book");
-// // const curBook = bookStore$.selectedBook.get();
-// if (!curBook) {
-//   console.error("no selected book can't add page");
-//   return null;
-// }
-// if (!journalStore$.selectedDate.get() && !date) {
-//   console.log("no selected date, or passed in date");
-//   return null;
-// }
-// const id = generateId();
-// //@ts-ignore
-// pages$[id].set({
-//   id,
-//   book_id: curBook,
-//   date: date ? format(date, "yyyy-MM-dd") : journalStore$.selectedDate.get(),
-//   canvas: JSON.stringify(canvas || defaultCanvas),
-//   created_at: new Date().toISOString(),
-//   updated_at: new Date().toISOString(),
-//   deleted: false,
-// });
-// return id;
-// };

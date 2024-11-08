@@ -1,20 +1,16 @@
-import { AntDesign } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { styled } from "nativewind";
-import React from "react";
-import { View, Text, ScrollView, Dimensions, Pressable } from "react-native";
+import React, { useMemo, useState, useCallback, useEffect } from "react";
+import { FlatList, View, Dimensions, ActivityIndicator } from "react-native";
+import { observer } from "@legendapp/state/react";
 import Canvas from "../journal/canvas/Canvas";
-import { ImageType } from "@/src/types/shared.types";
 import JournalOverlays from "../journal/JournalOverlays";
-const StyledView = styled(View);
-const StyledPressable = styled(Pressable);
+import { getUsersPagesForDate, journalStore$, pages$ } from "@/src/stores/PagesStore";
+import { filterGroupMembers, groupMembers$ } from "@/src/stores/MemberStore";
+import { jsonToCanvas } from "@/src/services/Canvas";
+import { GroupMember, ImageType, Page } from "@/src/types/shared.types";
+import { addDays, format } from "date-fns";
+
 const { width, height } = Dimensions.get("window");
 
-const exampleData = [
-  ["Page 1 - Item 1", "Page 1 - Item 2", "Page 1 - Item 3"],
-  ["Page 2 - Item 1", "Page 2 - Item 2", "Page 2 - Item 3"],
-  ["Page 3 - Item 1", "Page 3 - Item 2", "Page 3 - Item 3"],
-];
 const defaultCanvas = {
   backgroundImage: { path: "bg_04", type: ImageType.Local },
   items: [],
@@ -23,50 +19,93 @@ const defaultCanvas = {
   curId: 0,
   maxZIndex: 0,
 };
-export default function PagerTest() {
-  return (
-    <StyledView className="flex-1">
-      <StyledView className="absolute left-0 top-10 z-10">
-        <StyledPressable
-          onPress={() => {
-            console.log("back");
-            router.back();
-          }}
-          className="p-4 ">
-          <AntDesign name="left" size={30} color="black" />
-        </StyledPressable>
-      </StyledView>
-      <ScrollView
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}
-        style={{ flex: 1 }}>
-        {exampleData.map((columnData, columnIndex) => (
-          <ScrollView
-            key={columnIndex}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            pagingEnabled
-            showsVerticalScrollIndicator={false}
-            style={{ width, height, transform: [{ rotateY: "180deg" }] }}>
-            {columnData.map((item, rowIndex) => (
-              <View
-                key={rowIndex}
-                style={{
-                  width,
-                  height,
-                  justifyContent: "center",
-                  alignItems: "center",
-                  transform: [{ rotateY: "180deg" }],
-                }}>
-                <Canvas canvas={defaultCanvas} />
-              </View>
-            ))}
-          </ScrollView>
-        ))}
-      </ScrollView>
 
-      {/* <JournalOverlays /> */}
-    </StyledView>
+const INITIAL_LOAD_DAYS = 5;
+
+const PagerTest = observer(({ groupId }) => {
+  const [pageData, setPageData] = useState<Record<string, Page[]>>({});
+  const [currentUserIndex, setCurrentUserIndex] = useState(0);
+
+  const members = useMemo(() => Object.values(filterGroupMembers(groupMembers$.get(), groupId) || {}), [groupId]);
+
+  // Function to load additional days when necessary
+  const loadPagesForUser = async (userIndex: number, daysToLoad: number) => {
+    const member = members[userIndex];
+    if (member) {
+      const fetchedPages = getUsersPagesForDate(member.user_id, daysToLoad, pages$.get());
+
+      setPageData((prevData) => ({
+        ...prevData,
+        [member.user_id]: fetchedPages,
+      }));
+    }
+  };
+
+  // Initial data load
+  useEffect(() => {
+    members.forEach((_, index) => loadPagesForUser(index, INITIAL_LOAD_DAYS));
+  }, [members]);
+
+  const onUserViewableItemsChanged = useCallback(
+    ({ viewableItems }: any) => {
+      const newIndex = viewableItems[0]?.index || 0;
+      setCurrentUserIndex(newIndex);
+      journalStore$.currentUser.set(members[newIndex].user_id);
+
+      // Trigger data load if not already loaded for new user
+      if (!pageData[members[newIndex].user_id]?.length) {
+        loadPagesForUser(newIndex, INITIAL_LOAD_DAYS);
+      }
+    },
+    [members, pageData]
   );
-}
+
+  const onPageViewableItemsChanged = useCallback(
+    ({ viewableItems }: any) => {
+      const userPages = pageData[members[currentUserIndex]?.user_id] || [];
+      const lastIndex = viewableItems[0]?.index;
+      journalStore$.currentDate.set(userPages[lastIndex].date);
+
+      // If close to the start of the data, load more previous days
+      if (lastIndex < 2) {
+        console.log("loading pages");
+        loadPagesForUser(currentUserIndex, userPages.length + INITIAL_LOAD_DAYS);
+      }
+    },
+    [currentUserIndex, pageData, members]
+  );
+
+  return (
+    <View style={{ flex: 1 }}>
+      <FlatList
+        data={members}
+        pagingEnabled
+        horizontal={false}
+        showsVerticalScrollIndicator={false}
+        onViewableItemsChanged={onUserViewableItemsChanged}
+        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+        keyExtractor={(member) => member.user_id}
+        renderItem={({ item: member }) => (
+          <FlatList
+            data={pageData[member.user_id] || []}
+            horizontal
+            pagingEnabled
+            inverted
+            showsHorizontalScrollIndicator={false}
+            onViewableItemsChanged={onPageViewableItemsChanged}
+            viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+            keyExtractor={(page, index) => `page_${index}`}
+            renderItem={({ item: page }) => (
+              <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
+                <Canvas canvas={jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas} />
+              </View>
+            )}
+          />
+        )}
+      />
+      <JournalOverlays />
+    </View>
+  );
+});
+
+export default PagerTest;

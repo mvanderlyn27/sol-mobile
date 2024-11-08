@@ -23,56 +23,41 @@ import { journalStore$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";
+import DateIndicator from "./DateIndicator";
+import UserPic from "../../shared/UserPic";
+import { router } from "expo-router";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);
 const StyledFeather = styled(Feather);
 const StyledMotiView = styled(MotiView);
+const StyledPressable = styled(Pressable);
 const StyledView = styled(View);
 const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
-const DateIndicator = observer(function DateIndicator() {
+const JournalFabs = observer(function JournalFabs() {
   return (
-    <StyledMotiView
-      key="bottom-bar"
-      className=" flex-1 justify-center items-center z-10"
-      from={{ opacity: 0, translateY: 20 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      exit={{ opacity: 0, translateY: 20 }}
-      exitTransition={{ type: "timing", duration: 100 }}
-      transition={{ type: "timing", duration: 100 }}>
-      <StyledBlurView tint="dark" className="p-3 rounded-xl bg-black/80 overflow-hidden">
-        <StyledMotiView key="bottom-bar" className="justify-between items-center rounded-full ">
-          <AnimatePresence exitBeforeEnter={true}>
-            <MotiView
-              key={journalStore$.currentDate.get()} // Reset animation on each text change
-              from={{
-                opacity: 0,
-                translateY: -50, // Start slightly above the frame
-                rotateX: "90deg", // Initial rotation to make it appear from top
-              }}
-              animate={{
-                opacity: 1,
-                translateY: 0,
-                rotateX: "0deg", // Rotate to bring text into view
-              }}
-              exit={{
-                opacity: 0,
-                translateY: 50, // Move out to bottom of frame
-                rotateX: "-90deg", // Rotate out to complete 3D effect
-              }}
-              transition={{
-                type: "timing",
-                duration: 200,
-              }}>
-              <Text style={{ fontSize: 18, color: "white" }}>{journalStore$.currentDate.get()}</Text>
-            </MotiView>
-          </AnimatePresence>
-        </StyledMotiView>
-      </StyledBlurView>
-    </StyledMotiView>
+    <StyledView className=" flex-col justify-center items-center">
+      <StyledView className="py-2">
+        <RoundButton
+          selected
+          onClick={function (): void {
+            throw new Error("Function not implemented.");
+          }}
+          buttonType={ButtonType.View}
+        />
+      </StyledView>
+      <StyledView className="py-2">
+        {journalStore$.isUsersPage ? (
+          <RoundButton primary onClick={journalStore$.edit} buttonType={ButtonType.Edit} />
+        ) : (
+          <RoundButton primary onClick={journalStore$.react} buttonType={ButtonType.React} />
+        )}
+      </StyledView>
+    </StyledView>
   );
 });
-export default DateIndicator;
+
+export default JournalFabs;

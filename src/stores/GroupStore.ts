@@ -16,6 +16,10 @@ export const groups$ = observable(
     as: "object",
   })
 );
+interface GroupStore {
+  selectedGroup: string | null;
+}
+export const groupStore$ = observable<GroupStore>({ selectedGroup: null });
 // addGroup
 export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {
   const session = authStore$.session.get();

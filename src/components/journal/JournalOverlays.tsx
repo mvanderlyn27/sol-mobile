@@ -13,8 +13,8 @@ const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
 const JournalOverlays = observer(function JournalOverlays() {
   return (
-    <StyledView className="absolute top-0 bottom-0 right-0 left-0 z-10" pointerEvents="auto">
-      <StyledSafeAreaView className="flex-1">
+    <StyledView className="absolute top-0 bottom-0 right-0 left-0 z-10" pointerEvents="box-none">
+      <StyledSafeAreaView className="flex-1" pointerEvents="box-none">
         <AnimatePresence exitBeforeEnter>
           {uiStore$.displayQuickActionsOverlay.get() && <QuickActionsOverlay key="quick-actions" />}
           {uiStore$.displayJournalMenu.get() && <JournalMenu key="bottom-bar" />}

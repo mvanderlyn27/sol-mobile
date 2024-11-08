@@ -127,32 +127,51 @@ const CanvasMenu = observer(function CanvasMenu() {
   };
   const handleSticker = () => {};
   return (
-    <StyledMotiView
-      className="absolute bottom-0 left-0 right-0 flex-row items-center"
-      from={{ opacity: 0, translateY: -20 }}
-      animate={{ opacity: 1, translateY: 0 }}
-      exit={{ opacity: 0, translateY: -20 }}
-      exitTransition={{ type: "timing", duration: 100 }}
-      transition={{ type: "timing", duration: 100 }}>
-      <RoundButton
-        onClick={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        buttonType={ButtonType.Menu}
-      />
-      <RoundButton
-        onClick={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        buttonType={ButtonType.Menu}
-      />
-      <RoundButton
-        onClick={function (): void {
-          throw new Error("Function not implemented.");
-        }}
-        buttonType={ButtonType.Menu}
-      />
-    </StyledMotiView>
+    <StyledView className="flex-1" pointerEvents="box-none">
+      <StyledMotiView
+        className="absolute top-2 right-8 left-8 flex-row items-center justify-center"
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        exit={{ opacity: 0, translateY: -20 }}
+        exitTransition={{ type: "timing", duration: 200 }}
+        transition={{ type: "timing", duration: 200 }}>
+        <StyledView className="flex-1 items-start">
+          <MenuButton onPress={journalStore$.cancelEdit} buttonType={ButtonType.X} />
+        </StyledView>
+        <StyledView className="flex-1 items-end">
+          <MenuButton onPress={journalStore$.saveEdit} buttonType={ButtonType.Save} />
+        </StyledView>
+      </StyledMotiView>
+      <StyledMotiView
+        className="absolute bottom-4 right-8 left-8 flex-row items-center justify-center"
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        exit={{ opacity: 0, translateY: -20 }}
+        exitTransition={{ type: "timing", duration: 200 }}
+        transition={{ type: "timing", duration: 200 }}>
+        <StyledView className="flex-1 items-center">
+          <RoundButton selected onClick={handleBackground} buttonType={ButtonType.Background} />
+        </StyledView>
+        <StyledView className="flex-1 items-center">
+          <RoundButton
+            selected
+            onClick={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+            buttonType={ButtonType.Image}
+          />
+        </StyledView>
+        <StyledView className="flex-1 items-center">
+          <RoundButton
+            selected
+            onClick={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+            buttonType={ButtonType.Text}
+          />
+        </StyledView>
+      </StyledMotiView>
+    </StyledView>
   );
 });
 

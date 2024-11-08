@@ -23,12 +23,17 @@ import { journalStore$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";
+import DateIndicator from "./DateIndicator";
+import UserPic from "../../shared/UserPic";
+import { router } from "expo-router";
+import JournalFabs from "./JournalFabs";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);
 const StyledFeather = styled(Feather);
 const StyledMotiView = styled(MotiView);
+const StyledPressable = styled(Pressable);
 const StyledView = styled(View);
 const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
@@ -55,71 +60,37 @@ const JournalMenu = observer(function JournalMenu() {
     uiStore$.displayNavigationBar.set(true);
     endBatch();
   };
-  console.log("journal day", journalStore$.selectedDate.get());
+  console.log("journal day", journalStore$.currentDate.get());
   return (
-    <>
+    <StyledView className="flex-1" pointerEvents={"box-none"}>
       <StyledMotiView
-        className="absolute top-10 right-10 "
+        className="absolute top-2 right-8 left-8 flex-row justify-center items-center "
         from={{ opacity: 0, translateY: -20 }}
         animate={{ opacity: 1, translateY: 0 }}
         exit={{ opacity: 0, translateY: -20 }}
-        exitTransition={{ type: "timing", duration: 100 }}
-        transition={{ type: "timing", duration: 100 }}>
-        <MenuButton
-          onPress={function (): void {
-            throw new Error("Function not implemented.");
+        exitTransition={{ type: "timing", duration: 200 }}
+        transition={{ type: "timing", duration: 200 }}>
+        <StyledPressable
+          onPress={() => {
+            console.log("back");
+            router.back();
           }}
-          buttonType={ButtonType.Save}
-        />
+          className="">
+          <AntDesign name="left" size={30} color="black" />
+        </StyledPressable>
+        <DateIndicator />
+        <UserPic userId={journalStore$.currentUser.get() || ""} />
       </StyledMotiView>
       <StyledMotiView
-        className="absolute top-10 left-10 "
+        className="absolute bottom-4 right-8"
         from={{ opacity: 0, translateY: -20 }}
         animate={{ opacity: 1, translateY: 0 }}
         exit={{ opacity: 0, translateY: -20 }}
-        exitTransition={{ type: "timing", duration: 100 }}
-        transition={{ type: "timing", duration: 100 }}>
-        <MenuButton
-          onPress={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-          buttonType={ButtonType.X}
-        />
+        exitTransition={{ type: "timing", duration: 200 }}
+        transition={{ type: "timing", duration: 200 }}>
+        <JournalFabs />
       </StyledMotiView>
-
-      <StyledMotiView
-        className="absolute bottom-10 left-10 right-10 flex-row justify-center items-center"
-        from={{ opacity: 0, translateY: -20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        exit={{ opacity: 0, translateY: -20 }}
-        exitTransition={{ type: "timing", duration: 100 }}
-        transition={{ type: "timing", duration: 100 }}>
-        <StyledView className="flex-1 justify-center items-center ">
-          <RoundButton
-            onClick={function (): void {
-              throw new Error("Function not implemented.");
-            }}
-            buttonType={ButtonType.Menu}
-          />
-        </StyledView>
-        <StyledView className="flex-1 justify-center items-center ">
-          <RoundButton
-            onClick={function (): void {
-              throw new Error("Function not implemented.");
-            }}
-            buttonType={ButtonType.Menu}
-          />
-        </StyledView>
-        <StyledView className="flex-1 justify-center items-center ">
-          <RoundButton
-            onClick={function (): void {
-              throw new Error("Function not implemented.");
-            }}
-            buttonType={ButtonType.Menu}
-          />
-        </StyledView>
-      </StyledMotiView>
-    </>
+    </StyledView>
   );
 });
 
