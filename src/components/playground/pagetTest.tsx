@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { FlatList, View, Dimensions, ActivityIndicator } from "react-native";
 import { observer } from "@legendapp/state/react";
 import Canvas from "../journal/canvas/Canvas";
@@ -7,8 +7,6 @@ import { getUsersPagesForDate, journalStore$, pages$ } from "@/src/stores/PagesS
 import { filterGroupMembers, groupMembers$ } from "@/src/stores/MemberStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { GroupMember, ImageType, Page } from "@/src/types/shared.types";
-import { addDays, format } from "date-fns";
-import debounce from "lodash/debounce";
 import authStore$ from "@/src/stores/AuthStore";
 
 const { width, height } = Dimensions.get("window");
@@ -28,53 +26,73 @@ const PagerTest = observer(({ groupId }) => {
   const [pageData, setPageData] = useState<Record<string, Page[]>>({});
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const user = authStore$.session.get()?.user;
+
   const members = useMemo(() => {
     const filteredMembers = Object.values(filterGroupMembers(groupMembers$.get(), groupId) || {});
     return filteredMembers.sort((a, b) => (a.user_id === user?.id ? -1 : b.user_id === user?.id ? 1 : 0));
-  }, [groupId]);
-  // Function to load additional days when necessary
-  const loadPagesForUser = async (userIndex: number, daysToLoad: number) => {
-    const member = members[userIndex];
-    if (member) {
-      const fetchedPages = getUsersPagesForDate(member.user_id, daysToLoad, pages$.get());
+  }, [groupId, user?.id]);
 
-      setPageData((prevData) => ({
-        ...prevData,
-        [member.user_id]: fetchedPages,
-      }));
-    }
-  };
+  // Load pages for the user if not already loaded
+  const loadPagesForUser = useCallback(async (userId: string, daysToLoad: number) => {
+    const fetchedPages = getUsersPagesForDate(userId, daysToLoad, pages$.get());
+    setPageData((prevData) => ({ ...prevData, [userId]: fetchedPages }));
+  }, []);
 
-  // Initial data load
+  // Load initial data
   useEffect(() => {
-    members.forEach((_, index) => loadPagesForUser(index, INITIAL_LOAD_DAYS));
-  }, [members]);
+    members.forEach((member) => loadPagesForUser(member.user_id, INITIAL_LOAD_DAYS));
+  }, [members, loadPagesForUser]);
 
-  const onUserViewableItemsChanged = useCallback(
+  // Triggered when user changes (vertical scroll)
+  const handleUserChange = useCallback(
     ({ viewableItems }: any) => {
       const newIndex = viewableItems[0]?.index || 0;
       setCurrentUserIndex(newIndex);
-      journalStore$.currentUser.set(members[newIndex].user_id);
+      const userId = members[newIndex]?.user_id;
+      journalStore$.currentUser.set(userId);
 
-      // Trigger data load if not already loaded for new user
-      if (!pageData[members[newIndex].user_id]?.length) {
-        loadPagesForUser(newIndex, INITIAL_LOAD_DAYS);
+      if (!pageData[userId]?.length) {
+        loadPagesForUser(userId, INITIAL_LOAD_DAYS);
       }
     },
-    [members, pageData]
+    [members, pageData, loadPagesForUser]
   );
 
-  const onPageViewableItemsChanged = useCallback(
-    debounce(({ viewableItems }: any) => {
+  // Load additional pages when scrolling horizontally
+  const handlePageChange = useCallback(
+    ({ viewableItems }: any) => {
       const userPages = pageData[members[currentUserIndex]?.user_id] || [];
       const lastIndex = viewableItems[0]?.index;
       journalStore$.currentDate.set(userPages[lastIndex]?.date);
 
+      // Load more days if near the start
       if (lastIndex < 2) {
-        loadPagesForUser(currentUserIndex, userPages.length + INITIAL_LOAD_DAYS);
+        loadPagesForUser(members[currentUserIndex].user_id, userPages.length + INITIAL_LOAD_DAYS);
       }
-    }, 200), // Adjust debounce time based on UX
-    [currentUserIndex, pageData, members]
+    },
+    [currentUserIndex, pageData, members, loadPagesForUser]
+  );
+
+  // Canvas item for each page
+  const renderCanvas = ({ item: page }: { item: Page }) => (
+    <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
+      <Canvas canvas={jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas} />
+    </View>
+  );
+
+  // Pages FlatList for each member
+  const renderPagesForMember = ({ item: member }: { item: GroupMember }) => (
+    <FlatList
+      data={pageData[member.user_id] || []}
+      horizontal
+      pagingEnabled
+      inverted
+      onViewableItemsChanged={handlePageChange}
+      viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+      keyExtractor={(page, index) => `page_${index}`}
+      renderItem={renderCanvas}
+      showsHorizontalScrollIndicator={false}
+    />
   );
 
   return (
@@ -82,30 +100,11 @@ const PagerTest = observer(({ groupId }) => {
       <FlatList
         data={members}
         pagingEnabled
-        horizontal={false}
-        showsVerticalScrollIndicator={false}
-        onViewableItemsChanged={onUserViewableItemsChanged}
+        onViewableItemsChanged={handleUserChange}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         keyExtractor={(member) => member.user_id}
-        renderItem={({ item: member }) => (
-          <FlatList
-            data={pageData[member.user_id] || []}
-            horizontal
-            pagingEnabled
-            inverted
-            showsHorizontalScrollIndicator={false}
-            onViewableItemsChanged={onPageViewableItemsChanged}
-            viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-            keyExtractor={(page, index) => `page_${index}`}
-            renderItem={({ item: page }) => {
-              return (
-                <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
-                  <Canvas canvas={jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas} />
-                </View>
-              );
-            }}
-          />
-        )}
+        renderItem={renderPagesForMember}
+        showsVerticalScrollIndicator={false}
       />
       <JournalOverlays />
     </View>
