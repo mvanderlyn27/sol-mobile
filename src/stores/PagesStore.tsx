@@ -87,7 +87,6 @@ export const getUsersPagesForDate = (curUser: string, daysToLoad: number, pagesM
 
 interface JournalStore {
   // pageMap: Map<string, Page>;
-  pages: Page[][];
   currentDate: string;
   currentUser?: string;
   isUsersPage: boolean;

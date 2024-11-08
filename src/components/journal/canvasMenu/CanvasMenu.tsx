@@ -2,7 +2,7 @@ import { View, Pressable, Dimensions, Text } from "react-native";
 import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
 import { useState } from "react";
-import { BottomBarTab, BottomDrawerType, ButtonType } from "@/src/types/shared.types";
+import { BottomBarTab, BottomDrawerType, ButtonType, Canvas, ImageType } from "@/src/types/shared.types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 //<MaterialIcons name="text-fields" size={24} color="black" />
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -24,6 +24,7 @@ import MenuButton from "@/src/components/shared/MenuButton";
 import * as ImagePicker from "expo-image-picker";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 import RoundButton from "../../shared/CircleButton";
+import { canvasStore$ } from "@/src/stores/CanvasStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -107,7 +108,10 @@ const CanvasMenu = observer(function CanvasMenu() {
   //         return null;
   //     }
   //   };
-  const handleBackground = () => {};
+  const handleBackground = () => {
+    const curCanvas = canvasStore$.curCanvas.get();
+    canvasStore$.curCanvas.set({ ...curCanvas, backgroundImage: { type: ImageType.Local, path: "bg_02" } } as Canvas);
+  };
   const handleImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({

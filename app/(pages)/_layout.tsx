@@ -39,7 +39,7 @@ const Layout = observer(function Layout() {
         <Stack.Screen
           name="journal/[id]"
           options={{
-            animation: "slide_from_right",
+            animation: "slide_from_left",
             headerShown: false,
           }}
         />
