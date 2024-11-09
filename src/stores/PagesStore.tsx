@@ -1,5 +1,15 @@
 import { computed, observable, observe, syncState, when, whenReady } from "@legendapp/state";
-import { format, addDays, parseISO, startOfDay, isBefore, isEqual, eachDayOfInterval, subDays } from "date-fns";
+import {
+  format,
+  addDays,
+  parseISO,
+  startOfDay,
+  isBefore,
+  isEqual,
+  eachDayOfInterval,
+  subDays,
+  startOfToday,
+} from "date-fns";
 import { Canvas, CanvasItem, GroupMember, ImageType, Page } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { supabase } from "../lib/supabase";
@@ -49,10 +59,11 @@ export const pages$ = observable(
   })
 );
 
-export const getUsersPagesForDate = (curUser: string, daysToLoad: number, pagesMap: Record<string, Page>): Page[] => {
-  if (!curUser || !pagesMap || !daysToLoad) {
-    return [];
+export const getPageIdsForUser = (curUser: string, pagesMap: Record<string, Page>): Map<string, string> | null => {
+  if (!curUser || !pagesMap) {
+    return null;
   }
+  const daysToLoad = journalStore$.loadedDates.get();
 
   const today = startOfDay(new Date());
   const selectedGroup = groupStore$.selectedGroup.get();
@@ -64,30 +75,36 @@ export const getUsersPagesForDate = (curUser: string, daysToLoad: number, pagesM
       return acc;
     }, {});
 
-  const pages: Page[] = [];
+  //map of date -> id
+  const pageMap: Map<string, string> = new Map();
   let currentDate = today;
 
   for (let i = 0; i < daysToLoad; i++) {
     const dateKey = format(currentDate, "yyyy-MM-dd");
     const pageForDate = userPages[dateKey];
-
-    pages.push(
-      pageForDate || {
-        ...DEFAULT_PAGE,
-        created_by: curUser,
-        date: dateKey,
-      }
-    );
-
+    if (pageForDate) {
+      pageMap.set(dateKey, pageForDate.id);
+    } else {
+      pageMap.set(dateKey, "");
+    }
     currentDate = subDays(currentDate, 1); // Move back a day
   }
 
-  return pages;
+  return pageMap;
 };
+export const getDateRange = (): string[] => {
+  const start = startOfToday();
+  const loadedDays = journalStore$.loadedDates.get();
+  const end = subDays(start, loadedDays - 1);
+  const dates = eachDayOfInterval({ start, end });
+  return dates.map((date) => format(date, "yyyy-MM-dd"));
+};
+const INITIAL_LOAD_DAYS = 7;
 
 interface JournalStore {
   // pageMap: Map<string, Page>;
   currentDate: string;
+  loadedDates: number;
   currentUser?: string;
   isUsersPage: boolean;
   loading: boolean;
@@ -103,7 +120,8 @@ interface JournalStore {
 //@ts-ignore
 export const journalStore$ = observable<JournalStore>({
   //@ts-ignore
-  currentDate: format(new Date(), "yyyy-MM-dd"),
+  currentDate: format(startOfDay(new Date()), "yyyy-MM-dd"),
+  loadedDates: INITIAL_LOAD_DAYS,
   currentUser: authStore$.session.get()?.user.id,
   isUsersPage: true,
   loading: false,

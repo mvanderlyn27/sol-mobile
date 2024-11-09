@@ -1,13 +1,13 @@
-import React, { useMemo, useState, useEffect, useCallback } from "react";
-import { FlatList, View, Dimensions, ActivityIndicator } from "react-native";
+import React, { useMemo, useCallback } from "react";
+import { FlatList, View, Dimensions } from "react-native";
 import { observer } from "@legendapp/state/react";
 import Canvas from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
-import { getUsersPagesForDate, journalStore$, pages$ } from "@/src/stores/PagesStore";
+import { getDateRange, getPageIdsForUser, journalStore$, pages$ } from "@/src/stores/PagesStore";
 import { filterGroupMembers, groupMembers$ } from "@/src/stores/MemberStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
-import { GroupMember, ImageType, Page } from "@/src/types/shared.types";
 import authStore$ from "@/src/stores/AuthStore";
+import { GroupMember, ImageType } from "@/src/types/shared.types";
 
 const { width, height } = Dimensions.get("window");
 
@@ -20,11 +20,8 @@ const defaultCanvas = {
   maxZIndex: 0,
 };
 
-const INITIAL_LOAD_DAYS = 5;
-
 const PagerTest = observer(({ groupId }) => {
-  const [pageData, setPageData] = useState<Record<string, Page[]>>({});
-  const [currentUserIndex, setCurrentUserIndex] = useState(0);
+  const currentDates = useMemo(() => getDateRange(), []);
   const user = authStore$.session.get()?.user;
 
   const members = useMemo(() => {
@@ -32,67 +29,74 @@ const PagerTest = observer(({ groupId }) => {
     return filteredMembers.sort((a, b) => (a.user_id === user?.id ? -1 : b.user_id === user?.id ? 1 : 0));
   }, [groupId, user?.id]);
 
-  // Load pages for the user if not already loaded
-  const loadPagesForUser = useCallback(async (userId: string, daysToLoad: number) => {
-    const fetchedPages = getUsersPagesForDate(userId, daysToLoad, pages$.get());
-    setPageData((prevData) => ({ ...prevData, [userId]: fetchedPages }));
-  }, []);
+  const pageData = useMemo(() => {
+    const data = new Map();
+    members.forEach((member) => {
+      data.set(member.user_id, getPageIdsForUser(member.user_id, pages$.get()) || new Map());
+    });
+    return data;
+  }, [members]);
 
-  // Load initial data
-  useEffect(() => {
-    members.forEach((member) => loadPagesForUser(member.user_id, INITIAL_LOAD_DAYS));
-  }, [members, loadPagesForUser]);
-
-  // Triggered when user changes (vertical scroll)
   const handleUserChange = useCallback(
     ({ viewableItems }: any) => {
       const newIndex = viewableItems[0]?.index || 0;
-      setCurrentUserIndex(newIndex);
       const userId = members[newIndex]?.user_id;
       journalStore$.currentUser.set(userId);
-
-      if (!pageData[userId]?.length) {
-        loadPagesForUser(userId, INITIAL_LOAD_DAYS);
-      }
     },
-    [members, pageData, loadPagesForUser]
+    [members]
   );
 
-  // Load additional pages when scrolling horizontally
   const handlePageChange = useCallback(
     ({ viewableItems }: any) => {
-      const userPages = pageData[members[currentUserIndex]?.user_id] || [];
       const lastIndex = viewableItems[0]?.index;
-      journalStore$.currentDate.set(userPages[lastIndex]?.date);
+      if (lastIndex === undefined) return;
 
-      // Load more days if near the start
-      if (lastIndex < 2) {
-        loadPagesForUser(members[currentUserIndex].user_id, userPages.length + INITIAL_LOAD_DAYS);
+      const date = currentDates[lastIndex];
+      journalStore$.currentDate.set(date);
+
+      const loadedDays = journalStore$.loadedDates.get();
+      if (loadedDays - lastIndex < 2) {
+        console.log("loading more data");
+        journalStore$.loadedDates.set(loadedDays + 7);
       }
     },
-    [currentUserIndex, pageData, members, loadPagesForUser]
+    [pageData, currentDates, journalStore$.loadedDates, members]
   );
 
-  // Canvas item for each page
-  const renderCanvas = ({ item: page }: { item: Page }) => (
-    <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
-      <Canvas canvas={jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas} />
-    </View>
+  const renderCanvas = useCallback(
+    ({ item: date }: { item: string }) => {
+      const currentUser = journalStore$.currentUser.get();
+      const pageMap = currentUser ? pageData.get(currentUser) : new Map();
+      const pageId = pageMap?.get(date);
+      const canvas = pages$.get()[pageId]?.canvas;
+
+      return (
+        <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
+          <Canvas canvas={jsonToCanvas(JSON.stringify(canvas || "")) || defaultCanvas} />
+        </View>
+      );
+    },
+    [pageData]
   );
 
-  // Pages FlatList for each member
-  const renderPagesForMember = ({ item: member }: { item: GroupMember }) => (
-    <FlatList
-      data={pageData[member.user_id] || []}
-      horizontal
-      pagingEnabled
-      inverted
-      onViewableItemsChanged={handlePageChange}
-      viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-      keyExtractor={(page, index) => `page_${index}`}
-      renderItem={renderCanvas}
-      showsHorizontalScrollIndicator={false}
-    />
+  const renderPagesForMember = useCallback(
+    ({ item: member }: { item: GroupMember }) => (
+      <FlatList
+        data={currentDates}
+        horizontal
+        pagingEnabled
+        inverted
+        onViewableItemsChanged={handlePageChange}
+        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+        keyExtractor={(page, index) => `page_${index}`}
+        renderItem={renderCanvas}
+        initialNumToRender={3} // Render only a few items initially
+        maxToRenderPerBatch={2} // Limit re-renders to avoid overloading
+        updateCellsBatchingPeriod={100} // Adjust batch period for smoother scrolling
+        showsHorizontalScrollIndicator={false}
+      />
+    ),
+    [currentDates, handlePageChange]
   );
 
   return (
@@ -104,6 +108,9 @@ const PagerTest = observer(({ groupId }) => {
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         keyExtractor={(member) => member.user_id}
         renderItem={renderPagesForMember}
+        initialNumToRender={1} // Initially render only one member's pages
+        maxToRenderPerBatch={1} // Limit to avoid lag
+        updateCellsBatchingPeriod={150}
         showsVerticalScrollIndicator={false}
       />
       <JournalOverlays />
