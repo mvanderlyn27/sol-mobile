@@ -149,6 +149,7 @@ export const journalStore$ = observable<JournalStore>({
   react: () => {},
   saveReact: () => {},
   saveEdit: () => {
+    beginBatch();
     uiStore$.displayJournalMenu.set(true);
     uiStore$.displayCanvasMenu.set(false);
     // canvasStore$.curCanvas.set(defaultCanvas);
@@ -163,7 +164,6 @@ export const journalStore$ = observable<JournalStore>({
       const groupId = groupStore$.selectedGroup.get();
       const userId = authStore$.session.get()?.user.id;
       const curDate = journalStore$.currentDate.get();
-      const now = new Date();
       if (!groupId || !userId) {
         console.log("missing info");
         return;
@@ -179,6 +179,8 @@ export const journalStore$ = observable<JournalStore>({
       pages$[id].set(newPage);
     }
     journalStore$.editMode.set(false);
+    canvasStore$.curCanvas.set(null);
+    endBatch();
   },
   cancelReact: () => {
     uiStore$.displayJournalMenu.set(true);
