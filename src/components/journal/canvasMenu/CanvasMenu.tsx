@@ -108,9 +108,20 @@ const CanvasMenu = observer(function CanvasMenu() {
   //         return null;
   //     }
   //   };
+  const backgrounds = ["bg_01", "bg_02", "bg_03", "bg_04", "bg_05", "bg_06", "bg_07", "bg_08", "bg_09"];
+  let curIndex = 1;
+  const curBackground = canvasStore$.curCanvas.get()?.backgroundImage.path;
+  if (curBackground) {
+    curIndex = backgrounds.indexOf(curBackground);
+  }
   const handleBackground = () => {
     const curCanvas = canvasStore$.curCanvas.get();
-    canvasStore$.curCanvas.set({ ...curCanvas, backgroundImage: { type: ImageType.Local, path: "bg_02" } } as Canvas);
+    console.log("canvas before", curCanvas);
+    canvasStore$.curCanvas.set({
+      ...curCanvas,
+      backgroundImage: { type: ImageType.Local, path: backgrounds[(curIndex + 1) % backgrounds.length] },
+    } as Canvas);
+    console.log("canvas", canvasStore$.curCanvas.get()?.backgroundImage);
   };
   const handleImage = async () => {
     // No permissions request is necessary for launching the image library

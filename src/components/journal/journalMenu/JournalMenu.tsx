@@ -19,7 +19,7 @@ import Foundation from "@expo/vector-icons/Foundation";
 import BackgroundTab from "./BackgroundTab";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
-import { journalStore$ } from "@/src/stores/PagesStore";
+import { journalStore$, pages$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";
@@ -27,6 +27,8 @@ import DateIndicator from "./DateIndicator";
 import UserPic from "../../shared/UserPic";
 import { router } from "expo-router";
 import JournalFabs from "./JournalFabs";
+import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
+import { jsonToCanvas } from "@/src/services/Canvas";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -45,22 +47,6 @@ const JournalMenu = observer(function JournalMenu() {
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
 
-  const handleEditMode = () => {
-    beginBatch();
-    journalStore$.editMode.set(true);
-    uiStore$.displayCanvasMenu.set(true);
-    uiStore$.displayJournalMenu.set(false);
-    endBatch();
-  };
-  const handleMenu = () => {
-    beginBatch();
-    journalStore$.editMode.set(false);
-    uiStore$.displayCanvasMenu.set(false);
-    uiStore$.displayJournalMenu.set(false);
-    uiStore$.displayNavigationBar.set(true);
-    endBatch();
-  };
-  console.log("journal day", journalStore$.currentDate.get());
   return (
     <StyledView className="flex-1" pointerEvents={"box-none"}>
       <StyledMotiView

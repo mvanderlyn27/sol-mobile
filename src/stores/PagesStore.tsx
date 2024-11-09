@@ -1,4 +1,4 @@
-import { computed, observable, observe, syncState, when, whenReady } from "@legendapp/state";
+import { beginBatch, computed, endBatch, observable, observe, syncState, when, whenReady } from "@legendapp/state";
 import {
   format,
   addDays,
@@ -21,6 +21,8 @@ import authStore$ from "./AuthStore";
 import { uiStore$ } from "./UIStore";
 import { groupStore$ } from "./GroupStore";
 import { filterGroupMembers, groupMembers$ } from "./MemberStore";
+import { canvasStore$ } from "./CanvasStore";
+import { jsonToCanvas } from "../services/Canvas";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
@@ -104,6 +106,7 @@ const INITIAL_LOAD_DAYS = 7;
 interface JournalStore {
   // pageMap: Map<string, Page>;
   currentDate: string;
+  currentPageId: string | null;
   loadedDates: number;
   currentUser?: string;
   isUsersPage: boolean;
@@ -121,6 +124,7 @@ interface JournalStore {
 export const journalStore$ = observable<JournalStore>({
   //@ts-ignore
   currentDate: format(startOfDay(new Date()), "yyyy-MM-dd"),
+  currentPageId: null,
   loadedDates: INITIAL_LOAD_DAYS,
   currentUser: authStore$.session.get()?.user.id,
   isUsersPage: true,
@@ -128,14 +132,26 @@ export const journalStore$ = observable<JournalStore>({
   editMode: false,
   reactionMode: false,
   edit: () => {
-    uiStore$.displayJournalMenu.set(false);
+    beginBatch();
+    console.log("editing");
+    journalStore$.editMode.set(true);
     uiStore$.displayCanvasMenu.set(true);
+    uiStore$.displayJournalMenu.set(false);
+    const pageId = journalStore$.currentPageId.get();
+    if (pageId) {
+      const page = pages$?.get()[pageId];
+      canvasStore$.curCanvas.set(jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas);
+    }
+    console.log("canvas", canvasStore$.curCanvas.get());
+    console.log("editmode", journalStore$.editMode.get());
+    endBatch();
   },
   react: () => {},
   saveReact: () => {},
   saveEdit: () => {
     uiStore$.displayJournalMenu.set(true);
     uiStore$.displayCanvasMenu.set(false);
+    journalStore$.editMode.set(false);
   },
   cancelReact: () => {
     uiStore$.displayJournalMenu.set(true);
@@ -144,5 +160,6 @@ export const journalStore$ = observable<JournalStore>({
   cancelEdit: () => {
     uiStore$.displayJournalMenu.set(true);
     uiStore$.displayCanvasMenu.set(false);
+    journalStore$.editMode.set(false);
   },
 });

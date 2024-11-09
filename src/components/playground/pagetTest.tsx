@@ -8,18 +8,10 @@ import { filterGroupMembers, groupMembers$ } from "@/src/stores/MemberStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import authStore$ from "@/src/stores/AuthStore";
 import { GroupMember, ImageType } from "@/src/types/shared.types";
+import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
+import { AnimatePresence, MotiView } from "moti";
 
 const { width, height } = Dimensions.get("window");
-
-const defaultCanvas = {
-  backgroundImage: { path: "bg_04", type: ImageType.Local },
-  items: [],
-  screenWidth: width,
-  screenHeight: height,
-  curId: 0,
-  maxZIndex: 0,
-};
-
 const PagerTest = observer(({ groupId }) => {
   const currentDates = useMemo(() => getDateRange(), []);
   const user = authStore$.session.get()?.user;
@@ -53,6 +45,10 @@ const PagerTest = observer(({ groupId }) => {
 
       const date = currentDates[lastIndex];
       journalStore$.currentDate.set(date);
+      const currentUser = journalStore$.currentUser.get();
+      const pageMap = currentUser ? pageData.get(currentUser) : new Map();
+      const pageId = pageMap?.get(date);
+      journalStore$.currentPageId.set(pageId);
 
       const loadedDays = journalStore$.loadedDates.get();
       if (loadedDays - lastIndex < 2) {
@@ -70,13 +66,52 @@ const PagerTest = observer(({ groupId }) => {
       const pageId = pageMap?.get(date);
       const canvas = pages$.get()[pageId]?.canvas;
 
+      const editMode = journalStore$.editMode.get();
+      const curCanvas = canvasStore$.curCanvas.get(); // Reactively track `curCanvas`
       return (
-        <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
-          <Canvas canvas={jsonToCanvas(JSON.stringify(canvas || "")) || defaultCanvas} />
-        </View>
+        <AnimatePresence>
+          {editMode && (
+            <MotiView
+              from={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+              exit={{
+                opacity: 0,
+              }}
+              // transition={{
+              //   type: "timing",
+              //   duration: 300,
+              // }}
+              style={{ flex: 1, width, height }}>
+              <Canvas key={`edit-${date}`} canvas={curCanvas || defaultCanvas} />
+            </MotiView>
+          )}
+          {!editMode && (
+            <MotiView
+              from={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+              exit={{
+                opacity: 0,
+              }}
+              // transition={{
+              //   type: "timing",
+              //   duration: 300,
+              // }}
+              style={{ flex: 1, width, height }}>
+              <Canvas key={`view-${date}`} canvas={jsonToCanvas(JSON.stringify(canvas || "")) || defaultCanvas} />
+            </MotiView>
+          )}
+        </AnimatePresence>
       );
     },
-    [pageData]
+    [pageData, journalStore$.editMode.get(), canvasStore$.curCanvas.get()] // Include reactive values in dependencies
   );
 
   const renderPagesForMember = useCallback(
