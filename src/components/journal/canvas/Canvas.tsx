@@ -20,9 +20,9 @@ export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 
 function CanvasHolder({ canvas }: { canvas: Canvas }) {
-  useEffect(() => {
-    canvasStore$.curCanvas.set(canvas);
-  }, []);
+  // useEffect(() => {
+  //   canvasStore$.curCanvas.set(canvas);
+  // }, []);
   // const { selectedDate } = useData();
   // const {
   //   canvas,
@@ -61,7 +61,7 @@ function CanvasHolder({ canvas }: { canvas: Canvas }) {
             type: "timing",
             duration: 400,
           }}>
-          {canvas.items.map((item) => {
+          {canvas?.items?.map((item) => {
             if (item.type === "frame") {
               // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
               return <CanvasFrameHolder key={`frame-${canvas ? "temp-" : "-"}${item.id}-}`} item={item} />;

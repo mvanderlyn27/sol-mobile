@@ -110,7 +110,8 @@ const CanvasMenu = observer(function CanvasMenu() {
   //   };
   const backgrounds = ["bg_01", "bg_02", "bg_03", "bg_04", "bg_05", "bg_06", "bg_07", "bg_08", "bg_09"];
   let curIndex = 1;
-  const curBackground = canvasStore$.curCanvas.get()?.backgroundImage.path;
+  console.log("canvas", canvasStore$.curCanvas.get());
+  const curBackground = canvasStore$.curCanvas.get()?.backgroundImage?.path;
   if (curBackground) {
     curIndex = backgrounds.indexOf(curBackground);
   }

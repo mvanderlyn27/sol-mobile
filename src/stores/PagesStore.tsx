@@ -54,10 +54,10 @@ export const pages$ = observable(
     select: (from: any) => from.select("*"),
     filter: (select) => select.eq("group_id", groupStore$.selectedGroup.get() || ""),
     actions: ["read", "create", "update", "delete"],
-    persist: { name: "pages", retrySync: true },
-    retry: {
-      infinite: true,
-    },
+    // persist: { name: "pages", retrySync: true },
+    // retry: {
+    //   infinite: true,
+    // },
   })
 );
 
@@ -151,6 +151,33 @@ export const journalStore$ = observable<JournalStore>({
   saveEdit: () => {
     uiStore$.displayJournalMenu.set(true);
     uiStore$.displayCanvasMenu.set(false);
+    // canvasStore$.curCanvas.set(defaultCanvas);
+    const curPageId = journalStore$.currentPageId.get();
+    const newCanvas = canvasStore$.curCanvas.get();
+    if (curPageId) {
+      const currentPage = pages$[curPageId].get();
+      //@ts-ignore
+      pages$[curPageId].set({ ...currentPage, canvas: newCanvas });
+    } else {
+      const id = generateId();
+      const groupId = groupStore$.selectedGroup.get();
+      const userId = authStore$.session.get()?.user.id;
+      const curDate = journalStore$.currentDate.get();
+      const now = new Date();
+      if (!groupId || !userId) {
+        console.log("missing info");
+        return;
+      }
+      const newPage = {
+        id: id,
+        group_id: groupId,
+        created_by: userId,
+        date: curDate,
+        canvas: newCanvas,
+      } as Page;
+      console.log("saving new page", newPage);
+      pages$[id].set(newPage);
+    }
     journalStore$.editMode.set(false);
   },
   cancelReact: () => {
@@ -160,6 +187,7 @@ export const journalStore$ = observable<JournalStore>({
   cancelEdit: () => {
     uiStore$.displayJournalMenu.set(true);
     uiStore$.displayCanvasMenu.set(false);
+    canvasStore$.curCanvas.set(defaultCanvas);
     journalStore$.editMode.set(false);
   },
 });

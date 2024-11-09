@@ -5,11 +5,6 @@ interface CanvasStore {
   edits: CanvasItem[];
   curCanvas: Canvas | null;
 }
-export const canvasStore$ = observable<CanvasStore>({
-  curCanvas: null,
-  edits: [],
-});
-
 const { width, height } = Dimensions.get("window");
 export const defaultCanvas = {
   backgroundImage: { path: "bg_04", type: ImageType.Local },
@@ -19,3 +14,7 @@ export const defaultCanvas = {
   curId: 0,
   maxZIndex: 0,
 };
+export const canvasStore$ = observable<CanvasStore>({
+  curCanvas: defaultCanvas,
+  edits: [],
+});

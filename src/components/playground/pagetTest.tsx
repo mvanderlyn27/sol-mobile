@@ -60,70 +60,40 @@ const PagerTest = observer(({ groupId }) => {
   );
 
   const renderCanvas = useCallback(
-    ({ item: date }: { item: string }) => {
-      const currentUser = journalStore$.currentUser.get();
+    ({ item: combinedData }: { item: [string, string] }) => {
+      const currentUser = combinedData[0];
+      const date = combinedData[1];
       const pageMap = currentUser ? pageData.get(currentUser) : new Map();
       const pageId = pageMap?.get(date);
+      if (!pages$.get()) return null;
       const canvas = pages$.get()[pageId]?.canvas;
 
       const editMode = journalStore$.editMode.get();
       const curCanvas = canvasStore$.curCanvas.get(); // Reactively track `curCanvas`
       return (
-        <AnimatePresence>
-          {editMode && (
-            <MotiView
-              from={{
-                opacity: 0,
-              }}
-              animate={{
-                opacity: 1,
-              }}
-              exit={{
-                opacity: 0,
-              }}
-              // transition={{
-              //   type: "timing",
-              //   duration: 300,
-              // }}
-              style={{ flex: 1, width, height }}>
-              <Canvas key={`edit-${date}`} canvas={curCanvas || defaultCanvas} />
-            </MotiView>
-          )}
+        <View style={{ flex: 1, width, height }}>
+          {editMode && <Canvas key={`edit-${date}`} canvas={curCanvas || defaultCanvas} />}
           {!editMode && (
-            <MotiView
-              from={{
-                opacity: 0,
-              }}
-              animate={{
-                opacity: 1,
-              }}
-              exit={{
-                opacity: 0,
-              }}
-              // transition={{
-              //   type: "timing",
-              //   duration: 300,
-              // }}
-              style={{ flex: 1, width, height }}>
-              <Canvas key={`view-${date}`} canvas={jsonToCanvas(JSON.stringify(canvas || "")) || defaultCanvas} />
-            </MotiView>
+            <Canvas key={`view-${date}`} canvas={jsonToCanvas(JSON.stringify(canvas || "")) || defaultCanvas} />
           )}
-        </AnimatePresence>
+        </View>
       );
     },
-    [pageData, journalStore$.editMode.get(), canvasStore$.curCanvas.get()] // Include reactive values in dependencies
+    [pageData, journalStore$.currentUser.get(), journalStore$.editMode.get(), canvasStore$.curCanvas.get()] // Include reactive values in dependencies
   );
-
+  const combineMemberDate = (member: string, dates: string[]): [string, string][] => {
+    return dates.map((date) => [member, date]);
+  };
   const renderPagesForMember = useCallback(
     ({ item: member }: { item: GroupMember }) => (
       <FlatList
-        data={currentDates}
+        data={combineMemberDate(member.user_id, currentDates)}
         horizontal
         pagingEnabled
         inverted
         onViewableItemsChanged={handlePageChange}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-        keyExtractor={(page, index) => `page_${index}`}
+        keyExtractor={(page, index) => `${member.id}_page_${index}`}
         renderItem={renderCanvas}
         initialNumToRender={3} // Render only a few items initially
         maxToRenderPerBatch={2} // Limit re-renders to avoid overloading
