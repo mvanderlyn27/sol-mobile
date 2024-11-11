@@ -168,6 +168,7 @@ export const journalStore$ = observable<JournalStore>({
         console.log("missing info");
         return;
       }
+      //@ts-ignore
       const newPage = {
         id: id,
         group_id: groupId,
@@ -187,9 +188,11 @@ export const journalStore$ = observable<JournalStore>({
     uiStore$.displayReactMenu.set(false);
   },
   cancelEdit: () => {
+    beginBatch();
     uiStore$.displayJournalMenu.set(true);
     uiStore$.displayCanvasMenu.set(false);
     canvasStore$.curCanvas.set(defaultCanvas);
     journalStore$.editMode.set(false);
+    endBatch();
   },
 });

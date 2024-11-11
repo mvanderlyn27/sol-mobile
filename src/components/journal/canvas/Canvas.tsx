@@ -14,33 +14,30 @@ import CanvasItemEditor from "./CanvasItemEditor";
 import { useData } from "@/src/contexts/DataProvider";
 import { Json } from "@/src/types/supabase.types";
 import { jsonToCanvas } from "@/src/services/Canvas";
-import { canvasStore$ } from "@/src/stores/CanvasStore";
+import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
+import CanvasImageHolder from "./CanvasImageHolder";
+import { Show, observer } from "@legendapp/state/react";
+import { journalStore$, pages$ } from "@/src/stores/PagesStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 
-function CanvasHolder({ canvas }: { canvas: Canvas }) {
-  // useEffect(() => {
-  //   canvasStore$.curCanvas.set(canvas);
-  // }, []);
-  // const { selectedDate } = useData();
-  // const {
-  //   canvas,
-  //   tempCanvas,
-  //   editingCanvas,
-  //   startEditCanvas,
-  //   exitEditCanvas,
-  //   saveCanvasEdits,
-  //   canvasLoading,
-  //   addCanvasItem,
-  // } = useCanvas();
-  // const { editMode } = useJournal();
-  //if editmode is trye, the tempcanvas is not null
-  // const curCanvas = editingCanvas && tempCanvas ? tempCanvas : { ...canvas };
-  // console.debug(curCanvas.items.map((item) => item.type + ":" + item.id + ", (" + item.x + "," + item.y + ")"));
-  // console.log("canvas", canvas);
+const CanvasHolder = observer(function CanvasHolder({ pageId }: { pageId: string | null }) {
+  let canvas = defaultCanvas;
+  const editMode = journalStore$.editMode.get();
+  if (editMode) {
+    canvas = canvasStore$.curCanvas.get() || defaultCanvas;
+  } else if (pageId && pageId != "") {
+    let canvasStr = pages$[pageId].get()?.canvas;
+    const canvasObj = jsonToCanvas(JSON.stringify(canvasStr));
+    if (canvasObj) {
+      canvas = canvasObj;
+    }
+  }
   return (
-    <StyledMotiView key={`canvas-${canvas.curId}`} className=" absolute top-0 bottom-0 right-0 left-0">
+    <StyledMotiView
+      key={`${editMode && "edit-"}canvas-${canvas.curId}`}
+      className=" absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
       {/*  <StyledMotiView className="flex-1 "> */}
       {canvas.backgroundImage?.type === "Local" && (
         <Image
@@ -51,31 +48,21 @@ function CanvasHolder({ canvas }: { canvas: Canvas }) {
         />
       )}
 
-      {/* Render canvas items */}
-      <AnimatePresence>
-        <StyledMotiView
-          from={{ opacity: 0, translateY: 10 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          exit={{ opacity: 0, translateY: -10 }}
-          transition={{
-            type: "timing",
-            duration: 400,
-          }}>
-          {canvas?.items?.map((item) => {
-            if (item.type === "frame") {
-              // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
-              return <CanvasFrameHolder key={`frame-${canvas ? "temp-" : "-"}${item.id}-}`} item={item} />;
-            }
+      {canvas.items.map((item) => {
+        if (item.type === "frame") {
+          // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
+          return <CanvasFrameHolder key={`${editMode && "edit"}-${item.id}-}`} item={item} />;
+        }
+        if (item.type === "image") {
+          return <CanvasImageHolder key={`${editMode && "edit"}-${item.id}`} item={item} />;
+        }
 
-            if (item.type === "text") {
-              return <CanvasTextHolder key={`text-${canvas ? "temp-" : "-"}${item.id}-`} item={item} />;
-            }
-            return null; // Return null if the type is unrecognized
-          })}
-        </StyledMotiView>
-      </AnimatePresence>
+        if (item.type === "text") {
+          return <CanvasTextHolder key={`${editMode && "edit"}-${item.id}-`} item={item} />;
+        }
+        return null; // Return null if the type is unrecognized
+      })}
     </StyledMotiView>
   );
-}
-const MemoizedCanvas = React.memo(CanvasHolder);
-export default MemoizedCanvas;
+});
+export default CanvasHolder;

@@ -2,7 +2,7 @@ import { View, Pressable, Dimensions, Text } from "react-native";
 import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
 import { useState } from "react";
-import { BottomBarTab, BottomDrawerType, ButtonType, Canvas, ImageType } from "@/src/types/shared.types";
+import { BottomBarTab, BottomDrawerType, ButtonType, Canvas, CanvasImage, ImageType } from "@/src/types/shared.types";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 //<MaterialIcons name="text-fields" size={24} color="black" />
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -21,10 +21,13 @@ import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-conte
 import { StyledPressable } from "../canvas/CanvasFrameHolder";
 import { journalStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 import RoundButton from "../../shared/CircleButton";
-import { canvasStore$ } from "@/src/stores/CanvasStore";
+import { addCanvasItem, canvasStore$ } from "@/src/stores/CanvasStore";
+import { generateId } from "@/src/stores/AsyncStorage";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -110,7 +113,6 @@ const CanvasMenu = observer(function CanvasMenu() {
   //   };
   const backgrounds = ["bg_01", "bg_02", "bg_03", "bg_04", "bg_05", "bg_06", "bg_07", "bg_08", "bg_09"];
   let curIndex = 1;
-  console.log("canvas", canvasStore$.curCanvas.get());
   const curBackground = canvasStore$.curCanvas.get()?.backgroundImage?.path;
   if (curBackground) {
     curIndex = backgrounds.indexOf(curBackground);
@@ -122,23 +124,54 @@ const CanvasMenu = observer(function CanvasMenu() {
       ...curCanvas,
       backgroundImage: { type: ImageType.Local, path: backgrounds[(curIndex + 1) % backgrounds.length] },
     } as Canvas);
-    console.log("canvas", canvasStore$.curCanvas.get()?.backgroundImage);
+  };
+  const resizeImage = (uri: string, originalWidth: number, originalHeight: number) => {
+    //ensure image is max the size of the screen
+    // Get screen dimensions
+
+    // Calculate aspect ratio
+    const aspectRatio = originalWidth / originalHeight;
+
+    const newWidth = Math.min(width, originalWidth);
+    const newHeight = newWidth / aspectRatio;
+    return { width: newWidth, height: newHeight };
   };
   const handleImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       // allowsEditing: true,
-      aspect: [4, 3],
+      // aspect: [4, 3],
       quality: 1,
     });
 
     console.log(result);
 
     if (!result.canceled) {
-      imageEditStore$.selectedImage.set(result.assets[0].uri);
-      uiStore$.displayCanvasMenu.set(false);
-      uiStore$.displayImageEditOverlay.set(true);
+      // imageEditStore$.selectedImage.set(result.assets[0].uri);
+      const imgWidth = result.assets[0].width;
+      const imgHeight = result.assets[0].height;
+      const { width: newWidth, height: newHeight } = resizeImage(result.assets[0].uri, imgWidth, imgHeight);
+      console.log("w/h", newWidth, newHeight);
+      const id = generateId();
+      const image: CanvasImage = {
+        id: id,
+        dbId: "",
+        path: result.assets[0].uri,
+        x: 50,
+        y: 50,
+        z: canvasStore$.curCanvas.maxZIndex.get() || 1,
+        width: newWidth,
+        // width: imgWidth,
+        height: newHeight,
+        // height: imgHeight,
+        rotation: 0,
+        scale: 1,
+        type: "image",
+      };
+      addCanvasItem(image);
+      // uiStore$.displayCanvasMenu.set(false);
+      // uiStore$.displayImageEditOverlay.set(true);
     }
   };
   const handleSticker = () => {};
@@ -169,22 +202,10 @@ const CanvasMenu = observer(function CanvasMenu() {
           <RoundButton selected onClick={handleBackground} buttonType={ButtonType.Background} />
         </StyledView>
         <StyledView className="flex-1 items-center">
-          <RoundButton
-            selected
-            onClick={function (): void {
-              throw new Error("Function not implemented.");
-            }}
-            buttonType={ButtonType.Image}
-          />
+          <RoundButton selected onClick={handleImage} buttonType={ButtonType.Image} />
         </StyledView>
         <StyledView className="flex-1 items-center">
-          <RoundButton
-            selected
-            onClick={function (): void {
-              throw new Error("Function not implemented.");
-            }}
-            buttonType={ButtonType.Text}
-          />
+          <RoundButton selected onClick={handleText} buttonType={ButtonType.Text} />
         </StyledView>
       </StyledMotiView>
     </StyledView>

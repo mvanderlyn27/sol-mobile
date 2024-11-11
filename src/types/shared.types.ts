@@ -57,8 +57,8 @@ export enum BottomDrawerType {
 }
 export interface CanvasItemBase {
   //database id of item used eg font id, or frame id
-  id: number;
-  dbId: number;
+  id: string;
+  dbId: string;
   //pixel count
   x: number;
   //pixel count
@@ -78,6 +78,12 @@ export interface CanvasFrame extends CanvasItemBase {
   width: number;
   height: number;
   slots: CanvasFrameSlot[]; // Array of slots for images
+}
+export interface CanvasImage extends CanvasItemBase {
+  type: "image";
+  path: string; // Path to the frame image
+  width: number;
+  height: number;
 }
 export interface CanvasFrameSlot {
   // id: number; // Unique identifier for the slot
@@ -110,10 +116,10 @@ export interface CanvasText extends CanvasItemBase {
   fontColor: string; // Color of the text
   fontType: string;
 }
-export type CanvasItem = CanvasFrame | CanvasText;
+export type CanvasItem = CanvasFrame | CanvasText | CanvasImage;
 
 export type Canvas = {
-  backgroundImage: CanvasImage; // Path to the background image
+  backgroundImage: Image; // Path to the background image
   items: CanvasItem[]; // Array of canvas items};
   //screen size canvas was last saved with
   screenWidth: number;
@@ -124,7 +130,7 @@ export type Canvas = {
 //Book Types
 //Font Types
 export type CreateFontInput = {
-  fontImage: CanvasImage;
+  fontImage: Image;
   name: string;
   type: string;
 };
@@ -144,7 +150,7 @@ export type CreatePageInput = {
   date: string;
   last_edited: string;
 };
-export type CanvasImage = {
+export type Image = {
   path: string;
   type: ImageType;
 };

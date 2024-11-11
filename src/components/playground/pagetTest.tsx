@@ -1,7 +1,6 @@
 import React from "react";
 import { FlatList, View, Dimensions } from "react-native";
 import { Show, observer } from "@legendapp/state/react";
-import Canvas from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
 import { getDateRange, getPageIdsForUser, journalStore$, pages$ } from "@/src/stores/PagesStore";
 import { filterGroupMembers, groupMembers$ } from "@/src/stores/MemberStore";
@@ -10,6 +9,7 @@ import authStore$ from "@/src/stores/AuthStore";
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import { GroupMember } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
+import CanvasHolder from "../journal/canvas/Canvas";
 
 const { width, height } = Dimensions.get("window");
 
@@ -52,33 +52,31 @@ const PagerTest = observer(({ groupId }) => {
       journalStore$.loadedDates.set(loadedDays + 7);
     }
   };
-
-  const renderCanvas = ({ item: [currentUser, date] }: { item: [string, string] }) => {
+  type CombinedItem = {
+    currentUser: string;
+    date: string;
+  };
+  const renderCanvas = ({ item: { currentUser, date } }: { item: CombinedItem }) => {
     const pageMap = pageData.get(currentUser);
     const pageId = pageMap?.get(date);
-    const editMode = journalStore$.editMode.get();
-    const pages = pages$.get();
-    if (!pages) return null;
-    const canvas = pages[pageId]?.canvas;
-    const curCanvas = canvasStore$.curCanvas.get();
-
     return (
-      <View style={{ flex: 1, width, height }}>
-        <Canvas key={`view-${date}`} canvas={jsonToCanvas(JSON.stringify(canvas || "")) || defaultCanvas} />
+      <View key={`view-${date}`} style={{ flex: 1, width, height }}>
+        <CanvasHolder key={`view-${date}`} pageId={pageId} />
       </View>
     );
   };
 
   const renderPagesForMember = ({ item: member }: { item: GroupMember }) => (
     <FlatList
-      data={currentDates.map((date) => [member.user_id, date])} // Combine user ID and date pairs
-      extraData={{
-        editMode: journalStore$.editMode.get(),
-        pageData: pageData,
-        curCanvas: canvasStore$.curCanvas.get(),
-      }}
+      data={currentDates.map((date) => {
+        return {
+          currentUser: member.user_id,
+          date: date,
+        };
+      })}
       horizontal
       pagingEnabled
+      scrollEnabled={!journalStore$.editMode.get()}
       inverted
       onViewableItemsChanged={({ viewableItems }) => handlePageChange(viewableItems)}
       viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
@@ -95,8 +93,8 @@ const PagerTest = observer(({ groupId }) => {
     <View style={{ flex: 1 }}>
       <FlatList
         data={members}
-        extraData={{ editMode: journalStore$.editMode.get(), pageData: pageData }}
         pagingEnabled
+        scrollEnabled={!journalStore$.editMode.get()}
         onViewableItemsChanged={({ viewableItems }) => handleUserChange(viewableItems)}
         viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
         keyExtractor={(member) => member.user_id}
@@ -106,19 +104,6 @@ const PagerTest = observer(({ groupId }) => {
         updateCellsBatchingPeriod={150}
         showsVerticalScrollIndicator={false}
       />
-      {journalStore$.editMode.get() && (
-        <Show if={journalStore$.editMode} wrap={AnimatePresence}>
-          <MotiView
-            key="edit-screen"
-            style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-            from={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ type: "timing", duration: 300 }}>
-            <Canvas canvas={canvasStore$.curCanvas.get() || defaultCanvas} />
-          </MotiView>
-        </Show>
-      )}
       <JournalOverlays />
     </View>
   );

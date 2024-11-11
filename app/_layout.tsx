@@ -12,6 +12,7 @@ import { MotiView } from "moti";
 import { ImageBackground } from "expo-image";
 import { observer } from "@legendapp/state/react";
 import authStore$ from "@/src/stores/AuthStore";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -66,7 +67,9 @@ export const RootLayout = observer(function RootLayout() {
               captureLifecycleEvents: true,
               noCaptureProp: "ph-no-capture",
             }}>
-            <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
+            </GestureHandlerRootView>
           </PostHogProvider>
         </RootSiblingParent>
       </ImageBackground>
