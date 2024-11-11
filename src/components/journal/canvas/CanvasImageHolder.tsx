@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
-import { canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
+import { bringToFront, canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
 import { journalStore$ } from "@/src/stores/PagesStore";
 import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
@@ -24,9 +24,9 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
   const savedRotation = useSharedValue(item.rotation);
 
   const animatedFrameGroupStyles = useAnimatedStyle(() => ({
-    zIndex: item.z,
     width: item.width, // Render to item width
     height: item.height, // Render to item height
+    zIndex: item.z,
     transform: [
       { translateX: offset.value.x },
       { translateY: offset.value.y },
@@ -42,6 +42,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
 
   // Define gestures
   const dragGesture = Gesture.Pan()
+    .onBegin(() => runOnJS(handleGestureStart)())
     .averageTouches(true)
     .onUpdate((e) => {
       offset.value = {
@@ -98,7 +99,6 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
           style={[
             {
               position: "absolute",
-              zIndex: item.z,
               width: item.width * item.scale,
               height: item.height * item.scale,
               transform: [{ translateX: item.x }, { translateY: item.y }, { rotateZ: `${item.rotation}rad` }],

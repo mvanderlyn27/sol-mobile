@@ -25,9 +25,9 @@ export const StyledView = styled(View);
 const CanvasHolder = observer(function CanvasHolder({ pageId }: { pageId: string | null }) {
   let canvas = defaultCanvas;
   const editMode = journalStore$.editMode.get();
-  if (editMode) {
-    canvas = canvasStore$.curCanvas.get() || defaultCanvas;
-  } else if (pageId && pageId != "") {
+  if (editMode && pageId !== journalStore$.currentPageId.get()) return null;
+  console.log("updating canvas");
+  if (pageId && pageId != "") {
     let canvasStr = pages$[pageId].get()?.canvas;
     const canvasObj = jsonToCanvas(JSON.stringify(canvasStr));
     if (canvasObj) {
@@ -48,20 +48,39 @@ const CanvasHolder = observer(function CanvasHolder({ pageId }: { pageId: string
         />
       )}
 
-      {canvas.items.map((item) => {
-        if (item.type === "frame") {
-          // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
-          return <CanvasFrameHolder key={`${editMode && "edit"}-${item.id}-}`} item={item} />;
-        }
-        if (item.type === "image") {
-          return <CanvasImageHolder key={`${editMode && "edit"}-${item.id}`} item={item} />;
-        }
+      {/* Render canvas items */}
+      <Show
+        if={!editMode}
+        wrap={AnimatePresence}
+        else={canvasStore$.curCanvas.items.get()?.map((item) => {
+          if (item.type === "frame") {
+            // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
+            return <CanvasFrameHolder key={`edit-${item.id}-}`} item={item} />;
+          }
+          if (item.type === "image") {
+            return <CanvasImageHolder key={`edit-${item.id}`} item={item} />;
+          }
 
-        if (item.type === "text") {
-          return <CanvasTextHolder key={`${editMode && "edit"}-${item.id}-`} item={item} />;
-        }
-        return null; // Return null if the type is unrecognized
-      })}
+          if (item.type === "text") {
+            return <CanvasTextHolder key={`edit-${item.id}-`} item={item} />;
+          }
+          return null; // Return null if the type is unrecognized
+        })}>
+        {canvas.items.map((item) => {
+          if (item.type === "frame") {
+            // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
+            return <CanvasFrameHolder key={`view-${item.id}-}`} item={item} />;
+          }
+          if (item.type === "image") {
+            return <CanvasImageHolder key={`view-${item.id}-}`} item={item} />;
+          }
+
+          if (item.type === "text") {
+            return <CanvasTextHolder key={`view-${item.id}-`} item={item} />;
+          }
+          return null; // Return null if the type is unrecognized
+        })}
+      </Show>
     </StyledMotiView>
   );
 });

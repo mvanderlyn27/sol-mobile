@@ -1,4 +1,4 @@
-import { batch, observable } from "@legendapp/state";
+import { batch, beginBatch, endBatch, observable } from "@legendapp/state";
 import { Canvas, CanvasItem, ImageType } from "../types/shared.types";
 import { Dimensions } from "react-native";
 
@@ -25,19 +25,40 @@ export const canvasStore$ = observable<CanvasStore>({
 });
 // Add a new item to the canvas
 export const addCanvasItem = (item: CanvasItem) => {
-  batch(() => {
-    const items = canvasStore$.curCanvas.items.get() || [];
-    canvasStore$.curCanvas.items.set([...items, item]);
-    const newZ = (canvasStore$.curCanvas.maxZIndex.get() || 0) + 1;
-    canvasStore$.curCanvas.maxZIndex.set(newZ);
-  });
+  beginBatch();
+  const items = canvasStore$.curCanvas.items.get() || [];
+  canvasStore$.curCanvas.items.set([...items, item]);
+  const newZ = (canvasStore$.curCanvas.maxZIndex.get() || 0) + 1;
+  canvasStore$.curCanvas.maxZIndex.set(newZ);
+  endBatch();
 };
 
 // Update an existing item on the canvas
 export const updateCanvasItem = (id: string, item: CanvasItem) => {
+  const newZ = (canvasStore$.curCanvas.maxZIndex.get() || 0) + 1;
   canvasStore$.curCanvas.items.set((items) =>
-    items?.map((canvasItem) => (canvasItem.id === id ? { ...canvasItem, ...item } : canvasItem))
+    items?.map((canvasItem) => (canvasItem.id === id ? { ...canvasItem, ...item, z: newZ } : canvasItem))
   );
+  canvasStore$.curCanvas.maxZIndex.set(newZ);
+};
+export const bringToFront = (id: string) => {
+  // Get the current items array from the store
+  beginBatch();
+  //   let items = canvasStore$.curCanvas.items.get();
+
+  //   // Find the index of the item by ID
+  //   const itemIndex = items?.findIndex((i) => i.id === id);
+  //   if (itemIndex === -1 || itemIndex === undefined) return; // If item not found, exit
+
+  //   // Remove the item from its current position
+  //   const [item] = items?.splice(itemIndex, 1) || [];
+
+  //   // Add the item to the end of the list
+  //   items?.push(item);
+
+  //   // Set the updated items list back in the store
+  //   canvasStore$.curCanvas.items.set(items);
+  endBatch();
 };
 
 // Clear the canvas to its default state
