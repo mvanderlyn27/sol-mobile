@@ -34,7 +34,7 @@ const TextOverlay = observer(function TextOverlay() {
             }}
             value={text}
             onChangeText={(newText) => textStore$.text.set(newText)}
-            autoFocus
+            autoFocus={text === "Text"} // Only autofocus if text is empty
             multiline
           />
         </StyledView>

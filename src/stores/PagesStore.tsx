@@ -27,11 +27,11 @@ import { jsonToCanvas } from "../services/Canvas";
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const defaultCanvas: Canvas = {
+  id: generateId(),
   backgroundImage: { path: "bg_04", type: ImageType.Local },
   items: [] as CanvasItem[],
   screenWidth: screenWidth,
   screenHeight: screenHeight,
-  curId: 0,
   maxZIndex: 0,
 };
 
@@ -157,8 +157,10 @@ export const journalStore$ = observable<JournalStore>({
     const newCanvas = canvasStore$.curCanvas.get();
     if (curPageId) {
       const currentPage = pages$[curPageId].get();
+      console.log("saving existing page", newCanvas);
       //@ts-ignore
       pages$[curPageId].set({ ...currentPage, canvas: newCanvas });
+      // ADD UPLOAD IMAGE HERE
     } else {
       const id = generateId();
       const groupId = groupStore$.selectedGroup.get();
@@ -179,6 +181,7 @@ export const journalStore$ = observable<JournalStore>({
       console.log("saving new page", newPage);
       pages$[id].set(newPage);
     }
+    // ADD UPLOAD IMAGE HERE
     journalStore$.editMode.set(false);
     canvasStore$.curCanvas.set(null);
     endBatch();

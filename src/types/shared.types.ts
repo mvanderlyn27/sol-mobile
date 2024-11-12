@@ -59,7 +59,7 @@ export enum BottomDrawerType {
 export interface CanvasItemBase {
   //database id of item used eg font id, or frame id
   id: string;
-  dbId: string;
+  // dbId: string;
   //pixel count
   x: number;
   //pixel count
@@ -120,12 +120,12 @@ export interface CanvasText extends CanvasItemBase {
 export type CanvasItem = CanvasFrame | CanvasText | CanvasImage;
 
 export type Canvas = {
+  id: string;
   backgroundImage: Image; // Path to the background image
   items: CanvasItem[]; // Array of canvas items};
   //screen size canvas was last saved with
   screenWidth: number;
   screenHeight: number;
-  curId: number;
   maxZIndex: number;
 };
 //Book Types

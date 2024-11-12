@@ -5,10 +5,12 @@ import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
-import { bringToFront, canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
+import { canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
 import { journalStore$ } from "@/src/stores/PagesStore";
 import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
+import { uiStore$ } from "@/src/stores/UIStore";
+import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
@@ -16,31 +18,26 @@ export const StyledPressable = styled(Pressable);
 
 const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
   const editMode = journalStore$.editMode.get();
+
+  // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
-  const scale = useSharedValue(item.scale);
-  const savedScale = useSharedValue(item.scale);
-  const rotation = useSharedValue(item.rotation);
+  const width = useSharedValue(item.width);
+  const height = useSharedValue(item.height);
   const savedRotation = useSharedValue(item.rotation);
+  const rotation = useSharedValue(item.rotation);
 
   const animatedFrameGroupStyles = useAnimatedStyle(() => ({
-    width: item.width, // Render to item width
-    height: item.height, // Render to item height
+    width: width.value,
+    height: height.value,
     zIndex: item.z,
-    transform: [
-      { translateX: offset.value.x },
-      { translateY: offset.value.y },
-      { scale: scale.value },
-      { rotateZ: `${rotation.value}rad` },
-    ],
+    transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
   }));
-
   const handleGestureStart = () => {
     if (!journalStore$.editMode) return; // Disable gestures if not in edit mode
     updateCanvasItem(item.id, { ...item });
   };
-
-  // Define gestures
+  // Define drag gesture for moving the item
   const dragGesture = Gesture.Pan()
     .onBegin(() => runOnJS(handleGestureStart)())
     .averageTouches(true)
@@ -60,21 +57,24 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
     })
     .enabled(editMode);
 
+  // Define zoom gesture for adjusting width and height
   const zoomGesture = Gesture.Pinch()
     .onUpdate((event) => {
-      scale.value = savedScale.value * event.scale;
+      width.value = item.width * event.scale;
+      height.value = item.height * event.scale;
     })
     .onEnd(() => {
-      savedScale.value = scale.value;
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
-        scale: scale.value,
+        width: width.value,
+        height: height.value,
         x: start.value.x,
         y: start.value.y,
       });
     })
     .enabled(editMode);
 
+  // Define rotation gesture for rotating the item
   const rotateGesture = Gesture.Rotation()
     .onUpdate((event) => {
       rotation.value = savedRotation.value + event.rotation;
@@ -90,8 +90,12 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
     })
     .enabled(editMode);
 
-  // Combine gestures
   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
+  const handleEdit = () => {
+    imageEditStore$.editImage(item.id);
+    uiStore$.displayImageEditOverlay.set(true);
+    uiStore$.displayCanvasMenu.set(false);
+  };
   return (
     <GestureDetector gesture={composed}>
       <AnimatePresence>
@@ -99,13 +103,13 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
           style={[
             {
               position: "absolute",
-              width: item.width * item.scale,
-              height: item.height * item.scale,
               transform: [{ translateX: item.x }, { translateY: item.y }, { rotateZ: `${item.rotation}rad` }],
             },
             animatedFrameGroupStyles,
           ]}>
-          <StyledImage source={{ uri: item.path }} style={{ width: "100%", height: "100%" }} contentFit="contain" />
+          <StyledPressable onPress={handleEdit}>
+            <StyledImage source={{ uri: item.path }} style={{ width: "100%", height: "100%" }} contentFit="contain" />
+          </StyledPressable>
         </StyledMotiView>
       </AnimatePresence>
     </GestureDetector>

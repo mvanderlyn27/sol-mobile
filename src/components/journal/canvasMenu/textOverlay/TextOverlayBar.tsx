@@ -8,6 +8,8 @@ import React, { useState } from "react";
 import { Text, View } from "react-native";
 import SettingsTab from "./SettingTab";
 import { fonts, textStore$ } from "@/src/stores/EditTextStore";
+import { uiStore$ } from "@/src/stores/UIStore";
+import { canvasStore$, removeCanvasItem } from "@/src/stores/CanvasStore";
 
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
@@ -23,6 +25,19 @@ const TextOverlayBar = observer(function TextOverlayBar() {
   const toggleFont = () => {
     const index = textStore$.fontIndex.get();
     textStore$.fontIndex.set((index + 1) % fonts.length);
+  };
+  const close = () => {
+    // journalStore$.editMode.set(false);
+    uiStore$.displayCanvasMenu.set(true);
+    uiStore$.displayTextOverlay.set(false);
+  };
+  const handleDelete = () => {
+    const id = textStore$.id.get();
+    if (id !== "") {
+      removeCanvasItem(id);
+    }
+    textStore$.reset();
+    close();
   };
 
   return (
@@ -44,12 +59,7 @@ const TextOverlayBar = observer(function TextOverlayBar() {
         <StyledView className=" h-14  rounded-full flex-row bg-black">
           {/* Trash Button */}
           <StyledView className="flex-1 justify-center items-center">
-            <MenuButton
-              onPress={() => {
-                // Trash button logic here
-              }}
-              buttonType={ButtonType.Trash}
-            />
+            <MenuButton onPress={handleDelete} buttonType={ButtonType.Trash} />
           </StyledView>
 
           {/* Settings Button */}

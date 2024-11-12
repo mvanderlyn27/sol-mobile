@@ -21,6 +21,8 @@ import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-conte
 import { journalStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
 import OverlayTextButton from "@/src/components/shared/OverlayTextButton";
+import { canvasStore$, removeCanvasItem } from "@/src/stores/CanvasStore";
+import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -103,6 +105,12 @@ const ImageMenu = observer(function ImageMenu() {
   const { height, width } = Dimensions.get("screen");
   // const maxHeight = height * 0.66;
   const maxHeight = 400;
+  const handleDelete = () => {
+    const id = imageEditStore$.id.get();
+    removeCanvasItem(id);
+    uiStore$.displayCanvasMenu.set(true);
+    uiStore$.displayImageEditOverlay.set(false);
+  };
   return (
     <StyledMotiView
       key="bottom-bar"
@@ -128,8 +136,14 @@ const ImageMenu = observer(function ImageMenu() {
           )}
         </AnimatePresence>
 
-        <StyledView className="w-full h-[75px] flex-row items-center justify-between  px-10">
+        {/* <StyledView className="w-full h-[75px] flex-row items-center justify-between  px-10"> */}
+        <StyledView className="w-full h-[75px] flex-row items-center justify-center px-10">
           <CanvasBarButton
+            onPress={handleDelete}
+            buttonType={ButtonType.Trash}
+            // selected={selectedTab === BottomBarTab.Template}
+          />
+          {/* <CanvasBarButton
             onPress={() => {}}
             buttonType={ButtonType.Template}
             selected={selectedTab === BottomBarTab.Template}
@@ -153,7 +167,7 @@ const ImageMenu = observer(function ImageMenu() {
             onPress={() => {}}
             buttonType={ButtonType.Sticker}
             selected={selectedTab === BottomBarTab.Sticker}
-          />
+          /> */}
         </StyledView>
       </StyledView>
     </StyledMotiView>
@@ -190,6 +204,8 @@ function CanvasBarButton({
         return <StyledAnt name="smile-circle" size={24} className="text-secondary" />;
       case "background":
         return <StyledFoundation name="page" size={24} className={"text-secondary"} />;
+      case "trash":
+        return <StyledFeather name="trash" size={24} className={"text-red-500"} />;
 
       default:
         return null;

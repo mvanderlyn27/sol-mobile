@@ -8,7 +8,7 @@ import ImagePreview from "./ImagePreview";
 const StyledBlurView = styled(BlurView);
 const ImageOverlay = observer(function ImageOverlay() {
   return (
-    <StyledBlurView tint="dark" className="flex-1">
+    <StyledBlurView tint="dark" className="absolute top-0 right-0 bottom-0 left-0">
       <SafeAreaView style={{ flex: 1 }} pointerEvents="box-none">
         <ImageOverlayButtons />
         <ImagePreview />

@@ -20,9 +20,9 @@ const JournalOverlays = observer(function JournalOverlays() {
           {uiStore$.displayQuickActionsOverlay.get() && <QuickActionsOverlay key="quick-actions" />}
           {uiStore$.displayJournalMenu.get() && <JournalMenu key="bottom-bar" />}
           {uiStore$.displayCanvasMenu.get() && <CanvasMenu key="canvas-menu" />}
-          {uiStore$.displayImageEditOverlay.get() && <ImageOverlay key="image-overlay" />}
         </AnimatePresence>
       </StyledSafeAreaView>
+      {uiStore$.displayImageEditOverlay.get() && <ImageOverlay key="image-overlay" />}
       {uiStore$.displayTextOverlay.get() && <TextOverlay key="text-overlay" />}
     </StyledView>
   );

@@ -152,7 +152,6 @@ const CanvasMenu = observer(function CanvasMenu() {
       const id = generateId();
       const image: CanvasImage = {
         id: id,
-        dbId: "",
         path: result.assets[0].uri,
         x: 50,
         y: 50,

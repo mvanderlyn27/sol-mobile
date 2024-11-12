@@ -32,7 +32,7 @@ const SettingsTab = observer(function () {
       <StyledText className="text-lg font-bold mb-2 text-white">Text Size</StyledText>
       <Slider
         minimumValue={10}
-        maximumValue={30}
+        maximumValue={100}
         step={1}
         value={size}
         onValueChange={handleTextSizeChange}
