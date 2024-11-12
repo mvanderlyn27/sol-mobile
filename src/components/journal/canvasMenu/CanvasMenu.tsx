@@ -86,11 +86,7 @@ const CanvasMenu = observer(function CanvasMenu() {
     setSelectedTab(BottomBarTab.Image);
   };
   const handleText = () => {
-    if (selectedTab === BottomBarTab.Text) {
-      setSelectedTab(null);
-      return;
-    }
-    setSelectedTab(BottomBarTab.Text);
+    uiStore$.displayTextOverlay.set(true);
   };
   const handleSelect = () => {
     setSelectedTab(null);

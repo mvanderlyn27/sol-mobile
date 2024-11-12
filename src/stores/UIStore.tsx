@@ -8,7 +8,7 @@ export const uiStore$ = observable({
   displayImageEditOverlay: false,
   displaySideBar: false,
   displayReactMenu: false,
-  displayTextOverlay: false,
+  displayTextOverlay: true,
   showNotification: () => {
     //probably add to a notifcation context to get the toast hook
     // Toast.show("Check email for verification", {

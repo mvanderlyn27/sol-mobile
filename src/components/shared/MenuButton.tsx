@@ -47,6 +47,10 @@ export default function MenuButton({
         return <StyledAnt name="smile-circle" size={24} className="text-secondary" />;
       case "background":
         return <StyledFoundation name="page" size={24} className={"text-secondary"} />;
+      case "settings":
+        return <StyledFeather name="settings" size={24} className={"text-secondary"} />;
+      case "trash":
+        return <StyledFeather name="trash" size={24} className={"text-red-500"} />;
 
       default:
         return null;

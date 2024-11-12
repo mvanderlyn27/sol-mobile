@@ -34,6 +34,7 @@ export enum ButtonType {
   Sticker = "sticker",
   View = "view",
   React = "react",
+  Trash = "trash",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {
