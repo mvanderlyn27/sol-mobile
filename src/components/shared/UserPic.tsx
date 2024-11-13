@@ -19,9 +19,11 @@ const UserPic = observer(function UserPic({
   if (!number && !userId) return null;
   if (userId) {
     const profile = profiles$[userId].get();
-    const shortId = userId.slice(0, 8);
+    console.log("userid", userId);
+    const shortId = userId ? userId.slice(0, 8) : "";
     return (
       <StyledPressable
+        key={`user-${userId}`}
         pointerEvents={action !== undefined ? "auto" : "none"}
         onPress={action}
         className="rounded-full w-[40px] aspect-square mr-1 bg-secondary overflow-hidden">

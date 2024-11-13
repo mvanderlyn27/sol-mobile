@@ -23,7 +23,6 @@ const ensureNotArray = (input: string | string[]) => {
 };
 const GroupDetails = observer(function GroupDetails() {
   let group_id = ensureNotArray(useLocalSearchParams().id);
-  console.log(group_id);
 
   const selectedGroup = groups$[group_id].get();
   const userId = authStore$.session.get()?.user.id;

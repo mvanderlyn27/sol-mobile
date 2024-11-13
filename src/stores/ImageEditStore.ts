@@ -14,6 +14,7 @@ export const imageEditStore$ = observable<ImageEditStore>({
 
     // Find the index of the item by ID
     const itemIndex = items?.findIndex((i) => i.id === id);
+    console.log("curcanvas", canvasStore$.curCanvas.get());
     if (itemIndex === -1 || itemIndex === undefined) return;
     const curItem = canvasStore$.curCanvas.items[itemIndex].get() as CanvasImage;
     imageEditStore$.id.set(id);

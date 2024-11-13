@@ -1,112 +1,93 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { FlatList, View, Dimensions } from "react-native";
-import { Show, observer } from "@legendapp/state/react";
+import PagerView from "react-native-pager-view";
+import { observer } from "@legendapp/state/react";
+import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
-import { getDateRange, getPageIdsForUser, journalStore$, pages$ } from "@/src/stores/PagesStore";
-import { filterGroupMembers, groupMembers$ } from "@/src/stores/MemberStore";
-import { jsonToCanvas } from "@/src/services/Canvas";
-import authStore$ from "@/src/stores/AuthStore";
-import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import { GroupMember } from "@/src/types/shared.types";
-import { AnimatePresence, MotiView } from "moti";
-import CanvasHolder from "../journal/canvas/Canvas";
+import { initializePageStore, pageStore$ } from "@/src/stores/PagesStore";
 
-const { width, height } = Dimensions.get("window");
+// Get screen dimensions for dynamic sizing
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
-const PagerTest = observer(({ groupId }) => {
-  const currentDates = getDateRange();
-  const user = authStore$.session.get()?.user;
+// Render vertical list of pages for a user (within each pager page)
+const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMember[] }) => {
+  const flatListRef = useRef<FlatList>(null);
 
-  // Automatically updates when `groupMembers$` or `authStore$` changes
-  const members = Object.values(filterGroupMembers(groupMembers$.get(), groupId) || {})?.sort(
-    (a: GroupMember, b: GroupMember) => (a.user_id === user?.id ? -1 : b.user_id === user?.id ? 1 : 0)
-  );
-
-  // Observing the entire page data structure, automatically updated with `pages$`
-  const pageData = new Map();
-  members.forEach((member) => {
-    pageData.set(member.user_id, getPageIdsForUser(member.user_id, pages$.get()) || new Map());
+  // Scroll to the correct row index whenever the pageStore$.curRow changes
+  pageStore$.curRow.onChange(({ value: scrollIndex }) => {
+    if (flatListRef.current && scrollIndex >= 0 && col !== pageStore$.curCol.get()) {
+      console.log("updating col, new index: ", scrollIndex);
+      //should be all cols
+      flatListRef.current.scrollToIndex({ index: scrollIndex, animated: true });
+    }
   });
 
-  // Reactively track changes in current date or user
-  const handleUserChange = (viewableItems: any) => {
-    const newIndex = viewableItems[0]?.index || 0;
-    const userId = members[newIndex]?.user_id;
-    journalStore$.currentUser.set(userId);
-  };
-
-  const handlePageChange = (viewableItems: any) => {
-    const lastIndex = viewableItems[0]?.index;
-    if (lastIndex === undefined) return;
-
-    const date = currentDates[lastIndex];
-    journalStore$.currentDate.set(date);
-    const currentUser = journalStore$.currentUser.get();
-    const pageMap = currentUser ? pageData.get(currentUser) : new Map();
-    const pageId = pageMap?.get(date);
-    journalStore$.currentPageId.set(pageId);
-
-    const loadedDays = journalStore$.loadedDates.get();
-    if (loadedDays - lastIndex < 2) {
-      console.log("loading more data");
-      journalStore$.loadedDates.set(loadedDays + 7);
+  const onViewableItemsChanged = ({ viewableItems }: any) => {
+    if (viewableItems.length > 0 && col === pageStore$.curCol.get()) {
+      const curIndex = viewableItems[0].index;
+      console.log("updating curRow", curIndex);
+      pageStore$.curRow.set(curIndex); // Update current row index in store
     }
   };
-  type CombinedItem = {
-    currentUser: string;
-    date: string;
-  };
-  const renderCanvas = ({ item: { currentUser, date } }: { item: CombinedItem }) => {
-    const pageMap = pageData.get(currentUser);
-    const pageId = pageMap?.get(date);
-    return (
-      <View key={`view-${date}`} style={{ flex: 1, width, height }}>
-        <CanvasHolder key={`view-${date}`} pageId={pageId} />
-      </View>
-    );
-  };
 
-  const renderPagesForMember = ({ item: member }: { item: GroupMember }) => (
+  return (
     <FlatList
-      data={currentDates.map((date) => {
-        return {
-          currentUser: member.user_id,
-          date: date,
-        };
-      })}
-      horizontal
+      ref={flatListRef}
+      data={rows}
       pagingEnabled
-      scrollEnabled={!journalStore$.editMode.get()}
-      inverted
-      onViewableItemsChanged={({ viewableItems }) => handlePageChange(viewableItems)}
-      viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-      keyExtractor={(page, index) => `${member.id}_page_${index}`}
-      renderItem={renderCanvas}
+      showsVerticalScrollIndicator={false}
+      onViewableItemsChanged={onViewableItemsChanged}
       initialNumToRender={3}
-      maxToRenderPerBatch={2}
-      updateCellsBatchingPeriod={100}
-      showsHorizontalScrollIndicator={false}
+      initialScrollIndex={pageStore$.curRow.get()}
+      keyExtractor={(row) => `${row.user_id}-${col}`}
+      renderItem={({ item: row, index }) => (
+        <View style={{ width: screenWidth, height: screenHeight }}>
+          <CanvasHolder row={index} col={col} />
+        </View>
+      )}
+      onScrollToIndexFailed={() => {}}
     />
   );
+});
+
+// Outer parent component with PagerView
+const Canvas2DScroller = observer(() => {
+  const pagerRef = useRef(null);
+
+  // Initialize page store
+  initializePageStore();
+
+  // Handle scroll events in the PagerView
+  const handlePagerChange = (e: any) => {
+    const { position } = e.nativeEvent;
+    pageStore$.curCol.set(position); // Update the current column (page) index
+    // Optionally load more dates here if needed
+  };
 
   return (
     <View style={{ flex: 1 }}>
-      <FlatList
-        data={members}
-        pagingEnabled
-        scrollEnabled={!journalStore$.editMode.get()}
-        onViewableItemsChanged={({ viewableItems }) => handleUserChange(viewableItems)}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-        keyExtractor={(member) => member.user_id}
-        renderItem={renderPagesForMember}
-        initialNumToRender={1}
-        maxToRenderPerBatch={1}
-        updateCellsBatchingPeriod={150}
-        showsVerticalScrollIndicator={false}
-      />
+      {/* PagerView as the parent container */}
+      <PagerView
+        overdrag
+        layoutDirection={"rtl"}
+        ref={pagerRef}
+        style={{ flex: 1 }}
+        initialPage={0}
+        onPageSelected={handlePagerChange} // Sync with the selected pager page
+      >
+        {/* Loop through dates to create a page for each */}
+        {pageStore$.dates.get().map((date, index) => (
+          <View key={`${date}-${index}`} style={{ flex: 1 }}>
+            <VerticalPageList rows={pageStore$.members.get()} col={index} />
+          </View>
+        ))}
+      </PagerView>
+
+      {/* Overlays */}
       <JournalOverlays />
     </View>
   );
 });
 
-export default PagerTest;
+export default Canvas2DScroller;

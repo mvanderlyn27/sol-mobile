@@ -1,9 +1,9 @@
 import { styled } from "nativewind";
 import { AnimatePresence, MotiView } from "moti";
-import React, { useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-import { Canvas } from "@/src/types/shared.types";
-import { Image } from "expo-image";
+import { Canvas, CanvasItem, Image } from "@/src/types/shared.types";
+import { Image as ExpoImage } from "expo-image";
 
 import CanvasFrameHolder from "./CanvasFrameHolder";
 import { BG_04, getImageFromPath } from "@/src/assets/images/images";
@@ -15,74 +15,61 @@ import { Json } from "@/src/types/supabase.types";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import CanvasImageHolder from "./CanvasImageHolder";
-import { Show, observer } from "@legendapp/state/react";
-import { journalStore$, pages$ } from "@/src/stores/PagesStore";
+import { For, Show, observer } from "@legendapp/state/react";
+import { getPageForUser, journalStore$, pageStore$, pages$ } from "@/src/stores/PagesStore";
 import CanvasTextHolder from "./CanvasText";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
+export const CanvasHolder = observer(function CanvasHolder({ row, col }: { row: number; col: number }) {
+  const date = pageStore$.dates[row].date.get();
+  // const canvas = pageStore$.pages[col]?.[date]?.get() || defaultCanvas;
+  const canvas = (pageStore$.pages[col] as { [date: string]: any })[date]?.get() || defaultCanvas;
+  const tempCanvas = canvasStore$.curCanvas.get() || defaultCanvas;
+  const editMode = pageStore$.editMode.get();
 
-const CanvasHolder = observer(function CanvasHolder({ pageId }: { pageId: string | null }) {
-  let canvas = defaultCanvas;
-  const editMode = journalStore$.editMode.get();
-  if (editMode && pageId !== journalStore$.currentPageId.get()) return null;
-  console.log("updating canvas");
-  if (pageId && pageId != "") {
-    let canvasStr = pages$[pageId].get()?.canvas;
-    const canvasObj = jsonToCanvas(JSON.stringify(canvasStr));
-    if (canvasObj) {
-      canvas = canvasObj;
-    }
-  }
-  console.log("canvas items", canvasStore$.curCanvas.items.get());
   return (
-    <StyledMotiView
-      key={`${editMode && "edit-"}canvas-${canvas.id}`}
-      className=" absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
-      {/*  <StyledMotiView className="flex-1 "> */}
-      {canvas.backgroundImage?.type === "Local" && (
-        <Image
-          // maybe check if its a URL, or an enum, if its an enum we load locally, otherwise load from backend
+    <Show
+      key={`${canvas.id}-${row}-${col}`}
+      if={editMode}
+      else={<CanvasElement items={canvas.items} backgroundImage={canvas.backgroundImage} />}>
+      <CanvasElement items={tempCanvas?.items} backgroundImage={tempCanvas.backgroundImage} />
+    </Show>
+  );
+});
+
+const CanvasElement = memo(function CanvasElement({
+  items,
+  backgroundImage,
+}: {
+  items: CanvasItem[];
+  backgroundImage: Image;
+}) {
+  return (
+    <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
+      {backgroundImage?.type === "Local" && (
+        <ExpoImage
           key="backgroundImage"
-          source={getImageFromPath(canvas.backgroundImage.path || "bg_04")}
+          source={getImageFromPath(backgroundImage.path || "bg_04")}
           style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
         />
       )}
-
-      {/* Render canvas items */}
-      <Show
-        if={!editMode}
-        wrap={AnimatePresence}
-        else={canvasStore$.curCanvas.items.get()?.map((item) => {
-          if (item.type === "frame") {
-            // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
-            return <CanvasFrameHolder key={`edit-frame-${item.id}-}`} item={item} />;
-          }
-          if (item.type === "image") {
-            return <CanvasImageHolder key={`edit-image-${item.id}`} item={item} />;
-          }
-
-          if (item.type === "text") {
-            return <CanvasTextHolder key={`edit-text-${item.id}-`} item={item} />;
-          }
-          return null; // Return null if the type is unrecognized
-        })}>
-        {canvas.items.map((item) => {
-          if (item.type === "frame") {
-            // return <CanvasFrameOld key={`frame-${tempCanvas ? "temp-" : ""}-${item.id}`} item={item} />;
-            return <CanvasFrameHolder key={`view-frame-${item.id}-}`} item={item} />;
-          }
-          if (item.type === "image") {
-            return <CanvasImageHolder key={`view-image-${item.id}-}`} item={item} />;
-          }
-
-          if (item.type === "text") {
-            return <CanvasTextHolder key={`view-text-${item.id}-`} item={item} />;
-          }
-          return null; // Return null if the type is unrecognized
-        })}
-      </Show>
+      {items.map((item) => (
+        <CanvasObject key={`item-${item.id}`} item={item} />
+      ))}
     </StyledMotiView>
   );
 });
-export default CanvasHolder;
+
+const CanvasObject = observer(function CanvasObject({ item }: { item: CanvasItem }) {
+  switch (item.type) {
+    case "frame":
+      return <CanvasFrameHolder key={`frame-${item.id}`} item={item} />;
+    case "image":
+      return <CanvasImageHolder key={`image-${item.id}`} item={item} />;
+    case "text":
+      return <CanvasTextHolder key={`text-${item.id}`} item={item} />;
+    default:
+      return null;
+  }
+});

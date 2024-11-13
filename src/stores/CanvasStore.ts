@@ -36,6 +36,7 @@ export const addCanvasItem = (item: CanvasItem) => {
 
 // Update an existing item on the canvas
 export const updateCanvasItem = (id: string, item: CanvasItem) => {
+  console.log("updating item", item.id);
   const newZ = (canvasStore$.curCanvas.maxZIndex.get() || 0) + 1;
   canvasStore$.curCanvas.items.set((items) =>
     items?.map((canvasItem) => (canvasItem.id === id ? { ...canvasItem, ...item, z: newZ } : canvasItem))

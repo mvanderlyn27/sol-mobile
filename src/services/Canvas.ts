@@ -6,7 +6,7 @@ export const jsonToCanvas = (json: string): Canvas | null => {
     const canvasObject: Canvas = JSON.parse(json);
     return canvasObject;
   } catch (error) {
-    console.error("Error converting JSON to Canvas:", error);
+    // console.warn("Error converting JSON to Canvas:", error);
     return null;
   }
 };

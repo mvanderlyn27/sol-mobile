@@ -19,7 +19,7 @@ import Foundation from "@expo/vector-icons/Foundation";
 import BackgroundTab from "./BackgroundTab";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
-import { journalStore$ } from "@/src/stores/PagesStore";
+import { journalStore$, pageStore$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";
@@ -34,6 +34,9 @@ const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
 const DateIndicator = observer(function DateIndicator() {
+  const dates = pageStore$.dates.get();
+  const col = pageStore$.curCol.get();
+  const date = dates[col];
   return (
     <StyledMotiView
       key="bottom-bar"
@@ -47,27 +50,27 @@ const DateIndicator = observer(function DateIndicator() {
         <StyledMotiView key="bottom-bar" className="justify-between items-center rounded-full ">
           <AnimatePresence exitBeforeEnter={true}>
             <MotiView
-              key={journalStore$.currentDate.get()} // Reset animation on each text change
+              key={date.date} // Reset animation on each text change
               from={{
                 opacity: 0,
-                translateY: -50, // Start slightly above the frame
-                rotateX: "90deg", // Initial rotation to make it appear from top
+                translateX: -50, // Start slightly above the frame
+                rotateY: "90deg", // Initial rotation to make it appear from top
               }}
               animate={{
                 opacity: 1,
-                translateY: 0,
-                rotateX: "0deg", // Rotate to bring text into view
+                translateX: 0,
+                rotateY: "0deg", // Rotate to bring text into view
               }}
               exit={{
                 opacity: 0,
-                translateY: 50, // Move out to bottom of frame
-                rotateX: "-90deg", // Rotate out to complete 3D effect
+                translateX: 50, // Move out to bottom of frame
+                rotateY: "-90deg", // Rotate out to complete 3D effect
               }}
               transition={{
                 type: "timing",
                 duration: 200,
               }}>
-              <Text style={{ fontSize: 18, color: "white" }}>{journalStore$.currentDate.get()}</Text>
+              <Text style={{ fontSize: 18, color: "white" }}>{date.date}</Text>
             </MotiView>
           </AnimatePresence>
         </StyledMotiView>

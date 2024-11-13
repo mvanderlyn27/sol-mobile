@@ -19,7 +19,7 @@ import Foundation from "@expo/vector-icons/Foundation";
 import BackgroundTab from "./BackgroundTab";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
-import { journalStore$, pages$ } from "@/src/stores/PagesStore";
+import { journalStore$, pageStore$, pages$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";
@@ -46,7 +46,9 @@ const JournalMenu = observer(function JournalMenu() {
   const displayJournalMenu = uiStore$.displayJournalMenu.get();
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
-
+  const members = pageStore$.members.get();
+  const row = pageStore$.curRow.get();
+  const userId = members[row].user_id;
   return (
     <StyledView className="flex-1" pointerEvents={"box-none"}>
       <StyledMotiView
@@ -65,7 +67,7 @@ const JournalMenu = observer(function JournalMenu() {
           <AntDesign name="left" size={30} color="black" />
         </StyledPressable>
         <DateIndicator />
-        <UserPic userId={journalStore$.currentUser.get() || ""} />
+        <UserPic userId={userId} />
       </StyledMotiView>
       <StyledMotiView
         className="absolute bottom-4 right-8"

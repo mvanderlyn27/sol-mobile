@@ -107,7 +107,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
             },
             animatedFrameGroupStyles,
           ]}>
-          <StyledPressable onPress={handleEdit}>
+          <StyledPressable onPress={editMode ? handleEdit : null}>
             <StyledImage source={{ uri: item.path }} style={{ width: "100%", height: "100%" }} contentFit="contain" />
           </StyledPressable>
         </StyledMotiView>
