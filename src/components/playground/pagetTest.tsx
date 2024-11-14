@@ -5,7 +5,7 @@ import { observer } from "@legendapp/state/react";
 import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
 import { GroupMember } from "@/src/types/shared.types";
-import { initializePageStore, pageStore$ } from "@/src/stores/PagesStore";
+import { initializePageStore, loadMorePages, pageStore$ } from "@/src/stores/PagesStore";
 
 // Get screen dimensions for dynamic sizing
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -63,6 +63,9 @@ const Canvas2DScroller = observer(() => {
   // Handle scroll events in the PagerView
   const handlePagerChange = (e: any) => {
     const { position } = e.nativeEvent;
+    if (pageStore$.dates.get().length - position <= 2) {
+      loadMorePages();
+    }
     pageStore$.curCol.set(position); // Update the current column (page) index
     // Optionally load more dates here if needed
   };

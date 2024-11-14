@@ -6,7 +6,7 @@ import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
-import { journalStore$, pageStore$ } from "@/src/stores/PagesStore";
+import { pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
@@ -34,7 +34,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
   }));
   const handleGestureStart = () => {
-    if (!journalStore$.editMode) return; // Disable gestures if not in edit mode
+    if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
     updateCanvasItem(item.id, { ...item });
   };
   // Define drag gesture for moving the item

@@ -31,31 +31,8 @@ import authStore$ from "./AuthStore";
 import { uiStore$ } from "./UIStore";
 import { groupStore$ } from "./GroupStore";
 import { filterGroupMembers, groupMembers$ } from "./MemberStore";
-import { canvasStore$ } from "./CanvasStore";
+import { canvasStore$, defaultCanvas } from "./CanvasStore";
 import { jsonToCanvas } from "../services/Canvas";
-import { User } from "@supabase/supabase-js";
-
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
-
-const defaultCanvas: Canvas = {
-  id: generateId(),
-  backgroundImage: { path: "bg_04", type: ImageType.Local },
-  items: [] as CanvasItem[],
-  screenWidth: screenWidth,
-  screenHeight: screenHeight,
-  maxZIndex: 0,
-};
-
-const DEFAULT_PAGE: Page = {
-  id: "",
-  canvas: null,
-  date: format(new Date(), "yyyy-MM-dd"),
-  created_at: format(new Date(), "yyyy-MM-dd"),
-  updated_at: format(new Date(), "yyyy-MM-dd"),
-  deleted: false,
-  created_by: "",
-  group_id: "",
-};
 
 //@ts-ignore
 export const pages$ = observable(
@@ -76,7 +53,7 @@ export const getPageIdsForUser = (curUser: string, pagesMap: Record<string, Page
   if (!curUser || !pagesMap) {
     return null;
   }
-  const daysToLoad = journalStore$.loadedDates.get();
+  const daysToLoad = pageStore$.loadedPages.get();
 
   const today = startOfDay(new Date());
   const selectedGroup = groupStore$.selectedGroup.get();
@@ -114,116 +91,7 @@ export const getPageForUser = (curUser: string, date: string): Page | undefined 
   });
   return out;
 };
-export const getDateRange = (): string[] => {
-  const start = startOfToday();
-  const loadedDays = journalStore$.loadedDates.get();
-  const end = subDays(start, loadedDays - 1);
-  const dates = eachDayOfInterval({ start, end });
-  return dates.map((date) => format(date, "yyyy-MM-dd"));
-};
-const INITIAL_LOAD_DAYS = 7;
 
-interface JournalStore {
-  // pageMap: Map<string, Page>;
-  currentDate: string;
-  currentPageId: string | null;
-  loadedDates: number;
-  currentUser?: GroupMember;
-  currentUserIndex?: number | null;
-  isUsersPage: boolean;
-  loading: boolean;
-  editMode: boolean;
-  reactionMode: boolean;
-  edit: () => void;
-  react: () => void;
-  saveReact: () => void;
-  saveEdit: () => void;
-  cancelEdit: () => void;
-  cancelReact: () => void;
-}
-//@ts-ignore
-export const journalStore$ = observable<JournalStore>({
-  //@ts-ignore
-  currentDate: format(startOfDay(new Date()), "yyyy-MM-dd"),
-  currentPageId: null,
-  loadedDates: INITIAL_LOAD_DAYS,
-  // currentUser: () => authStore$.session.user.get(),
-  currentUser: undefined,
-  currentUserIndex: 0,
-  isUsersPage: true,
-  loading: false,
-  editMode: false,
-  reactionMode: false,
-  edit: () => {
-    beginBatch();
-    console.log("editing");
-    journalStore$.editMode.set(true);
-    uiStore$.displayCanvasMenu.set(true);
-    uiStore$.displayJournalMenu.set(false);
-    const pageId = journalStore$.currentPageId.get();
-    console.log("page", pageId);
-    if (pageId) {
-      const page = pages$?.get()[pageId];
-      canvasStore$.curCanvas.set(jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas);
-    }
-    console.log("canvas", canvasStore$.curCanvas.get());
-    console.log("editmode", journalStore$.editMode.get());
-    endBatch();
-  },
-  react: () => {},
-  saveReact: () => {},
-  saveEdit: () => {
-    beginBatch();
-    uiStore$.displayJournalMenu.set(true);
-    uiStore$.displayCanvasMenu.set(false);
-    // canvasStore$.curCanvas.set(defaultCanvas);
-    const curPageId = journalStore$.currentPageId.get();
-    const newCanvas = canvasStore$.curCanvas.get();
-    console.log("saving: cur pageId", curPageId);
-    if (curPageId) {
-      const currentPage = pages$[curPageId].get();
-      console.log("saving existing page", newCanvas);
-      //@ts-ignore
-      pages$[curPageId].set({ ...currentPage, canvas: newCanvas });
-      // ADD UPLOAD IMAGE HERE
-    } else {
-      const id = generateId();
-      const groupId = groupStore$.selectedGroup.get();
-      const userId = authStore$.session.get()?.user.id;
-      const curDate = journalStore$.currentDate.get();
-      if (!groupId || !userId) {
-        console.log("missing info");
-        return;
-      }
-      //@ts-ignore
-      const newPage = {
-        id: id,
-        group_id: groupId,
-        created_by: userId,
-        date: curDate,
-        canvas: newCanvas,
-      } as Page;
-      console.log("saving new page", newPage);
-      pages$[id].set(newPage);
-    }
-    // ADD UPLOAD IMAGE HERE
-    journalStore$.editMode.set(false);
-    canvasStore$.curCanvas.set(null);
-    endBatch();
-  },
-  cancelReact: () => {
-    uiStore$.displayJournalMenu.set(true);
-    uiStore$.displayReactMenu.set(false);
-  },
-  cancelEdit: () => {
-    beginBatch();
-    uiStore$.displayJournalMenu.set(true);
-    uiStore$.displayCanvasMenu.set(false);
-    canvasStore$.curCanvas.set(defaultCanvas);
-    journalStore$.editMode.set(false);
-    endBatch();
-  },
-});
 interface PageStore {
   // `${date}` -> Canvas
   pages: PageMap[];
@@ -287,128 +155,65 @@ function loadGroupMembers() {
   pageStore$.members.set(users);
 }
 
-const getPagesForUser = (userId: string, count: number) => {
-  const pages = pages$.get();
-  let curCount = 0;
-  const out = Object.values(pages || {}).filter((page) => {
-    curCount += 1;
-    return page.created_by === userId && curCount < count;
-  });
-  return out;
-};
 /**
- * Load initial pages for each member in the group.
+ * Load initial members and dates, setting up a specified number of unique dates.
  */
-
 function loadInitialPages() {
-  const { members } = pageStore$.get();
-  const initialPages: PageMap[] = [];
-  const allDates = getAllUniqueDates(); // Get all unique dates for initial pages
+  const allDates = getAllUniqueDates(START_PAGE_NUM); // Get unique dates for initial range
 
-  // Fetch START_PAGE_NUM pages for each group member
-  for (const member of members) {
-    const pagesForMember = getPagesForUser(member.user_id, START_PAGE_NUM);
-    const pagesMap = new Map<string, Canvas>();
-
-    // Populate pagesMap with actual canvas data for available dates
-    pagesForMember.forEach((page) =>
-      pagesMap.set(page.date, jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas)
-    );
-
-    // Ensure all dates have an entry in pagesMap, fill missing dates with defaultCanvas
-    allDates.forEach((dateItem) => {
-      if (!pagesMap.has(dateItem.date)) {
-        pagesMap.set(dateItem.date, defaultCanvas);
-      }
-    });
-
-    initialPages.push({ id: generateId(), pages: pagesMap });
-  }
-
-  // Update observable properties in a batch to minimize re-renders
+  // Batch update to set members and initial date range
   batch(() => {
-    pageStore$.pages.set(initialPages);
-    pageStore$.dates.set(allDates);
-    pageStore$.loadedPages.set(START_PAGE_NUM);
+    pageStore$.dates.set(allDates); // Set initial dates range
+    pageStore$.loadedPages.set(START_PAGE_NUM); // Track number of loaded dates/pages
   });
 }
 
 /**
- * Fetch more pages when the user reaches the end of the current loaded pages.
+ * Load additional dates, extending the date range backward in time.
  */
 export function loadMorePages() {
-  const { members, loadedPages } = pageStore$.get();
-  const newPages: PageMap[] = [];
+  const { loadedPages } = pageStore$.get();
   const newLoadedPages = loadedPages + LOAD_MORE_PAGES;
 
-  // Calculate new dates for additional loaded pages
-  const allDates = getAllUniqueDates().slice(0, newLoadedPages);
+  // Extend the date range with additional dates further back in time
+  const newDates = getAllUniqueDates(newLoadedPages);
 
-  // Fetch additional pages for each group member
-  for (const member of members) {
-    const morePagesForMember = getPagesForUser(member.user_id, LOAD_MORE_PAGES);
-    const existingPagesMap = pageStore$.pages.get()[members.indexOf(member)].pages;
-
-    // Add newly fetched pages to existingPagesMap
-    morePagesForMember.forEach((page) => {
-      existingPagesMap.set(page.date, jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas);
-    });
-
-    // Ensure all dates in the expanded range have an entry in existingPagesMap
-    allDates.forEach((dateItem) => {
-      if (!existingPagesMap.has(dateItem.date)) {
-        existingPagesMap.set(dateItem.date, defaultCanvas);
-      }
-    });
-
-    // Create the new PageMap entry for the current member
-    newPages.push({
-      id: pageStore$.pages.get()[members.indexOf(member)].id, // Keep existing ID for consistency
-      pages: existingPagesMap,
-    });
-  }
-
-  // Batch updates to minimize re-renders
+  // Batch update to set the new expanded date range
   batch(() => {
-    pageStore$.pages.set(newPages);
-    pageStore$.dates.set(allDates); // Update dates to reflect expanded range
-    pageStore$.loadedPages.set(newLoadedPages);
+    pageStore$.dates.set(newDates); // Update dates to include additional range
+    pageStore$.loadedPages.set(newLoadedPages); // Update the count of loaded dates
   });
 }
 
 /**
- * Get unique dates from all pages, sorted in descending order.
+ * Get unique dates from today, descending backward by `daysCount`.
  */
-function getAllUniqueDates(): DateItem[] {
+function getAllUniqueDates(daysCount: number): DateItem[] {
   const start = startOfToday();
-  const loadedDays = pageStore$.loadedPages.get();
-  // Subtract `loadedDays - 1` to get the correct range
-  const end = subDays(start, loadedDays - 1);
+  const end = subDays(start, daysCount - 1); // Calculate the end date based on the daysCount
   const dates = eachDayOfInterval({ start, end });
 
-  return dates.map((date) => {
-    return { id: generateId(), date: format(date, "yyyy-MM-dd") };
-  });
+  // Map each date to a DateItem with unique IDs
+  return dates.map((date) => ({
+    id: generateId(),
+    date: format(date, "yyyy-MM-dd"),
+  }));
 }
 
 /**
  * Set the current row and column based on navigation inputs.
  */
 export function navigateToPage(row: number, col: number) {
-  const { pages, dates } = pageStore$.get();
-  const maxRow = pages.length - 1;
+  const { dates } = pageStore$.get();
   const maxCol = dates.length - 1;
 
-  pageStore$.curRow.set(Math.max(0, Math.min(row, maxRow)));
+  pageStore$.curRow.set(Math.max(0, Math.min(row, pageStore$.members.length - 1)));
   pageStore$.curCol.set(Math.max(0, Math.min(col, maxCol)));
 }
 
 /**
  * Toggle edit mode
  */
-export function toggleEditMode() {
-  pageStore$.editMode.set(!pageStore$.editMode.get());
-}
 export function handleEdit() {
   beginBatch();
   console.log("editing");
@@ -467,4 +272,11 @@ export function handlePageSave() {
   canvasStore$.curCanvas.set({ ...defaultCanvas });
   endBatch();
 }
-export function handlePageCancel() {}
+export function handlePageCancel() {
+  beginBatch();
+  uiStore$.displayJournalMenu.set(true);
+  uiStore$.displayCanvasMenu.set(false);
+  canvasStore$.curCanvas.set(defaultCanvas);
+  pageStore$.editMode.set(false);
+  endBatch();
+}

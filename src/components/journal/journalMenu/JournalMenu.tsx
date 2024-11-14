@@ -19,7 +19,7 @@ import Foundation from "@expo/vector-icons/Foundation";
 import BackgroundTab from "./BackgroundTab";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
-import { journalStore$, pageStore$, pages$ } from "@/src/stores/PagesStore";
+import { pageStore$, pages$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";

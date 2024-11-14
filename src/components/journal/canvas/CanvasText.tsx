@@ -6,7 +6,7 @@ import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
-import { journalStore$, pageStore$ } from "@/src/stores/PagesStore";
+import { pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasText } from "@/src/types/shared.types";
 import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
@@ -39,7 +39,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   }));
 
   const handleGestureStart = () => {
-    if (!journalStore$.editMode) return; // Disable gestures if not in edit mode
+    if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
     updateCanvasItem(item.id, { ...item });
   };
 

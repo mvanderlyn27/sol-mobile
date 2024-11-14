@@ -16,7 +16,7 @@ import { jsonToCanvas } from "@/src/services/Canvas";
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import CanvasImageHolder from "./CanvasImageHolder";
 import { For, Show, observer } from "@legendapp/state/react";
-import { getPageForUser, journalStore$, pageStore$, pages$ } from "@/src/stores/PagesStore";
+import { getPageForUser, pageStore$ } from "@/src/stores/PagesStore";
 import CanvasTextHolder from "./CanvasText";
 
 export const StyledMotiView = styled(MotiView);
@@ -30,7 +30,6 @@ export const CanvasHolder = observer(function CanvasHolder({ row, col }: { row: 
   if (oldCanvas) {
     canvas = oldCanvas;
   }
-  // const canvas = pageStore$.pages[col]?.[date]?.get() || defaultCanvas;
   const tempCanvas = canvasStore$.curCanvas.get() || defaultCanvas;
   const editMode = pageStore$.editMode.get();
 
