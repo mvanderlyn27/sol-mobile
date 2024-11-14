@@ -19,7 +19,7 @@ import Foundation from "@expo/vector-icons/Foundation";
 import BackgroundTab from "./BackgroundTab";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
-import { journalStore$ } from "@/src/stores/PagesStore";
+import { handleEdit, journalStore$, pageStore$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";
@@ -38,6 +38,10 @@ const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
 const JournalFabs = observer(function JournalFabs() {
+  const handleReact = () => {
+    uiStore$.displayReactMenu.set(true);
+    uiStore$.displayJournalMenu.set(false);
+  };
   return (
     <StyledView className=" flex-col justify-center items-center">
       <StyledView className="py-2">
@@ -51,9 +55,9 @@ const JournalFabs = observer(function JournalFabs() {
       </StyledView>
       <StyledView className="py-2">
         {journalStore$.isUsersPage ? (
-          <RoundButton primary onClick={journalStore$.edit} buttonType={ButtonType.Edit} />
+          <RoundButton primary onClick={handleEdit} buttonType={ButtonType.Edit} />
         ) : (
-          <RoundButton primary onClick={journalStore$.react} buttonType={ButtonType.React} />
+          <RoundButton primary onClick={handleReact} buttonType={ButtonType.React} />
         )}
       </StyledView>
     </StyledView>

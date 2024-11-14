@@ -6,7 +6,7 @@ import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
-import { journalStore$ } from "@/src/stores/PagesStore";
+import { journalStore$, pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
@@ -17,7 +17,7 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
-  const editMode = journalStore$.editMode.get();
+  const editMode = pageStore$.editMode.get();
 
   // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });

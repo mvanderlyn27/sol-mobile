@@ -19,7 +19,7 @@ import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
 import { StyledPressable } from "../canvas/CanvasFrameHolder";
-import { journalStore$ } from "@/src/stores/PagesStore";
+import { handlePageCancel, handlePageSave, journalStore$, pageStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -53,6 +53,11 @@ const CanvasMenu = observer(function CanvasMenu() {
     // }
   };
   const handleSave = () => {
+    handlePageSave();
+    handleClose();
+  };
+  const handleCancelEdit = () => {
+    handlePageCancel();
     handleClose();
   };
   const handleClose = () => {
@@ -180,10 +185,10 @@ const CanvasMenu = observer(function CanvasMenu() {
         exitTransition={{ type: "timing", duration: 200 }}
         transition={{ type: "timing", duration: 200 }}>
         <StyledView className="flex-1 items-start">
-          <MenuButton onPress={journalStore$.cancelEdit} buttonType={ButtonType.X} />
+          <MenuButton onPress={handleCancelEdit} buttonType={ButtonType.X} />
         </StyledView>
         <StyledView className="flex-1 items-end">
-          <MenuButton onPress={journalStore$.saveEdit} buttonType={ButtonType.Save} />
+          <MenuButton onPress={handleSave} buttonType={ButtonType.Save} />
         </StyledView>
       </StyledMotiView>
       <StyledMotiView

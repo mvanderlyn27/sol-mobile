@@ -22,9 +22,15 @@ import CanvasTextHolder from "./CanvasText";
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 export const CanvasHolder = observer(function CanvasHolder({ row, col }: { row: number; col: number }) {
-  const date = pageStore$.dates[row].date.get();
+  const date = pageStore$.dates[col].date.get();
+  const user = pageStore$.members[row].get();
+  const page = getPageForUser(user.user_id, date);
+  let canvas = { ...defaultCanvas };
+  const oldCanvas = jsonToCanvas(JSON.stringify(page?.canvas));
+  if (oldCanvas) {
+    canvas = oldCanvas;
+  }
   // const canvas = pageStore$.pages[col]?.[date]?.get() || defaultCanvas;
-  const canvas = (pageStore$.pages[col] as { [date: string]: any })[date]?.get() || defaultCanvas;
   const tempCanvas = canvasStore$.curCanvas.get() || defaultCanvas;
   const editMode = pageStore$.editMode.get();
 
@@ -38,7 +44,7 @@ export const CanvasHolder = observer(function CanvasHolder({ row, col }: { row: 
   );
 });
 
-const CanvasElement = memo(function CanvasElement({
+const CanvasElement = function CanvasElement({
   items,
   backgroundImage,
 }: {
@@ -59,7 +65,7 @@ const CanvasElement = memo(function CanvasElement({
       ))}
     </StyledMotiView>
   );
-});
+};
 
 const CanvasObject = observer(function CanvasObject({ item }: { item: CanvasItem }) {
   switch (item.type) {

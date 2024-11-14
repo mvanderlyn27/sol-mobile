@@ -6,7 +6,7 @@ import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
-import { journalStore$ } from "@/src/stores/PagesStore";
+import { journalStore$, pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasText } from "@/src/types/shared.types";
 import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
@@ -18,7 +18,7 @@ export const StyledText = styled(MotiText);
 
 const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: CanvasText }) {
   console.log("text item updated", item.fontSize);
-  const editMode = journalStore$.editMode.get();
+  const editMode = pageStore$.editMode.get();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const rotation = useSharedValue(item.rotation);

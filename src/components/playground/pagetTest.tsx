@@ -19,7 +19,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
     if (flatListRef.current && scrollIndex >= 0 && col !== pageStore$.curCol.get()) {
       console.log("updating col, new index: ", scrollIndex);
       //should be all cols
-      flatListRef.current.scrollToIndex({ index: scrollIndex, animated: true });
+      flatListRef.current.scrollToIndex({ index: scrollIndex, animated: false });
     }
   });
 
@@ -28,6 +28,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       const curIndex = viewableItems[0].index;
       console.log("updating curRow", curIndex);
       pageStore$.curRow.set(curIndex); // Update current row index in store
+      //maybe update user here
     }
   };
 
@@ -36,6 +37,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       ref={flatListRef}
       data={rows}
       pagingEnabled
+      scrollEnabled={!pageStore$.editMode.get()}
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
       initialNumToRender={3}
@@ -70,6 +72,7 @@ const Canvas2DScroller = observer(() => {
       {/* PagerView as the parent container */}
       <PagerView
         overdrag
+        scrollEnabled={!pageStore$.editMode.get()}
         layoutDirection={"rtl"}
         ref={pagerRef}
         style={{ flex: 1 }}

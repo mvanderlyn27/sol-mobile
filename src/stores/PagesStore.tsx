@@ -408,3 +408,62 @@ export function navigateToPage(row: number, col: number) {
 export function toggleEditMode() {
   pageStore$.editMode.set(!pageStore$.editMode.get());
 }
+export function handleEdit() {
+  beginBatch();
+  console.log("editing");
+  pageStore$.editMode.set(true);
+  uiStore$.displayCanvasMenu.set(true);
+  uiStore$.displayJournalMenu.set(false);
+  const day = pageStore$.dates[pageStore$.curCol.get()].get();
+  const user = authStore$.session.user.id.get();
+  const pageId = getPageForUser(user || "", day.date)?.id;
+  if (pageId) {
+    const page = pages$?.get()[pageId];
+    canvasStore$.curCanvas.set(jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas);
+  }
+  endBatch();
+}
+export function handlePageSave() {
+  beginBatch();
+  uiStore$.displayJournalMenu.set(true);
+  uiStore$.displayCanvasMenu.set(false);
+  // canvasStore$.curCanvas.set(defaultCanvas);
+
+  const day = pageStore$.dates[pageStore$.curCol.get()].get();
+  const user = authStore$.session.user.id.get();
+  const curPageId = getPageForUser(user || "", day.date)?.id;
+  const newCanvas = canvasStore$.curCanvas.get();
+  console.log("saving: cur pageId", curPageId);
+  if (curPageId) {
+    const currentPage = pages$[curPageId].get();
+    console.log("saving existing page", newCanvas);
+    //@ts-ignore
+    pages$[curPageId].set({ ...currentPage, canvas: newCanvas });
+    // ADD UPLOAD IMAGE HERE
+  } else {
+    const id = generateId();
+    const groupId = groupStore$.selectedGroup.get();
+    const userId = authStore$.session.get()?.user.id;
+    const curDate = day.date;
+    if (!groupId || !userId) {
+      console.log("missing info");
+      return;
+    }
+    //@ts-ignore
+    const newPage = {
+      id: id,
+      group_id: groupId,
+      created_by: userId,
+      date: curDate,
+      canvas: newCanvas,
+    } as Page;
+    console.log("saving new page", newPage);
+    pages$[id].set(newPage);
+  }
+
+  // ADD UPLOAD IMAGE HERE
+  pageStore$.editMode.set(false);
+  canvasStore$.curCanvas.set({ ...defaultCanvas });
+  endBatch();
+}
+export function handlePageCancel() {}
