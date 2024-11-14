@@ -6,6 +6,7 @@ import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
 import { GroupMember } from "@/src/types/shared.types";
 import { initializePageStore, loadMorePages, pageStore$ } from "@/src/stores/PagesStore";
+import ReactHolder from "../journal/reactions/ReactHolder";
 
 // Get screen dimensions for dynamic sizing
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -43,6 +44,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       renderItem={({ item: row, index }) => (
         <View style={{ width: screenWidth, height: screenHeight }}>
           <CanvasHolder row={index} col={col} />
+          <ReactHolder row={index} col={col} />
         </View>
       )}
       onScrollToIndexFailed={() => {}}

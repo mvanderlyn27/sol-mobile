@@ -10,6 +10,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import { View } from "react-native";
 import TextOverlay from "./canvasMenu/textOverlay/TextOverlay";
+import ReactMenu from "./reactions/reactMenu/ReactMenu";
+import ReactOverlay from "./reactions/reactMenu/ReactOverlay";
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
 const JournalOverlays = observer(function JournalOverlays() {
@@ -20,10 +22,12 @@ const JournalOverlays = observer(function JournalOverlays() {
           {uiStore$.displayQuickActionsOverlay.get() && <QuickActionsOverlay key="quick-actions" />}
           {uiStore$.displayJournalMenu.get() && <JournalMenu key="bottom-bar" />}
           {uiStore$.displayCanvasMenu.get() && <CanvasMenu key="canvas-menu" />}
+          {uiStore$.displayReactMenu.get() && <ReactMenu key="react-menu" />}
         </AnimatePresence>
       </StyledSafeAreaView>
       {uiStore$.displayImageEditOverlay.get() && <ImageOverlay key="image-overlay" />}
       {uiStore$.displayTextOverlay.get() && <TextOverlay key="text-overlay" />}
+      {uiStore$.displayReactOverlay.get() && <ReactOverlay key="text-overlay" />}
     </StyledView>
   );
 });

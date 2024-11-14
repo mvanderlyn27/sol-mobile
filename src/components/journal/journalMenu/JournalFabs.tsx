@@ -19,7 +19,7 @@ import Foundation from "@expo/vector-icons/Foundation";
 import BackgroundTab from "./BackgroundTab";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
-import { handleEdit, pageStore$ } from "@/src/stores/PagesStore";
+import { getPageForUser, handleEdit, pageStore$ } from "@/src/stores/PagesStore";
 import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";
@@ -41,6 +41,8 @@ const StyledBlurView = styled(BlurView);
 const JournalFabs = observer(function JournalFabs() {
   const loggedInUser = authStore$.session.user.id.get();
   const curUser = pageStore$.members[pageStore$.curRow.get()].get().user_id;
+  const curDate = pageStore$.dates[pageStore$.curCol.get()].get()?.date;
+  const pageId = getPageForUser(curUser, curDate);
   const onUsersPage = loggedInUser === curUser;
   const handleReact = () => {
     uiStore$.displayReactMenu.set(true);
@@ -49,19 +51,21 @@ const JournalFabs = observer(function JournalFabs() {
   return (
     <StyledView className=" flex-col justify-center items-center">
       <StyledView className="py-2">
-        <RoundButton
-          selected
-          onClick={function (): void {
-            throw new Error("Function not implemented.");
-          }}
-          buttonType={ButtonType.View}
-        />
+        {pageId && (
+          <RoundButton
+            selected
+            onClick={function (): void {
+              throw new Error("Function not implemented.");
+            }}
+            buttonType={ButtonType.View}
+          />
+        )}
       </StyledView>
       <StyledView className="py-2">
         {onUsersPage ? (
           <RoundButton primary onClick={handleEdit} buttonType={ButtonType.Edit} />
         ) : (
-          <RoundButton primary onClick={handleReact} buttonType={ButtonType.React} />
+          pageId && <RoundButton primary onClick={handleReact} buttonType={ButtonType.React} />
         )}
       </StyledView>
     </StyledView>

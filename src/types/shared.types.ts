@@ -35,6 +35,7 @@ export enum ButtonType {
   View = "view",
   React = "react",
   Trash = "trash",
+  Add = "add",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {
@@ -112,6 +113,13 @@ export interface CanvasFrameSlotImage {
 
 export interface CanvasText extends CanvasItemBase {
   type: "text";
+  textContent: string; // The text content to be displayed
+  fontSize: number; // Size of the text font
+  fontColor: string; // Color of the text
+  fontType: string;
+}
+export interface CanvasReaction extends CanvasItemBase {
+  type: "reaction";
   textContent: string; // The text content to be displayed
   fontSize: number; // Size of the text font
   fontColor: string; // Color of the text

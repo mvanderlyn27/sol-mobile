@@ -11,10 +11,12 @@ const UserPic = observer(function UserPic({
   action,
   number,
   userId,
+  largeView,
 }: {
   action?: () => void;
   number?: number;
   userId?: string;
+  largeView?: boolean;
 }) {
   if (!number && !userId) return null;
   if (userId) {
@@ -26,7 +28,9 @@ const UserPic = observer(function UserPic({
         key={`user-${userId}`}
         pointerEvents={action !== undefined ? "auto" : "none"}
         onPress={action}
-        className="rounded-full w-[40px] aspect-square mr-1 bg-secondary overflow-hidden">
+        className={`rounded-full ${
+          largeView ? "w-[70px]" : "w-[40px]"
+        } aspect-square mr-1 bg-secondary overflow-hidden`}>
         {profile?.avatar_url ? (
           <Image
             style={{ flex: 1 }}

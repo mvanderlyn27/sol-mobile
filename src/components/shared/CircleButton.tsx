@@ -73,6 +73,8 @@ export default function RoundButton({
         return <StyledFeather name="image" className={`text-center ${getTextColor(buttonType)}`} size={40} />;
       case "text":
         return <StyledIon className={`text-center ${getTextColor(buttonType)}`} name="text" size={40} />;
+      case "add":
+        return <StyledFeather className={`text-center ${getTextColor(buttonType)}`} name="plus" size={40} />;
       case "settings":
         return (
           <Ionicons
