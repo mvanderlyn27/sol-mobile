@@ -108,8 +108,9 @@ export const getPageIdsForUser = (curUser: string, pagesMap: Record<string, Page
 
 export const getPageForUser = (curUser: string, date: string): Page | undefined => {
   const pages = pages$.get();
+  const groupId = groupStore$.selectedGroup.get();
   const out = Object.values(pages || {}).find((page: Page) => {
-    return page.created_by === curUser && page.date === date;
+    return page.created_by === curUser && page.date === date && page.group_id === groupId;
   });
   return out;
 };

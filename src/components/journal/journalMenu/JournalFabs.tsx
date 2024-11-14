@@ -26,6 +26,7 @@ import RoundButton from "../../shared/CircleButton";
 import DateIndicator from "./DateIndicator";
 import UserPic from "../../shared/UserPic";
 import { router } from "expo-router";
+import authStore$ from "@/src/stores/AuthStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -38,6 +39,9 @@ const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
 const JournalFabs = observer(function JournalFabs() {
+  const loggedInUser = authStore$.session.user.id.get();
+  const curUser = pageStore$.members[pageStore$.curRow.get()].get().user_id;
+  const onUsersPage = loggedInUser === curUser;
   const handleReact = () => {
     uiStore$.displayReactMenu.set(true);
     uiStore$.displayJournalMenu.set(false);
@@ -54,7 +58,7 @@ const JournalFabs = observer(function JournalFabs() {
         />
       </StyledView>
       <StyledView className="py-2">
-        {journalStore$.isUsersPage ? (
+        {onUsersPage ? (
           <RoundButton primary onClick={handleEdit} buttonType={ButtonType.Edit} />
         ) : (
           <RoundButton primary onClick={handleReact} buttonType={ButtonType.React} />
