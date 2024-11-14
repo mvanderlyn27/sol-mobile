@@ -132,12 +132,8 @@ export const pageStore$ = observable<PageStore>({
  * Initialize the group members and pages for a specific group.
  */
 export function initializePageStore() {
-  if (pageStore$.ready.get()) {
-    return;
-  }
   loadGroupMembers();
   loadInitialPages();
-  pageStore$.ready.set(true);
 }
 
 /**

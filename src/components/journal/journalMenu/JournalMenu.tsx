@@ -29,6 +29,7 @@ import { router } from "expo-router";
 import JournalFabs from "./JournalFabs";
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
+import { groupStore$ } from "@/src/stores/GroupStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -61,6 +62,7 @@ const JournalMenu = observer(function JournalMenu() {
         <StyledPressable
           onPress={() => {
             console.log("back");
+            groupStore$.selectedGroup.set("");
             router.back();
           }}
           className="">
