@@ -5,7 +5,7 @@ import { observer } from "@legendapp/state/react";
 import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
 import { GroupMember } from "@/src/types/shared.types";
-import { initializePageStore, loadMorePages, pageStore$ } from "@/src/stores/PagesStore";
+import { loadMorePages, pageStore$ } from "@/src/stores/PagesStore";
 import ReactHolder from "../journal/reactions/ReactHolder";
 import { reactStore$ } from "@/src/stores/ReactStore";
 
@@ -39,13 +39,17 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
-      initialNumToRender={3}
+      initialNumToRender={1}
       initialScrollIndex={pageStore$.curRow.get()}
       keyExtractor={(row) => `${row.user_id}-${col}`}
       renderItem={({ item: row, index }) => (
         <View style={{ width: screenWidth, height: screenHeight }}>
           <CanvasHolder row={index} col={col} />
-          <ReactHolder row={index} col={col} />
+          <ReactHolder
+            row={index}
+            col={col}
+            active={pageStore$.curRow.get() === index && pageStore$.curCol.get() === col}
+          />
         </View>
       )}
       onScrollToIndexFailed={() => {}}

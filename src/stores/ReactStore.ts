@@ -51,11 +51,13 @@ interface editReactStore$ {
   showNonUserReactions: boolean;
   userReactions: CanvasReaction[];
   edits: CanvasItem[];
+  isReady: boolean;
 }
 export const editReactStore$ = observable<editReactStore$>({
   showNonUserReactions: true,
   userReactions: [],
   edits: [],
+  isReady: false,
 });
 export const initializeEditReactStore = () => {
   const pageId = getPageForUser(

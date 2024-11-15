@@ -5,36 +5,26 @@ import {
   initializeEditReactStore,
   reactStore$,
 } from "@/src/stores/ReactStore";
-import { Show, observer } from "@legendapp/state/react";
+import { Show, observer, useMount } from "@legendapp/state/react";
 import ReactItem from "./ReactItem";
 import { getPageForUser, pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasReaction } from "@/src/types/shared.types";
 import { styled } from "nativewind";
 import { jsonToReact } from "@/src/services/Reaction";
-import { useEffect, useMemo } from "react";
-import { View } from "moti";
+import { memo, useEffect, useMemo } from "react";
+import { AnimatePresence, MotiView, View } from "moti";
+import { whenReady } from "@legendapp/state";
 
 const StyledShow = styled(Show);
+const StyledView = styled(View);
 
-const ReactHolder = observer(function ReactHolder({ row, col }) {
+const ReactHolder = observer(function ReactHolder({ row, col, active }) {
   // Fetching required observables
-  const reactEditMode = reactStore$.reactEditMode.get();
-  const showNonUserReactions = editReactStore$.showNonUserReactions.get();
-  const showReactions = reactStore$.showReactions.get();
 
   // Grabbing the current user and date to fetch the page
   const user = pageStore$.members[row].get();
   const date = pageStore$.dates[col].get();
   const page = getPageForUser(user?.user_id, date?.date);
-
-  useEffect(() => {
-    // Initialize edit store if entering edit mode on the current page
-    if (reactEditMode && row === pageStore$.curRow.get() && col === pageStore$.curCol.get()) {
-      initializeEditReactStore();
-    }
-  }, [reactEditMode]);
-
-  // Memoize reactions to avoid recomputation unless dependencies change
   const nonUserCanvasReactions = filterNonUserReactions(page?.id || "")
     .map((reaction) => jsonToReact(reaction.reaction))
     .filter((item): item is CanvasReaction => item !== null);
@@ -42,39 +32,67 @@ const ReactHolder = observer(function ReactHolder({ row, col }) {
   const userCanvasReactions = filterUserReactions(page?.id || "")
     .map((reaction) => jsonToReact(reaction.reaction))
     .filter((item): item is CanvasReaction => item !== null);
+  let reactEditMode = false;
+  let showEditNonUserReactions = false;
+  let showReactions = true;
+  let editUserReactions: CanvasReaction[] = [];
+  let showNonUserReactions = true;
 
-  //   console.log("user reactions", userCanvasReactions);
-  //   console.log("non user reactions", nonUserCanvasReactions);
-
-  const editUserReactions = editReactStore$.userReactions.peek();
+  console.log("r,c, active? ", row, col, active);
+  if (active) {
+    reactEditMode = reactStore$.reactEditMode.get();
+    showEditNonUserReactions = editReactStore$.showNonUserReactions.get();
+    showReactions = reactStore$.showReactions.get();
+    editUserReactions = editReactStore$.userReactions.get();
+    showNonUserReactions = (!reactEditMode && showReactions) || (reactEditMode && showEditNonUserReactions);
+    whenReady(editReactStore$.userReactions, () => editReactStore$.isReady.set(true));
+    console.log("non user reactions", nonUserCanvasReactions);
+    console.log("user reactions", userCanvasReactions);
+    console.log("edit reactions", editUserReactions);
+  }
 
   return (
-    <StyledShow
-      if={reactEditMode}
-      className="absolute top-0 right-0 left-0 bottom-0"
-      else={
-        <View style={{ flex: 1 }}>
-          {showNonUserReactions &&
-            nonUserCanvasReactions.map((reaction, index) => (
-              <ReactItem key={`nonUser-${reaction.id || index}`} item={reaction} usersReaction={false} />
+    <StyledView className="absolute top-0 right-0 left-0 bottom-0">
+      <AnimatePresence>
+        {showNonUserReactions && (
+          <MotiView
+            key="non-user-reactions"
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "timing", duration: 200 }}>
+            {nonUserCanvasReactions.map((reaction, index) => {
+              return <ReactItem key={`nonUser-${reaction.id || index}`} item={reaction} usersReaction={false} />;
+            })}
+          </MotiView>
+        )}
+        {!reactEditMode && showReactions && (
+          <MotiView
+            key="edit-user-reactions"
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "timing", duration: 200 }}>
+            {userCanvasReactions.map((reaction, index) => {
+              return <ReactItem key={`edit-${reaction.id || index}`} item={reaction} usersReaction={true} />;
+            })}
+          </MotiView>
+        )}
+        {reactEditMode && editReactStore$.isReady.get() && (
+          <MotiView
+            key="user-reactions"
+            from={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ type: "timing", duration: 200 }}>
+            {editUserReactions.map((reaction, index) => (
+              <ReactItem key={`user-${reaction.id || index}`} item={reaction} usersReaction={true} />
             ))}
-          {editUserReactions.map((reaction, index) => (
-            <ReactItem key={`user-${reaction.id || index}`} item={reaction} usersReaction={true} />
-          ))}
-        </View>
-      }>
-      <View>
-        {showReactions &&
-          nonUserCanvasReactions.map((reaction, index) => {
-            return <ReactItem key={`nonUser-${reaction.id || index}`} item={reaction} usersReaction={false} />;
-          })}
-        {showReactions &&
-          userCanvasReactions.map((reaction, index) => {
-            return <ReactItem key={`edit-${reaction.id || index}`} item={reaction} usersReaction={true} />;
-          })}
-      </View>
-    </StyledShow>
+          </MotiView>
+        )}
+      </AnimatePresence>
+    </StyledView>
   );
 });
 
-export default ReactHolder;
+export default memo(ReactHolder);

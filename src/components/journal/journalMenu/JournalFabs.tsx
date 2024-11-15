@@ -27,7 +27,7 @@ import DateIndicator from "./DateIndicator";
 import UserPic from "../../shared/UserPic";
 import { router } from "expo-router";
 import authStore$ from "@/src/stores/AuthStore";
-import { reactStore$ } from "@/src/stores/ReactStore";
+import { editReactStore$, initializeEditReactStore, reactStore$ } from "@/src/stores/ReactStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -49,6 +49,8 @@ const JournalFabs = observer(function JournalFabs() {
     uiStore$.displayReactMenu.set(true);
     uiStore$.displayJournalMenu.set(false);
     reactStore$.reactEditMode.set(true);
+    editReactStore$.showNonUserReactions.set(true);
+    initializeEditReactStore();
   };
   return (
     <StyledView className=" flex-col justify-center items-center">
