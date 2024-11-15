@@ -53,7 +53,6 @@ const ReactOverlayButtons = observer(function ReactOverlayButtons() {
   };
   const handleCancel = () => {
     textStore$.reset();
-    reactStore$.reactEditMode.set(false);
     close();
   };
   const close = () => {

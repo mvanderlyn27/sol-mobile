@@ -7,6 +7,7 @@ import JournalOverlays from "../journal/JournalOverlays";
 import { GroupMember } from "@/src/types/shared.types";
 import { initializePageStore, loadMorePages, pageStore$ } from "@/src/stores/PagesStore";
 import ReactHolder from "../journal/reactions/ReactHolder";
+import { reactStore$ } from "@/src/stores/ReactStore";
 
 // Get screen dimensions for dynamic sizing
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -35,7 +36,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       ref={flatListRef}
       data={rows}
       pagingEnabled
-      scrollEnabled={!pageStore$.editMode.get()}
+      scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
       initialNumToRender={3}
@@ -71,7 +72,7 @@ const Canvas2DScroller = observer(() => {
       {/* PagerView as the parent container */}
       <PagerView
         overdrag
-        scrollEnabled={!pageStore$.editMode.get()}
+        scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
         layoutDirection={"rtl"}
         ref={pagerRef}
         style={{ flex: 1 }}

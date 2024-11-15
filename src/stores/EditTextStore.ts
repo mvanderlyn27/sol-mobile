@@ -1,8 +1,8 @@
 import { observable } from "@legendapp/state";
 import { canvasStore$ } from "./CanvasStore";
-import { CanvasText } from "../types/shared.types";
+import { CanvasReaction, CanvasText } from "../types/shared.types";
 import { uiStore$ } from "./UIStore";
-import { reactStore$, reactions$ } from "./ReactStore";
+import { editReactStore$, reactStore$, reactions$ } from "./ReactStore";
 import { jsonToReact } from "../services/Reaction";
 export const fonts = [
   "Calibri",
@@ -48,18 +48,14 @@ export const textStore$ = observable({
     uiStore$.displayTextOverlay.set(true);
   },
   editReact: (id: string) => {
-    let items = canvasStore$.curCanvas.items.get();
+    let items = editReactStore$.userReactions.get();
 
     // Find the index of the item by ID
     const itemIndex = items?.findIndex((i) => i.id === id);
     if (itemIndex === -1 || itemIndex === undefined) return; // If item not found, exit
 
-    const reaction = reactions$[id].get();
-    const curItem = jsonToReact(reaction.reaction);
-    if (!curItem) {
-      console.log("issue getting reaction");
-      return null;
-    }
+    const curItem: CanvasReaction = items[itemIndex];
+
     textStore$.id.set(id);
     textStore$.size.set(curItem.fontSize);
     textStore$.color.set(curItem.fontColor);

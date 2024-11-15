@@ -5,6 +5,9 @@ import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import { supabase } from "../lib/supabase";
 import authStore$ from "./AuthStore";
 import { getPageForUser, pageStore$ } from "./PagesStore";
+import { Json } from "../types/supabase.types";
+import { jsonToReact, reactToJson } from "../services/Reaction";
+import { uiStore$ } from "./UIStore";
 
 //@ts-ignore
 export const reactions$ = observable(
@@ -19,13 +22,19 @@ export const reactions$ = observable(
     // },
   })
 );
-export const filteredPageReactions = (pageId: string) => {
+export const filterNonUserReactions = (pageId: string): Reaction[] => {
+  const curUserId = authStore$.session.user.id.get();
   return Object.values(reactions$.get() || {}).filter((reaction) => {
-    return reaction.page_id === pageId;
+    return reaction.page_id === pageId && reaction.created_by !== curUserId;
+  });
+};
+export const filterUserReactions = (pageId: string): Reaction[] => {
+  const curUserId = authStore$.session.user.id.get();
+  return Object.values(reactions$.get() || {}).filter((reaction) => {
+    return reaction.page_id === pageId && reaction.created_by === curUserId;
   });
 };
 interface ReactStore {
-  edits: CanvasItem[];
   showReactions: boolean;
   reactEditMode: boolean;
   //   curCanvas: Canvas | null;
@@ -35,10 +44,29 @@ const { width, height } = Dimensions.get("window");
 
 // Observable store
 export const reactStore$ = observable<ReactStore>({
-  edits: [],
   showReactions: true,
   reactEditMode: false,
 });
+interface editReactStore$ {
+  showNonUserReactions: boolean;
+  userReactions: CanvasReaction[];
+  edits: CanvasItem[];
+}
+export const editReactStore$ = observable<editReactStore$>({
+  showNonUserReactions: true,
+  userReactions: [],
+  edits: [],
+});
+export const initializeEditReactStore = () => {
+  const pageId = getPageForUser(
+    pageStore$.members[pageStore$.curRow.get()].get().user_id,
+    pageStore$.dates[pageStore$.curCol.get()].get().date
+  )?.id;
+  const reactions: CanvasReaction[] = filterUserReactions(pageId || "")
+    .map((reaction) => jsonToReact(reaction.reaction))
+    .filter((item): item is CanvasReaction => item !== null);
+  editReactStore$.userReactions.set(reactions);
+};
 export const removeReactItem = (id: string) => {
   if (Object.keys(reactions$.get() || {}).includes(id)) {
     reactions$[id].delete();
@@ -57,11 +85,52 @@ export const addReactItem = (newItem: CanvasReaction) => {
   }
   console.log("creating reaction");
   //@ts-ignore
-  reactions$[id].set({ id: id, reaction: JSON.stringify(newItem), created_by: userId, page_id: pageId });
+  //   reactions$[id].set({ id: id, reaction: JSON.stringify(newItem), created_by: userId, page_id: pageId });
+  const curItems = editReactStore$.items.get();
+  editReactStore$.userReactions.set([...curItems, newItem]);
 };
 export const updateReactItem = (id: string, newItem: CanvasReaction) => {
-  const reaction = reactions$[id].get();
-  reactions$[id].set({ ...reaction, reaction: JSON.stringify(newItem) });
+  const curItems = editReactStore$.userReactions.get();
+  const index = curItems.findIndex((val) => val.id === id);
+  if (index === -1) {
+    console.log("Can't find id");
+    return null;
+  }
+  // Correct way to update the item at the found index
+  editReactStore$.userReactions[index].set(newItem);
+};
+
+export const saveReacts = () => {
+  const curItems = editReactStore$.userReactions.get();
+  const userId = authStore$.session.user.id.get();
+  const pageId = getPageForUser(
+    pageStore$.members[pageStore$.curRow.get()].get().user_id,
+    pageStore$.dates[pageStore$.curCol.get()].get().date
+  )?.id;
+  if (!userId || !pageId) {
+    console.log("can't get user or page for reacts");
+    return null;
+  }
+  curItems.forEach((item) => {
+    //@ts-ignore
+    reactions$[item.id].set({
+      id: item.id,
+      page_id: pageId,
+      created_by: userId,
+      reaction: reactToJson(item),
+    });
+  });
+  editReactStore$.showNonUserReactions.set(true);
+  reactStore$.reactEditMode.set(false);
+  uiStore$.displayReactMenu.set(false);
+  uiStore$.displayJournalMenu.set(true);
+};
+export const cancelReacts = () => {
+  editReactStore$.showNonUserReactions.set(true);
+  editReactStore$.userReactions.set([]);
+  reactStore$.reactEditMode.set(false);
+  uiStore$.displayReactMenu.set(false);
+  uiStore$.displayJournalMenu.set(true);
 };
 // // Add a new item to the canvas
 // export const addCanvasItem = (item: CanvasItem) => {

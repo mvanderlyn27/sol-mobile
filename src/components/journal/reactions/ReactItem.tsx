@@ -16,9 +16,15 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 export const StyledText = styled(MotiText);
 
-const ReactItem = observer(function ReactItem({ item }: { item: CanvasReaction }) {
+const ReactItem = observer(function ReactItem({
+  item,
+  usersReaction,
+}: {
+  item: CanvasReaction;
+  usersReaction?: boolean;
+}) {
   console.log("text item updated", item, item.fontColor, item.x, item.y, item.rotation, item.z);
-  const editMode = reactStore$.reactEditMode.get() || false;
+  const editMode = (reactStore$.reactEditMode.get() && usersReaction) || false;
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
   const rotation = useSharedValue(item.rotation);
@@ -39,8 +45,7 @@ const ReactItem = observer(function ReactItem({ item }: { item: CanvasReaction }
   }));
 
   const handleGestureStart = () => {
-    if (!editMode) return; // Disable gestures if not in edit mode
-    updateReactItem(item.id, { ...item });
+    if (editMode) updateReactItem(item.id, { ...item });
   };
 
   // Define gestures
@@ -98,11 +103,15 @@ const ReactItem = observer(function ReactItem({ item }: { item: CanvasReaction }
   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
 
   const handleEdit = () => {
+    console.log("test");
     textStore$.editReact(item.id);
   };
 
   return (
-    <StyledMotiView key={"reaction-" + item.id} style={[animatedStyles, { position: "absolute" }]}>
+    <StyledMotiView
+      key={"reaction-" + item.id}
+      style={[animatedStyles, { position: "absolute" }]}
+      pointerEvents={editMode ? "box-none" : "none"}>
       <GestureDetector gesture={composed}>
         <Pressable onPress={handleEdit}>
           <StyledText
