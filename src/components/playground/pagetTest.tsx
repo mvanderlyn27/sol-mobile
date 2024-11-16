@@ -42,16 +42,15 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       initialNumToRender={1}
       initialScrollIndex={pageStore$.curRow.get()}
       keyExtractor={(row) => `${row.user_id}-${col}`}
-      renderItem={({ item: row, index }) => (
-        <View style={{ width: screenWidth, height: screenHeight }}>
-          <CanvasHolder row={index} col={col} />
-          <ReactHolder
-            row={index}
-            col={col}
-            active={pageStore$.curRow.get() === index && pageStore$.curCol.get() === col}
-          />
-        </View>
-      )}
+      renderItem={({ item: row, index }) => {
+        const active = pageStore$.curRow.get() === index && pageStore$.curCol.get() === col;
+        return (
+          <View style={{ width: screenWidth, height: screenHeight }}>
+            <CanvasHolder row={index} col={col} />
+            <ReactHolder row={index} col={col} />
+          </View>
+        );
+      }}
       onScrollToIndexFailed={() => {}}
     />
   );

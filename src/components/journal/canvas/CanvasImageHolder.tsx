@@ -1,5 +1,5 @@
 import { Show, observer } from "@legendapp/state/react";
-import React from "react";
+import React, { memo } from "react";
 import { Dimensions, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
@@ -115,4 +115,4 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
   );
 });
 
-export default CanvasImageHolder;
+export default memo(CanvasImageHolder);

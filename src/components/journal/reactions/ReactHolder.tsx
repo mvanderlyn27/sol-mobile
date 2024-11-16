@@ -18,10 +18,11 @@ import { whenReady } from "@legendapp/state";
 const StyledShow = styled(Show);
 const StyledView = styled(View);
 
-const ReactHolder = observer(function ReactHolder({ row, col, active }) {
+const ReactHolder = observer(function ReactHolder({ row, col }) {
   // Fetching required observables
 
   // Grabbing the current user and date to fetch the page
+  const active = pageStore$.curRow.get() === row && pageStore$.curCol.get() === col;
   const user = pageStore$.members[row].get();
   const date = pageStore$.dates[col].get();
   const page = getPageForUser(user?.user_id, date?.date);
