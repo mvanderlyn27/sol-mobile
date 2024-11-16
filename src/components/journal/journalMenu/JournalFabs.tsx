@@ -55,13 +55,23 @@ const JournalFabs = observer(function JournalFabs() {
   return (
     <StyledView className=" flex-col justify-center items-center">
       <StyledView className="py-2">
-        {pageId && <RoundButton selected onClick={reactStore$.showReactions.toggle} buttonType={ButtonType.View} />}
+        <RoundButton
+          selected
+          onClick={reactStore$.showReactions.toggle}
+          buttonType={ButtonType.View}
+          disabled={!pageId}
+        />
       </StyledView>
       <StyledView className="py-2">
         {onUsersPage ? (
           <RoundButton primary onClick={handleEdit} buttonType={ButtonType.Edit} />
         ) : (
-          pageId && <RoundButton primary onClick={handleReact} buttonType={ButtonType.React} />
+          <RoundButton
+            primary={pageId !== undefined}
+            onClick={handleReact}
+            buttonType={ButtonType.React}
+            disabled={!pageId}
+          />
         )}
       </StyledView>
     </StyledView>
