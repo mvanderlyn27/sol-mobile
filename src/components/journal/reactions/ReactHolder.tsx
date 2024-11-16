@@ -46,13 +46,13 @@ const ReactHolder = observer(function ReactHolder({ row, col, active }) {
     editUserReactions = editReactStore$.userReactions.get();
     showNonUserReactions = (!reactEditMode && showReactions) || (reactEditMode && showEditNonUserReactions);
     whenReady(editReactStore$.userReactions, () => editReactStore$.isReady.set(true));
-    console.log("non user reactions", nonUserCanvasReactions);
-    console.log("user reactions", userCanvasReactions);
-    console.log("edit reactions", editUserReactions);
+    // console.log("non user reactions", nonUserCanvasReactions);
+    // console.log("user reactions", userCanvasReactions);
+    // console.log("edit reactions", editUserReactions);
   }
 
   return (
-    <StyledView className="absolute top-0 right-0 left-0 bottom-0">
+    <StyledView className="absolute top-0 right-0 left-0 bottom-0" pointerEvents="box-none">
       <AnimatePresence>
         {showNonUserReactions && (
           <MotiView

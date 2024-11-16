@@ -1,5 +1,5 @@
 import { Show, observer } from "@legendapp/state/react";
-import React from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Dimensions, Pressable, Text } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
@@ -23,7 +23,8 @@ const ReactItem = observer(function ReactItem({
   item: CanvasReaction;
   usersReaction?: boolean;
 }) {
-  console.log("text item updated", item, item.fontColor, item.x, item.y, item.rotation, item.z);
+  const [gestureDone, setGestureDone] = useState(true);
+  //   console.log("text item updated", item, item.fontColor, item.x, item.y, item.rotation, item.z);
   const editMode = (reactStore$.reactEditMode.get() && usersReaction) || false;
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
@@ -75,12 +76,14 @@ const ReactItem = observer(function ReactItem({
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
+      console.log("font size: ", fontSize.value);
       runOnJS(updateReactItem)(item.id, {
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
         x: start.value.x,
         y: start.value.y,
       });
+      runOnJS(setGestureDone)(true);
     })
     .enabled(editMode);
 
@@ -119,7 +122,6 @@ const ReactItem = observer(function ReactItem({
               animatedText,
               {
                 fontFamily: item.fontType || "Inkfree",
-                // fontSize: fontSize.value, // Use the updated font size here
                 color: item.fontColor,
               },
             ]}>

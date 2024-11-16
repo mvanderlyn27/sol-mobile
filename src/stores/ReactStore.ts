@@ -98,8 +98,9 @@ export const updateReactItem = (id: string, newItem: CanvasReaction) => {
     console.log("Can't find id");
     return null;
   }
+  const oldItem = curItems[index];
   // Correct way to update the item at the found index
-  editReactStore$.userReactions[index].set(newItem);
+  editReactStore$.userReactions[index].set({ ...oldItem, ...newItem });
 };
 
 export const saveReacts = () => {

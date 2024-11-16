@@ -20,7 +20,7 @@ import {
   subDays,
   startOfToday,
 } from "date-fns";
-import { Canvas, CanvasItem, GroupMember, ImageType, Page } from "../types/shared.types";
+import { Canvas, CanvasImage, CanvasItem, GroupMember, ImageType, Page } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { supabase } from "../lib/supabase";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
@@ -33,6 +33,12 @@ import { groupStore$ } from "./GroupStore";
 import { filterGroupMembers, groupMembers$ } from "./MemberStore";
 import { canvasStore$, defaultCanvas } from "./CanvasStore";
 import { jsonToCanvas } from "../services/Canvas";
+import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator"; // Import ImageManipulator
+import * as FileSystem from "expo-file-system";
+import StorageService from "@/src/api/storage";
+import { Blurhash } from "react-native-blurhash";
+import { resizeImage } from "@/src/services/Media";
 
 //@ts-ignore
 export const pages$ = observable(
@@ -125,7 +131,7 @@ export const pageStore$ = observable<PageStore>({
   curCol: 0,
   editMode: false,
   loadedPages: START_PAGE_NUM,
-  ready: false,
+  ready: true,
 });
 
 /**
@@ -225,15 +231,126 @@ export function handleEdit() {
   }
   endBatch();
 }
-export function handlePageSave() {
-  beginBatch();
+const uploadImage = async (
+  pageId: string,
+  imageId: string,
+  index: number,
+  selectedImageUri: string,
+  width: number,
+  height: number
+) => {
+  // if (!result.canceled) {
+  // const selectedImageUri = result.assets[0].uri;
+  // Resize the image to 100x100 using ImageManipulator
+  const blurhash = await ImageManipulator.manipulateAsync(selectedImageUri, [{ resize: { width: 100, height: 100 } }], {
+    compress: 0.5,
+    format: ImageManipulator.SaveFormat.PNG,
+  })
+    .then((resizedImage) => Blurhash.encode(resizedImage.uri, 4, 3))
+    .then((blurhash) => blurhash)
+    .catch((error) => {
+      console.error("Error generating blurhash:", error);
+      // Alert.alert("Error", "Failed to generate blurhash.");
+      return null;
+    });
+  const image = await resizeImage(selectedImageUri, width, height)
+    .then((image) => image)
+    .catch((error) => {
+      console.log("error optimizing image");
+      return null;
+    });
+
+  if (!image || !blurhash) {
+    // setLoading(false);
+    return;
+  }
+  const base64 = await FileSystem.readAsStringAsync(image, { encoding: "base64" });
+  const { success, data, error } = await StorageService.uploadFile({
+    bucket: "page_photos",
+    filePath: `${pageId}/${imageId}.webp`,
+    base64: base64,
+    fileExtension: "webp",
+    mimeType: "image/webp",
+  });
+  console.log("done uploading", error, data, success);
+  if (error || !data) {
+    console.error("error uploading", error);
+    //show notif here
+
+    // setLoading(false);
+    return null;
+  }
+  const path = supabase.storage.from("page_photos").getPublicUrl(`${pageId}/${imageId}.webp`);
+  console.log("starting last update");
+  // beginBatch();
+  // groups$[groupId].cover_url.set(path.data.publicUrl + `?t=${new Date().toISOString()}`);
+  // groups$[groupId].cover_placeholder.set(blurhash);
+  // endBatch();
+  console.log("finished update", path);
+  return { index: index, path: path.data.publicUrl, blurhash: blurhash };
+};
+const uploadImages = async (pageId: string) => {
+  const newCanvas = canvasStore$.curCanvas.get();
+  if (!newCanvas || !pageId) {
+    console.log("no items to upload");
+    return;
+  }
+  let newItems: CanvasItem[] = [];
+
+  // Create an array of promises
+  const promiseAr = newCanvas.items.map((item, index) => {
+    if (item.type !== "image" || (item.type === "image" && item.path.includes("https://"))) {
+      newItems.push(item);
+      return Promise.resolve(null); // Return a resolved promise for non-image items
+    } else {
+      // Upload image and handle post-completion logic
+      return uploadImage(pageId, item.id, index, item.path, item.width, item.height)
+        .then((result) => {
+          if (result) {
+            console.log(`Image uploaded: ${result.path}`);
+            // Perform any additional logic after each upload here
+          }
+          return result;
+        })
+        .catch((error) => {
+          console.error(`Failed to upload image with ID ${item.id}:`, error);
+          return null; // Handle error and continue
+        });
+    }
+  });
+
+  // Wait for all promises to complete
+  const results = await Promise.all(promiseAr || []);
+
+  // Process the results after all uploads
+  results.forEach((result, index) => {
+    if (result) {
+      console.log(`Processed result for item at index ${index}:`, result);
+      // Update the newItems array or perform other actions
+      const curItem: CanvasImage = newCanvas.items[result.index] as CanvasImage;
+      newItems.push({
+        ...curItem,
+        path: result.path,
+        placeholder: result.blurhash,
+      });
+    }
+  });
+
+  // Return new items or perform any final processing
+  canvasStore$.curCanvas.items.set(newItems);
+};
+export async function handlePageSave() {
+  // beginBatch();
   uiStore$.displayJournalMenu.set(true);
   uiStore$.displayCanvasMenu.set(false);
+  pageStore$.ready.set(false);
   // canvasStore$.curCanvas.set(defaultCanvas);
 
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const curPageId = getPageForUser(user || "", day.date)?.id;
+  const id = generateId();
+  await uploadImages(curPageId || id);
   const newCanvas = canvasStore$.curCanvas.get();
   console.log("saving: cur pageId", curPageId);
   if (curPageId) {
@@ -243,7 +360,6 @@ export function handlePageSave() {
     pages$[curPageId].set({ ...currentPage, canvas: newCanvas });
     // ADD UPLOAD IMAGE HERE
   } else {
-    const id = generateId();
     const groupId = groupStore$.selectedGroup.get();
     const userId = authStore$.session.get()?.user.id;
     const curDate = day.date;
@@ -264,9 +380,11 @@ export function handlePageSave() {
   }
 
   // ADD UPLOAD IMAGE HERE
+  console.log("uploaded images, saved to backend");
   pageStore$.editMode.set(false);
   canvasStore$.curCanvas.set({ ...defaultCanvas });
-  endBatch();
+  pageStore$.ready.set(true);
+  // endBatch();
 }
 export function handlePageCancel() {
   beginBatch();

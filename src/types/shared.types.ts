@@ -84,6 +84,7 @@ export interface CanvasFrame extends CanvasItemBase {
 export interface CanvasImage extends CanvasItemBase {
   type: "image";
   path: string; // Path to the frame image
+  placeholder?: string;
   width: number;
   height: number;
 }
