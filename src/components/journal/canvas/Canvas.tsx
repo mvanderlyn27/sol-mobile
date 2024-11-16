@@ -6,17 +6,12 @@ import { Canvas, CanvasItem, Image } from "@/src/types/shared.types";
 import { Image as ExpoImage } from "expo-image";
 
 import CanvasFrameHolder from "./CanvasFrameHolder";
-import { BG_04, getImageFromPath } from "@/src/assets/images/images";
-import { useCanvas } from "@/src/contexts/CanvasProvider";
-import { useJournal } from "@/src/contexts/JournalProvider";
-import CanvasItemEditor from "./CanvasItemEditor";
-import { useData } from "@/src/contexts/DataProvider";
-import { Json } from "@/src/types/supabase.types";
+import { getImageFromPath } from "@/src/assets/images/images";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import CanvasImageHolder from "./CanvasImageHolder";
-import { For, Show, observer } from "@legendapp/state/react";
-import { getPageForUser, pageStore$, pages$ } from "@/src/stores/PagesStore";
+import { Show, observer } from "@legendapp/state/react";
+import { getPageForUser, pageStore$ } from "@/src/stores/PagesStore";
 import CanvasTextHolder from "./CanvasText";
 
 export const StyledMotiView = styled(MotiView);

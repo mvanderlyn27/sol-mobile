@@ -2,6 +2,7 @@ import BottomBar from "@/src/components/journal/journalMenu/JournalMenu";
 import NavigationBar from "@/src/components/navigation/NavigationBar";
 import AppOverlays from "@/src/components/screens/AppOverlays";
 import authStore$ from "@/src/stores/AuthStore";
+import { profiles$ } from "@/src/stores/ProfileStore";
 import { observer } from "@legendapp/state/react";
 import { Redirect, Slot, Stack, router } from "expo-router";
 import { useEffect } from "react";
@@ -11,6 +12,13 @@ export const unstable_settings = {
 const Layout = observer(function Layout() {
   const session = authStore$.session.get();
   const loadingAuth = authStore$.loading.get();
+  const newUser = profiles$[session?.user.id || ""].new.get();
+  useEffect(() => {
+    if (session?.user.id && newUser === true) {
+      router.push("/ftux");
+    }
+  }, [session, newUser]);
+
   useEffect(() => {
     if (!session && !loadingAuth) {
       router.push("/login");

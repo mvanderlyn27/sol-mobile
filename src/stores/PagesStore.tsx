@@ -217,7 +217,6 @@ export function navigateToPage(row: number, col: number) {
  * Toggle edit mode
  */
 export function handleEdit() {
-  beginBatch();
   console.log("editing");
   pageStore$.editMode.set(true);
   uiStore$.displayCanvasMenu.set(true);
@@ -229,7 +228,6 @@ export function handleEdit() {
     const page = pages$?.get()[pageId];
     canvasStore$.curCanvas.set(jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas);
   }
-  endBatch();
 }
 const uploadImage = async (
   pageId: string,

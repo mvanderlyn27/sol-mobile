@@ -39,7 +39,6 @@ const ReactHolder = observer(function ReactHolder({ row, col }) {
   let editUserReactions: CanvasReaction[] = [];
   let showNonUserReactions = true;
 
-  console.log("r,c, active? ", row, col, active);
   if (active) {
     reactEditMode = reactStore$.reactEditMode.get();
     showEditNonUserReactions = editReactStore$.showNonUserReactions.get();

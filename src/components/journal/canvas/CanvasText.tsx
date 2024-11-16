@@ -1,5 +1,5 @@
 import { Show, observer } from "@legendapp/state/react";
-import React from "react";
+import React, { memo } from "react";
 import { Dimensions, Pressable, Text } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
@@ -17,7 +17,6 @@ export const StyledPressable = styled(Pressable);
 export const StyledText = styled(MotiText);
 
 const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: CanvasText }) {
-  console.log("text item updated", item.fontSize);
   const editMode = pageStore$.editMode.get();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
@@ -122,4 +121,4 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   );
 });
 
-export default CanvasTextHolder;
+export default memo(CanvasTextHolder);
