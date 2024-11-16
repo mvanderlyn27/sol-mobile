@@ -251,6 +251,7 @@ const uploadImage = async (
       // Alert.alert("Error", "Failed to generate blurhash.");
       return null;
     });
+
   const image = await resizeImage(selectedImageUri, width, height)
     .then((image) => image)
     .catch((error) => {
@@ -302,7 +303,7 @@ const uploadImages = async (pageId: string) => {
       return Promise.resolve(null); // Return a resolved promise for non-image items
     } else {
       // Upload image and handle post-completion logic
-      return uploadImage(pageId, item.id, index, item.path, item.width, item.height)
+      return uploadImage(pageId, item.id, index, item.path, item.width * 1.5, item.height * 1.5)
         .then((result) => {
           if (result) {
             console.log(`Image uploaded: ${result.path}`);

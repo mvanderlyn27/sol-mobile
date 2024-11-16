@@ -29,7 +29,9 @@ const SettingsTab = observer(function () {
   return (
     <StyledView className="p-4">
       {/* Text Size Slider */}
-      <StyledText className="text-lg font-bold mb-2 text-white">Text Size</StyledText>
+      <StyledText className="text-lg  mb-2 text-white">
+        Text Size: <Text style={{ fontWeight: "bold" }}>{size}px</Text>
+      </StyledText>
       <Slider
         minimumValue={10}
         maximumValue={100}
@@ -38,11 +40,8 @@ const SettingsTab = observer(function () {
         onValueChange={handleTextSizeChange}
         style={{ width: "100%", height: 40 }}
       />
-      <StyledText className="text-center mt-2 text-white text-lg">{size}px</StyledText>
 
-      {/* Color Selector */}
-      <StyledText className="text-lg font-bold mt-4 mb-2">Select Image Color</StyledText>
-      <StyledView className="flex-row justify-center">
+      <StyledView className="flex-row justify-center mt-2">
         {colorOptions.map((color) => (
           <StyledTouchableOpacity
             key={color}

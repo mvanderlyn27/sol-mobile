@@ -81,7 +81,7 @@ export const resizeImage = async (uri: string, originalWidth: number, originalHe
   const manipResult = await ImageManipulator.manipulateAsync(
     uri,
     [{ resize: { width: newWidth, height: newHeight } }],
-    { compress: 0.7, format: ImageManipulator.SaveFormat.WEBP }
+    { compress: 1, format: ImageManipulator.SaveFormat.WEBP }
   );
 
   return manipResult.uri; // Return the URI of the resized image
