@@ -57,9 +57,9 @@ const CanvasObject = observer(function CanvasObject({ item }: { item: CanvasItem
     // case "frame":
     //   return <CanvasFrameHolder key={`frame-${item.id}`} observableItem={item} />;
     case "image":
-      return <CanvasImageHolder key={`${editMode ? "edit-" : ""}image-${item.id}-${item.version}`} item={item} />;
+      return <CanvasImageHolder key={`${editMode ? "edit-" : ""}image-${item.id}`} item={item} />;
     case "text":
-      return <CanvasTextHolder key={`${editMode ? "edit-" : ""}text-${item.id}-${item.version}`} item={item} />;
+      return <CanvasTextHolder key={`${editMode ? "edit-" : ""}text-${item.id}`} item={item} />;
     default:
       return null;
   }

@@ -35,7 +35,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   console.log("cur canvas", rowIndex, colIndex, canvas);
   return (
     <View style={{ width, height }}>
-      <CanvasHolder canvas={canvas} />
+      <CanvasHolder canvas={{ ...canvas }} />
       {/* <ReactHolder canvas={canvas.get()} /> */}
     </View>
   );

@@ -38,9 +38,7 @@ export const updateCanvasItem = (id: string, item: CanvasItem) => {
   const newZ = (canvasStore$.curCanvas.maxZIndex.get() || 0) + 1;
   const newItems = canvasStore$.curCanvas.items
     .get()
-    ?.map((canvasItem) =>
-      canvasItem.id === id ? { ...canvasItem, ...item, z: newZ, version: canvasItem.version + (1 % 10000) } : canvasItem
-    );
+    ?.map((canvasItem) => (canvasItem.id === id ? { ...canvasItem, ...item, z: newZ } : canvasItem));
   canvasStore$.curCanvas.items.set(newItems);
   canvasStore$.curCanvas.maxZIndex.set(newZ);
 };

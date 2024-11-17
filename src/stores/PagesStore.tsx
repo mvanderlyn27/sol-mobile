@@ -1,4 +1,14 @@
-import { batch, computed, observable, observe, syncState, when, whenReady } from "@legendapp/state";
+import {
+  batch,
+  beginBatch,
+  computed,
+  endBatch,
+  observable,
+  observe,
+  syncState,
+  when,
+  whenReady,
+} from "@legendapp/state";
 import {
   format,
   addDays,
@@ -154,10 +164,8 @@ function loadInitialPages() {
   const allDates = getAllUniqueDates(START_PAGE_NUM); // Get unique dates for initial range
 
   // Batch update to set members and initial date range
-  batch(() => {
-    pageStore$.dates.set(allDates); // Set initial dates range
-    pageStore$.loadedPages.set(START_PAGE_NUM); // Track number of loaded dates/pages
-  });
+  pageStore$.dates.set(allDates); // Set initial dates range
+  pageStore$.loadedPages.set(START_PAGE_NUM); // Track number of loaded dates/pages
 }
 
 /**
@@ -328,7 +336,7 @@ const uploadImages = async (pageId: string) => {
   canvasStore$.curCanvas.items.set(newItems);
 };
 export async function handlePageSave() {
-  // beginBatch();
+  beginBatch();
   console.log("saving canvas");
   uiStore$.displayJournalMenu.set(true);
   uiStore$.displayCanvasMenu.set(false);
@@ -373,7 +381,7 @@ export async function handlePageSave() {
   pageStore$.editMode.set(false);
   canvasStore$.curCanvas.set({ ...defaultCanvas });
   pageStore$.ready.set(true);
-  // endBatch();
+  endBatch();
 }
 export function handlePageCancel() {
   console.log("canceling edits");
