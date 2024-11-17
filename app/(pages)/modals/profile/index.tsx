@@ -32,7 +32,6 @@ const CurProfile = observer(function CurProfile() {
   const curUserId = authStore$.session.get()?.user.id;
   if (!curUserId) return null;
   const profile = profiles$[curUserId].get();
-  const groupsCount = groups$.get() ? Object.keys(groups$.get()).length : 0;
   const myGroupIds = Object.values(filterMyGroups(groupMembers$.get(), curUserId) || {}).map((gm) => gm.group_id);
   const set = new Set([curUserId]);
   let friendCount = 0;
@@ -96,7 +95,7 @@ const CurProfile = observer(function CurProfile() {
         <StyledView className="flex-row justify-between pb-4 ">
           <StyledView className="flex-col flex-1 px-2 itmes-center">
             <StyledText className="font-bold">Groups</StyledText>
-            <StyledText className="p-4 text-lg">{groupsCount}</StyledText>
+            <StyledText className="p-4 text-lg">{myGroupIds.length || 0}</StyledText>
           </StyledView>
           <StyledView className="flex-col flex-1 px-2 items-center">
             <StyledText className="font-bold">Friends</StyledText>

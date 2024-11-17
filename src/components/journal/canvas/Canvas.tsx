@@ -2,13 +2,13 @@ import { styled } from "nativewind";
 import { AnimatePresence, MotiView } from "moti";
 import React, { memo, useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-import { Canvas, CanvasItem, Image } from "@/src/types/shared.types";
+import { Canvas, CanvasItem, Image, Page } from "@/src/types/shared.types";
 import { Image as ExpoImage } from "expo-image";
 
 import CanvasFrameHolder from "./CanvasFrameHolder";
 import { getImageFromPath } from "@/src/assets/images/images";
 import { jsonToCanvas } from "@/src/services/Canvas";
-import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
+import { defaultCanvas } from "@/src/stores/CanvasStore";
 import CanvasImageHolder from "./CanvasImageHolder";
 import { Show, observer } from "@legendapp/state/react";
 import { getPageForUser, pageStore$ } from "@/src/stores/PagesStore";
@@ -16,31 +16,16 @@ import CanvasTextHolder from "./CanvasText";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
-export const CanvasHolder = observer(function CanvasHolder({ row, col }: { row: number; col: number }) {
-  const date = pageStore$.dates[col].date.get();
-  const user = pageStore$.members[row].get();
-  const page = getPageForUser(user.user_id, date);
-  let canvas = { ...defaultCanvas };
-  const oldCanvas = jsonToCanvas(JSON.stringify(page?.canvas));
-  if (oldCanvas) {
-    canvas = oldCanvas;
-  }
-
-  // const canvas = pageStore$.pages[col]?.[date]?.get() || defaultCanvas;
-  const tempCanvas = canvasStore$.curCanvas.get() || defaultCanvas;
-  const editMode = pageStore$.editMode.get();
-
+export const CanvasHolder = observer(function CanvasHolder({ canvas }: { canvas: Canvas }) {
+  console.log("canvas items", canvas.items);
   return (
-    <Show
-      key={`${canvas.id}-${row}-${col}`}
-      if={editMode}
-      else={<CanvasElement items={canvas.items} backgroundImage={canvas.backgroundImage} />}>
-      <CanvasElement items={tempCanvas?.items} backgroundImage={tempCanvas.backgroundImage} />
-    </Show>
+    <View style={{ flex: 1 }}>
+      <CanvasElement items={canvas.items} backgroundImage={canvas.backgroundImage} />
+    </View>
   );
 });
 
-const CanvasElement = memo(function CanvasElement({
+const CanvasElement = function CanvasElement({
   items,
   backgroundImage,
 }: {
@@ -61,7 +46,7 @@ const CanvasElement = memo(function CanvasElement({
       ))}
     </StyledMotiView>
   );
-});
+};
 
 const CanvasObject = observer(function CanvasObject({ item }: { item: CanvasItem }) {
   switch (item.type) {

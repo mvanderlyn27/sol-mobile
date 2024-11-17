@@ -33,7 +33,6 @@ export const filterMyGroups = (
   const out = Object.entries(map)
     .filter(([key, val]) => val.status === "completed" && val.user_id === userId)
     .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
-  // console.log("filtered my groups", out);
   return out;
 };
 export const filterMyInvites = (

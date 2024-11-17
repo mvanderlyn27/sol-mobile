@@ -44,7 +44,10 @@ const ReactItem = observer(function ReactItem({
   const animatedText = useAnimatedStyle(() => ({
     fontSize: fontSize.value,
   }));
-
+  useEffect(() => {
+    fontSize.value = item.fontSize;
+    savedFontSize.value = item.fontSize;
+  }, [item.fontSize]);
   const handleGestureStart = () => {
     if (editMode) updateReactItem(item.id, { ...item });
   };
@@ -72,7 +75,7 @@ const ReactItem = observer(function ReactItem({
   const zoomGesture = Gesture.Pinch()
     .onUpdate((event) => {
       // Adjust font size instead of scale
-      fontSize.value = Math.min(savedFontSize.value * event.scale, 100);
+      fontSize.value = Math.min(savedFontSize.value * event.scale, 150);
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;

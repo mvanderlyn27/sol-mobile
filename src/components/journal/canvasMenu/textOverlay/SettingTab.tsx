@@ -34,7 +34,7 @@ const SettingsTab = observer(function () {
       </StyledText>
       <Slider
         minimumValue={10}
-        maximumValue={100}
+        maximumValue={150}
         step={1}
         value={size}
         onValueChange={handleTextSizeChange}

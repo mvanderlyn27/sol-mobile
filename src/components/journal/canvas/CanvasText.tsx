@@ -1,11 +1,11 @@
 import { Show, observer } from "@legendapp/state/react";
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { Dimensions, Pressable, Text } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
-import { canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
+import { updateCanvasItem } from "@/src/stores/CanvasStore";
 import { pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasText } from "@/src/types/shared.types";
 import { AnimatePresence, MotiText, MotiView } from "moti";
@@ -36,7 +36,10 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   const animatedText = useAnimatedStyle(() => ({
     fontSize: fontSize.value,
   }));
-
+  useEffect(() => {
+    fontSize.value = item.fontSize;
+    savedFontSize.value = item.fontSize;
+  }, [item.fontSize]);
   const handleGestureStart = () => {
     if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
     updateCanvasItem(item.id, { ...item });
@@ -65,7 +68,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   const zoomGesture = Gesture.Pinch()
     .onUpdate((event) => {
       // Adjust font size instead of scale
-      fontSize.value = Math.min(savedFontSize.value * event.scale, 100);
+      fontSize.value = Math.min(savedFontSize.value * event.scale, 150);
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;

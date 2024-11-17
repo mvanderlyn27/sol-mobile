@@ -5,7 +5,7 @@ import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
-import { canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
+import { updateCanvasItem } from "@/src/stores/CanvasStore";
 import { pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
