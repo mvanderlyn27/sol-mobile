@@ -71,6 +71,7 @@ export interface CanvasItemBase {
   rotation: number;
   //calc when adding to screen to ensure it fits in the frame properly, increase/decrease as desiread
   scale: number;
+  version: number;
 
   //original picture width/height, doesn't change
 }

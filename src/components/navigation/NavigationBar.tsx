@@ -27,10 +27,8 @@ const NavigationBar = observer(function NavigationBar() {
     if (curRoute !== "/journal") {
       router.push("/journal");
     }
-    beginBatch();
     uiStore$.displayNavigationBar.set(false);
     uiStore$.displayJournalMenu.set(true);
-    endBatch();
   };
   return (
     <AnimatePresence>

@@ -90,10 +90,8 @@ const GroupPic = observer(function GroupPic({
       }
       const path = supabase.storage.from("group_covers").getPublicUrl(`${groupId}/cover.webp`);
       console.log("starting last update");
-      beginBatch();
       groups$[groupId].cover_url.set(path.data.publicUrl + `?t=${new Date().toISOString()}`);
       groups$[groupId].cover_placeholder.set(blurhash);
-      endBatch();
       console.log("finished update", path);
     }
 

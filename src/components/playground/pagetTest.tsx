@@ -15,26 +15,27 @@ import { jsonToCanvas } from "@/src/services/Canvas";
 const { width, height } = Dimensions.get("window");
 
 const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIndex: number }) => {
-  console.log("re-rendering", rowIndex, colIndex);
-  const userId = useComputed(() => pageStore$.members.get()?.[rowIndex]?.user_id, [rowIndex]);
-  const date = useComputed(() => pageStore$.dates.get()?.[colIndex]?.date, [colIndex]);
+  const userId = pageStore$.members.get()?.[rowIndex]?.user_id;
+  const date = pageStore$.dates.get()?.[colIndex]?.date;
 
-  // Compute the active canvas
-  const canvas = useComputed(() => {
-    if (pageStore$.editMode.get() && pageStore$.curRow.get() === rowIndex && pageStore$.curCol.get() === colIndex) {
-      console.log("using edit mode canvas", canvasStore$.curCanvas.get());
-      return canvasStore$.curCanvas.get() || defaultCanvas;
-    } else if (userId && date) {
-      const page = getPageForUser(userId.get(), date?.get());
-      if (page?.canvas) {
-        return jsonToCanvas(page.canvas) || defaultCanvas;
-      }
-    }
-    return defaultCanvas;
-  }, [rowIndex, colIndex, pages$.get(), canvasStore$.curCanvas.get(), pageStore$.editMode.get()]);
+  // Get current canvas directly from the stores
+  const curRow = pageStore$.curRow.get();
+  const curCol = pageStore$.curCol.get();
+  const editMode = pageStore$.editMode.get();
+
+  // Compute the active canvas based on conditions
+  let canvas = defaultCanvas;
+  if (editMode && curRow === rowIndex && curCol === colIndex) {
+    const curCanvas = canvasStore$.curCanvas.get();
+    canvas = curCanvas || defaultCanvas;
+  } else if (userId && date) {
+    const page = getPageForUser(userId, date);
+    canvas = page?.canvas ? jsonToCanvas(page.canvas) || defaultCanvas : defaultCanvas;
+  }
+  console.log("cur canvas", rowIndex, colIndex, canvas);
   return (
     <View style={{ width, height }}>
-      <CanvasHolder canvas={canvas.get()} />
+      <CanvasHolder canvas={canvas} />
       {/* <ReactHolder canvas={canvas.get()} /> */}
     </View>
   );

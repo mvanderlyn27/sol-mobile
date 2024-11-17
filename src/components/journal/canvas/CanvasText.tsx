@@ -17,6 +17,7 @@ export const StyledPressable = styled(Pressable);
 export const StyledText = styled(MotiText);
 
 const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: CanvasText }) {
+  console.log("rendering text", item.id, item.version);
   const editMode = pageStore$.editMode.get();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
@@ -59,6 +60,8 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
       start.value = { x: offset.value.x, y: offset.value.y };
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
+        fontSize: fontSize.value, // Save the new font size to the store
+        rotation: rotation.value,
         x: start.value.x,
         y: start.value.y,
       });
@@ -75,6 +78,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
+        rotation: rotation.value,
         x: start.value.x,
         y: start.value.y,
       });
@@ -90,6 +94,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
         rotation: rotation.value,
+        fontSize: fontSize.value, // Save the new font size to the store
         x: start.value.x,
         y: start.value.y,
       });
@@ -104,7 +109,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   };
 
   return (
-    <StyledMotiView key={"frame-" + item.id} style={[animatedStyles, { position: "absolute" }]}>
+    <StyledMotiView key={"text-" + item.id + "v-" + item.version} style={[animatedStyles, { position: "absolute" }]}>
       <GestureDetector gesture={composed}>
         <Pressable onPress={handleEdit}>
           <StyledText
@@ -124,4 +129,4 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   );
 });
 
-export default memo(CanvasTextHolder);
+export default CanvasTextHolder;

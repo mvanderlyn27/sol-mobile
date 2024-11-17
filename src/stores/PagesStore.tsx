@@ -1,14 +1,4 @@
-import {
-  batch,
-  beginBatch,
-  computed,
-  endBatch,
-  observable,
-  observe,
-  syncState,
-  when,
-  whenReady,
-} from "@legendapp/state";
+import { batch, computed, observable, observe, syncState, when, whenReady } from "@legendapp/state";
 import {
   format,
   addDays,
@@ -31,7 +21,7 @@ import authStore$ from "./AuthStore";
 import { uiStore$ } from "./UIStore";
 import { groupStore$ } from "./GroupStore";
 import { filterGroupMembers, groupMembers$ } from "./MemberStore";
-import { canvasStore$, defaultCanvas } from "./CanvasStore";
+import { canvasStore$, clearCanvas, defaultCanvas } from "./CanvasStore";
 import { jsonToCanvas } from "../services/Canvas";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator"; // Import ImageManipulator
@@ -181,10 +171,8 @@ export function loadMorePages() {
   const newDates = getAllUniqueDates(newLoadedPages);
 
   // Batch update to set the new expanded date range
-  batch(() => {
-    pageStore$.dates.set(newDates); // Update dates to include additional range
-    pageStore$.loadedPages.set(newLoadedPages); // Update the count of loaded dates
-  });
+  pageStore$.dates.set(newDates); // Update dates to include additional range
+  pageStore$.loadedPages.set(newLoadedPages); // Update the count of loaded dates
 }
 
 /**
@@ -226,7 +214,8 @@ export function handleEdit() {
   const pageId = getPageForUser(user || "", day.date)?.id;
   if (pageId) {
     const page = pages$?.get()[pageId];
-    canvasStore$.curCanvas.set(jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas);
+    const canvas = jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas;
+    canvasStore$.curCanvas.set({ ...canvas });
   }
 }
 const uploadImage = async (
@@ -340,6 +329,7 @@ const uploadImages = async (pageId: string) => {
 };
 export async function handlePageSave() {
   // beginBatch();
+  console.log("saving canvas");
   uiStore$.displayJournalMenu.set(true);
   uiStore$.displayCanvasMenu.set(false);
   pageStore$.ready.set(false);
@@ -386,10 +376,9 @@ export async function handlePageSave() {
   // endBatch();
 }
 export function handlePageCancel() {
-  beginBatch();
+  console.log("canceling edits");
   uiStore$.displayJournalMenu.set(true);
   uiStore$.displayCanvasMenu.set(false);
-  canvasStore$.curCanvas.set(defaultCanvas);
+  clearCanvas();
   pageStore$.editMode.set(false);
-  endBatch();
 }

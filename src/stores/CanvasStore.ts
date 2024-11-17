@@ -1,4 +1,4 @@
-import { batch, beginBatch, endBatch, observable } from "@legendapp/state";
+import { batch, observable } from "@legendapp/state";
 import { Canvas, CanvasItem, ImageType } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { generateId } from "./AsyncStorage";
@@ -26,27 +26,28 @@ export const canvasStore$ = observable<CanvasStore>({
 });
 // Add a new item to the canvas
 export const addCanvasItem = (item: CanvasItem) => {
-  beginBatch();
   const items = canvasStore$.curCanvas.items.get() || [];
-  canvasStore$.curCanvas.items.set([...items, item]);
+  const newItems = [...items, item];
+  canvasStore$.curCanvas.items.set(newItems);
   const newZ = (canvasStore$.curCanvas.maxZIndex.get() || 0) + 1;
   canvasStore$.curCanvas.maxZIndex.set(newZ);
-  endBatch();
 };
 
 // Update an existing item on the canvas
 export const updateCanvasItem = (id: string, item: CanvasItem) => {
-  console.log("updating item", item.id);
   const newZ = (canvasStore$.curCanvas.maxZIndex.get() || 0) + 1;
-  canvasStore$.curCanvas.items.set((items) =>
-    items?.map((canvasItem) => (canvasItem.id === id ? { ...canvasItem, ...item, z: newZ } : canvasItem))
-  );
+  const newItems = canvasStore$.curCanvas.items
+    .get()
+    ?.map((canvasItem) =>
+      canvasItem.id === id ? { ...canvasItem, ...item, z: newZ, version: canvasItem.version + (1 % 10000) } : canvasItem
+    );
+  canvasStore$.curCanvas.items.set(newItems);
   canvasStore$.curCanvas.maxZIndex.set(newZ);
 };
 
 // Clear the canvas to its default state
 export const clearCanvas = () => {
-  canvasStore$.curCanvas.set(defaultCanvas);
+  canvasStore$.curCanvas.set({ ...defaultCanvas });
 };
 
 // Remove an item from the canvas by its ID

@@ -81,11 +81,9 @@ const ProfilePic = observer(function ProfilePic({ editable, userId }: { editable
       }
       const path = supabase.storage.from("avatars").getPublicUrl(`${curUserId}/avatar.webp`);
       console.log("starting last update");
-      beginBatch();
       console.log("user", curUserId);
       profiles$[curUserId].avatar_url.set(path.data.publicUrl + `?t=${new Date().toISOString()}`);
       profiles$[curUserId].avatar_placeholder.set(blurhash);
-      endBatch();
       console.log("finished update", path);
       setLoading(false);
     }

@@ -168,6 +168,7 @@ const CanvasMenu = observer(function CanvasMenu() {
         rotation: 0,
         scale: 1,
         type: "image",
+        version: 0,
       };
       addCanvasItem(image);
       // uiStore$.displayCanvasMenu.set(false);

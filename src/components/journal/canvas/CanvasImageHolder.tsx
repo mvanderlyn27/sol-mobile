@@ -1,5 +1,5 @@
 import { Show, observer } from "@legendapp/state/react";
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { Dimensions, Pressable } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
@@ -17,6 +17,7 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
+  console.log("rendering image", item);
   const editMode = pageStore$.editMode.get();
   // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });
@@ -25,7 +26,6 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
   const height = useSharedValue(item.height);
   const savedRotation = useSharedValue(item.rotation);
   const rotation = useSharedValue(item.rotation);
-
   const animatedFrameGroupStyles = useAnimatedStyle(() => ({
     width: width.value,
     height: height.value,
@@ -50,6 +50,9 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
       start.value = { x: offset.value.x, y: offset.value.y };
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
+        width: width.value,
+        height: height.value,
+        rotation: rotation.value,
         x: start.value.x,
         y: start.value.y,
       });
@@ -67,6 +70,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
         ...item,
         width: width.value,
         height: height.value,
+        rotation: rotation.value,
         x: start.value.x,
         y: start.value.y,
       });
@@ -83,6 +87,8 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
       runOnJS(updateCanvasItem)(item.id, {
         ...item,
         rotation: rotation.value,
+        width: width.value,
+        height: height.value,
         x: start.value.x,
         y: start.value.y,
       });
@@ -115,4 +121,4 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
   );
 });
 
-export default memo(CanvasImageHolder);
+export default CanvasImageHolder;
