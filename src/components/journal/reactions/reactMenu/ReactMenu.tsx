@@ -29,6 +29,7 @@ import { generateId } from "@/src/stores/AsyncStorage";
 import RoundButton from "@/src/components/shared/CircleButton";
 import UserPic from "@/src/components/shared/UserPic";
 import { cancelReacts, editReactStore$, reactStore$, saveReacts } from "@/src/stores/ReactStore";
+import { textStore$ } from "@/src/stores/EditTextStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -52,6 +53,7 @@ const ReactMenu = observer(function ReactMenu() {
   const handleReact = () => {
     uiStore$.displayReactOverlay.set(true);
     uiStore$.displayReactMenu.set(false);
+    textStore$.reset();
     reactStore$.reactEditMode.set(true);
   };
   const handleViewReact = () => {

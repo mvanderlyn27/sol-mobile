@@ -17,7 +17,6 @@ export const StyledPressable = styled(Pressable);
 export const StyledText = styled(MotiText);
 
 const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: CanvasText }) {
-  console.log("rendering text", item.id, item.version);
   const editMode = pageStore$.editMode.get();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
@@ -109,7 +108,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   };
 
   return (
-    <StyledMotiView key={"text-" + item.id + "v-" + item.version} style={[animatedStyles, { position: "absolute" }]}>
+    <StyledMotiView key={"text-" + item.id} style={[animatedStyles, { position: "absolute" }]}>
       <GestureDetector gesture={composed}>
         <Pressable onPress={handleEdit}>
           <StyledText

@@ -4,12 +4,15 @@ import PagerView from "react-native-pager-view";
 import { observer, useComputed } from "@legendapp/state/react";
 import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
-import { GroupMember } from "@/src/types/shared.types";
+import { Canvas, CanvasReaction, GroupMember, Reaction } from "@/src/types/shared.types";
 import { getPageForUser, loadMorePages, pageStore$, pages$ } from "@/src/stores/PagesStore";
 import ReactHolder from "../journal/reactions/ReactHolder";
-import { reactStore$ } from "@/src/stores/ReactStore";
+import { editReactStore$, filterNonUserReactions, filterUserReactions, reactStore$ } from "@/src/stores/ReactStore";
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
+import { jsonToReact, reactToJson } from "@/src/services/Reaction";
+import authStore$ from "@/src/stores/AuthStore";
+import { Json } from "@/src/types/supabase.types";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
@@ -17,26 +20,48 @@ const { width, height } = Dimensions.get("window");
 const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIndex: number }) => {
   const userId = pageStore$.members.get()?.[rowIndex]?.user_id;
   const date = pageStore$.dates.get()?.[colIndex]?.date;
-
+  const page = getPageForUser(userId, date);
   // Get current canvas directly from the stores
   const curRow = pageStore$.curRow.get();
   const curCol = pageStore$.curCol.get();
   const editMode = pageStore$.editMode.get();
-
+  const curUserId = authStore$.session.user.id.get();
+  const active = curRow === rowIndex && curCol === colIndex;
   // Compute the active canvas based on conditions
   let canvas = defaultCanvas;
-  if (editMode && curRow === rowIndex && curCol === colIndex) {
-    const curCanvas = canvasStore$.curCanvas.get();
+  if (editMode && active) {
+    const curCanvas = { ...canvasStore$.curCanvas.get() } as Canvas;
     canvas = curCanvas || defaultCanvas;
   } else if (userId && date) {
-    const page = getPageForUser(userId, date);
-    canvas = page?.canvas ? jsonToCanvas(page.canvas) || defaultCanvas : defaultCanvas;
+    canvas = page?.canvas ? ({ ...jsonToCanvas(page.canvas) } as Canvas) || defaultCanvas : defaultCanvas;
   }
-  console.log("cur canvas", rowIndex, colIndex, canvas);
+  let reactions: Reaction[] = [];
+  const nonUserCanvasReactions = filterNonUserReactions(page?.id || "");
+  const userCanvasReactions = filterUserReactions(page?.id || "");
+  const reactEditMode = reactStore$.reactEditMode.get();
+  const showReactions = reactStore$.showReactions.get();
+  if (!reactEditMode && showReactions) {
+    reactions = [...nonUserCanvasReactions, ...userCanvasReactions];
+  } else if (reactEditMode && active) {
+    const showEditNonUserReactions = editReactStore$.showNonUserReactions.get();
+    const editUserReactions = editReactStore$.userReactions.get().map((reaction) => {
+      return {
+        created_at: new Date().toISOString(),
+        created_by: curUserId,
+        deleted: false,
+        id: reaction.id,
+        page_id: page?.id || "",
+        reaction: reactToJson(reaction),
+        updated_at: new Date().toISOString(),
+      } as Reaction;
+    });
+    console.log("edits", editUserReactions);
+    reactions = [...(showEditNonUserReactions ? nonUserCanvasReactions : []), ...editUserReactions];
+  }
   return (
     <View style={{ width, height }}>
-      <CanvasHolder canvas={{ ...canvas }} />
-      {/* <ReactHolder canvas={canvas.get()} /> */}
+      <CanvasHolder canvas={canvas} />
+      <ReactHolder reactions={reactions} />
     </View>
   );
 });

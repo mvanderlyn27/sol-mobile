@@ -27,7 +27,6 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
       fontType: fonts[textStore$.fontIndex.get()],
-      version: 0,
     };
     addCanvasItem(textItem);
   };

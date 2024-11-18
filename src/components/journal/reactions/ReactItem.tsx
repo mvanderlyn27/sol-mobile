@@ -66,6 +66,8 @@ const ReactItem = observer(function ReactItem({
       start.value = { x: offset.value.x, y: offset.value.y };
       runOnJS(updateReactItem)(item.id, {
         ...item,
+        fontSize: fontSize.value, // Save the new font size to the store
+        rotation: rotation.value,
         x: start.value.x,
         y: start.value.y,
       });
@@ -83,6 +85,7 @@ const ReactItem = observer(function ReactItem({
       runOnJS(updateReactItem)(item.id, {
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
+        rotation: rotation.value,
         x: start.value.x,
         y: start.value.y,
       });
@@ -99,6 +102,7 @@ const ReactItem = observer(function ReactItem({
       runOnJS(updateReactItem)(item.id, {
         ...item,
         rotation: rotation.value,
+        fontSize: fontSize.value, // Save the new font size to the store
         x: start.value.x,
         y: start.value.y,
       });

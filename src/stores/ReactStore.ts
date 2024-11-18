@@ -88,11 +88,12 @@ export const addReactItem = (newItem: CanvasReaction) => {
   console.log("creating reaction");
   //@ts-ignore
   //   reactions$[id].set({ id: id, reaction: JSON.stringify(newItem), created_by: userId, page_id: pageId });
-  const curItems = editReactStore$.items.get();
+  const curItems = editReactStore$.userReactions.get();
   editReactStore$.userReactions.set([...curItems, newItem]);
 };
 export const updateReactItem = (id: string, newItem: CanvasReaction) => {
   const curItems = editReactStore$.userReactions.get();
+  console.log("curItems", curItems);
   const index = curItems.findIndex((val) => val.id === id);
   if (index === -1) {
     console.log("Can't find id");
