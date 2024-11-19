@@ -57,16 +57,16 @@ const GroupDetails = observer(function GroupDetails() {
         </StyledView>
         <StyledView className="flex-row flex-none  px-8 pb-4 justify-between">
           <ModalButton
-            action={handleAccept}
-            color="bg-primary"
-            text="Accept"
+            action={handleDecline}
+            color="bg-red-500"
+            text="Decline"
             disabled={false}
             textColor={"text-white"}
           />
           <ModalButton
-            action={handleDecline}
-            color="bg-red-500"
-            text="Decline"
+            action={handleAccept}
+            color="bg-primary"
+            text="Accept"
             disabled={false}
             textColor={"text-white"}
           />
