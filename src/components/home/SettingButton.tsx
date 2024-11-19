@@ -5,7 +5,7 @@ const StyledFeather = styled(Feather);
 export default function SettingButton({ action }: { action: () => void }) {
   return (
     <StyledPressable onPress={action}>
-      <StyledFeather name="settings" size={50} className="text-secondary" />
+      <StyledFeather name="settings" size={40} className="text-secondary" />
     </StyledPressable>
   );
 }

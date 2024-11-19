@@ -24,7 +24,7 @@ export default function HomeButtons() {
     <StyledView className="flex-row justify-between items-center p-4">
       <SettingButton action={handleSettings} />
       <StyledText
-        className="text-4xl tracking-widest text-secondary text-center"
+        className="text-3xl tracking-widest text-secondary text-center"
         style={{ fontFamily: "PragmaticaExtended" }}>
         Library
       </StyledText>

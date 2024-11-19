@@ -55,17 +55,17 @@ const HomeScreen = observer(function HomeScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <HomeButtons />
-      <StyledScrollView className="flex-1">
+      <StyledScrollView className="flex-1 px-4">
         {rows.map((row, rowIndex: number) => (
-          <StyledView key={rowIndex} className="flex-row justify-between mb-4">
+          <StyledView key={rowIndex} className="flex-row justify-between mt-4 mb-4">
             {row.map((group: any, colIndex: number) => (
-              <StyledView key={`${rowIndex}-${colIndex}`} style={{ width: "48%", height: 325 }}>
+              <StyledView key={`${rowIndex}-${colIndex}`} style={{ width: "47%", height: 300 }}>
                 <GroupCard group={group} invitation={myInvitesIds.includes(group.id)} />
               </StyledView>
             ))}
             {/* Render an additional CreateGroupButton if this is the last row and it has only one item */}
             {row.length === 1 && (
-              <StyledView style={{ width: "48%", height: 325 }}>
+              <StyledView style={{ width: "47%", height: 300 }}>
                 <CreateGroupButton />
               </StyledView>
             )}
@@ -75,7 +75,7 @@ const HomeScreen = observer(function HomeScreen() {
         {/* Add CreateGroupButton in case there are no groups or the last row is full */}
         {(rows.length === 0 || rows[rows.length - 1]?.length === 2) && (
           <StyledView key={"create"} className="flex-row justify-between mb-4">
-            <StyledView style={{ width: "48%", height: 325 }}>
+            <StyledView style={{ width: "47%", height: 300 }}>
               <CreateGroupButton />
             </StyledView>
           </StyledView>
