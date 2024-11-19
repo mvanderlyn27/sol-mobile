@@ -31,13 +31,11 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
     }
   };
   const groupMemberList = filterOutPending(groupMembers$.get());
-  console.log("groupMembers", groupMemberList);
   const groupMembersMap = Object.entries(groupMemberList || {}).reduce((acc: any, [_, member]) => {
     (acc[member.group_id] = acc[member.group_id] || []).push(member);
     return acc;
   }, {});
   const groupMembers = groupMembersMap[group.id];
-  console.log("groupMembers", groupMembers);
   return (
     <StyledPressable
       className={`flex-1 flex-col justify-center items-center rounded-xl  ${

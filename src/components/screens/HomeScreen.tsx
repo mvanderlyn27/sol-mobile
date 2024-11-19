@@ -33,10 +33,8 @@ const HomeScreen = observer(function HomeScreen() {
   const myInvitesIds = Object.values(filterMyInvites(groupMembers$.get(), curUserId || "") || {}).map(
     (groupMember) => groupMember.group_id
   );
-  console.log("invites", myInvitesIds);
   // Retrieve the map of groups
   const groups = groups$.get();
-  console.log("groups", groups);
   // Create an array of GroupMember from groups based on myGroups and myInvites
   const myGroupMembersArray = groups
     ? Object.entries(groups).reduce((acc: Group[], [groupId, group]) => {
@@ -48,7 +46,6 @@ const HomeScreen = observer(function HomeScreen() {
         return acc;
       }, [])
     : [];
-  console.log("my filtered ", myGroupMembersArray);
   // Chunk the array into rows with 2 items each
   const rows = chunkArray(myGroupMembersArray, 2);
 
