@@ -49,6 +49,7 @@ const JournalFabs = observer(function JournalFabs() {
     uiStore$.displayReactMenu.set(true);
     uiStore$.displayJournalMenu.set(false);
     reactStore$.reactEditMode.set(true);
+    reactStore$.showReactions.set(true);
     editReactStore$.showNonUserReactions.set(true);
     initializeEditReactStore();
   };
@@ -56,7 +57,7 @@ const JournalFabs = observer(function JournalFabs() {
     <StyledView className=" flex-col justify-center items-center">
       <StyledView className="py-2">
         <RoundButton
-          selected
+          selected={reactStore$.showReactions.get()}
           onClick={reactStore$.showReactions.toggle}
           buttonType={ButtonType.View}
           disabled={!pageId}

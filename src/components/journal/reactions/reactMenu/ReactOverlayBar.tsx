@@ -50,9 +50,9 @@ const ReactOverlayBar = observer(function ReactOverlayBar() {
         animate={{ opacity: activeMenu ? 1 : 0, translateY: activeMenu ? 0 : 10 }}
         transition={{ type: "timing", duration: 300 }}
         style={{ display: activeMenu ? "flex" : "none" }}>
-        <StyledBlurView className="bg-black rounded-2xl overflow-hidden h-[300px] w-full">
+        <StyledView className="bg-black rounded-2xl overflow-hidden h-auto w-full">
           {activeMenu === "settings" && <SettingsTab />}
-        </StyledBlurView>
+        </StyledView>
       </StyledMotiView>
 
       {/* Bottom Bar */}
