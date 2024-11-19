@@ -29,6 +29,7 @@ import RoundButton from "../../shared/CircleButton";
 import { addCanvasItem, canvasStore$ } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { batch } from "@legendapp/state";
+import { reactStore$ } from "@/src/stores/ReactStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -54,6 +55,7 @@ const CanvasMenu = observer(function CanvasMenu() {
     // }
   };
   const handleSave = () => {
+    reactStore$.showReactions.set(true);
     handlePageSave();
     handleClose();
   };
