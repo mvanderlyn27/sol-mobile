@@ -220,7 +220,7 @@ export function handleEdit() {
   const pageId = getPageForUser(user || "", day.date)?.id;
   if (pageId) {
     const page = pages$?.get()[pageId];
-    const canvas = (page.canvas as Canvas) || defaultCanvas;
+    const canvas = (page.canvas as Canvas) || { ...defaultCanvas };
     canvasStore$.curCanvas.set({ ...canvas });
   }
 }

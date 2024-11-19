@@ -21,7 +21,7 @@ export const defaultCanvas: Canvas = {
 
 // Observable store
 export const canvasStore$ = observable<CanvasStore>({
-  curCanvas: defaultCanvas,
+  curCanvas: { ...defaultCanvas },
   edits: [],
 });
 // Add a new item to the canvas

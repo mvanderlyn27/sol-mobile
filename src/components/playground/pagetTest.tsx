@@ -26,12 +26,13 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   const curUserId = authStore$.session.user.id.get();
   const active = curRow === rowIndex && curCol === colIndex;
   // Compute the active canvas based on conditions
-  let canvas = defaultCanvas;
+  const newDefault = { ...defaultCanvas };
+  let canvas = newDefault;
   if (editMode && active) {
     const curCanvas = { ...canvasStore$.curCanvas.get() } as Canvas;
-    canvas = curCanvas || defaultCanvas;
+    canvas = curCanvas || newDefault;
   } else if (userId && date) {
-    canvas = page?.canvas ? (page.canvas as Canvas) || defaultCanvas : defaultCanvas;
+    canvas = page?.canvas ? (page.canvas as Canvas) || newDefault : newDefault;
   }
   let reactions: Reaction[] = [];
   const nonUserCanvasReactions = filterNonUserReactions(page?.id || "");

@@ -17,7 +17,6 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
-  console.log("rendering image", item);
   const editMode = pageStore$.editMode.get();
   // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });
