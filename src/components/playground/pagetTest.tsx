@@ -31,12 +31,12 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   if (editMode && active) {
     const curCanvas = { ...canvasStore$.curCanvas.get() } as Canvas;
     canvas = curCanvas || newDefault;
-    console.log("editing", rowIndex, colIndex, canvas);
+    // console.log("editing");
   } else if (userId && date) {
     canvas = page?.canvas ? (page.canvas as Canvas) || newDefault : newDefault;
-    // console.log("not editing", rowIndex, colIndex, canvas);
+    // console.log("non-editing");
   } else {
-    console.log("default", rowIndex, colIndex, canvas);
+    // console.log("default");
   }
   let reactions: Reaction[] = [];
   const nonUserCanvasReactions = filterNonUserReactions(page?.id || "");
@@ -58,9 +58,9 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
         updated_at: new Date().toISOString(),
       } as Reaction;
     });
-    console.log("edits", editUserReactions);
     reactions = [...(showEditNonUserReactions ? nonUserCanvasReactions : []), ...editUserReactions];
   }
+  // console.log("canvas: ", rowIndex, colIndex, canvas);
   return (
     <View style={{ width, height }}>
       <CanvasHolder canvas={canvas} />

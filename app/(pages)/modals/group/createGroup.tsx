@@ -25,6 +25,7 @@ export default function CreateGroupModal() {
   const [groupName, setGroupName] = useState("");
   const [image, setImage] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [creating, setCreating] = useState<boolean>(false);
   const [blurhash, setBlurhash] = useState<string | null>(null);
 
   const pickImage = async () => {
@@ -64,12 +65,16 @@ export default function CreateGroupModal() {
   };
 
   const handleCreateGroup = async () => {
+    setCreating(true);
     if (image && blurhash && groupName) {
       const id = await addGroup(groupName, image, blurhash);
       if (id) {
+        setCreating(false);
         router.push(`./${id}/groupDetails`);
       }
     }
+
+    setCreating(false);
     // Add further functionality as needed
   };
 
@@ -128,7 +133,7 @@ export default function CreateGroupModal() {
 
       {/* Create Button */}
       <StyledView className="flex-row px-24">
-        <ModalButton action={handleCreateGroup} text="Create" color="bg-[#FFA500]" />
+        <ModalButton disabled={creating} action={handleCreateGroup} text="Create" color="bg-[#FFA500]" />
       </StyledView>
     </StyledView>
   );

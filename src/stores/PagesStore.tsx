@@ -286,11 +286,11 @@ const uploadImage = async (
   console.log("finished update", path);
   return { index: index, path: path.data.publicUrl, blurhash: blurhash };
 };
-const uploadImages = async (pageId: string) => {
+const uploadImages = async (pageId: string): Promise<CanvasItem[]> => {
   const newCanvas = canvasStore$.curCanvas.get();
   if (!newCanvas || !pageId) {
     console.log("no items to upload");
-    return;
+    return [];
   }
   let newItems: CanvasItem[] = [];
 
@@ -334,56 +334,69 @@ const uploadImages = async (pageId: string) => {
   });
 
   // Return new items or perform any final processing
-  canvasStore$.curCanvas.items.set(newItems);
+  // canvasStore$.curCanvas.items.set(newItems);
+  return newItems;
 };
 export async function handlePageSave() {
-  beginBatch();
-  console.log("saving canvas");
-  uiStore$.displayJournalMenu.set(true);
-  uiStore$.displayCanvasMenu.set(false);
   pageStore$.ready.set(false);
-  // canvasStore$.curCanvas.set(defaultCanvas);
-
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const curPageId = getPageForUser(pages$.get(), user || "", day.date)?.id;
-  const newCanvas = canvasStore$.curCanvas.get();
-  console.log("saving: cur pageId", curPageId);
-  let newPage = null;
+  // console.log("Saving: cur pageId", curPageId);
   let pageId = curPageId || generateId();
-  batch(async () => await uploadImages(pageId));
-  if (curPageId) {
-    pageId = curPageId;
-    const currentPage = pages$[curPageId].get();
-    console.log("saving existing page", newCanvas);
-    //@ts-ignore
-    newPage = { ...currentPage, canvas: newCanvas };
-  } else {
-    const groupId = groupStore$.selectedGroup.get();
-    const userId = authStore$.session.get()?.user.id;
-    const curDate = day.date;
-    if (!groupId || !userId) {
-      console.log("missing info");
-      return;
-    }
-    //@ts-ignore
-    newPage = {
-      id: pageId,
-      group_id: groupId,
-      created_by: userId,
-      date: curDate,
-      canvas: newCanvas,
-    } as Page;
-    console.log("saving new page", newPage);
-  }
+  let newPage = null;
+  try {
+    // Perform async upload outside the `batch()` block
+    const updatedCanvasItems = await uploadImages(pageId);
+    // console.log("updated canvas", updatedCanvasItems);
+    batch(() => {
+      uiStore$.displayJournalMenu.set(true);
+      uiStore$.displayCanvasMenu.set(false);
+      // canvasStore$.curCanvas.items.set(updatedCanvas);
+      const newCanvas = {
+        ...canvasStore$.curCanvas.get(),
+        items: updatedCanvasItems,
+      };
+      if (curPageId) {
+        pageId = curPageId;
+        const currentPage = pages$[curPageId].get();
+        // console.log("saving existing page", newCanvas);
+        //@ts-ignore
+        newPage = { ...currentPage, canvas: newCanvas } as Page;
+      } else {
+        const groupId = groupStore$.selectedGroup.get();
+        const userId = authStore$.session.get()?.user.id;
+        const curDate = day.date;
+        if (!groupId || !userId) {
+          console.log("Missing info");
+          throw new Error("Required group ID or user ID is missing.");
+        }
+        //@ts-ignore
+        newPage = {
+          id: pageId,
+          group_id: groupId,
+          created_by: userId,
+          date: curDate,
+          canvas: newCanvas,
+        } as Page;
+        // console.log("new page", newCanvas);
+      }
 
-  console.log("uploaded images, saved to backend");
-  pageStore$.editMode.set(false);
-  clearCanvas();
-  pages$[pageId].set(newPage);
-  pageStore$.ready.set(true);
-  endBatch();
+      // Update state within the batch
+      clearCanvas();
+      pages$[pageId].set(newPage);
+    });
+  } catch (error) {
+    console.error("Error during page save:", error);
+    throw error;
+  } finally {
+    console.log("save complete");
+    pageStore$.editMode.set(true);
+    pageStore$.editMode.set(false);
+    pageStore$.ready.set(true);
+  }
 }
+
 export function handlePageCancel() {
   console.log("canceling edits");
   uiStore$.displayJournalMenu.set(true);
