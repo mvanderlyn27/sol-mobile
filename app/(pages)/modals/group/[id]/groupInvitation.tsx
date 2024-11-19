@@ -29,20 +29,16 @@ const GroupDetails = observer(function GroupDetails() {
   const inviteId = Object.entries(filterMyInvites(groupMembers$.get(), userId || "") || {}).find(
     ([, invite]) => invite.group_id === group_id && invite.user_id === userId
   )?.[0];
-  console.log("invite id", inviteId);
   if (!inviteId) {
-    console.log("no invite found for user");
     return null;
   }
   const handleAccept = async () => {
     // Update the Legend State observable with the fetched data
-    console.log("accept", inviteId);
     groupMembers$[inviteId].status.set("completed");
     router.dismissAll();
   };
   const handleDecline = async () => {
     // Update the Legend State observable with the fetched data
-    console.log("decline", inviteId);
     groupMembers$[inviteId].status.set("declined");
     router.dismissAll();
   };

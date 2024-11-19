@@ -23,22 +23,22 @@ const ReactItem = observer(function ReactItem({
   item: CanvasReaction;
   usersReaction?: boolean;
 }) {
+  console.log("react item updated", item, item.fontColor, item.x, item.y, item.rotation, item.z);
   const [gestureDone, setGestureDone] = useState(true);
-  //   console.log("text item updated", item, item.fontColor, item.x, item.y, item.rotation, item.z);
   const editMode = (reactStore$.reactEditMode.get() && usersReaction) || false;
-  const offset = useSharedValue({ x: item.x, y: item.y });
-  const start = useSharedValue({ x: item.x, y: item.y });
-  const rotation = useSharedValue(item.rotation);
-  const savedRotation = useSharedValue(item.rotation);
+  const offset = useSharedValue({ x: item.x || 0, y: item.y || 0 });
+  const start = useSharedValue({ x: item.x || 0, y: item.y || 0 });
+  const rotation = useSharedValue(item.rotation || 0);
+  const savedRotation = useSharedValue(item.rotation || 0);
 
   // Initialize shared value for font size instead of scale
-  const fontSize = useSharedValue(item.fontSize);
-  const savedFontSize = useSharedValue(item.fontSize);
+  const fontSize = useSharedValue(item.fontSize || 16);
+  const savedFontSize = useSharedValue(item.fontSize || 16);
 
   const { height, width } = Dimensions.get("screen");
 
   const animatedStyles = useAnimatedStyle(() => ({
-    zIndex: item.z,
+    zIndex: item.z || 0,
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
   }));
   const animatedText = useAnimatedStyle(() => ({

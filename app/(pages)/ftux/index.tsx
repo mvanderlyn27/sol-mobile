@@ -13,14 +13,12 @@ const Ftux = observer(function Ftux() {
   useMount(() => {
     const userId = authStore$.session.user.id.get();
     if (!userId) {
-      console.log("not logged in");
-      router.push("/login");
+      router.navigate("/login");
     }
-    const newUser = profiles$[userId || ""].new.get();
+    const newUser = profiles$[userId || ""]?.new.get();
     console.log("new user", newUser);
     if (!newUser) {
-      console.log("no user, going home");
-      router.push("/home");
+      router.navigate("/home");
     }
   });
   return <FtuxScreen />;

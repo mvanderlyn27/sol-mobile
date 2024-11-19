@@ -39,7 +39,6 @@ export const RootLayout = observer(function RootLayout() {
       //maybe add loading data here
       SplashScreen.hideAsync();
       if (authStore$.session.get() !== null) {
-        console.log("logged in: ", authStore$.session.get()?.user.email);
         router.push("/loading");
       }
     }

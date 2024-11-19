@@ -9,10 +9,8 @@ import { getPageForUser, loadMorePages, pageStore$, pages$ } from "@/src/stores/
 import ReactHolder from "../journal/reactions/ReactHolder";
 import { editReactStore$, filterNonUserReactions, filterUserReactions, reactStore$ } from "@/src/stores/ReactStore";
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
-import { jsonToCanvas } from "@/src/services/Canvas";
-import { jsonToReact, reactToJson } from "@/src/services/Reaction";
 import authStore$ from "@/src/stores/AuthStore";
-import { Json } from "@/src/types/supabase.types";
+import { jsonToCanvas } from "@/src/services/Canvas";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
@@ -33,7 +31,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
     const curCanvas = { ...canvasStore$.curCanvas.get() } as Canvas;
     canvas = curCanvas || defaultCanvas;
   } else if (userId && date) {
-    canvas = page?.canvas ? ({ ...jsonToCanvas(page.canvas) } as Canvas) || defaultCanvas : defaultCanvas;
+    canvas = page?.canvas ? (page.canvas as Canvas) || defaultCanvas : defaultCanvas;
   }
   let reactions: Reaction[] = [];
   const nonUserCanvasReactions = filterNonUserReactions(page?.id || "");
@@ -51,7 +49,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
         deleted: false,
         id: reaction.id,
         page_id: page?.id || "",
-        reaction: reactToJson(reaction),
+        reaction: reaction,
         updated_at: new Date().toISOString(),
       } as Reaction;
     });

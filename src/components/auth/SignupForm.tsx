@@ -17,7 +17,6 @@ const StyledTextInput = styled(TextInput);
 const StyledPressable = styled(Pressable);
 
 const SignupForm = observer(function SignupForm() {
-  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -26,30 +25,13 @@ const SignupForm = observer(function SignupForm() {
 
   async function handleSignUp() {
     setLoading(true);
-    await authStore$.signUp(email, password, username);
+    await authStore$.signUp(email, password);
     Toast.show("Check email for verification", {});
     setLoading(false);
   }
 
   return (
     <StyledMotiView className="flex-col items-center justify-center">
-      <StyledMotiView
-        className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between p-4"
-        from={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ type: "timing", duration: 300 }}>
-        <StyledTextInput
-          value={username}
-          onChangeText={setUsername}
-          placeholder="YOUR NAME"
-          placeholderTextColor="#B0B0B0" // Light gray for placeholder text
-          className="w-full  text-secondary text-center"
-          style={{ fontFamily: "PragmaticaExtended-light" }}
-          autoCapitalize="none"
-        />
-      </StyledMotiView>
-
       <StyledMotiView
         className="w-full mb-4 border border-gray-400 rounded-lg flex-row items-center justify-between p-4"
         from={{ opacity: 0 }}

@@ -21,7 +21,6 @@ const UserPic = observer(function UserPic({
   if (!number && !userId) return null;
   if (userId) {
     const profile = profiles$[userId].get();
-    console.log("userid", userId);
     const shortId = userId ? userId.slice(0, 8) : "";
     return (
       <StyledPressable

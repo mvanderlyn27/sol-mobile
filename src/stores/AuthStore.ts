@@ -7,8 +7,8 @@ interface AuthStore {
   error: string | null;
   loading: boolean;
   init: () => void;
-  joinEmailList: (email: string, name: string) => void;
-  signUp: (email: string, password: string, name: string) => void;
+  joinEmailList: (email: string) => void;
+  signUp: (email: string, password: string) => void;
   signIn: (email: string, password: string) => void;
   signInApple: (token: string, name: string) => void;
   signInGoogle: (token: string, name: string) => void;
@@ -34,11 +34,9 @@ const authStore$ = observable<AuthStore>({
       });
     AuthService.setupSessionListener(authStore$.session.set);
   },
-  joinEmailList: (email: string, name: string) => {
+  joinEmailList: (email: string) => {
     if (process.env.EXPO_PUBLIC_ENV !== "production") return;
-    const formBody = `userGroup=newUsers&mailingLists=cm2ccf528010n0ll77ael39hn&email=${encodeURIComponent(
-      email
-    )}&firstName=${encodeURIComponent(name)}`;
+    const formBody = `userGroup=newUsers&mailingLists=cm2ccf528010n0ll77ael39hn&email=${encodeURIComponent(email)}`;
 
     fetch("https://app.loops.so/api/newsletter-form/cm2canqzn00eo12mp68bgy30l", {
       method: "POST",
@@ -48,16 +46,16 @@ const authStore$ = observable<AuthStore>({
       },
     });
   },
-  signUp: async (email: string, password: string, name: string) => {
+  signUp: async (email: string, password: string) => {
     authStore$.loading.set(true);
     authStore$.error.set(null);
-    const response = await AuthService.signUp(email, password, name);
-    authStore$.joinEmailList(email, name);
+    const response = await AuthService.signUp(email, password);
+    authStore$.joinEmailList(email);
     if (response.success) {
-      authStore$.session.set(response.data || null);
-      posthog.identify(response.data?.user?.id, { name: name, email, user: response.data?.user });
+      posthog.identify(response.data?.user?.id, { email, user: response.data?.user });
       posthog.capture("user-signup", { email });
       authStore$.error.set(null);
+      authStore$.session.set(response.data || null);
       //   Toast for success
     } else {
       authStore$.error.set(response.error || "Error signing up");

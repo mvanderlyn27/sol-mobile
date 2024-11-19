@@ -21,9 +21,8 @@ const ensureNotArray = (input: string | string[]) => {
   return input;
 };
 const GroupDetails = observer(function GroupDetails() {
-  let group_id = ensureNotArray(useLocalSearchParams().id);
-  console.log(group_id);
-  const currentUser = authStore$.session.get()?.user.id;
+  let group_id = ensureNotArray(useLocalSearchParams()?.id);
+  const currentUser = authStore$.session.get()?.user?.id;
 
   const selectedGroup = groups$[group_id].get();
   // const groupMembers = groupMemberStore$?.groupMembersMap[group_id].get();
@@ -35,11 +34,9 @@ const GroupDetails = observer(function GroupDetails() {
     router.push("./inviteGroupMember");
   };
   const handleDelete = () => {
-    console.log("group_id", group_id);
     if (Array.isArray(group_id)) {
       group_id = group_id[0];
     }
-    console.log("id", group_id);
     deleteGroup(group_id);
   };
   const handleUpdateName = (val: string) => {
@@ -49,6 +46,9 @@ const GroupDetails = observer(function GroupDetails() {
     groups$[group_id].name.set(val);
   };
   const isAdmin = currentUser ? checkAdmin(group_id, currentUser) : false;
+  if (!selectedGroup) {
+    return null;
+  }
   return (
     <View style={{ flex: 1, backgroundColor: "#F5EEE5" }}>
       <StyledView className="pt-4 flex-col justify-center items-center flex-1">
@@ -65,7 +65,7 @@ const GroupDetails = observer(function GroupDetails() {
           )}
         </StyledView>
         <StyledView className="px-8 w-full h-[150px] flex-none justify-between">
-          <MemberList groupId={selectedGroup.id} />
+          <MemberList groupId={selectedGroup?.id} />
         </StyledView>
         {isAdmin && (
           <StyledView className="flex-row flex-none  px-8 pb-4 justify-between">

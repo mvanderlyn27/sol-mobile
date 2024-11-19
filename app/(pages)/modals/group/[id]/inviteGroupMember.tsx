@@ -24,13 +24,11 @@ export default function InviteGroupMember() {
 
   const handleAddUser = () => {
     if (username.trim()) {
-      console.log(`Adding user: ${username} ${groupId}`);
       // Add user logic here
       const inviteId = inviteGroupMember(groupId, username);
       if (!inviteId) {
         console.log("failed inviting");
       }
-      console.log("invited: ", inviteId);
       Toast.show(`Invited ${username}`);
       setUsername(""); // Reset input after adding
     } else {

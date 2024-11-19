@@ -12,7 +12,9 @@ export const groupMembers$ = observable(
     collection: "group_members",
     select: (from) => from.select("*"),
     // filter: (select) => select.eq("status", "completed"),
+    // filter: (select) => select.neq("deleted", true),
     // persist: { name: "group_members" },
+    realtime: true,
   })
 );
 export const filterOutPending = (map: Record<string, GroupMember>): Record<string, GroupMember> | null => {
@@ -82,7 +84,6 @@ export const checkAdmin = (groupId: string, userId: string) => {
   return groupMembers$[id].role.get() === "admin";
 };
 export const inviteGroupMember = (groupId: string, username: string): string | null => {
-  console.log("profiles", profiles$.get());
   const entry = Object.entries(profiles$.get()).find(([key, profile]) => profile.username === username);
   if (!entry) {
     console.error("can't find user");

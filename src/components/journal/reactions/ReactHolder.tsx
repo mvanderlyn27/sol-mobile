@@ -21,11 +21,10 @@ const StyledView = styled(View);
 
 const ReactHolder = observer(function ReactHolder({ reactions }: { reactions: Reaction[] }) {
   // Fetching required observables
-  console.log("re-rendering", reactions.length);
   return (
     <StyledView className="absolute top-0 right-0 left-0 bottom-0 bg-transparent" pointerEvents="box-none">
       {reactions.map((reaction, index) => {
-        const canvasReaction = jsonToReact(reaction.reaction);
+        const canvasReaction = reaction.reaction as CanvasReaction;
         if (!canvasReaction) return null;
         return (
           <AnimatePresence key={`nonUser-${reaction.id}-${index}`}>

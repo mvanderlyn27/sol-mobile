@@ -1,59 +1,52 @@
-import BottomBar from "@/src/components/journal/journalMenu/JournalMenu";
-import NavigationBar from "@/src/components/navigation/NavigationBar";
-import AppOverlays from "@/src/components/screens/AppOverlays";
+import { observer } from "@legendapp/state/react";
+import { router, Stack } from "expo-router";
+import { useEffect } from "react";
 import authStore$ from "@/src/stores/AuthStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { observer } from "@legendapp/state/react";
-import { Redirect, Slot, Stack, router } from "expo-router";
-import { useEffect } from "react";
+
 export const unstable_settings = {
   initialRouteName: "home",
 };
+
 const Layout = observer(function Layout() {
   const session = authStore$.session.get();
   const loadingAuth = authStore$.loading.get();
-  const newUser = profiles$[session?.user.id || ""].new.get();
-  useEffect(() => {
-    if (session?.user.id && newUser === true) {
-      router.push("/ftux");
-    }
-  }, [session, newUser]);
 
+  // Redirect user based on their session or profile state
   useEffect(() => {
-    if (!session && !loadingAuth) {
-      router.push("/login");
+    if (!session) {
+      router.navigate("/login");
     }
   }, [session, loadingAuth]);
 
+  // Show a simple loading state until everything is resolved
+  if (loadingAuth || session === undefined) {
+    return null; // Or replace with a loading spinner/UI
+  }
+
   return (
-    <>
-      <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
-        <Stack.Screen
-          name="modals"
-          options={{
-            presentation: "transparentModal",
-            animation: "fade",
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="sidebar"
-          options={{
-            presentation: "transparentModal",
-            animation: "fade",
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="journal/[id]"
-          options={{
-            animation: "slide_from_left",
-            headerShown: false,
-          }}
-        />
-      </Stack>
-      {/* <AppOverlays /> */}
-    </>
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen
+        name="modals"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+        }}
+      />
+      <Stack.Screen
+        name="sidebar"
+        options={{
+          presentation: "transparentModal",
+          animation: "fade",
+        }}
+      />
+      <Stack.Screen
+        name="journal/[id]"
+        options={{
+          animation: "slide_from_left",
+        }}
+      />
+    </Stack>
   );
 });
 

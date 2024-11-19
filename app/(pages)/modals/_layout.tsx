@@ -20,7 +20,6 @@ export default function Modal() {
   const handleClose = () => {
     const firstRoute = path.split("/")[1];
     // router.push(firstRoute ? (firstRoute as Href) : "/");
-    console.log("first", "/" + firstRoute);
     // router.push(("/" + firstRoute) as Href);
     router.dismissAll();
   };

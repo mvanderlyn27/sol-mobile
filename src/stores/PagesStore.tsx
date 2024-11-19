@@ -46,12 +46,10 @@ export const pages$ = observable(
     supabase,
     collection: "pages",
     select: (from: any) => from.select("*"),
-    filter: (select) => select.eq("group_id", groupStore$.selectedGroup.get() || ""),
+    filter: (select) => select.eq("group_id", groupStore$.selectedGroup.get() || "").neq("deleted", true),
     actions: ["read", "create", "update", "delete"],
-    // persist: { name: "pages", retrySync: true },
-    // retry: {
-    //   infinite: true,
-    // },
+    // persist: { name: "pages" },
+    realtime: true,
   })
 );
 
@@ -222,7 +220,7 @@ export function handleEdit() {
   const pageId = getPageForUser(user || "", day.date)?.id;
   if (pageId) {
     const page = pages$?.get()[pageId];
-    const canvas = jsonToCanvas(JSON.stringify(page.canvas)) || defaultCanvas;
+    const canvas = (page.canvas as Canvas) || defaultCanvas;
     canvasStore$.curCanvas.set({ ...canvas });
   }
 }
@@ -355,7 +353,6 @@ export async function handlePageSave() {
     console.log("saving existing page", newCanvas);
     //@ts-ignore
     pages$[curPageId].set({ ...currentPage, canvas: newCanvas });
-    // ADD UPLOAD IMAGE HERE
   } else {
     const groupId = groupStore$.selectedGroup.get();
     const userId = authStore$.session.get()?.user.id;
@@ -376,7 +373,6 @@ export async function handlePageSave() {
     pages$[id].set(newPage);
   }
 
-  // ADD UPLOAD IMAGE HERE
   console.log("uploaded images, saved to backend");
   pageStore$.editMode.set(false);
   canvasStore$.curCanvas.set({ ...defaultCanvas });

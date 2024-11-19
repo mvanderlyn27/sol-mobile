@@ -10,7 +10,9 @@ export const profiles$ = observable(
     // supabase,
     collection: "profiles",
     select: (from) => from.select("*"),
-    // persist: { name: "groups" },
+    filter: (select) => select.neq("deleted", true),
+    // persist: { name: "profiles" },
+    realtime: true,
   })
 );
 export const profileStore$ = observable({});

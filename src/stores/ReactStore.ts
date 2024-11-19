@@ -6,7 +6,7 @@ import { supabase } from "../lib/supabase";
 import authStore$ from "./AuthStore";
 import { getPageForUser, pageStore$ } from "./PagesStore";
 import { Json } from "../types/supabase.types";
-import { jsonToReact, reactToJson } from "../services/Reaction";
+import { jsonToReact } from "../services/Reaction";
 import { uiStore$ } from "./UIStore";
 
 //@ts-ignore
@@ -15,11 +15,10 @@ export const reactions$ = observable(
     supabase,
     collection: "reactions",
     select: (from: any) => from.select("*"),
+    filter: (select) => select.neq("deleted", true),
     actions: ["read", "create", "update", "delete"],
-    // persist: { name: "pages", retrySync: true },
-    // retry: {
-    //   infinite: true,
-    // },
+    // persist: { name: "reactions" },
+    realtime: true,
   })
 );
 export const filterNonUserReactions = (pageId: string): Reaction[] => {
@@ -65,7 +64,7 @@ export const initializeEditReactStore = () => {
     pageStore$.dates[pageStore$.curCol.get()].get().date
   )?.id;
   const reactions: CanvasReaction[] = filterUserReactions(pageId || "")
-    .map((reaction) => jsonToReact(reaction.reaction))
+    .map((reaction) => reaction.reaction)
     .filter((item): item is CanvasReaction => item !== null);
   editReactStore$.userReactions.set(reactions);
 };
@@ -121,7 +120,7 @@ export const saveReacts = () => {
       id: item.id,
       page_id: pageId,
       created_by: userId,
-      reaction: reactToJson(item),
+      reaction: item,
     });
   });
   editReactStore$.showNonUserReactions.set(true);

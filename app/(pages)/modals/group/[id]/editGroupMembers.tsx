@@ -43,7 +43,6 @@ const EditGroupMembers = observer(function EditGroupMembers() {
       <StyledView className="absolute left-0 z-10">
         <StyledPressable
           onPress={() => {
-            console.log("back");
             router.back();
           }}
           className="p-4 ">
