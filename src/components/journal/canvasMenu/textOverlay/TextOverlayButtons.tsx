@@ -52,6 +52,7 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
       console.log("creating");
       createText();
     }
+    textStore$.reset();
     close();
   };
   const handleCancel = () => {

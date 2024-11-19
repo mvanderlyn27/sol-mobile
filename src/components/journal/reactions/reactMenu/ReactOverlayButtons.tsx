@@ -49,6 +49,7 @@ const ReactOverlayButtons = observer(function ReactOverlayButtons() {
       console.log("creating");
       createReaction();
     }
+    textStore$.reset();
     close();
   };
   const handleCancel = () => {

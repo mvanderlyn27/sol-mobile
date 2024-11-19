@@ -27,9 +27,11 @@ import DateIndicator from "./DateIndicator";
 import UserPic from "../../shared/UserPic";
 import { router } from "expo-router";
 import JournalFabs from "./JournalFabs";
-import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
+import { canvasStore$, clearCanvas, defaultCanvas } from "@/src/stores/CanvasStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { groupStore$ } from "@/src/stores/GroupStore";
+import { reactStore$ } from "@/src/stores/ReactStore";
+import { textStore$ } from "@/src/stores/EditTextStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -62,7 +64,11 @@ const JournalMenu = observer(function JournalMenu() {
         <StyledPressable
           onPress={() => {
             console.log("back");
-            groupStore$.selectedGroup.set("");
+            groupStore$.selectedGroup.set(null);
+            pageStore$.editMode.set(false);
+            reactStore$.reactEditMode.set(false);
+            textStore$.reset();
+            clearCanvas();
             router.back();
           }}
           className="">
