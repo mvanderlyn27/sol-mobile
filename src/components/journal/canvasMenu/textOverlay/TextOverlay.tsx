@@ -34,8 +34,9 @@ const TextOverlay = observer(function TextOverlay() {
                 textAlign: "center",
               }}
               value={text}
+              // placeholder={text}
               onChangeText={(newText) => textStore$.text.set(newText)}
-              autoFocus={text === "Text"} // Only autofocus if text is empty
+              autoFocus // Only autofocus if text is empty
               multiline
             />
           </StyledView>

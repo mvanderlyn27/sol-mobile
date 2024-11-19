@@ -23,13 +23,13 @@ export const textStore$ = observable({
   scale: 1,
   color: "#ffffff",
   fontIndex: 0,
-  text: "Text",
+  text: "",
   reset: () => {
     textStore$.id.set("");
-    textStore$.size.set(20);
+    textStore$.size.set(30);
     textStore$.color.set("#ffffff");
     textStore$.fontIndex.set(0);
-    textStore$.text.set("Text");
+    textStore$.text.set("");
   },
   editText: (id: string) => {
     let items = canvasStore$.curCanvas.items.get();
