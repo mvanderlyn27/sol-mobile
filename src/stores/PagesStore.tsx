@@ -1,4 +1,5 @@
 import {
+  Observable,
   batch,
   beginBatch,
   computed,
@@ -87,8 +88,7 @@ export const getPageIdsForUser = (curUser: string, pagesMap: Record<string, Page
   return pageMap;
 };
 
-export const getPageForUser = (curUser: string, date: string): Page | undefined => {
-  const pages = pages$.get();
+export const getPageForUser = (pages: Record<string, Page>, curUser: string, date: string): Page | undefined => {
   const groupId = groupStore$.selectedGroup.get();
   const out = Object.values(pages || {}).find((page: Page) => {
     return page.created_by === curUser && page.date === date && page.group_id === groupId;
@@ -212,17 +212,19 @@ export function navigateToPage(row: number, col: number) {
  */
 export function handleEdit() {
   console.log("editing");
-  pageStore$.editMode.set(true);
-  uiStore$.displayCanvasMenu.set(true);
-  uiStore$.displayJournalMenu.set(false);
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
-  const pageId = getPageForUser(user || "", day.date)?.id;
+  const pageId = getPageForUser(pages$.get(), user || "", day.date)?.id;
   if (pageId) {
     const page = pages$?.get()[pageId];
     const canvas = (page.canvas as Canvas) || { ...defaultCanvas };
     canvasStore$.curCanvas.set({ ...canvas });
+  } else {
+    clearCanvas();
   }
+  uiStore$.displayCanvasMenu.set(true);
+  uiStore$.displayJournalMenu.set(false);
+  pageStore$.editMode.set(true);
 }
 const uploadImage = async (
   pageId: string,
@@ -343,16 +345,18 @@ export async function handlePageSave() {
 
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
-  const curPageId = getPageForUser(user || "", day.date)?.id;
-  const id = generateId();
-  await uploadImages(curPageId || id);
+  const curPageId = getPageForUser(pages$.get(), user || "", day.date)?.id;
   const newCanvas = canvasStore$.curCanvas.get();
   console.log("saving: cur pageId", curPageId);
+  let newPage = null;
+  let pageId = curPageId || generateId();
+  batch(async () => await uploadImages(pageId));
   if (curPageId) {
+    pageId = curPageId;
     const currentPage = pages$[curPageId].get();
     console.log("saving existing page", newCanvas);
     //@ts-ignore
-    pages$[curPageId].set({ ...currentPage, canvas: newCanvas });
+    newPage = { ...currentPage, canvas: newCanvas };
   } else {
     const groupId = groupStore$.selectedGroup.get();
     const userId = authStore$.session.get()?.user.id;
@@ -362,20 +366,20 @@ export async function handlePageSave() {
       return;
     }
     //@ts-ignore
-    const newPage = {
-      id: id,
+    newPage = {
+      id: pageId,
       group_id: groupId,
       created_by: userId,
       date: curDate,
       canvas: newCanvas,
     } as Page;
     console.log("saving new page", newPage);
-    pages$[id].set(newPage);
   }
 
   console.log("uploaded images, saved to backend");
   pageStore$.editMode.set(false);
-  canvasStore$.curCanvas.set({ ...defaultCanvas });
+  clearCanvas();
+  pages$[pageId].set(newPage);
   pageStore$.ready.set(true);
   endBatch();
 }

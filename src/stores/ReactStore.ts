@@ -4,7 +4,7 @@ import { Dimensions } from "react-native";
 import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import { supabase } from "../lib/supabase";
 import authStore$ from "./AuthStore";
-import { getPageForUser, pageStore$ } from "./PagesStore";
+import { getPageForUser, pageStore$, pages$ } from "./PagesStore";
 import { Json } from "../types/supabase.types";
 import { jsonToReact } from "../services/Reaction";
 import { uiStore$ } from "./UIStore";
@@ -60,6 +60,7 @@ export const editReactStore$ = observable<editReactStore$>({
 });
 export const initializeEditReactStore = () => {
   const pageId = getPageForUser(
+    pages$.get(),
     pageStore$.members[pageStore$.curRow.get()].get().user_id,
     pageStore$.dates[pageStore$.curCol.get()].get().date
   )?.id;
@@ -77,6 +78,7 @@ export const addReactItem = (newItem: CanvasReaction) => {
   const id = generateId();
   const userId = authStore$.session.user.id.get();
   const pageId = getPageForUser(
+    pages$.get(),
     pageStore$.members[pageStore$.curRow.get()].get().user_id,
     pageStore$.dates[pageStore$.curCol.get()].get().date
   )?.id;
@@ -107,6 +109,7 @@ export const saveReacts = () => {
   const curItems = editReactStore$.userReactions.get();
   const userId = authStore$.session.user.id.get();
   const pageId = getPageForUser(
+    pages$.get(),
     pageStore$.members[pageStore$.curRow.get()].get().user_id,
     pageStore$.dates[pageStore$.curCol.get()].get().date
   )?.id;

@@ -45,7 +45,14 @@ export const updateCanvasItem = (id: string, item: CanvasItem) => {
 
 // Clear the canvas to its default state
 export const clearCanvas = () => {
-  canvasStore$.curCanvas.set({ ...defaultCanvas });
+  canvasStore$.curCanvas.set({
+    id: generateId(),
+    backgroundImage: { path: "bg_04", type: ImageType.Local },
+    items: [],
+    screenWidth: width,
+    screenHeight: height,
+    maxZIndex: 0,
+  });
 };
 
 // Remove an item from the canvas by its ID

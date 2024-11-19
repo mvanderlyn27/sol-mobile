@@ -18,7 +18,7 @@ const { width, height } = Dimensions.get("window");
 const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIndex: number }) => {
   const userId = pageStore$.members.get()?.[rowIndex]?.user_id;
   const date = pageStore$.dates.get()?.[colIndex]?.date;
-  const page = getPageForUser(userId, date);
+  const page = getPageForUser(pages$.get(), userId, date);
   // Get current canvas directly from the stores
   const curRow = pageStore$.curRow.get();
   const curCol = pageStore$.curCol.get();
@@ -31,8 +31,12 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   if (editMode && active) {
     const curCanvas = { ...canvasStore$.curCanvas.get() } as Canvas;
     canvas = curCanvas || newDefault;
+    console.log("editing", rowIndex, colIndex, canvas);
   } else if (userId && date) {
     canvas = page?.canvas ? (page.canvas as Canvas) || newDefault : newDefault;
+    // console.log("not editing", rowIndex, colIndex, canvas);
+  } else {
+    console.log("default", rowIndex, colIndex, canvas);
   }
   let reactions: Reaction[] = [];
   const nonUserCanvasReactions = filterNonUserReactions(page?.id || "");
