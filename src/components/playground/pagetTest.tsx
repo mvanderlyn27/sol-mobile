@@ -51,9 +51,11 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   const reactEditMode = reactStore$.reactEditMode.get();
   const showReactions = reactStore$.showReactions.get();
   if (!reactEditMode && showReactions) {
+    console.log("not edit reaction");
     reactions = [...nonUserCanvasReactions, ...userCanvasReactions];
   } else if (reactEditMode && active) {
     const showEditNonUserReactions = editReactStore$.showNonUserReactions.get();
+    console.log("edit reaction", editReactStore$.userReactions.get());
     const editUserReactions = editReactStore$.userReactions.get().map((reaction) => {
       return {
         created_at: new Date().toISOString(),
@@ -68,6 +70,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
     reactions = [...(showEditNonUserReactions ? nonUserCanvasReactions : []), ...editUserReactions];
   }
   // console.log("canvas: ", rowIndex, colIndex, canvas);
+  console.log("reactions", rowIndex, colIndex, reactions);
   return (
     <View style={{ width, height }}>
       <CanvasHolder canvas={canvas} />
