@@ -42,17 +42,21 @@ import { Blurhash } from "react-native-blurhash";
 import { resizeImage } from "@/src/services/Media";
 
 //@ts-ignore
-export const pages$ = observable(
-  customSupabaseSynced({
-    supabase,
-    collection: "pages",
-    select: (from: any) => from.select("*"),
-    filter: (select) => select.eq("group_id", groupStore$.selectedGroup.get() || "").neq("deleted", true),
-    actions: ["read", "create", "update", "delete"],
-    // persist: { name: "pages" },
-    realtime: true,
-  })
-);
+
+export const pages$ = computed(() => {
+  const selectedGroup = groupStore$.selectedGroup.get();
+  //@ts-ignore
+  return observable(
+    customSupabaseSynced({
+      supabase,
+      collection: "pages",
+      select: (from: any) => from.select("*"),
+      filter: (select) => select.eq("group_id", selectedGroup || "").neq("deleted", true),
+      actions: ["read", "create", "update", "delete"],
+      realtime: true,
+    })
+  );
+});
 
 export const getPageIdsForUser = (curUser: string, pagesMap: Record<string, Page>): Map<string, string> | null => {
   if (!curUser || !pagesMap) {

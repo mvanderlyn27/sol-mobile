@@ -17,6 +17,7 @@ import {
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import authStore$ from "@/src/stores/AuthStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
+import { groupStore$ } from "@/src/stores/GroupStore";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
