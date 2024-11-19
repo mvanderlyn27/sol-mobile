@@ -42,11 +42,22 @@ import { Blurhash } from "react-native-blurhash";
 import { resizeImage } from "@/src/services/Media";
 
 //@ts-ignore
-
-export const pages$ = computed(() => {
+export const allPages$ = observable(
+  //@ts-ignore
+  customSupabaseSynced({
+    supabase,
+    collection: "pages",
+    select: (from: any) => from.select("*"),
+    actions: ["read", "create", "update", "delete"],
+    realtime: true,
+  })
+);
+//@ts-ignore
+export const pages$: Observable<Record<string, Page>> = computed(() => {
   const selectedGroup = groupStore$.selectedGroup.get();
   //@ts-ignore
   return observable(
+    //@ts-ignore
     customSupabaseSynced({
       supabase,
       collection: "pages",

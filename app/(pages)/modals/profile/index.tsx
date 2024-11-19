@@ -6,7 +6,7 @@ import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
-import { pages$ } from "@/src/stores/PagesStore";
+import { allPages$, pages$ } from "@/src/stores/PagesStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, Page } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
@@ -41,9 +41,9 @@ const CurProfile = observer(function CurProfile() {
       friendCount += 1;
     }
   });
-  const entriesCount = pages$.get()
-    ? Object.values(pages$.get()).filter((item: Page) => item.created_by === curUserId).length
-    : 0;
+  const entriesCount =
+    Object.values((allPages$.get() as Record<string, Page>) || {}).filter((item: Page) => item.created_by === curUserId)
+      ?.length || 0;
   const handleUpdateUsername = (val: string) => {
     profiles$[curUserId].username.set(val);
     Toast.show("name updated");
@@ -93,7 +93,7 @@ const CurProfile = observer(function CurProfile() {
         <StyledView className="w-full h-[1px] my-2  bg-slate-400" />
 
         <StyledView className="flex-row justify-between pb-4 ">
-          <StyledView className="flex-col flex-1 px-2 itmes-center">
+          <StyledView className="flex-col flex-1 px-2 items-center">
             <StyledText className="font-bold">Groups</StyledText>
             <StyledText className="p-4 text-lg">{myGroupIds.length || 0}</StyledText>
           </StyledView>
