@@ -1,10 +1,3 @@
-import {
-  editReactStore$,
-  filterNonUserReactions,
-  filterUserReactions,
-  initializeEditReactStore,
-  reactStore$,
-} from "@/src/stores/ReactStore";
 import { Show, observer, useMount } from "@legendapp/state/react";
 import ReactItem from "./ReactItem";
 import { getPageForUser, pageStore$ } from "@/src/stores/PagesStore";
@@ -19,10 +12,19 @@ import authStore$ from "@/src/stores/AuthStore";
 const StyledShow = styled(Show);
 const StyledView = styled(View);
 
-const ReactHolder = observer(function ReactHolder({ reactions }: { reactions: Reaction[] }) {
+const ReactHolder = observer(function ReactHolder({
+  keyString,
+  reactions,
+}: {
+  keyString: string;
+  reactions: Reaction[];
+}) {
   // Fetching required observables
   return (
-    <StyledView className="absolute top-0 right-0 left-0 bottom-0 bg-transparent" pointerEvents="box-none">
+    <StyledView
+      key={keyString}
+      className="absolute top-0 right-0 left-0 bottom-0 bg-transparent"
+      pointerEvents="box-none">
       {reactions.map((reaction, index) => {
         const canvasReaction = reaction.reaction as CanvasReaction;
         if (!canvasReaction) return null;

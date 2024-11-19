@@ -60,6 +60,7 @@ const ReactOverlayButtons = observer(function ReactOverlayButtons() {
     // journalStore$.editMode.set(false);
     uiStore$.displayReactMenu.set(true);
     uiStore$.displayReactOverlay.set(false);
+    reactStore$.reactEditMode.set(false);
   };
   const StyledMotiView = styled(MotiView);
   return (

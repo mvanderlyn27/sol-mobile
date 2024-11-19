@@ -7,7 +7,13 @@ import JournalOverlays from "../journal/JournalOverlays";
 import { Canvas, CanvasReaction, GroupMember, Reaction } from "@/src/types/shared.types";
 import { getPageForUser, loadMorePages, pageStore$, pages$ } from "@/src/stores/PagesStore";
 import ReactHolder from "../journal/reactions/ReactHolder";
-import { editReactStore$, filterNonUserReactions, filterUserReactions, reactStore$ } from "@/src/stores/ReactStore";
+import {
+  editReactStore$,
+  filterNonUserReactions,
+  filterUserReactions,
+  reactStore$,
+  reactions$,
+} from "@/src/stores/ReactStore";
 import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import authStore$ from "@/src/stores/AuthStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
@@ -39,8 +45,8 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
     // console.log("default");
   }
   let reactions: Reaction[] = [];
-  const nonUserCanvasReactions = filterNonUserReactions(page?.id || "");
-  const userCanvasReactions = filterUserReactions(page?.id || "");
+  const nonUserCanvasReactions = filterNonUserReactions(reactions$.get(), page?.id || "");
+  const userCanvasReactions = filterUserReactions(reactions$.get(), page?.id || "");
   const reactEditMode = reactStore$.reactEditMode.get();
   const showReactions = reactStore$.showReactions.get();
   if (!reactEditMode && showReactions) {
@@ -64,7 +70,10 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   return (
     <View style={{ width, height }}>
       <CanvasHolder canvas={canvas} />
-      <ReactHolder reactions={reactions} />
+      <ReactHolder
+        keyString={`${reactEditMode ? "edit-" : ""}reactions-${rowIndex}-${colIndex}`}
+        reactions={reactions}
+      />
     </View>
   );
 });

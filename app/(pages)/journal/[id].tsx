@@ -16,7 +16,6 @@ const Journal = observer(function Journal() {
   const groupId = ensureNotArray(useLocalSearchParams().id);
   groupStore$.selectedGroup.set(groupId);
   initializePageStore();
-  console.log("group Id", groupId);
   return <Canvas2DScroller />;
 });
 export default Journal;

@@ -21,15 +21,17 @@ export const reactions$ = observable(
     realtime: true,
   })
 );
-export const filterNonUserReactions = (pageId: string): Reaction[] => {
+export const filterNonUserReactions = (reactions: Record<string, Reaction> | undefined, pageId: string): Reaction[] => {
+  if (!reactions) return [];
   const curUserId = authStore$.session.user.id.get();
-  return Object.values(reactions$.get() || {}).filter((reaction) => {
+  return Object.values(reactions).filter((reaction) => {
     return reaction.page_id === pageId && reaction.created_by !== curUserId;
   });
 };
-export const filterUserReactions = (pageId: string): Reaction[] => {
+export const filterUserReactions = (reactions: Record<string, Reaction> | undefined, pageId: string): Reaction[] => {
+  if (!reactions) return [];
   const curUserId = authStore$.session.user.id.get();
-  return Object.values(reactions$.get() || {}).filter((reaction) => {
+  return Object.values(reactions).filter((reaction) => {
     return reaction.page_id === pageId && reaction.created_by === curUserId;
   });
 };
@@ -64,7 +66,7 @@ export const initializeEditReactStore = () => {
     pageStore$.members[pageStore$.curRow.get()].get().user_id,
     pageStore$.dates[pageStore$.curCol.get()].get().date
   )?.id;
-  const reactions: CanvasReaction[] = filterUserReactions(pageId || "")
+  const reactions: CanvasReaction[] = filterUserReactions(reactions$.get(), pageId || "")
     .map((reaction) => reaction.reaction)
     .filter((item): item is CanvasReaction => item !== null);
   editReactStore$.userReactions.set(reactions);
