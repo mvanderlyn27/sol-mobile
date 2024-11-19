@@ -211,15 +211,16 @@ export function navigateToPage(row: number, col: number) {
  * Toggle edit mode
  */
 export function handleEdit() {
-  console.log("editing");
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const pageId = getPageForUser(pages$.get(), user || "", day.date)?.id;
   if (pageId) {
+    console.log("editing page");
     const page = pages$?.get()[pageId];
     const canvas = (page.canvas as Canvas) || { ...defaultCanvas };
     canvasStore$.curCanvas.set({ ...canvas });
   } else {
+    console.log("editing with no page, clearing");
     clearCanvas();
   }
   uiStore$.displayCanvasMenu.set(true);
