@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useMemo } from "react";
-import { FlatList, View, Dimensions } from "react-native";
+import { FlatList, View, Dimensions, Platform } from "react-native";
 import PagerView from "react-native-pager-view";
 import { observer, useComputed } from "@legendapp/state/react";
 import { CanvasHolder } from "../journal/canvas/Canvas";
@@ -51,11 +51,11 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   const reactEditMode = reactStore$.reactEditMode.get();
   const showReactions = reactStore$.showReactions.get();
   if (!reactEditMode && showReactions) {
-    console.log("not edit reaction");
+    // console.log("not edit reaction");
     reactions = [...nonUserCanvasReactions, ...userCanvasReactions];
   } else if (reactEditMode && active) {
     const showEditNonUserReactions = editReactStore$.showNonUserReactions.get();
-    console.log("edit reaction", editReactStore$.userReactions.get());
+    // console.log("edit reaction", editReactStore$.userReactions.get());
     const editUserReactions = editReactStore$.userReactions.get().map((reaction) => {
       return {
         created_at: new Date().toISOString(),
@@ -70,7 +70,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
     reactions = [...(showEditNonUserReactions ? nonUserCanvasReactions : []), ...editUserReactions];
   }
   // console.log("canvas: ", rowIndex, colIndex, canvas);
-  console.log("reactions", rowIndex, colIndex, reactions);
+  // console.log("reactions", rowIndex, colIndex, reactions);
   return (
     <View style={{ width, height }}>
       <CanvasHolder canvas={canvas} />
@@ -110,6 +110,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
 
   return (
     <FlatList
+      key={`${col}`}
       ref={flatListRef}
       extraData={pageStore$.editMode.get()}
       data={rows}
@@ -117,11 +118,14 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
-      initialNumToRender={1}
+      // initialNumToRender={1}
       initialScrollIndex={pageStore$.curRow.get()}
       keyExtractor={(row) => `${row.user_id}-${col}`}
       renderItem={({ item: row, index }) => <PageRenderer rowIndex={index} colIndex={col} />}
-      onScrollToIndexFailed={() => {}}
+      viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, waitForInteraction: false }}
+      onScrollToIndexFailed={() => {
+        console.log("failed to scroll");
+      }}
     />
   );
 });
@@ -139,20 +143,36 @@ const Canvas2DScroller = observer(() => {
 
   return (
     <View style={{ flex: 1 }}>
-      <PagerView
-        overdrag
-        scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
-        layoutDirection={"rtl"}
-        ref={pagerRef}
-        style={{ flex: 1 }}
-        initialPage={0}
-        onPageSelected={handlePagerChange}>
-        {pageStore$.dates.get().map((date, index) => (
-          <View key={`${date}-${index}`} style={{ flex: 1 }}>
-            <VerticalPageList rows={pageStore$.members.get()} col={index} />
-          </View>
-        ))}
-      </PagerView>
+      {Platform.OS === "ios" ? (
+        <PagerView
+          overdrag
+          scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
+          layoutDirection={"rtl"}
+          ref={pagerRef}
+          style={{ flex: 1 }}
+          initialPage={0}
+          onPageSelected={handlePagerChange}>
+          {pageStore$.dates.get().map((date, index) => (
+            <View key={`${date}-${index}`} style={{ flex: 1 }}>
+              <VerticalPageList rows={pageStore$.members.get()} col={index} />
+            </View>
+          ))}
+        </PagerView>
+      ) : (
+        <PagerView
+          overdrag
+          scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
+          ref={pagerRef}
+          style={{ flex: 1, transform: [{ scaleX: -1 }] }}
+          initialPage={0}
+          onPageSelected={handlePagerChange}>
+          {pageStore$.dates.get().map((date, index) => (
+            <View key={`${date}-${index}`} style={{ flex: 1, transform: [{ scaleX: -1 }] }}>
+              <VerticalPageList rows={pageStore$.members.get()} col={index} />
+            </View>
+          ))}
+        </PagerView>
+      )}
       <JournalOverlays />
     </View>
   );

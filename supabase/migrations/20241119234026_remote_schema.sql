@@ -115,6 +115,70 @@ CREATE OR REPLACE FUNCTION "public"."handle_times"() RETURNS "trigger"
 
 ALTER FUNCTION "public"."handle_times"() OWNER TO "postgres";
 
+
+CREATE OR REPLACE FUNCTION "public"."is_group_admin"("p_user_id" "uuid", "p_group_id" "uuid") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    member_exists boolean;
+BEGIN
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.group_members
+        WHERE user_id = p_user_id AND group_id = p_group_id AND role='admin'
+    ) INTO member_exists;
+
+    RETURN member_exists;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."is_group_admin"("p_user_id" "uuid", "p_group_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."is_group_member"("p_user_id" "uuid", "p_group_id" "uuid") RETURNS boolean
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+DECLARE
+    member_exists boolean;
+BEGIN
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.group_members
+        WHERE user_id = p_user_id AND group_id = p_group_id AND role='member'
+    ) INTO member_exists;
+
+    RETURN member_exists;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."is_group_member"("p_user_id" "uuid", "p_group_id" "uuid") OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."protect_group_members"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$BEGIN
+IF NEW.deleted = TRUE THEN RETURN NEW;
+
+ELSIF NEW.role = 'member' THEN
+IF NEW.user_id <> auth.uid ()::UUID THEN RAISE EXCEPTION 'You can only update your own group membership.';
+
+END IF;
+
+IF NEW.role <> OLD.role THEN RAISE EXCEPTION 'You cannot change the role field.';
+
+END IF;
+
+END IF;
+
+RETURN NEW;
+
+END;$$;
+
+
+ALTER FUNCTION "public"."protect_group_members"() OWNER TO "postgres";
+
 SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
@@ -183,7 +247,8 @@ CREATE TABLE IF NOT EXISTS "public"."group_members" (
     "role" "text" DEFAULT 'member'::"text" NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "deleted" boolean DEFAULT false,
-    "status" "text"
+    "status" "text" DEFAULT 'pending'::"text" NOT NULL,
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL
 );
 
 
@@ -194,6 +259,10 @@ COMMENT ON COLUMN "public"."group_members"."status" IS 'field to determine if us
 
 
 
+COMMENT ON COLUMN "public"."group_members"."id" IS 'used to help with legend state for selecting users';
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."groups" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
@@ -201,7 +270,8 @@ CREATE TABLE IF NOT EXISTS "public"."groups" (
     "deleted" boolean DEFAULT false NOT NULL,
     "cover_url" "text",
     "cover_placeholder" "text",
-    "name" "text" NOT NULL
+    "name" "text" NOT NULL,
+    "created_by" "uuid" DEFAULT "auth"."uid"()
 );
 
 
@@ -243,20 +313,16 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "name" "text",
     "avatar_url" "text",
-    "new" boolean DEFAULT true NOT NULL,
     "updated_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
     "deleted" boolean DEFAULT false NOT NULL,
     "push_token" "text",
     "avatar_placeholder" "text",
-    "username" "text"
+    "username" "text",
+    "new" boolean DEFAULT true NOT NULL
 );
 
 
 ALTER TABLE "public"."profiles" OWNER TO "postgres";
-
-
-COMMENT ON COLUMN "public"."profiles"."new" IS 'tracks new users';
-
 
 
 CREATE TABLE IF NOT EXISTS "public"."reactions" (
@@ -355,7 +421,7 @@ ALTER TABLE ONLY "public"."frames"
 
 
 ALTER TABLE ONLY "public"."group_members"
-    ADD CONSTRAINT "group_members_pkey" PRIMARY KEY ("group_id", "user_id");
+    ADD CONSTRAINT "group_members_pkey" PRIMARY KEY ("id");
 
 
 
@@ -399,6 +465,11 @@ ALTER TABLE ONLY "public"."templates"
 
 
 
+ALTER TABLE ONLY "public"."group_members"
+    ADD CONSTRAINT "unique_group_members" UNIQUE ("group_id", "user_id");
+
+
+
 ALTER TABLE ONLY "public"."waitlist"
     ADD CONSTRAINT "waitlist_pkey" PRIMARY KEY ("id");
 
@@ -409,6 +480,25 @@ CREATE OR REPLACE TRIGGER "handle_times_pages" BEFORE INSERT OR UPDATE ON "publi
 
 
 CREATE OR REPLACE TRIGGER "handle_times_profiles" BEFORE INSERT OR UPDATE ON "public"."profiles" FOR EACH ROW EXECUTE FUNCTION "public"."handle_times"();
+
+
+
+CREATE OR REPLACE TRIGGER "protect_group_members_trigger" BEFORE UPDATE ON "public"."group_members" FOR EACH ROW EXECUTE FUNCTION "public"."protect_group_members"();
+
+
+
+ALTER TABLE ONLY "public"."group_members"
+    ADD CONSTRAINT "group_members_group_id_fkey" FOREIGN KEY ("group_id") REFERENCES "public"."groups"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."group_members"
+    ADD CONSTRAINT "group_members_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."groups"
+    ADD CONSTRAINT "groups_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."profiles"("id");
 
 
 
@@ -450,10 +540,6 @@ CREATE POLICY "Anyone can see stickers" ON "public"."stickers" FOR SELECT USING 
 
 
 
-CREATE POLICY "Auth'd users can insert into the groups table" ON "public"."groups" FOR INSERT TO "authenticated" WITH CHECK (true);
-
-
-
 CREATE POLICY "Enable read access for all users" ON "public"."fonts" FOR SELECT USING (true);
 
 
@@ -462,15 +548,17 @@ CREATE POLICY "Enable write for anyone" ON "public"."waitlist" FOR INSERT WITH C
 
 
 
-CREATE POLICY "admin can do anything" ON "public"."groups" USING ((EXISTS ( SELECT 1
+CREATE POLICY "admin/ creator can insert" ON "public"."group_members" FOR INSERT WITH CHECK (((EXISTS ( SELECT 1
+   FROM "public"."groups" "g"
+  WHERE (("g"."id" = "group_members"."group_id") AND ("g"."created_by" = "auth"."uid"())))) OR "public"."is_group_admin"("auth"."uid"(), "group_id")));
+
+
+
+CREATE POLICY "admin/owner can do all" ON "public"."groups" USING ((("auth"."uid"() = "created_by") OR (EXISTS ( SELECT 1
    FROM "public"."group_members"
-  WHERE (("group_members"."group_id" = "groups"."id") AND ("group_members"."user_id" = "auth"."uid"()) AND ("group_members"."role" = 'admin'::"text")))));
-
-
-
-CREATE POLICY "admin, can adjust members" ON "public"."group_members" USING ((EXISTS ( SELECT 1
-   FROM "public"."group_members" "gm"
-  WHERE (("gm"."group_id" = "group_members"."group_id") AND ("gm"."user_id" = "auth"."uid"()) AND ("gm"."role" = 'admin'::"text")))));
+  WHERE (("group_members"."group_id" = "groups"."id") AND ("group_members"."user_id" = "auth"."uid"()) AND ("group_members"."role" = 'admin'::"text")))))) WITH CHECK ((("auth"."uid"() = "created_by") OR (EXISTS ( SELECT 1
+   FROM "public"."group_members"
+  WHERE (("group_members"."group_id" = "groups"."id") AND ("group_members"."user_id" = "auth"."uid"()) AND ("group_members"."role" = 'admin'::"text"))))));
 
 
 
@@ -479,6 +567,10 @@ CREATE POLICY "anyone can see templates" ON "public"."templates" FOR SELECT USIN
 
 
 CREATE POLICY "anyone can select a fraem" ON "public"."frames" FOR SELECT USING (true);
+
+
+
+CREATE POLICY "anyone can view group members" ON "public"."group_members" FOR SELECT TO "authenticated" USING (true);
 
 
 
@@ -494,22 +586,16 @@ CREATE POLICY "creator can do all" ON "public"."reactions" USING (("created_by" 
 
 
 
+CREATE POLICY "delete" ON "public"."group_members" FOR DELETE USING (((EXISTS ( SELECT 1
+   FROM "public"."groups" "g"
+  WHERE (("g"."id" = "group_members"."group_id") AND ("g"."created_by" = "auth"."uid"())))) OR "public"."is_group_admin"("auth"."uid"(), "group_id") OR ("user_id" = "auth"."uid"())));
+
+
+
 ALTER TABLE "public"."fonts" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."frames" ENABLE ROW LEVEL SECURITY;
-
-
-ALTER TABLE "public"."group_members" ENABLE ROW LEVEL SECURITY;
-
-
-ALTER TABLE "public"."groups" ENABLE ROW LEVEL SECURITY;
-
-
-CREATE POLICY "members can see other members in their groups" ON "public"."group_members" FOR SELECT USING ((EXISTS ( SELECT 1
-   FROM "public"."group_members" "gm"
-  WHERE (("gm"."group_id" = "group_members"."group_id") AND ("gm"."user_id" = "auth"."uid"()) AND (("gm"."role" = 'member'::"text") OR ("gm"."role" = 'admin'::"text"))))));
-
 
 
 CREATE POLICY "members can view all reactions" ON "public"."reactions" FOR SELECT USING ((EXISTS ( SELECT 1
@@ -521,25 +607,13 @@ CREATE POLICY "members can view all reactions" ON "public"."reactions" FOR SELEC
 
 
 
-CREATE POLICY "members can view groups" ON "public"."groups" FOR SELECT USING ((EXISTS ( SELECT 1
+CREATE POLICY "members can view pages" ON "public"."pages" FOR SELECT USING (((EXISTS ( SELECT 1
    FROM "public"."group_members"
-  WHERE (("group_members"."group_id" = "groups"."id") AND ("group_members"."user_id" = "auth"."uid"()) AND ("group_members"."role" = 'member'::"text")))));
-
-
-
-CREATE POLICY "members can view pages" ON "public"."pages" FOR SELECT USING ((EXISTS ( SELECT 1
-   FROM "public"."group_members"
-  WHERE (("group_members"."group_id" = "pages"."group_id") AND ("group_members"."user_id" = "auth"."uid"())))));
+  WHERE (("group_members"."group_id" = "pages"."group_id") AND ("group_members"."user_id" = "auth"."uid"())))) OR ("created_by" = "auth"."uid"())));
 
 
 
 ALTER TABLE "public"."notifications" ENABLE ROW LEVEL SECURITY;
-
-
-ALTER TABLE "public"."pages" ENABLE ROW LEVEL SECURITY;
-
-
-ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 
 
 CREATE POLICY "reaction insert policy" ON "public"."reactions" FOR INSERT WITH CHECK ((EXISTS ( SELECT 1
@@ -549,9 +623,6 @@ CREATE POLICY "reaction insert policy" ON "public"."reactions" FOR INSERT WITH C
           WHERE ("group_members"."user_id" = "p"."created_by")))))
   WHERE (("p"."id" = "reactions"."page_id") AND ("gm"."user_id" = "auth"."uid"())))));
 
-
-
-ALTER TABLE "public"."reactions" ENABLE ROW LEVEL SECURITY;
 
 
 CREATE POLICY "reciever can mark as seen" ON "public"."notifications" FOR UPDATE USING (("recipient_id" = "auth"."uid"()));
@@ -568,6 +639,20 @@ ALTER TABLE "public"."stickers" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."templates" ENABLE ROW LEVEL SECURITY;
 
 
+CREATE POLICY "update" ON "public"."group_members" FOR UPDATE USING (((EXISTS ( SELECT 1
+   FROM "public"."groups" "g"
+  WHERE (("g"."id" = "group_members"."group_id") AND ("g"."created_by" = "auth"."uid"())))) OR "public"."is_group_admin"("auth"."uid"(), "group_id") OR ("user_id" = "auth"."uid"()))) WITH CHECK (((EXISTS ( SELECT 1
+   FROM "public"."groups" "g"
+  WHERE (("g"."id" = "group_members"."group_id") AND ("g"."created_by" = "auth"."uid"())))) OR "public"."is_group_admin"("auth"."uid"(), "group_id") OR ("user_id" = "auth"."uid"())));
+
+
+
+CREATE POLICY "user and members can view group" ON "public"."groups" FOR SELECT USING ((("auth"."uid"() = "created_by") OR (EXISTS ( SELECT 1
+   FROM "public"."group_members"
+  WHERE (("group_members"."group_id" = "groups"."id") AND ("group_members"."user_id" = "auth"."uid"()))))));
+
+
+
 CREATE POLICY "user owns their account" ON "public"."profiles" USING (("auth"."uid"() = "id"));
 
 
@@ -578,6 +663,26 @@ ALTER TABLE "public"."waitlist" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."group_members";
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."groups";
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."pages";
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."profiles";
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."reactions";
+
 
 
 GRANT USAGE ON SCHEMA "public" TO "postgres";
@@ -2942,6 +3047,24 @@ GRANT ALL ON FUNCTION "public"."create_profile_on_signup"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."handle_times"() TO "anon";
 GRANT ALL ON FUNCTION "public"."handle_times"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."handle_times"() TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."is_group_admin"("p_user_id" "uuid", "p_group_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."is_group_admin"("p_user_id" "uuid", "p_group_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."is_group_admin"("p_user_id" "uuid", "p_group_id" "uuid") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."is_group_member"("p_user_id" "uuid", "p_group_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."is_group_member"("p_user_id" "uuid", "p_group_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."is_group_member"("p_user_id" "uuid", "p_group_id" "uuid") TO "service_role";
+
+
+
+GRANT ALL ON FUNCTION "public"."protect_group_members"() TO "anon";
+GRANT ALL ON FUNCTION "public"."protect_group_members"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."protect_group_members"() TO "service_role";
 
 
 

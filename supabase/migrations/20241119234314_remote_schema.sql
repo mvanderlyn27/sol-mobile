@@ -1,3 +1,6 @@
+CREATE TRIGGER after_user_signup AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION create_profile_on_signup();
+
+
 create policy "Give users access to their own folder 1oj01fe_0"
 on "storage"."objects"
 as permissive
