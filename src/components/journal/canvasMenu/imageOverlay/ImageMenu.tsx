@@ -18,7 +18,6 @@ import Foundation from "@expo/vector-icons/Foundation";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
-import { journalStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
 import OverlayTextButton from "@/src/components/shared/OverlayTextButton";
 import { canvasStore$, removeCanvasItem } from "@/src/stores/CanvasStore";
@@ -137,7 +136,7 @@ const ImageMenu = observer(function ImageMenu() {
         </AnimatePresence>
 
         {/* <StyledView className="w-full h-[75px] flex-row items-center justify-between  px-10"> */}
-        <StyledView className="w-full h-[75px] flex-row items-center justify-center px-10">
+        <StyledView className="w-full h-[50px] flex-row items-center justify-center px-10">
           <CanvasBarButton
             onPress={handleDelete}
             buttonType={ButtonType.Trash}

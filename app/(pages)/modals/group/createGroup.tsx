@@ -133,7 +133,12 @@ export default function CreateGroupModal() {
 
       {/* Create Button */}
       <StyledView className="flex-row px-24">
-        <ModalButton disabled={creating} action={handleCreateGroup} text="Create" color="bg-[#FFA500]" />
+        <ModalButton
+          disabled={creating || loading || !groupName || !image}
+          action={handleCreateGroup}
+          text="Create"
+          color="bg-[#FFA500]"
+        />
       </StyledView>
     </StyledView>
   );

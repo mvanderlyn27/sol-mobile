@@ -30,6 +30,7 @@ import { addCanvasItem, canvasStore$ } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { batch } from "@legendapp/state";
 import { reactStore$ } from "@/src/stores/ReactStore";
+import { format } from "date-fns";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -65,6 +66,7 @@ const CanvasMenu = observer(function CanvasMenu() {
   };
   const handleClose = () => {
     pageStore$.editMode.set(false);
+    reactStore$.showReactions.set(true);
     uiStore$.displayCanvasMenu.set(false);
     uiStore$.displayJournalMenu.set(true);
   };
@@ -142,15 +144,20 @@ const CanvasMenu = observer(function CanvasMenu() {
   };
   const handleImage = async () => {
     // No permissions request is necessary for launching the image library
+    pageStore$.ready.set(false);
+    pageStore$.loadingMessage.set("Adding Image...");
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      // base64: false,
+      // quality: 0,
       // allowsEditing: true,
       // aspect: [4, 3],
-      quality: 1,
+      // preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Current,
     });
 
-    console.log(result);
-
+    if (result.canceled) {
+      pageStore$.loadingMessage.set("Cancelled!");
+    }
     if (!result.canceled) {
       // imageEditStore$.selectedImage.set(result.assets[0].uri);
       const imgWidth = result.assets[0].width;
@@ -172,10 +179,13 @@ const CanvasMenu = observer(function CanvasMenu() {
         scale: 1,
         type: "image",
       };
+
       addCanvasItem(image);
       // uiStore$.displayCanvasMenu.set(false);
       // uiStore$.displayImageEditOverlay.set(true);
     }
+    pageStore$.ready.set(true);
+    pageStore$.loadingMessage.set("");
   };
   const handleSticker = () => {};
   return (

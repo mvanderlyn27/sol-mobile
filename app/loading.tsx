@@ -1,5 +1,5 @@
 import { getImageFromPath } from "@/src/assets/images/images";
-import LoadingScreen from "@/src/components/screens/LoadingScreen";
+import LoadingScreen from "@/src/components/screens/SplashScreen";
 import authStore$ from "@/src/stores/AuthStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { when, whenReady } from "@legendapp/state";

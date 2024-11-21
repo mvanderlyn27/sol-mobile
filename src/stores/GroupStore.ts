@@ -7,6 +7,7 @@ import { supabase } from "../lib/supabase";
 import { resizeImage } from "../services/Media";
 import authStore$ from "./AuthStore";
 import { filterMyGroups, filterMyInvites, groupMembers$ } from "./MemberStore";
+import { posthog } from "../services/Posthog";
 
 export const groups$ = observable(
   customSupabaseSynced({
@@ -27,6 +28,7 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
   const session = authStore$.session.get();
   if (!session?.user.id) {
     console.error("not logged in, can't create group");
+    posthog.capture("add-group-error", { error: "not logged in" });
     return null;
   }
   const id = generateId();
@@ -36,12 +38,8 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     name,
     created_by: session?.user.id,
   });
-  try {
-    await waitForSync(groups$, id);
-  } catch (error) {
-    console.error("Error syncing group with Supabase:", error);
-    return null;
-  }
+  await syncState(groups$).sync();
+
   const groupMemberId = generateId();
   groupMembers$[groupMemberId].set({
     id: groupMemberId,
@@ -50,12 +48,6 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     role: "admin",
     status: "completed",
   });
-  try {
-    await waitForSync(groupMembers$, groupMemberId);
-  } catch (error) {
-    console.error("Error syncing group member with Supabase:", error);
-    return null;
-  }
 
   //upload image after we create new component for rls policies to work
   const base64 = await FileSystem.readAsStringAsync(cover_uri, { encoding: "base64" });
@@ -73,7 +65,7 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
   console.log("done uploading", error, data, success);
   if (error || !data) {
     console.error("error uploading", error);
-    //show notif here
+    posthog.capture("add-group-error", { error });
     return null;
   }
 
@@ -87,33 +79,4 @@ export const deleteGroup = async (group_id: string) => {
     return;
   }
   groups$[group_id].delete();
-};
-
-const waitForSync = async (store: any, id: string, timeout = 5000): Promise<void> => {
-  const start = Date.now();
-
-  return new Promise<void>((resolve, reject) => {
-    const interval = setInterval(async () => {
-      // Check if the timeout has elapsed
-      if (Date.now() - start > timeout) {
-        clearInterval(interval);
-        reject(new Error("Timeout waiting for sync"));
-        return;
-      }
-
-      // Check if the group exists in Supabase
-      const { data, error } = await supabase
-        .from(store === groups$ ? "groups" : "group_members")
-        .select("id")
-        .eq("id", id)
-        .single();
-
-      if (data) {
-        clearInterval(interval);
-        resolve();
-      } else if (error) {
-        console.error("Sync check error:", error);
-      }
-    }, 200); // Check every 200ms
-  });
 };

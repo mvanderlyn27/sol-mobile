@@ -5,11 +5,13 @@ import { useData } from "@/src/contexts/DataProvider";
 import { useAuth } from "@/src/contexts/AuthProvider";
 import { getImageFromPath } from "@/src/assets/images/images";
 import { BackgroundImage } from "@rneui/themed/dist/config";
+import { pageStore$ } from "@/src/stores/PagesStore";
+import { observer } from "@legendapp/state/react";
 const StyledView = styled(MotiView);
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 const StyledSafeAreaView = styled(SafeAreaView);
-export default function UploadingScreen() {
+const LoadingScreen = observer(function LoadingScreen() {
   return (
     <ImageBackground
       style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
@@ -19,11 +21,13 @@ export default function UploadingScreen() {
           <StyledText
             className="text-xl p-4 tracking-widest text-secondary text-center"
             style={{ fontFamily: "PragmaticaExtended" }}>
-            Saving
+            {pageStore$.loadingMessage.get()}
           </StyledText>
-          <ActivityIndicator size="large" color="white" />
+          {pageStore$.loadingMessage.get() && <ActivityIndicator size="large" color="white" />}
         </StyledMotiView>
       </StyledSafeAreaView>
     </ImageBackground>
   );
-}
+});
+
+export default LoadingScreen;

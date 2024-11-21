@@ -11,6 +11,7 @@ import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
+import { format } from "date-fns";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);

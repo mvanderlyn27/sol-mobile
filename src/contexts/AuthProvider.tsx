@@ -4,7 +4,7 @@ import { AuthService } from "@/src/api/auth";
 import { Session } from "@supabase/supabase-js";
 import { ActivityIndicator, View } from "react-native";
 import { SupabaseResponse } from "../lib/supabase";
-import LoadingScreen from "../components/screens/LoadingScreen";
+import LoadingScreen from "../components/screens/SplashScreen";
 import Toast from "react-native-root-toast";
 import { Redirect } from "expo-router";
 import { AnimatePresence, MotiView } from "moti";

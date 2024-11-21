@@ -40,6 +40,7 @@ import * as FileSystem from "expo-file-system";
 import StorageService from "@/src/api/storage";
 import { Blurhash } from "react-native-blurhash";
 import { resizeImage } from "@/src/services/Media";
+import { reactStore$ } from "./ReactStore";
 
 //@ts-ignore
 export const allPages$ = observable(
@@ -120,6 +121,7 @@ interface PageStore {
   curCol: number;
   editMode: boolean;
   loadedPages: number;
+  loadingMessage: string;
   ready: boolean;
   //load more pages
   //
@@ -144,6 +146,7 @@ export const pageStore$ = observable<PageStore>({
   curCol: 0,
   editMode: false,
   loadedPages: START_PAGE_NUM,
+  loadingMessage: "saving",
   ready: true,
 });
 
@@ -353,6 +356,7 @@ const uploadImages = async (pageId: string): Promise<CanvasItem[]> => {
   return newItems;
 };
 export async function handlePageSave() {
+  pageStore$.loadingMessage.set("Saving...");
   pageStore$.ready.set(false);
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
@@ -409,6 +413,7 @@ export async function handlePageSave() {
     pageStore$.editMode.set(true);
     pageStore$.editMode.set(false);
     pageStore$.ready.set(true);
+    pageStore$.loadingMessage.set("");
   }
 }
 
