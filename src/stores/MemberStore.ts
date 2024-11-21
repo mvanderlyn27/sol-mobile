@@ -2,9 +2,11 @@ import { computed, observable } from "@legendapp/state";
 import { customSupabaseSynced, generateId } from "./AsyncStorage";
 import * as FileSystem from "expo-file-system";
 import StorageService from "../api/storage";
-import { GroupMember } from "../types/shared.types";
+import { GroupMember, NotificationType } from "../types/shared.types";
 import { profiles$ } from "./ProfileStore";
 import authStore$ from "./AuthStore";
+import { posthog } from "../services/Posthog";
+import { addNotification } from "./NotificationStore";
 
 export const groupMembers$ = observable(
   customSupabaseSynced({
@@ -70,6 +72,7 @@ export const getMember = (groupId: string, userId: string) => {
 export const removeMember = (groupId: string, userId: string) => {
   const id = getMember(groupId, userId);
   if (!id) {
+    posthog.capture("remove-member-error", { error: "user not found" });
     console.log("user not found");
     return;
   }
@@ -78,6 +81,7 @@ export const removeMember = (groupId: string, userId: string) => {
 export const checkAdmin = (groupId: string, userId: string) => {
   const id = getMember(groupId, userId);
   if (!id) {
+    posthog.capture("check-admin-error", { error: "user not found" });
     console.log("user not found");
     return;
   }
@@ -86,7 +90,13 @@ export const checkAdmin = (groupId: string, userId: string) => {
 export const inviteGroupMember = (groupId: string, username: string): string | null => {
   const entry = Object.entries(profiles$.get()).find(([key, profile]) => profile.username === username);
   if (!entry) {
-    console.error("can't find user");
+    posthog.capture("invite-group-member-error", { error: "user not found" });
+    addNotification({
+      id: generateId(),
+      message: "User not found, please try again",
+      type: NotificationType.error,
+    });
+    console.log("can't find user");
     return null;
   }
   const id = entry[0];
@@ -99,35 +109,4 @@ export const inviteGroupMember = (groupId: string, username: string): string | n
     status: "pending",
   });
   return inviteId;
-};
-export const acceptGroupInvite = (groupId: string) => {};
-// addGroup
-export const addGroupMember = async (name: string, cover_uri: string, cover_placeholder: string) => {
-  //   const id = generateId();
-  //   groups$[id].set({
-  //     name,
-  //     cover_url: "",
-  //     cover_placeholder: "",
-  //   });
-  //   const base64 = await FileSystem.readAsStringAsync(cover_uri, { encoding: "base64" });
-  //   const { success, data, error } = await StorageService.uploadFile({
-  //     bucket: "group_photos",
-  //     filePath: `${id}/cover.webp`,
-  //     base64: base64,
-  //     fileExtension: "",
-  //     mimeType: "",
-  //   });
-  //   if (error || !data) {
-  //     console.error("error uploading");
-  //     //show notif here
-  //     return;
-  //   }
-};
-
-export const deleteGroupMember = async (group_id: string) => {
-  //   if (!Object.keys(groups$.get()).includes(group_id)) {
-  //     console.error("id not in groups");
-  //     return;
-  //   }
-  //   groups$[group_id].delete();
 };

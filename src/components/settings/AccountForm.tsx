@@ -4,9 +4,11 @@ import { styled } from "nativewind";
 import { MotiView } from "moti";
 import { Ionicons } from "@expo/vector-icons"; // Assuming you're using Expo's Ionicons
 import { useAuth } from "@/src/contexts/AuthProvider";
-import Toast from "react-native-root-toast";
 import authStore$ from "@/src/stores/AuthStore";
 import { router } from "expo-router";
+import { NotificationType } from "@/src/types/shared.types";
+import { addNotification } from "@/src/stores/NotificationStore";
+import { generateId } from "@/src/stores/AsyncStorage";
 
 // Styled components using NativeWind
 const StyledView = styled(View);
@@ -36,14 +38,22 @@ const AccountForm = () => {
     // Handle save logic here
     setUpdating(true);
     if (!email) {
-      Toast.show("Please fill out email, and try again", {});
+      addNotification({
+        id: generateId(),
+        message: "Please fill out email, and try again",
+        type: NotificationType.error,
+      });
       // setEmail(session?.user.email);
       setUpdating(false);
       return;
     }
     const validEmail = checkEmail(email);
     if (!validEmail) {
-      Toast.show("Please enter a valid email address", {});
+      addNotification({
+        id: generateId(),
+        message: "Please enter a valid email address",
+        type: NotificationType.info,
+      });
       setUpdating(false);
       return;
     }
@@ -52,14 +62,22 @@ const AccountForm = () => {
     }
     if (password !== confirmPassword) {
       console.log("Passwords do not match");
-      Toast.show("Passwords do not match", {});
+      addNotification({
+        id: generateId(),
+        message: "passwords do not match",
+        type: NotificationType.info,
+      });
       setUpdating(false);
       return;
     }
     if (password !== "") {
       await authStore$.updatePassword(password);
     }
-    Toast.show("Update Finished", {});
+    addNotification({
+      id: generateId(),
+      message: "update finished",
+      type: NotificationType.info,
+    });
     setUpdating(false);
   };
 

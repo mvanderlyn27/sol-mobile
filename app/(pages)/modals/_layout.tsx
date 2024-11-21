@@ -14,6 +14,7 @@ import { BlurView } from "expo-blur";
 import { useEffect, useState } from "react";
 import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
+import NotificationHolder from "@/src/components/notifications/NotificationHolder";
 const StyledMotiView = styled(MotiView);
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -85,7 +86,8 @@ export default function Modal() {
     : windowHeight * 0.6;
 
   return (
-    <BlurView tint="dark" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}>
+    <BlurView tint="dark" style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: 20 }}>
+      <NotificationHolder />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>

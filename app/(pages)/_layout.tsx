@@ -3,6 +3,7 @@ import { router, Stack } from "expo-router";
 import { useEffect } from "react";
 import authStore$ from "@/src/stores/AuthStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
+import { View } from "moti";
 
 export const unstable_settings = {
   initialRouteName: "home",

@@ -3,7 +3,6 @@ import { Canvas, CanvasItem, ImageType, Page } from "../types/shared.types";
 import { useData } from "./DataProvider";
 import { Json } from "../types/supabase.types";
 import { Dimensions } from "react-native";
-import Toast from "react-native-root-toast";
 import StorageService from "../api/storage";
 import { useAuth } from "./AuthProvider";
 
@@ -332,10 +331,7 @@ export const CanvasProvider = ({ children }: { children: ReactNode }) => {
     if (pagesError) {
       setCanvasError(pagesError);
     }
-    let toast = Toast.show("Save complete! :)", {
-      duration: 1000,
-      position: Toast.positions.CENTER,
-    });
+
     setCanvasHasChanges(false);
     setCanvasSaving(false);
   };

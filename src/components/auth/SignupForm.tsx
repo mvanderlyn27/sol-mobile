@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Alert, StyleSheet, View, Text, TextInput, Pressable } from "react-native";
 import { Button, Input } from "@rneui/themed";
 import { useAuth } from "../../contexts/AuthProvider";
-import Toast from "react-native-root-toast";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,6 +9,9 @@ import AppleAuthButton from "./AppleAuthButton";
 import GoogleAuthButton from "./GoogleAuthButton";
 import authStore$ from "@/src/stores/AuthStore";
 import { observer } from "@legendapp/state/react";
+import { NotificationType } from "@/src/types/shared.types";
+import { addNotification } from "@/src/stores/NotificationStore";
+import { generateId } from "@/src/stores/AsyncStorage";
 
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
@@ -26,7 +28,11 @@ const SignupForm = observer(function SignupForm() {
   async function handleSignUp() {
     setLoading(true);
     await authStore$.signUp(email, password);
-    Toast.show("Check email for verification", {});
+    addNotification({
+      id: generateId(),
+      message: "Check email for verification",
+      type: NotificationType.info,
+    });
     setLoading(false);
   }
 

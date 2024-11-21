@@ -227,3 +227,17 @@ export enum IconType {
   Tiktok = "tiktok",
   Twitter = "twitter",
 }
+
+export enum NotificationType {
+  error = "error",
+  success = "success",
+  info = "info",
+}
+
+export type LocalNotification = {
+  id: string;
+  message: string;
+  type: NotificationType;
+  duration?: number;
+  // timestamp: number;
+};

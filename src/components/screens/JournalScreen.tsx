@@ -1,13 +1,11 @@
 import { View, Text } from "react-native";
 import { styled } from "nativewind";
 import { CanvasProvider, useCanvas } from "@/src/contexts/CanvasProvider";
-import CanvasHolder from "@/src/components/journal/canvas/Canvas";
 import { useEffect, useState } from "react";
 import { useNav } from "@/src/contexts/NavigationProvider";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import { AnimatePresence } from "moti";
 import { useJournal } from "@/src/contexts/JournalProvider";
-import Toast from "react-native-root-toast";
 import { runOnJS } from "react-native-reanimated";
 import { useData } from "@/src/contexts/DataProvider";
 // import { useBookStore } from "@/src/stores/BookStore";

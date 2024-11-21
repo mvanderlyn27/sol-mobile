@@ -4,7 +4,6 @@ import { AnimatePresence, MotiView, Text } from "moti";
 import { styled } from "nativewind";
 import { useEffect, useState } from "react";
 import { Pressable, TextInput } from "react-native";
-import Toast from "react-native-root-toast";
 const StyledPressable = styled(Pressable);
 const StyledText = styled(Text);
 const StyledMotiView = styled(MotiView);
@@ -23,16 +22,16 @@ export default function ProfileName() {
   const handleSave = async () => {
     setUpdating(true);
     if (!name) {
-      Toast.show("Please enter a name", {});
+      // Toast.show("Please enter a name", {});
       return;
     }
     await updateProfile({ name });
     if (profileError) {
       setUpdating(false);
-      Toast.show("Update Failed, please try again", {});
+      // Toast.show("Update Failed, please try again", {});
       return;
     }
-    Toast.show("Updated", {});
+    // Toast.show("Updated", {});
     setEditMode(false);
     setHasChanges(false);
     return;

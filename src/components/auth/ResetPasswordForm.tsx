@@ -4,7 +4,9 @@ import { useAuth } from "../../contexts/AuthProvider";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Link, router } from "expo-router";
-import Toast from "react-native-root-toast";
+import { generateId } from "@/src/stores/AsyncStorage";
+import { addNotification } from "@/src/stores/NotificationStore";
+import { NotificationType } from "@/src/types/shared.types";
 
 const StyledMotiView = styled(MotiView);
 const StyledTextInput = styled(TextInput);
@@ -21,15 +23,27 @@ export default function ResetPasswordForm() {
   async function handleRequestPasswordReset() {
     setLoading(true);
     if (password === "") {
-      Toast.show("Passwords must be at least 6 characters, please try again", {});
+      addNotification({
+        id: generateId(),
+        message: "Passwords must be at least 6 characters, please try again",
+        type: NotificationType.error,
+      });
       setLoading(false);
     }
     if (password !== confirmPassword) {
       console.log("Passwords do not match");
-      Toast.show("Passwords do not match, please try again", {});
+      addNotification({
+        id: generateId(),
+        message: "Passwords do not match, please try again",
+        type: NotificationType.error,
+      });
     }
     await updatePassword(password);
-    Toast.show("Passwords Updated", { duration: 3000 });
+    addNotification({
+      id: generateId(),
+      message: "Password updated",
+      type: NotificationType.info,
+    });
     setLoading(false);
     router.push("/journal");
   }

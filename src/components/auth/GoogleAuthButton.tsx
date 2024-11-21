@@ -1,11 +1,13 @@
 import { GoogleSignin, GoogleSigninButton, statusCodes } from "@react-native-google-signin/google-signin";
 import { usePostHog } from "posthog-react-native";
-import Toast from "react-native-root-toast";
 import { styled } from "nativewind";
 import { Platform } from "react-native";
 import { useAuth } from "@/src/contexts/AuthProvider";
 import authStore$ from "@/src/stores/AuthStore";
 import { observer } from "@legendapp/state/react";
+import { addNotification } from "@/src/stores/NotificationStore";
+import { generateId } from "@/src/stores/AsyncStorage";
+import { NotificationType } from "@/src/types/shared.types";
 const StyledGoogleButton = styled(GoogleSigninButton);
 const GoogleAuthButton = observer(function GoogleAuthButton() {
   // const { signInWithGoogle } = useAuth();
@@ -16,6 +18,11 @@ const GoogleAuthButton = observer(function GoogleAuthButton() {
     //if not oauth client don't render, won't show up for dev
     posthog.capture("missing-google-oauth-ios-client-id");
     console.log("missing-google-oauth-ios-client-id");
+    addNotification({
+      id: generateId(),
+      message: "missing google auth client id",
+      type: NotificationType.info,
+    });
     return null;
   }
 
@@ -38,7 +45,11 @@ const GoogleAuthButton = observer(function GoogleAuthButton() {
           } else {
             console.error("no id token/canelled login");
             posthog.capture("google-signin-error", { error: "no id token, or canceled login" });
-            Toast.show("Didn't log in, please try again", { duration: 3000 });
+            addNotification({
+              id: generateId(),
+              message: "Didn't log in please try again",
+              type: NotificationType.error,
+            });
           }
         } catch (error: any) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -46,13 +57,21 @@ const GoogleAuthButton = observer(function GoogleAuthButton() {
           } else if (error.code === statusCodes.IN_PROGRESS) {
             // operation (e.g. sign in) is in progress already
           } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-            Toast.show("Error signing in, Google Play not available", { duration: 3000 });
+            addNotification({
+              id: generateId(),
+              message: "Error signing in, Google play unavailable",
+              type: NotificationType.error,
+            });
             // play services not available or outdated
           } else {
             // some other error happened
             console.error(error);
             posthog.capture("google-signin-error", { error: error.message });
-            Toast.show("Error signing in, please try again soon", { duration: 3000 });
+            addNotification({
+              id: generateId(),
+              message: "Error signing in, please try again",
+              type: NotificationType.error,
+            });
           }
         }
       }}

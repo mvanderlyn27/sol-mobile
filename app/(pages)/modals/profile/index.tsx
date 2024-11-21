@@ -8,16 +8,17 @@ import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { allPages$, pages$ } from "@/src/stores/PagesStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { GroupMember, Page } from "@/src/types/shared.types";
+import { GroupMember, NotificationType, Page } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { observer } from "@legendapp/state/react";
 import { Link, router } from "expo-router";
 import { styled } from "nativewind";
 import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
-import Toast from "react-native-root-toast";
 import { useLocalSearchParams } from "expo-router";
 import { filterMyGroups, filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
 import { Share, Button } from "react-native";
+import { generateId } from "@/src/stores/AsyncStorage";
+import { addNotification } from "@/src/stores/NotificationStore";
 
 const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
@@ -46,7 +47,11 @@ const CurProfile = observer(function CurProfile() {
       ?.length || 0;
   const handleUpdateUsername = (val: string) => {
     profiles$[curUserId].username.set(val);
-    Toast.show("name updated");
+    addNotification({
+      id: generateId(),
+      message: `Name Updated`,
+      type: NotificationType.info,
+    });
   };
   const handleInvite = async () => {
     try {

@@ -5,7 +5,6 @@ import { Session } from "@supabase/supabase-js";
 import { ActivityIndicator, View } from "react-native";
 import { SupabaseResponse } from "../lib/supabase";
 import LoadingScreen from "../components/screens/SplashScreen";
-import Toast from "react-native-root-toast";
 import { Redirect } from "expo-router";
 import { AnimatePresence, MotiView } from "moti";
 import * as Linking from "expo-linking";
@@ -72,7 +71,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       posthog.capture("user-failed-login", { email, error: response.error });
       setError(response.error || "Error signing in");
       console.debug("Error signing in:", response.error);
-      Toast.show("Error logging in", { duration: 3000 });
     }
     setIsReady(true);
     return;
@@ -94,31 +92,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (email: string, password: string, name: string) => {
     setIsReady(false);
     setError(null);
-    const response = await AuthService.signUp(email, password, name);
+    const response = await AuthService.signUp(email, password);
     joinEmailList(email, name);
     if (response.success) {
       setSession(response.data || null);
       posthog.identify(response.data?.user?.id, { name: name, email, user: response.data?.user });
       posthog.capture("user-signup", { email });
-      Toast.show("Check email for verification", {
-        duration: 3000,
-        position: Toast.positions.BOTTOM,
-        backgroundColor: "#E7DBCB",
-        opacity: 1,
-        shadow: false,
-        textColor: "#262326",
-      });
+
       setError(null);
     } else {
       setError(response.error || "Error signing up");
       posthog.capture("user-signup-error", { email, error: response.error });
       console.debug("Error signing up:", response.error);
-      Toast.show("Error signing up, please try again", {
-        duration: 3000,
-        position: Toast.positions.BOTTOM,
-        backgroundColor: "red",
-        textColor: "white",
-      });
     }
     setIsReady(true);
     return;
@@ -172,7 +157,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(null);
       setError(null);
       posthog.capture("user-reset-password", { email });
-      Toast.show("Check your email to reset your password", {});
       setIsReady(true);
     } else {
       posthog.capture("user-reset-password-error", { email, error: response.error });
@@ -227,7 +211,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setIsReady(true);
       posthog.capture("sign-in-with-apple-failed", { error: response.error || "missing user" });
-      Toast.show("Error logging in, " + response.error, { duration: 3000 });
       setError(response.error || "Error signing in");
     }
   };
@@ -245,7 +228,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setIsReady(true);
       posthog.capture("sign-in-with-google-failed", { error: response.error || "missing user" });
-      Toast.show("Error logging in, " + response.error, { duration: 3000 });
       setError(response.error || "Error signing in");
     }
   };

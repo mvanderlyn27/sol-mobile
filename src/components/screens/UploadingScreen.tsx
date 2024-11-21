@@ -7,15 +7,17 @@ import { getImageFromPath } from "@/src/assets/images/images";
 import { BackgroundImage } from "@rneui/themed/dist/config";
 import { pageStore$ } from "@/src/stores/PagesStore";
 import { observer } from "@legendapp/state/react";
+import { BlurView } from "expo-blur";
 const StyledView = styled(MotiView);
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 const StyledSafeAreaView = styled(SafeAreaView);
 const LoadingScreen = observer(function LoadingScreen() {
   return (
-    <ImageBackground
-      style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
-      source={getImageFromPath("bg_03")}>
+    // <ImageBackground
+    //   style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
+    //   source={getImageFromPath("bg_03")}>
+    <BlurView intensity={100} tint="dark" style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}>
       <StyledSafeAreaView className="flex-1">
         <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0  justify-center items-center">
           <StyledText
@@ -26,7 +28,8 @@ const LoadingScreen = observer(function LoadingScreen() {
           {pageStore$.loadingMessage.get() && <ActivityIndicator size="large" color="white" />}
         </StyledMotiView>
       </StyledSafeAreaView>
-    </ImageBackground>
+    </BlurView>
+    // </ImageBackground>
   );
 });
 

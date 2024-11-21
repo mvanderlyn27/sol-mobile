@@ -41,6 +41,7 @@ import StorageService from "@/src/api/storage";
 import { Blurhash } from "react-native-blurhash";
 import { resizeImage } from "@/src/services/Media";
 import { reactStore$ } from "./ReactStore";
+import { posthog } from "../services/Posthog";
 
 //@ts-ignore
 export const allPages$ = observable(
@@ -69,40 +70,6 @@ export const pages$: Observable<Record<string, Page>> = computed(() => {
     })
   );
 });
-
-export const getPageIdsForUser = (curUser: string, pagesMap: Record<string, Page>): Map<string, string> | null => {
-  if (!curUser || !pagesMap) {
-    return null;
-  }
-  const daysToLoad = pageStore$.loadedPages.get();
-
-  const today = startOfDay(new Date());
-  const selectedGroup = groupStore$.selectedGroup.get();
-
-  const userPages = Object.values(pagesMap)
-    .filter((page) => page.group_id === selectedGroup && page.created_by === curUser)
-    .reduce<Record<string, Page>>((acc, page) => {
-      acc[page.date] = page; // Store by date for quick lookup
-      return acc;
-    }, {});
-
-  //map of date -> id
-  const pageMap: Map<string, string> = new Map();
-  let currentDate = today;
-
-  for (let i = 0; i < daysToLoad; i++) {
-    const dateKey = format(currentDate, "yyyy-MM-dd");
-    const pageForDate = userPages[dateKey];
-    if (pageForDate) {
-      pageMap.set(dateKey, pageForDate.id);
-    } else {
-      pageMap.set(dateKey, "");
-    }
-    currentDate = subDays(currentDate, 1); // Move back a day
-  }
-
-  return pageMap;
-};
 
 export const getPageForUser = (pages: Record<string, Page>, curUser: string, date: string): Page | undefined => {
   const groupId = groupStore$.selectedGroup.get();
@@ -264,6 +231,7 @@ const uploadImage = async (
     .then((blurhash) => blurhash)
     .catch((error) => {
       console.error("Error generating blurhash:", error);
+      posthog.capture("upload-page-image-error", { error });
       // Alert.alert("Error", "Failed to generate blurhash.");
       return null;
     });
@@ -272,6 +240,7 @@ const uploadImage = async (
     .then((image) => image)
     .catch((error) => {
       console.log("error optimizing image");
+      posthog.capture("upload-page-image-error", { error });
       return null;
     });
 
@@ -290,6 +259,7 @@ const uploadImage = async (
   console.log("done uploading", error, data, success);
   if (error || !data) {
     console.error("error uploading", error);
+    posthog.capture("upload-page-image-error", { error });
     //show notif here
 
     // setLoading(false);
@@ -329,6 +299,8 @@ const uploadImages = async (pageId: string): Promise<CanvasItem[]> => {
         })
         .catch((error) => {
           console.error(`Failed to upload image with ID ${item.id}:`, error);
+          posthog.capture("upload-page-images-error: " + item.id, { error });
+
           return null; // Handle error and continue
         });
     }
@@ -407,6 +379,7 @@ export async function handlePageSave() {
     });
   } catch (error) {
     console.error("Error during page save:", error);
+    posthog.capture("page-save-error", { error });
     throw error;
   } finally {
     console.log("save complete");

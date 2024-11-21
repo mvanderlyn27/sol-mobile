@@ -1,12 +1,14 @@
+import { generateId } from "@/src/stores/AsyncStorage";
 import authStore$ from "@/src/stores/AuthStore";
+import { addNotification } from "@/src/stores/NotificationStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
+import { NotificationType } from "@/src/types/shared.types";
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
 import { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
-import Toast from "react-native-root-toast";
 const StyledView = styled(View);
 const StyledMotiView = styled(MotiView);
 const StyledPressable = styled(Pressable);
@@ -18,7 +20,11 @@ export default function EditableText({ placeholder, action }: { placeholder: str
   const [newValue, setNewValue] = useState(placeholder);
   const handleSubmit = () => {
     if (newValue === "") {
-      Toast.show("Please enter a username to update");
+      addNotification({
+        id: generateId(),
+        message: "Please enter a value to update",
+        type: NotificationType.info,
+      });
       console.error("please enter username");
       return;
     }

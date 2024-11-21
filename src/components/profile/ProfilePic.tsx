@@ -19,7 +19,6 @@ import { BlurView } from "expo-blur";
 import * as ImageManipulator from "expo-image-manipulator";
 import RectangleButton from "../shared/RectangleButton";
 import StorageService from "@/src/api/storage";
-import Toast from "react-native-root-toast";
 import Drawer from "../shared/Drawer";
 import { useNav } from "@/src/contexts/NavigationProvider";
 import { useProfile } from "@/src/contexts/ProfileProvider";
@@ -122,7 +121,8 @@ export default function ProfilePic() {
       await removeProfilePicture();
     }
     setUploadingImage(false);
-    Toast.show("Deleted", {});
+    // Toast.show("Deleted", {});
+
     setShowBottomDrawer(false);
     // setEditMode(false);
   };

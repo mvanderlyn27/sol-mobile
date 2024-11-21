@@ -4,7 +4,14 @@ import PagerView from "react-native-pager-view";
 import { observer, useComputed } from "@legendapp/state/react";
 import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
-import { Canvas, CanvasReaction, GroupMember, Reaction } from "@/src/types/shared.types";
+import {
+  Canvas,
+  CanvasReaction,
+  GroupMember,
+  LocalNotification,
+  NotificationType,
+  Reaction,
+} from "@/src/types/shared.types";
 import { getPageForUser, loadMorePages, pageStore$, pages$ } from "@/src/stores/PagesStore";
 import ReactHolder from "../journal/reactions/ReactHolder";
 import {
@@ -18,6 +25,7 @@ import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
 import authStore$ from "@/src/stores/AuthStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { groupStore$ } from "@/src/stores/GroupStore";
+import { addNotification } from "@/src/stores/NotificationStore";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
