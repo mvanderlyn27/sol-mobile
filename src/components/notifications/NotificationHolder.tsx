@@ -78,7 +78,6 @@ const Notification = observer(function Notification({
         type: "timing",
         duration: 300,
       }}
-      pointerEvents="box-none"
       className={`flex-row w-full px-4 h-auto py-2 ${getColor()} rounded-lg items-center justify-between mb-2`}>
       <Text style={{ flex: 1 }}>{notification.message}</Text>
       <Pressable onPress={handleDismiss} style={{ flex: 0, backgroundColor: "black", padding: 8, borderRadius: 4 }}>

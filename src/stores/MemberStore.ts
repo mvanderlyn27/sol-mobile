@@ -58,7 +58,18 @@ export const filterGroupMembers = (
     return null;
   }
   return Object.entries(map)
-    .filter(([key, val]) => val.group_id === groupId)
+    .filter(([key, val]) => val.group_id === groupId && val.status === "completed")
+    .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
+};
+export const filterPendingGroupMembers = (
+  map: Record<string, GroupMember>,
+  groupId: string
+): Record<string, GroupMember> | null => {
+  if (!map || !groupId) {
+    return null;
+  }
+  return Object.entries(map)
+    .filter(([key, val]) => val.group_id === groupId && val.status === "pending")
     .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
 };
 export const getMember = (groupId: string, userId: string) => {

@@ -5,7 +5,9 @@ import StorageService from "../api/storage";
 import { GroupMember } from "../types/shared.types";
 import authStore$ from "./AuthStore";
 import { posthog } from "../services/Posthog";
-
+import { registerForPushNotificationsAsync } from "../services/PushNotification";
+import { addNotification } from "./NotificationStore";
+import * as Device from "expo-device";
 export const profiles$ = observable(
   customSupabaseSynced({
     // supabase,
@@ -34,4 +36,54 @@ export const updateUsername = (username: string): { error: string | undefined } 
   profiles$[curId].new.set(false);
   profiles$[curId].username.set(username);
   return { error: undefined };
+};
+export const requestPushNotificationPermission = async () => {
+  if (!Device.isDevice) {
+    return;
+  }
+  const curId = authStore$.session.user.id.get();
+  if (!curId) {
+    console.log("no user");
+    posthog.capture("push-notification-error", { error: "no user" });
+    return;
+  }
+  const profile = profiles$[curId].get();
+  if (!profile) {
+    console.log("no user");
+    posthog.capture("push-notification-error", { error: "no user" });
+    return;
+  }
+  const token = await registerForPushNotificationsAsync();
+  if (!token) {
+    //user doesn't want to receive notifications
+    return;
+  }
+  profile.push_token.set(token);
+};
+export const checkPushNotificationPermission = async () => {
+  if (!Device.isDevice) {
+    return;
+  }
+  const curId = authStore$.session.user.id.get();
+  if (!curId) {
+    console.log("no user");
+    posthog.capture("push-notification-error", { error: "no user" });
+    return;
+  }
+  const profile = profiles$[curId].get();
+  if (!profile) {
+    console.log("no user");
+    posthog.capture("push-notification-error", { error: "no user" });
+    return;
+  }
+  if (profile.push_token) {
+    //found token
+    return;
+  }
+  const token = await registerForPushNotificationsAsync();
+  if (!token) {
+    //user doesn't want to receive notifications
+    return;
+  }
+  profile.push_token.set(token);
 };

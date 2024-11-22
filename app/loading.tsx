@@ -24,7 +24,7 @@ const Loading = observer(function Loading() {
     if (!userId) return;
     whenReady(profiles$[userId], (profile) => {
       if (profile.new) {
-        router.navigate("/ftux");
+        router.navigate("/(ftux)/username");
       } else {
         router.navigate("/home");
       }

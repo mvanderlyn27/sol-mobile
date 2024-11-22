@@ -18,25 +18,12 @@ const StyledTextInput = styled(TextInput);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 const StyledLink = styled(Link);
-const FtuxScreen = observer(function FtuxScreen() {
+const PermissionsScreen = observer(function FtuxScreen() {
   // form to setup username
 
-  const [username, setUsername] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const handleUsername = () => {
-    setLoading(true);
-    //test username and change
-    const { error } = updateUsername(username);
-    if (error) {
-      setError(error);
-      addNotification({ id: generateId(), message: error, type: NotificationType.error });
-      setLoading(false);
-    } else {
-      setLoading(false);
-      router.push("./permissions");
-    }
+  const handleContinue = () => {
+    router.push("/home");
   };
   const showDatePicker = () => {
     setDatePickerVisibility(true);
@@ -60,35 +47,36 @@ const FtuxScreen = observer(function FtuxScreen() {
       <StyledText
         className="text-3xl tracking-widest text-secondary text-center"
         style={{ fontFamily: "PragmaticaExtended" }}>
-        Choose Username
+        Permissions
       </StyledText>
-      <StyledMotiView
-        className="w-full border border-gray-400 rounded-lg flex-row items-center justify-between p-4 my-4"
-        from={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ type: "timing", duration: 300 }}>
-        <StyledTextInput
-          value={username}
-          placeholder="USERNAME"
-          placeholderTextColor="#B0B0B0"
-          onChangeText={setUsername}
-          className="w-full text-secondary text-center"
-          style={{ fontFamily: "PragmaticaExtended-light" }}
-          autoCapitalize="none"
-        />
-      </StyledMotiView>
       <StyledPressable
-        onPress={handleUsername}
-        disabled={loading || !username}
-        className={`w-full py-3 my-4  ${
-          loading || !username ? "bg-gray-400" : "bg-secondary"
-        } border border-darkPrimary rounded-lg`}>
+        onPress={handleEnablePermissions}
+        className={`w-full py-3 my-4  ${"bg-primary"} border border-darkPrimary rounded-lg`}>
+        <StyledText className="text-center text-white" style={{ fontFamily: "PragmaticaExtended" }}>
+          ENABLE NOTIFICATIONS
+        </StyledText>
+      </StyledPressable>
+      <StyledPressable
+        onPress={showDatePicker}
+        className={`w-full py-3 my-4  ${"bg-primary"} border border-darkPrimary rounded-lg`}>
+        <StyledText className="text-center text-white" style={{ fontFamily: "PragmaticaExtended" }}>
+          SET DAILY JOURNAL REMINDER
+        </StyledText>
+      </StyledPressable>
+      <StyledPressable
+        onPress={handleContinue}
+        className={`w-full py-3 my-4  ${"bg-secondary"} border border-darkPrimary rounded-lg`}>
         <StyledText className="text-center text-darkPrimary" style={{ fontFamily: "PragmaticaExtended" }}>
           CONTINUE
         </StyledText>
       </StyledPressable>
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="time"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
     </ImageBackground>
   );
 });
-export default FtuxScreen;
+export default PermissionsScreen;
