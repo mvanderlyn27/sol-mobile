@@ -9,10 +9,17 @@ import * as SplashScreen from "expo-splash-screen";
 import { getImageFromPath } from "@/src/assets/images/images";
 import { MotiView } from "moti";
 import { ImageBackground } from "expo-image";
-import { observer } from "@legendapp/state/react";
+import { observer, useMount } from "@legendapp/state/react";
 import authStore$ from "@/src/stores/AuthStore";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NotificationHolder from "@/src/components/notifications/NotificationHolder";
+import * as Notifications from "expo-notifications";
+import { useAppNavigation } from "@/src/services/Navigation";
+import { computed, syncState } from "@legendapp/state";
+import { profiles$ } from "@/src/stores/ProfileStore";
+import { allPages$, pages$ } from "@/src/stores/PagesStore";
+import { groups$ } from "@/src/stores/GroupStore";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -30,19 +37,17 @@ export const RootLayout = observer(function RootLayout() {
     "PragmaticaExtended-Light": require("@/src/assets/fonts/PragmaticaExtended-light.otf"),
     PragmaticaExtended: require("@/src/assets/fonts/PragmaticaExtended.otf"),
   });
-  useEffect(() => {
-    //setup initial store
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
+  useMount(() => {
     authStore$.init();
-  }, []);
-  useEffect(() => {
-    if (loaded && !authStore$.loading.get()) {
-      //maybe add loading data here
-      SplashScreen.hideAsync();
-      if (authStore$.session.get() !== null) {
-        router.push("/loading");
-      }
-    }
-  }, [loaded, error, authStore$.loading.get()]);
+  });
+  useAppNavigation();
   if (!loaded && !error) {
     return null;
   }

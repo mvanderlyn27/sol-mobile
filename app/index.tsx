@@ -3,6 +3,6 @@ import { View } from "react-native";
 import * as SystemUI from "expo-system-ui";
 SystemUI.setBackgroundColorAsync("black");
 const Index = () => {
-  return <Redirect href="/home" />;
+  return null;
 };
 export default Index;

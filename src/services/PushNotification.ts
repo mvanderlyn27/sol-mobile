@@ -2,14 +2,23 @@ import Constants from "expo-constants";
 import { Platform } from "react-native";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import { useEffect } from "react";
-import { router } from "expo-router";
-import { addNotification } from "../stores/NotificationStore";
+import { useEffect, useState } from "react";
+import { SplashScreen, router } from "expo-router";
+import { addNotification, notificationStore$ } from "../stores/NotificationStore";
 import { generateId } from "../stores/AsyncStorage";
 import { NotificationType } from "../types/shared.types";
+import { when } from "@legendapp/state";
+import authStore$ from "../stores/AuthStore";
+import { profiles$ } from "../stores/ProfileStore";
+import { groups$ } from "../stores/GroupStore";
+import { groupMembers$ } from "../stores/MemberStore";
+import { allPages$ } from "../stores/PagesStore";
+export async function checkNotificationStatus(): Promise<string> {
+  const { status } = await Notifications.getPermissionsAsync();
+  return status;
+}
 export async function registerForPushNotificationsAsync(): Promise<string | null> {
   let token;
-
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("default", {
       name: "default",
@@ -20,20 +29,17 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
   }
 
   if (Device.isDevice) {
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus === "denied") {
-      console.log("push notifications off");
-      return null;
+    let existingStatus = await checkNotificationStatus();
+
+    if (existingStatus !== "granted") {
+      //if we don't have permission, ask for it
+      const { status } = await Notifications.requestPermissionsAsync();
+      existingStatus = status;
     }
     if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== "granted") {
       addNotification({
         id: generateId(),
-        message: "Push notifications not enabled",
+        message: "Push notifications disabled, enable via settings",
         type: NotificationType.info,
       });
       return null;
@@ -44,6 +50,11 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
     try {
       const projectId = Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
       if (!projectId) {
+        addNotification({
+          id: generateId(),
+          message: "Project ID not found",
+          type: NotificationType.error,
+        });
         throw new Error("Project ID not found");
       }
       token = (
@@ -99,35 +110,6 @@ export async function sendPushNotification(expoPushToken: string) {
     },
     body: JSON.stringify(message),
   });
-}
-
-export function useNotificationObserver() {
-  useEffect(() => {
-    let isMounted = true;
-
-    function redirect(notification: Notifications.Notification) {
-      const url = notification.request.content.data?.url;
-      if (url) {
-        router.push(url);
-      }
-    }
-
-    Notifications.getLastNotificationResponseAsync().then((response) => {
-      if (!isMounted || !response?.notification) {
-        return;
-      }
-      redirect(response?.notification);
-    });
-
-    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      redirect(response.notification);
-    });
-
-    return () => {
-      isMounted = false;
-      subscription.remove();
-    };
-  }, []);
 }
 
 async function requestPermissions() {

@@ -44,7 +44,7 @@ import { reactStore$ } from "./ReactStore";
 import { posthog } from "../services/Posthog";
 
 //@ts-ignore
-export const allPages$ = observable(
+export const allPages$: Observable = observable(
   //@ts-ignore
   customSupabaseSynced({
     supabase,

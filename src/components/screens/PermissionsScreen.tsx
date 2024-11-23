@@ -1,5 +1,5 @@
 import { getImageFromPath } from "@/src/assets/images/images";
-import { scheduleDailyReminder } from "@/src/services/PushNotification";
+import { checkNotificationStatus, scheduleDailyReminder } from "@/src/services/PushNotification";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { addNotification } from "@/src/stores/NotificationStore";
 import { requestPushNotificationPermission, updateUsername } from "@/src/stores/ProfileStore";
@@ -22,6 +22,7 @@ const PermissionsScreen = observer(function FtuxScreen() {
   // form to setup username
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [pushNotificationEnabled, setPushNotificationEnabled] = useState(false);
   const handleContinue = () => {
     router.push("/home");
   };
@@ -37,8 +38,11 @@ const PermissionsScreen = observer(function FtuxScreen() {
     await scheduleDailyReminder(date.getHours(), date.getMinutes());
     hideDatePicker();
   };
-  const handleEnablePermissions = () => {
-    requestPushNotificationPermission();
+  const handleEnablePermissions = async () => {
+    const granted = await requestPushNotificationPermission();
+    if (granted) {
+      setPushNotificationEnabled(true);
+    }
   };
   return (
     <ImageBackground
@@ -58,7 +62,10 @@ const PermissionsScreen = observer(function FtuxScreen() {
       </StyledPressable>
       <StyledPressable
         onPress={showDatePicker}
-        className={`w-full py-3 my-4  ${"bg-primary"} border border-darkPrimary rounded-lg`}>
+        disabled={!pushNotificationEnabled}
+        className={`w-full py-3 my-4  ${
+          pushNotificationEnabled ? "bg-primary" : "bg-gray-400"
+        } border border-darkPrimary rounded-lg`}>
         <StyledText className="text-center text-white" style={{ fontFamily: "PragmaticaExtended" }}>
           SET DAILY JOURNAL REMINDER
         </StyledText>

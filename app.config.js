@@ -36,7 +36,12 @@ export default {
     },
     plugins: [
       "expo-router",
+      [
       "expo-notifications",
+      {
+        "enableBackgroundRemoteNotifications": true 
+      }
+      ],
       "expo-secure-store",
       [
       "expo-build-properties",
