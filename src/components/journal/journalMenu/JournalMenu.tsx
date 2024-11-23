@@ -71,7 +71,7 @@ const JournalMenu = observer(function JournalMenu() {
             reactStore$.reactEditMode.set(false);
             textStore$.reset();
             clearCanvas();
-            router.back();
+            router.navigate("/home");
           }}
           className="">
           <AntDesign name="left" size={30} color="black" />
