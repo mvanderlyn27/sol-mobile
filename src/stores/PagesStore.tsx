@@ -387,6 +387,7 @@ export async function handlePageSave() {
     pageStore$.editMode.set(false);
     pageStore$.ready.set(true);
     pageStore$.loadingMessage.set("");
+    console.log("finished update");
   }
 }
 

@@ -81,34 +81,17 @@ export async function registerForPushNotificationsAsync(): Promise<string | null
   return token || null;
 }
 
-export async function schedulePushNotification() {
-  await Notifications.scheduleNotificationAsync({
-    content: {
-      title: "You've got mail! 📬",
-      body: "Here is the notification body",
-      data: { data: "goes here", test: { test1: "more data" } },
-    },
-    trigger: { seconds: 2 } as Notifications.TimeIntervalTriggerInput,
-  });
-}
-
-export async function sendPushNotification(expoPushToken: string) {
+export async function sendPushNotification(expoPushToken: string, title: string, body: string, data: any) {
   const message = {
     to: expoPushToken,
     sound: "default",
-    title: "Original Title",
-    body: "And here is the body!",
-    data: { someData: "goes here" },
+    title: title,
+    body: body,
+    data: data,
   };
-
-  await fetch("https://exp.host/--/api/v2/push/send", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Accept-encoding": "gzip, deflate",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(message),
+  await Notifications.scheduleNotificationAsync({
+    content: message,
+    trigger: { seconds: 0 } as Notifications.TimeIntervalTriggerInput,
   });
 }
 

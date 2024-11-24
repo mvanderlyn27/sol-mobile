@@ -35,9 +35,35 @@ export function useAppNavigation() {
         // Default navigation
         console.log("url not found");
         const isAuthenticated = authStore$.session.get() !== null;
-        router.replace(isAuthenticated ? "/home" : "/login");
+        if (!isAuthenticated) {
+          router.replace("/login");
+        } else {
+          const userId = authStore$.session.user.id.get();
+          const profile = userId && profiles$[userId].get();
+          if (profile && profile.new) {
+            router.replace("/(ftux)/username");
+          } else {
+            router.replace("/home");
+          }
+        }
       }
     };
     navigateApp();
+
+    // Add a listener for real-time notification responses
+    const notificationSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const url = response.notification.request.content.data?.url;
+      console.log("Notification received:", url);
+
+      if (url) {
+        const isAuthenticated = authStore$.session.get() !== null;
+        router.push(isAuthenticated ? url : "/login"); // Use `push` instead of `replace` for better stack handling
+      }
+    });
+
+    // Cleanup listener on unmount
+    return () => {
+      notificationSubscription.remove();
+    };
   }, []);
 }
