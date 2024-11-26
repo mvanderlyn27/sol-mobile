@@ -14,22 +14,18 @@ const StyledText = styled(Text);
 const StyledSafeAreaView = styled(SafeAreaView);
 const LoadingScreen = observer(function LoadingScreen() {
   return (
-    // <ImageBackground
-    //   style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
-    //   source={getImageFromPath("bg_03")}>
     <BlurView intensity={100} tint="dark" style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}>
       <StyledSafeAreaView className="flex-1">
         <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0  justify-center items-center">
           <StyledText
             className="text-xl p-4 tracking-widest text-secondary text-center"
             style={{ fontFamily: "PragmaticaExtended" }}>
-            {pageStore$.loadingMessage.get()}
+            Loading...
           </StyledText>
-          {pageStore$.loadingMessage.get() && <ActivityIndicator size="large" color="white" />}
+          <ActivityIndicator size="large" color="white" />
         </StyledMotiView>
       </StyledSafeAreaView>
     </BlurView>
-    // </ImageBackground>
   );
 });
 

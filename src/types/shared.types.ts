@@ -1,4 +1,5 @@
-import { Database, Json } from "./supabase.types";
+import { Database } from "./supabase.types";
+export type Json = Record<string, any>;
 
 //Supabase Types
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];

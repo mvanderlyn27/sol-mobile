@@ -64,13 +64,15 @@ const JournalMenu = observer(function JournalMenu() {
         <StyledPressable
           onPress={() => {
             console.log("back");
-            groupStore$.selectedGroup.set(null);
-            pageStore$.editMode.set(false);
-            pageStore$.curRow.set(0);
-            pageStore$.curCol.set(0);
-            reactStore$.reactEditMode.set(false);
-            textStore$.reset();
-            clearCanvas();
+            batch(() => {
+              groupStore$.selectedGroup.set(null);
+              pageStore$.editMode.set(false);
+              pageStore$.curRow.set(0);
+              pageStore$.curCol.set(0);
+              reactStore$.reactEditMode.set(false);
+              textStore$.reset();
+              clearCanvas();
+            });
             router.navigate("/home");
           }}
           className="">

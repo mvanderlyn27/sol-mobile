@@ -23,7 +23,6 @@ const ReactItem = observer(function ReactItem({
   item: CanvasReaction;
   usersReaction?: boolean;
 }) {
-  console.log("react item updated", item, item.fontColor, item.x, item.y, item.rotation, item.z);
   const [gestureDone, setGestureDone] = useState(true);
   const editMode = (reactStore$.reactEditMode.get() && usersReaction) || false;
   const offset = useSharedValue({ x: item.x || 0, y: item.y || 0 });

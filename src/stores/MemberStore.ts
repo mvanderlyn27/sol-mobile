@@ -7,6 +7,7 @@ import { profiles$ } from "./ProfileStore";
 import authStore$ from "./AuthStore";
 import { posthog } from "../services/Posthog";
 import { addNotification } from "./NotificationStore";
+import { supabase } from "../lib/supabase";
 
 export const groupMembers$ = observable(
   customSupabaseSynced({
@@ -98,7 +99,7 @@ export const checkAdmin = (groupId: string, userId: string) => {
   }
   return groupMembers$[id].role.get() === "admin";
 };
-export const inviteGroupMember = (groupId: string, username: string): string | null => {
+export const inviteGroupMember = async (groupId: string, username: string): Promise<string | null> => {
   const entry = Object.entries(profiles$.get()).find(([key, profile]) => profile.username === username);
   if (!entry) {
     posthog.capture("invite-group-member-error", { error: "user not found" });
@@ -112,6 +113,15 @@ export const inviteGroupMember = (groupId: string, username: string): string | n
   }
   const id = entry[0];
   const inviteId = generateId();
+  const { error } = await supabase.from("group_members").insert({
+    id: inviteId,
+    group_id: groupId,
+    user_id: id,
+    role: "member",
+    status: "pending",
+  });
+  console.log("error", error);
+
   groupMembers$[inviteId].set({
     id: inviteId,
     group_id: groupId,

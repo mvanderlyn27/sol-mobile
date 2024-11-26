@@ -20,6 +20,7 @@ import {
   eachDayOfInterval,
   subDays,
   startOfToday,
+  differenceInCalendarDays,
 } from "date-fns";
 import { Canvas, CanvasImage, CanvasItem, GroupMember, ImageType, Page } from "../types/shared.types";
 import { Dimensions } from "react-native";
@@ -43,9 +44,7 @@ import { resizeImage } from "@/src/services/Media";
 import { reactStore$ } from "./ReactStore";
 import { posthog } from "../services/Posthog";
 
-//@ts-ignore
 export const allPages$: Observable = observable(
-  //@ts-ignore
   customSupabaseSynced({
     supabase,
     collection: "pages",
@@ -57,9 +56,7 @@ export const allPages$: Observable = observable(
 //@ts-ignore
 export const pages$: Observable<Record<string, Page>> = computed(() => {
   const selectedGroup = groupStore$.selectedGroup.get();
-  //@ts-ignore
   return observable(
-    //@ts-ignore
     customSupabaseSynced({
       supabase,
       collection: "pages",
@@ -83,12 +80,14 @@ interface PageStore {
   // `${date}` -> Canvas
   pages: PageMap[];
   members: GroupMember[];
+  initialUser: string | undefined;
+  initialDate: string | undefined;
   dates: DateItem[];
   curRow: number;
   curCol: number;
   editMode: boolean;
   loadedPages: number;
-  loadingMessage: string;
+  saving: boolean;
   ready: boolean;
   //load more pages
   //
@@ -109,26 +108,32 @@ export const pageStore$ = observable<PageStore>({
   pages: [],
   members: [],
   dates: [],
+  initialDate: undefined,
+  initialUser: undefined,
   curRow: 0,
   curCol: 0,
   editMode: false,
   loadedPages: START_PAGE_NUM,
-  loadingMessage: "saving",
-  ready: true,
+  saving: false,
+  ready: false,
 });
 
 /**
  * Initialize the group members and pages for a specific group.
  */
 export function initializePageStore() {
-  loadGroupMembers();
-  loadInitialPages();
+  pageStore$.ready.set(false);
+  const user = pageStore$.initialUser.get();
+  const day = pageStore$.initialDate.get();
+  loadGroupMembers(user);
+  loadInitialPages(day);
+  pageStore$.ready.set(true);
 }
 
 /**
  * Load group members for a given groupId.
  */
-function loadGroupMembers() {
+function loadGroupMembers(user?: string) {
   const currentUserId = authStore$.session.user.id.get();
   const users = Object.values(
     filterGroupMembers(groupMembers$.get(), groupStore$.selectedGroup.get() || "") || {}
@@ -137,17 +142,27 @@ function loadGroupMembers() {
     if (b.user_id === currentUserId) return 1; // Keep the logged-in user at the top
     return 0; // Leave the order unchanged for others
   });
+  const userIds = users.map((user) => user.user_id);
+  if (user && userIds.includes(user)) {
+    pageStore$.curRow.set(userIds.indexOf(user));
+  }
   pageStore$.members.set(users);
 }
 
 /**
  * Load initial members and dates, setting up a specified number of unique dates.
  */
-function loadInitialPages() {
-  const allDates = getAllUniqueDates(START_PAGE_NUM); // Get unique dates for initial range
-
-  // Batch update to set members and initial date range
-  pageStore$.dates.set(allDates); // Set initial dates range
+function loadInitialPages(date?: string) {
+  if (date) {
+    const dateNum = differenceInCalendarDays(new Date(), new Date(date));
+    const allDates = getAllUniqueDates(Math.max(dateNum, START_PAGE_NUM)); // Get unique dates for initial range
+    const index = allDates.findIndex((dateObject) => dateObject.date === date);
+    pageStore$.dates.set(allDates); // Set initial dates range
+    pageStore$.curCol.set(index);
+  } else {
+    const allDates = getAllUniqueDates(START_PAGE_NUM); // Get unique dates for initial range
+    pageStore$.dates.set(allDates); // Set initial dates range
+  }
   pageStore$.loadedPages.set(START_PAGE_NUM); // Track number of loaded dates/pages
 }
 
@@ -328,8 +343,7 @@ const uploadImages = async (pageId: string): Promise<CanvasItem[]> => {
   return newItems;
 };
 export async function handlePageSave() {
-  pageStore$.loadingMessage.set("Saving...");
-  pageStore$.ready.set(false);
+  pageStore$.saving.set(false);
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const curPageId = getPageForUser(pages$.get(), user || "", day.date)?.id;
@@ -385,8 +399,7 @@ export async function handlePageSave() {
     console.log("save complete");
     pageStore$.editMode.set(true);
     pageStore$.editMode.set(false);
-    pageStore$.ready.set(true);
-    pageStore$.loadingMessage.set("");
+    pageStore$.saving.set(true);
     console.log("finished update");
   }
 }

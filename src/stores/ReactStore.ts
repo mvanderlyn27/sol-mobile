@@ -119,7 +119,7 @@ export const saveReacts = () => {
     console.log("can't get user or page for reacts");
     return null;
   }
-  curItems.forEach((item) => {
+  curItems.forEach(async (item) => {
     //@ts-ignore
     reactions$[item.id].set({
       id: item.id,
@@ -128,6 +128,7 @@ export const saveReacts = () => {
       reaction: item,
     });
   });
+
   editReactStore$.showNonUserReactions.set(true);
   reactStore$.reactEditMode.set(false);
   uiStore$.displayReactMenu.set(false);

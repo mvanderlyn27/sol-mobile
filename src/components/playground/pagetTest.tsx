@@ -115,7 +115,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       pageStore$.curRow.set(viewableItems[0].index);
     }
   };
-
+  const initialRow = pageStore$.curRow.get();
   return (
     <FlatList
       key={`${col}`}
@@ -127,7 +127,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
       // initialNumToRender={1}
-      initialScrollIndex={pageStore$.curRow.get()}
+      initialScrollIndex={initialRow}
       keyExtractor={(row) => `${row.user_id}-${col}`}
       renderItem={({ item: row, index }) => <PageRenderer rowIndex={index} colIndex={col} />}
       viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, waitForInteraction: false }}
@@ -148,7 +148,7 @@ const Canvas2DScroller = observer(() => {
     }
     pageStore$.curCol.set(position); // Update the current column index
   };
-
+  const initialCol = pageStore$.curCol.get();
   return (
     <View style={{ flex: 1 }}>
       {Platform.OS === "ios" ? (
@@ -158,7 +158,7 @@ const Canvas2DScroller = observer(() => {
           layoutDirection={"rtl"}
           ref={pagerRef}
           style={{ flex: 1 }}
-          initialPage={0}
+          initialPage={initialCol}
           onPageSelected={handlePagerChange}>
           {pageStore$.dates.get().map((date, index) => (
             <View key={`${date}-${index}`} style={{ flex: 1 }}>
@@ -172,7 +172,7 @@ const Canvas2DScroller = observer(() => {
           scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
           ref={pagerRef}
           style={{ flex: 1, transform: [{ scaleX: -1 }] }}
-          initialPage={0}
+          initialPage={initialCol}
           onPageSelected={handlePagerChange}>
           {pageStore$.dates.get().map((date, index) => (
             <View key={`${date}-${index}`} style={{ flex: 1, transform: [{ scaleX: -1 }] }}>

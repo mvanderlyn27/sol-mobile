@@ -13,12 +13,12 @@ import TextOverlay from "./canvasMenu/textOverlay/TextOverlay";
 import ReactMenu from "./reactions/reactMenu/ReactMenu";
 import ReactOverlay from "./reactions/reactMenu/ReactOverlay";
 import { pageStore$ } from "@/src/stores/PagesStore";
-import LoadingScreen from "../screens/UploadingScreen";
+import SavingScreen from "../screens/SavingScreen";
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
 const JournalOverlays = observer(function JournalOverlays() {
-  if (!pageStore$.ready.get()) {
-    return <LoadingScreen />;
+  if (pageStore$.saving.get()) {
+    return <SavingScreen />;
   }
   return (
     <StyledView className="absolute top-0 bottom-0 right-0 left-0 z-10" pointerEvents="box-none">

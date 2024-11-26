@@ -1,12 +1,15 @@
 import { when } from "@legendapp/state";
-import { SplashScreen, router } from "expo-router";
-import { useEffect } from "react";
+import { Href, SplashScreen, router } from "expo-router";
+import { useEffect, useState } from "react";
 import authStore$ from "../stores/AuthStore";
 import { groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";
 import { allPages$ } from "../stores/PagesStore";
 import { profiles$ } from "../stores/ProfileStore";
 import * as Notifications from "expo-notifications";
+import { addNotification } from "../stores/NotificationStore";
+import { generateId } from "../stores/AsyncStorage";
+import { NotificationType } from "../types/shared.types";
 
 export const initializeStores = async () => {
   const profileReady = when(profiles$);
@@ -17,53 +20,61 @@ export const initializeStores = async () => {
 };
 export function useAppNavigation() {
   useEffect(() => {
-    const navigateApp = async () => {
-      // Wait for auth to finish loading
-      await when(() => !authStore$.loading.get());
-      await initializeStores();
-      // Check if app was opened by a notification
+    let notificationSubscription;
 
-      const response = await Notifications.getLastNotificationResponseAsync();
-      const url = response?.notification?.request.content.data?.url;
-      SplashScreen.hideAsync();
-      if (url) {
-        // Navigate based on the notification
-        console.log("url found");
-        const isAuthenticated = authStore$.session.get() !== null;
-        router.replace(isAuthenticated ? url : "/login");
-      } else {
-        // Default navigation
-        console.log("url not found");
-        const isAuthenticated = authStore$.session.get() !== null;
-        if (!isAuthenticated) {
-          router.replace("/login");
+    const navigateApp = async () => {
+      try {
+        // Wait for auth to finish loading
+        await when(() => !authStore$.loading.get());
+        await initializeStores();
+
+        // Check if the app was opened via a notification
+        const response = await Notifications.getLastNotificationResponseAsync();
+        const url = response?.notification?.request.content.data?.url;
+
+        SplashScreen.hideAsync();
+
+        if (url) {
+          console.log("URL found");
+          const isAuthenticated = authStore$.session.get() !== null;
+          router.replace(isAuthenticated ? url : "/login");
         } else {
-          const userId = authStore$.session.user.id.get();
-          const profile = userId && profiles$[userId].get();
-          if (profile && profile.new) {
-            router.replace("/(ftux)/username");
+          console.log("URL not found");
+          const isAuthenticated = authStore$.session.get() !== null;
+          if (!isAuthenticated) {
+            router.replace("/login");
           } else {
-            router.replace("/home");
+            const userId = authStore$.session.user.id.get();
+            const profile = userId && profiles$[userId].get();
+            if (profile && profile.new) {
+              router.replace("/(ftux)/username");
+            } else {
+              router.replace("/home");
+            }
           }
         }
+
+        // Set up the notification listener after the app is initialized
+        notificationSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
+          const url = response.notification.request.content.data?.url;
+          console.log("Notification received:", url);
+
+          if (url) {
+            const isAuthenticated = authStore$.session.get() !== null;
+            router.push(isAuthenticated ? url : "/login"); // Use push for better stack handling
+          }
+        });
+      } catch (error) {
+        console.error("Error during app navigation:", error);
+        SplashScreen.hideAsync();
+        addNotification({
+          id: generateId(),
+          message: "Error during app navigation",
+          type: NotificationType.error,
+        });
+        router.replace("/login");
       }
     };
     navigateApp();
-
-    // Add a listener for real-time notification responses
-    const notificationSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      const url = response.notification.request.content.data?.url;
-      console.log("Notification received:", url);
-
-      if (url) {
-        const isAuthenticated = authStore$.session.get() !== null;
-        router.push(isAuthenticated ? url : "/login"); // Use `push` instead of `replace` for better stack handling
-      }
-    });
-
-    // Cleanup listener on unmount
-    return () => {
-      notificationSubscription.remove();
-    };
   }, []);
 }
