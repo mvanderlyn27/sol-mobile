@@ -1,4 +1,4 @@
-import { batch, observable } from "@legendapp/state";
+import { observable } from "@legendapp/state";
 import { Canvas, CanvasItem, ImageType } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { generateId } from "./AsyncStorage";

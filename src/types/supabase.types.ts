@@ -6,7 +6,6 @@
 //   | { [key: string]: Json | undefined }
 //   | Json[]
 export type Json = Record<string, any>;
-
 export type Database = {
   public: {
     Tables: {
@@ -66,33 +65,33 @@ export type Database = {
       };
       group_members: {
         Row: {
-          created_at: string;
+          created_at: string | null;
           deleted: boolean | null;
           group_id: string;
           id: string;
           role: string;
           status: string;
-          updated_at: string;
+          updated_at: string | null;
           user_id: string;
         };
         Insert: {
-          created_at?: string;
+          created_at?: string | null;
           deleted?: boolean | null;
           group_id: string;
           id?: string;
           role?: string;
           status?: string;
-          updated_at?: string;
+          updated_at?: string | null;
           user_id: string;
         };
         Update: {
-          created_at?: string;
+          created_at?: string | null;
           deleted?: boolean | null;
           group_id?: string;
           id?: string;
           role?: string;
           status?: string;
-          updated_at?: string;
+          updated_at?: string | null;
           user_id?: string;
         };
         Relationships: [
@@ -160,8 +159,9 @@ export type Database = {
           id: string;
           is_read: boolean;
           notification_data: Json;
+          processed: boolean;
           recipient_id: string;
-          sender_id: string;
+          sender_id: string | null;
           updated_at: string;
         };
         Insert: {
@@ -170,8 +170,9 @@ export type Database = {
           id?: string;
           is_read?: boolean;
           notification_data: Json;
+          processed?: boolean;
           recipient_id: string;
-          sender_id: string;
+          sender_id?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -180,8 +181,9 @@ export type Database = {
           id?: string;
           is_read?: boolean;
           notification_data?: Json;
+          processed?: boolean;
           recipient_id?: string;
-          sender_id?: string;
+          sender_id?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -401,18 +403,6 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      accept_invitation: {
-        Args: {
-          invite_id: string;
-        };
-        Returns: undefined;
-      };
-      decline_invitation: {
-        Args: {
-          invite_id: string;
-        };
-        Returns: undefined;
-      };
       is_group_admin: {
         Args: {
           p_user_id: string;
@@ -426,6 +416,17 @@ export type Database = {
           p_group_id: string;
         };
         Returns: boolean;
+      };
+      process_notifications: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      send_push_notification: {
+        Args: {
+          push_token: string;
+          notification_data: Json;
+        };
+        Returns: string;
       };
     };
     Enums: {

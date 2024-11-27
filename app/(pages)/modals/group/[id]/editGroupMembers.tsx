@@ -25,13 +25,10 @@ const EditGroupMembers = observer(function EditGroupMembers() {
 
   const userId = authStore$.session.get()?.user.id;
   if (!userId) return null;
-  const groupMembersMap = Object.entries(filterOutPending(groupMembers$.get()) || {}).reduce(
-    (acc: any, [_, member]) => {
-      (acc[member.group_id] = acc[member.group_id] || []).push(member);
-      return acc;
-    },
-    {}
-  );
+  const groupMembersMap = Object.entries(groupMembers$.get()).reduce((acc: any, [_, member]) => {
+    (acc[member.group_id] = acc[member.group_id] || []).push(member);
+    return acc;
+  }, {});
   const groupMembers = groupMembersMap[groupId];
   if (!groupMembers) return null;
 
@@ -56,7 +53,7 @@ const EditGroupMembers = observer(function EditGroupMembers() {
         <StyledScrollView className="flex-col w-full mb-4 ">
           {groupMembers.map((member: GroupMember, index: number) => (
             <StyledView key={index} className="flex-row py-4 items-center">
-              <UserPic userId={member.user_id} />
+              <UserPic userId={member.user_id} pending={member.status === "pending"} />
               <StyledView className="flex-row justify-start flex-1 pl-4  ">
                 <Text>{profiles$[member.user_id].username.get() || profiles$[member.user_id].name.get()}</Text>
               </StyledView>
@@ -67,7 +64,7 @@ const EditGroupMembers = observer(function EditGroupMembers() {
                     action={() => removeMember(groupId, member.user_id)}
                     color={"bg-red-500"}
                     textColor={"text-white"}
-                    text={"Remove"}
+                    text={member.status === "pending" ? "Cancel" : "Remove"}
                   />
                 </StyledView>
               ) : (

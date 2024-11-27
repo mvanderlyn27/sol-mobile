@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import authStore$ from "../stores/AuthStore";
 import { groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";
-import { allPages$ } from "../stores/PagesStore";
+import { pages$ } from "../stores/PagesStore";
 import { profiles$ } from "../stores/ProfileStore";
 import * as Notifications from "expo-notifications";
 import { addNotification } from "../stores/NotificationStore";
@@ -13,7 +13,7 @@ import { NotificationType } from "../types/shared.types";
 
 export const initializeStores = async () => {
   const profileReady = when(profiles$);
-  const pagesReady = when(allPages$);
+  const pagesReady = when(pages$);
   const groupReady = when(groups$);
   const groupMemberReady = when(groupMembers$);
   await Promise.all([profileReady, pagesReady, groupReady, groupMemberReady]);

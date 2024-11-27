@@ -7,7 +7,12 @@ import GroupPic from "../modals/GroupPic";
 import { Group, GroupMember } from "@/src/types/shared.types";
 import Feather from "@expo/vector-icons/Feather";
 import { observer } from "@legendapp/state/react";
-import { filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
+import {
+  filterGroupMembers,
+  filterOutPending,
+  filterPendingGroupMembers,
+  groupMembers$,
+} from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -15,6 +20,7 @@ const StyledPressable = styled(Pressable);
 const StyledFeather = styled(Feather);
 
 const GroupCard = observer(function GroupCard({ group, invitation }: { group: Group; invitation?: boolean }) {
+  // console.log("re-rendering group card", group.id);
   if (!group) return null;
   const handleSelect = () => {
     if (invitation) {
@@ -30,12 +36,10 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
       router.push(`/modals/group/${group.id}/groupDetails`);
     }
   };
-  const groupMemberList = filterOutPending(groupMembers$.get());
-  const groupMembersMap = Object.entries(groupMemberList || {}).reduce((acc: any, [_, member]) => {
-    (acc[member.group_id] = acc[member.group_id] || []).push(member);
-    return acc;
-  }, {});
-  const groupMembers = groupMembersMap[group.id];
+  const gm = groupMembers$.get();
+  const groupMemberList = Object.values(filterGroupMembers(groupMembers$.get(), group.id) || {});
+  const pendingMemberList = Object.values(filterPendingGroupMembers(groupMembers$.get(), group.id) || {});
+  const groupList = [...groupMemberList, ...pendingMemberList];
   return (
     <StyledPressable
       className={`flex-1 flex-col justify-center items-center rounded-xl  ${
@@ -50,19 +54,23 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
           <StyledText className="text-md font-bold py-2 text-left w-full">{group.name}</StyledText>
           {/* <StyledFeather name="edit-2" size={24} color="black" className="px-2" /> */}
         </StyledView>
-        {groupMembers ? (
+        {groupList ? (
           <StyledView className="flex-row justify-between ">
-            {groupMembers?.length <= 3 ? (
+            {groupList?.length <= 3 ? (
               <StyledView className="flex-row px-4 pb-4 justify-between">
-                {groupMembers.map((member: GroupMember, index: number) => (
-                  <UserPic key={index + " " + member.id} userId={member.user_id} />
+                {groupList.map((member: GroupMember, index: number) => (
+                  <UserPic
+                    key={index + " " + member.id}
+                    userId={member.user_id}
+                    pending={member.status === "pending"}
+                  />
                 ))}
               </StyledView>
             ) : (
               <StyledView className="flex-row px-4 pb-4 ">
-                <UserPic userId={groupMembers[0].id} />
-                <UserPic userId={groupMembers[1].id} />
-                <UserPic number={3} />
+                <UserPic userId={groupList[0].id} pending={groupList[0].status === "pending"} />
+                <UserPic userId={groupList[1].id} pending={groupList[1].status === "pending"} />
+                <UserPic number={groupList.length - 1} />
               </StyledView>
             )}
           </StyledView>

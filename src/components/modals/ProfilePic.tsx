@@ -11,7 +11,6 @@ import * as ImageManipulator from "expo-image-manipulator";
 import { Blurhash } from "react-native-blurhash";
 import { useEffect, useState } from "react";
 import { resizeImage } from "@/src/services/Media";
-import { beginBatch, endBatch } from "@legendapp/state";
 import { observer } from "@legendapp/state/react";
 import { Skeleton } from "moti/skeleton";
 import { AnimatePresence, MotiView } from "moti";

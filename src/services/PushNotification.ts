@@ -12,7 +12,6 @@ import authStore$ from "../stores/AuthStore";
 import { profiles$ } from "../stores/ProfileStore";
 import { groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";
-import { allPages$ } from "../stores/PagesStore";
 export async function checkNotificationStatus(): Promise<string> {
   const { status } = await Notifications.getPermissionsAsync();
   return status;

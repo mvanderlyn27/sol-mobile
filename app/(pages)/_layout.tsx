@@ -11,6 +11,7 @@ export const unstable_settings = {
 };
 
 const Layout = observer(function Layout() {
+  // useAppStateListener();
   return (
     <ProtectedLayout>
       <Stack screenOptions={{ headerShown: false }}>

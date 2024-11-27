@@ -26,9 +26,5 @@ export const customSupabaseSynced = configureSynced(syncedSupabase, {
   changesSince: "last-sync",
   fieldCreatedAt: "created_at",
   fieldUpdatedAt: "updated_at",
-  // Optionally enable soft deletes
   fieldDeleted: "deleted",
-  // retry: {
-  //   infinite: true,
-  // },
 });

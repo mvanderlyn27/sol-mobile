@@ -17,9 +17,10 @@ import * as Notifications from "expo-notifications";
 import { useAppNavigation } from "@/src/services/Navigation";
 import { computed, syncState } from "@legendapp/state";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { allPages$, pages$ } from "@/src/stores/PagesStore";
+import { pages$ } from "@/src/stores/PagesStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { groupMembers$ } from "@/src/stores/MemberStore";
+import { supabase } from "@/src/lib/supabase";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -46,11 +47,20 @@ export const RootLayout = observer(function RootLayout() {
   });
   useMount(() => {
     authStore$.init();
+
+    groupMembers$.onChange((val) => {
+      console.log("group members changed", val.changes);
+    });
+    pages$.onChange((val) => {
+      console.log("page changed", val.changes);
+    });
   });
+
   useAppNavigation();
   if (!loaded && !error) {
     return null;
   }
+
   return (
     <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0">
       <ImageBackground style={{ flex: 1 }} source={getImageFromPath("bg_03")}>

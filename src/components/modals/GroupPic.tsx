@@ -12,7 +12,6 @@ import StorageService from "@/src/api/storage";
 import { Blurhash } from "react-native-blurhash";
 import { resizeImage } from "@/src/services/Media";
 import { supabase } from "@/src/lib/supabase";
-import { beginBatch, endBatch } from "@legendapp/state";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { Skeleton } from "moti/skeleton";
 import { AnimatePresence, MotiView } from "moti";

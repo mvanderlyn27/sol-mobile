@@ -20,7 +20,6 @@ import BackgroundTab from "./BackgroundTab";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { pageStore$ } from "@/src/stores/PagesStore";
-import { batch, beginBatch, endBatch } from "@legendapp/state";
 import MenuButton from "../../shared/MenuButton";
 import RoundButton from "../../shared/CircleButton";
 //<AntDesign name="closecircleo" size={24} color="black" />

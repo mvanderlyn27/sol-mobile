@@ -13,10 +13,14 @@ export const groups$ = observable(
   customSupabaseSynced({
     collection: "groups",
     select: (from) => from.select("*"),
-    filter: (select) => select.neq("deleted", true),
-    // persist: { name: "groups" },
-    // as: "object",
     realtime: true,
+    persist: {
+      name: "groups",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
   })
 );
 interface GroupStore {
@@ -47,6 +51,9 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     group_id: id,
     role: "admin",
     status: "completed",
+    deleted: false,
+    created_at: null,
+    updated_at: null,
   });
 
   //upload image after we create new component for rls policies to work

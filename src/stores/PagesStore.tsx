@@ -1,15 +1,4 @@
-import {
-  Observable,
-  batch,
-  beginBatch,
-  computed,
-  endBatch,
-  observable,
-  observe,
-  syncState,
-  when,
-  whenReady,
-} from "@legendapp/state";
+import { Observable, batch, computed, observable, observe, syncState, when, whenReady } from "@legendapp/state";
 import {
   format,
   addDays,
@@ -44,29 +33,21 @@ import { resizeImage } from "@/src/services/Media";
 import { reactStore$ } from "./ReactStore";
 import { posthog } from "../services/Posthog";
 
-export const allPages$: Observable = observable(
+export const pages$ = observable(
   customSupabaseSynced({
     supabase,
     collection: "pages",
     select: (from: any) => from.select("*"),
-    actions: ["read", "create", "update", "delete"],
-    realtime: true,
+    // realtime: true,
+    persist: {
+      name: "pages",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
   })
 );
-//@ts-ignore
-export const pages$: Observable<Record<string, Page>> = computed(() => {
-  const selectedGroup = groupStore$.selectedGroup.get();
-  return observable(
-    customSupabaseSynced({
-      supabase,
-      collection: "pages",
-      select: (from: any) => from.select("*"),
-      filter: (select) => select.eq("group_id", selectedGroup || "").neq("deleted", true),
-      actions: ["read", "create", "update", "delete"],
-      realtime: true,
-    })
-  );
-});
 
 export const getPageForUser = (pages: Record<string, Page>, curUser: string, date: string): Page | undefined => {
   const groupId = groupStore$.selectedGroup.get();
@@ -77,8 +58,6 @@ export const getPageForUser = (pages: Record<string, Page>, curUser: string, dat
 };
 
 interface PageStore {
-  // `${date}` -> Canvas
-  pages: PageMap[];
   members: GroupMember[];
   initialUser: string | undefined;
   initialDate: string | undefined;
@@ -89,8 +68,6 @@ interface PageStore {
   loadedPages: number;
   saving: boolean;
   ready: boolean;
-  //load more pages
-  //
 }
 interface DateItem {
   id: string;
@@ -105,7 +82,6 @@ const START_PAGE_NUM = 7; // Number of pages to load initially per user
 const LOAD_MORE_PAGES = 5; // Number of pages to load in each additional batch
 // Observable store for PageStore
 export const pageStore$ = observable<PageStore>({
-  pages: [],
   members: [],
   dates: [],
   initialDate: undefined,
@@ -123,6 +99,9 @@ export const pageStore$ = observable<PageStore>({
  */
 export function initializePageStore() {
   pageStore$.ready.set(false);
+  // const syncPage$ = syncState(pages$);
+  // await syncPage$.sync();
+  // await when(syncPage$.isLoaded);
   const user = pageStore$.initialUser.get();
   const day = pageStore$.initialDate.get();
   loadGroupMembers(user);
@@ -282,10 +261,8 @@ const uploadImage = async (
   }
   const path = supabase.storage.from("page_photos").getPublicUrl(`${pageId}/${imageId}.webp`);
   console.log("starting last update");
-  // beginBatch();
   // groups$[groupId].cover_url.set(path.data.publicUrl + `?t=${new Date().toISOString()}`);
   // groups$[groupId].cover_placeholder.set(blurhash);
-  // endBatch();
   console.log("finished update", path);
   return { index: index, path: path.data.publicUrl, blurhash: blurhash };
 };
@@ -343,7 +320,7 @@ const uploadImages = async (pageId: string): Promise<CanvasItem[]> => {
   return newItems;
 };
 export async function handlePageSave() {
-  pageStore$.saving.set(false);
+  pageStore$.saving.set(true);
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const curPageId = getPageForUser(pages$.get(), user || "", day.date)?.id;
@@ -362,6 +339,7 @@ export async function handlePageSave() {
         ...canvasStore$.curCanvas.get(),
         items: updatedCanvasItems,
       };
+      console.log("saving canvas", newCanvas);
       if (curPageId) {
         pageId = curPageId;
         const currentPage = pages$[curPageId].get();
@@ -399,7 +377,7 @@ export async function handlePageSave() {
     console.log("save complete");
     pageStore$.editMode.set(true);
     pageStore$.editMode.set(false);
-    pageStore$.saving.set(true);
+    pageStore$.saving.set(false);
     console.log("finished update");
   }
 }

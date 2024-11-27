@@ -145,7 +145,6 @@ const CanvasMenu = observer(function CanvasMenu() {
   const handleImage = async () => {
     // No permissions request is necessary for launching the image library
     pageStore$.ready.set(false);
-    pageStore$.loadingMessage.set("Adding Image...");
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       // base64: false,
@@ -155,9 +154,6 @@ const CanvasMenu = observer(function CanvasMenu() {
       // preferredAssetRepresentationMode: ImagePicker.UIImagePickerPreferredAssetRepresentationMode.Current,
     });
 
-    if (result.canceled) {
-      pageStore$.loadingMessage.set("Cancelled!");
-    }
     if (!result.canceled) {
       // imageEditStore$.selectedImage.set(result.assets[0].uri);
       const imgWidth = result.assets[0].width;
@@ -185,7 +181,6 @@ const CanvasMenu = observer(function CanvasMenu() {
       // uiStore$.displayImageEditOverlay.set(true);
     }
     pageStore$.ready.set(true);
-    pageStore$.loadingMessage.set("");
   };
   const handleSticker = () => {};
   return (

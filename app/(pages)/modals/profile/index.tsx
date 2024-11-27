@@ -6,7 +6,7 @@ import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
-import { allPages$, pages$ } from "@/src/stores/PagesStore";
+import { pages$ } from "@/src/stores/PagesStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, NotificationType, Page } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
@@ -43,7 +43,7 @@ const CurProfile = observer(function CurProfile() {
     }
   });
   const entriesCount =
-    Object.values((allPages$.get() as Record<string, Page>) || {}).filter((item: Page) => item.created_by === curUserId)
+    Object.values((pages$.get() as Record<string, Page>) || {}).filter((item: Page) => item.created_by === curUserId)
       ?.length || 0;
   const handleUpdateUsername = (val: string) => {
     profiles$[curUserId].username.set(val);

@@ -10,7 +10,5 @@ export const notificationStore$ = observable<NotificationStore>({
   incomingRoute: null,
 });
 export const addNotification = (notification: LocalNotification) => {
-  console.log("notification added");
   notificationStore$.notifications.set((prev) => [...prev, notification]);
-  console.log("notofications", notificationStore$.notifications.get());
 };

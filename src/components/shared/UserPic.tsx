@@ -12,11 +12,13 @@ const UserPic = observer(function UserPic({
   number,
   userId,
   largeView,
+  pending,
 }: {
   action?: () => void;
   number?: number;
   userId?: string;
   largeView?: boolean;
+  pending?: boolean;
 }) {
   if (!number && !userId) return null;
   if (userId) {
@@ -29,7 +31,7 @@ const UserPic = observer(function UserPic({
         onPress={action}
         className={`rounded-full ${
           largeView ? "w-[70px]" : "w-[40px]"
-        } aspect-square mr-1 bg-secondary overflow-hidden`}>
+        } aspect-square mr-1 bg-secondary overflow-hidden ${pending ? "opacity-50" : ""}`}>
         {profile?.avatar_url ? (
           <Image
             style={{ flex: 1 }}

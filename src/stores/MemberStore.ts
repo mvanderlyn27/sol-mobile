@@ -11,13 +11,19 @@ import { supabase } from "../lib/supabase";
 
 export const groupMembers$ = observable(
   customSupabaseSynced({
-    // supabase,
     collection: "group_members",
     select: (from) => from.select("*"),
     // filter: (select) => select.eq("status", "completed"),
     // filter: (select) => select.neq("deleted", true),
-    // persist: { name: "group_members" },
+    actions: ["read", "create", "update", "delete"],
     realtime: true,
+    persist: {
+      name: "groupMembers",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
   })
 );
 export const filterOutPending = (map: Record<string, GroupMember>): Record<string, GroupMember> | null => {
@@ -28,6 +34,7 @@ export const filterOutPending = (map: Record<string, GroupMember>): Record<strin
     .filter(([key, val]) => (val as GroupMember).status === "completed")
     .reduce((acc, [key, val]) => ({ ...acc, [key]: val as GroupMember }), {});
 };
+
 export const filterMyGroups = (
   map: Record<string, GroupMember>,
   userId: string
@@ -113,14 +120,6 @@ export const inviteGroupMember = async (groupId: string, username: string): Prom
   }
   const id = entry[0];
   const inviteId = generateId();
-  const { error } = await supabase.from("group_members").insert({
-    id: inviteId,
-    group_id: groupId,
-    user_id: id,
-    role: "member",
-    status: "pending",
-  });
-  console.log("error", error);
 
   groupMembers$[inviteId].set({
     id: inviteId,

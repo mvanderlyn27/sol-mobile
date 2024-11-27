@@ -11,7 +11,6 @@ import { BlurView } from "expo-blur";
 import { router, usePathname } from "expo-router";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { observer } from "@legendapp/state/react";
-import { beginBatch, endBatch } from "@legendapp/state";
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);
