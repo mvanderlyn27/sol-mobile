@@ -33,12 +33,12 @@ import { resizeImage } from "@/src/services/Media";
 import { reactStore$ } from "./ReactStore";
 import { posthog } from "../services/Posthog";
 
-export const pages$ = observable(
+export const pages$ = observable<Record<string, Page>>(
   customSupabaseSynced({
     supabase,
     collection: "pages",
     select: (from: any) => from.select("*"),
-    // realtime: true,
+    realtime: true,
     persist: {
       name: "pages",
       retrySync: true, // Persist pending changes and retry

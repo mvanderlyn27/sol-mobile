@@ -58,7 +58,7 @@ export enum BottomDrawerType {
   Destructive = "destructive",
   Save = "save",
 }
-export interface CanvasItemBase extends Record<string, any> {
+export interface CanvasItemBase {
   //database id of item used eg font id, or frame id
   id: string;
   // dbId: string;
@@ -129,7 +129,7 @@ export interface CanvasReaction extends CanvasItemBase {
 }
 export type CanvasItem = CanvasFrame | CanvasText | CanvasImage;
 
-export interface Canvas extends Record<string, any> {
+export interface Canvas {
   id: string;
   backgroundImage: Image; // Path to the background image
   items: CanvasItem[]; // Array of canvas items};

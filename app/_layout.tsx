@@ -21,6 +21,8 @@ import { pages$ } from "@/src/stores/PagesStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { groupMembers$ } from "@/src/stores/MemberStore";
 import { supabase } from "@/src/lib/supabase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { posthog } from "@/src/services/Posthog";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -38,6 +40,7 @@ export const RootLayout = observer(function RootLayout() {
     "PragmaticaExtended-Light": require("@/src/assets/fonts/PragmaticaExtended-light.otf"),
     PragmaticaExtended: require("@/src/assets/fonts/PragmaticaExtended.otf"),
   });
+
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
       shouldShowAlert: true,

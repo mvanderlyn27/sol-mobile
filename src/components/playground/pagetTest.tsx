@@ -41,7 +41,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   const curUserId = authStore$.session.user.id.get();
   const active = curRow === rowIndex && curCol === colIndex;
   // Compute the active canvas based on conditions
-  const newDefault = { ...defaultCanvas };
+  const newDefault = { ...defaultCanvas } as Canvas;
   let canvas = newDefault;
   if (editMode && active) {
     const curCanvas = { ...canvasStore$.curCanvas.get() } as Canvas;

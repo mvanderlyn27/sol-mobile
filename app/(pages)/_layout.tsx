@@ -5,6 +5,9 @@ import authStore$ from "@/src/stores/AuthStore";
 import { View } from "moti";
 import { whenReady } from "@legendapp/state";
 import ProtectedLayout from "@/src/components/navigation/ProtectedRoute";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { posthog } from "@/src/services/Posthog";
+import { profiles$ } from "@/src/stores/ProfileStore";
 
 export const unstable_settings = {
   initialRouteName: "home",
@@ -12,6 +15,16 @@ export const unstable_settings = {
 
 const Layout = observer(function Layout() {
   // useAppStateListener();
+  useMount(() => {
+    const curId = authStore$.session.user.id.get();
+    const shouldResetStorage = curId && profiles$[curId].should_reset_storage.get();
+    if (shouldResetStorage) {
+      profiles$[curId].should_reset_storage.set(false);
+      posthog.capture("reset-local-storage");
+      AsyncStorage.clear().then(() => console.log("Cleared all persisted local data."));
+      authStore$.signOut();
+    }
+  });
   return (
     <ProtectedLayout>
       <Stack screenOptions={{ headerShown: false }}>
