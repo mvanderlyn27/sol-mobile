@@ -18,6 +18,7 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
+  console.log("image holder re-render");
   const editMode = pageStore$.editMode.get();
   // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });
@@ -26,6 +27,15 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
   const height = useSharedValue(item.height);
   const savedRotation = useSharedValue(item.rotation);
   const rotation = useSharedValue(item.rotation);
+  useEffect(() => {
+    offset.value = { x: item.x, y: item.y };
+    start.value = { x: item.x, y: item.y };
+    width.value = item.width;
+    height.value = item.height;
+    savedRotation.value = item.rotation;
+    rotation.value = item.rotation;
+    updateCanvasItem(item.id, { ...item });
+  }, [item]);
   const animatedFrameGroupStyles = useAnimatedStyle(() => ({
     width: width.value,
     height: height.value,
@@ -108,7 +118,11 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
           style={[
             {
               position: "absolute",
-              transform: [{ translateX: item.x }, { translateY: item.y }, { rotateZ: `${item.rotation}rad` }],
+              // width: item.width,
+              // height: item.height,
+              // transform: [{ translateX: item.x }, { translateY: item.y }, { rotateZ: `${item.rotation}rad` }],
+              // left: item.x,
+              // top: item.y,
             },
             animatedFrameGroupStyles,
           ]}>

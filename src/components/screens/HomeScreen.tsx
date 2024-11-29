@@ -25,7 +25,6 @@ const HomeScreen = observer(function HomeScreen() {
   }
   const curUserId = authStore$.session.get()?.user.id;
   // Get the group IDs from myGroups and myInvites
-
   const myGroupsIds = Object.values(filterMyGroups(groupMembers$.get(), curUserId || "") || {}).map(
     (groupMember) => groupMember.group_id
   );
@@ -33,8 +32,8 @@ const HomeScreen = observer(function HomeScreen() {
   const myInvitesIds = Object.values(filterMyInvites(groupMembers$.get(), curUserId || "") || {}).map(
     (groupMember) => groupMember.group_id
   );
-  // console.log("group ids", myGroupsIds);
-  // console.log("my invites", myInvitesIds);
+  console.log("group ids", myGroupsIds);
+  console.log("my invites", myInvitesIds);
   // Retrieve the map of groups
   const groups = groups$.get();
   // console.log("groups", groups);

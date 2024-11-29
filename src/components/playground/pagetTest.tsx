@@ -42,17 +42,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   const active = curRow === rowIndex && curCol === colIndex;
   // Compute the active canvas based on conditions
   const newDefault = { ...defaultCanvas } as Canvas;
-  let canvas = newDefault;
-  if (editMode && active) {
-    const curCanvas = { ...canvasStore$.curCanvas.get() } as Canvas;
-    canvas = curCanvas || newDefault;
-    // console.log("editing");
-  } else if (userId && date) {
-    canvas = page?.canvas ? (page.canvas as Canvas) || newDefault : newDefault;
-    // console.log("non-editing");
-  } else {
-    // console.log("default");
-  }
+
   let reactions: Reaction[] = [];
   const nonUserCanvasReactions = filterNonUserReactions(reactions$.get(), page?.id || "");
   const userCanvasReactions = filterUserReactions(reactions$.get(), page?.id || "");
@@ -64,28 +54,28 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   } else if (reactEditMode && active) {
     const showEditNonUserReactions = editReactStore$.showNonUserReactions.get();
     // console.log("edit reaction", editReactStore$.userReactions.get());
-    const editUserReactions = editReactStore$.userReactions.get().map((reaction) => {
-      return {
-        created_at: new Date().toISOString(),
-        created_by: curUserId,
-        deleted: false,
-        id: reaction.id,
-        page_id: page?.id || "",
-        reaction: reaction,
-        updated_at: new Date().toISOString(),
-      } as Reaction;
-    });
-    reactions = [...(showEditNonUserReactions ? nonUserCanvasReactions : []), ...editUserReactions];
+    // const editUserReactions = editReactStore$.userReactions.get().map((reaction) => {
+    //   return {
+    //     created_at: new Date().toISOString(),
+    //     created_by: curUserId,
+    //     deleted: false,
+    //     id: reaction.id,
+    //     page_id: page?.id || "",
+    //     reaction: reaction,
+    //     updated_at: new Date().toISOString(),
+    //   } as Reaction;
+    // });
+    // reactions = [...(showEditNonUserReactions ? nonUserCanvasReactions : []), ...editUserReactions];
   }
   // console.log("canvas: ", rowIndex, colIndex, canvas);
   // console.log("reactions", rowIndex, colIndex, reactions);
   return (
     <View style={{ width, height }}>
-      <CanvasHolder canvas={canvas} />
-      <ReactHolder
+      <CanvasHolder pageId={page?.id} editMode={editMode} />
+      {/* <ReactHolder
         keyString={`${reactEditMode ? "edit-" : ""}reactions-${rowIndex}-${colIndex}`}
         reactions={reactions}
-      />
+      /> */}
     </View>
   );
 });

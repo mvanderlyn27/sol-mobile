@@ -3,7 +3,11 @@ export type Json = Record<string, any>;
 
 //Supabase Types
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-export type Page = Database["public"]["Tables"]["pages"]["Row"];
+export type Page = Database["public"]["Tables"]["pages_test"]["Row"];
+export type PageItem = Database["public"]["Tables"]["page_items"]["Row"];
+export type ImageItem = Database["public"]["Tables"]["image_items"]["Row"];
+export type TextItem = Database["public"]["Tables"]["text_items"]["Row"];
+export type Image = Database["public"]["Tables"]["images"]["Row"];
 export type Group = Database["public"]["Tables"]["groups"]["Row"];
 export type GroupMember = Database["public"]["Tables"]["group_members"]["Row"];
 export type Reaction = Database["public"]["Tables"]["reactions"]["Row"];
@@ -71,8 +75,8 @@ export interface CanvasItemBase {
   //rad
   rotation: number;
   //calc when adding to screen to ensure it fits in the frame properly, increase/decrease as desiread
-  scale: number;
-
+  width: number;
+  height: number;
   //original picture width/height, doesn't change
 }
 export interface CanvasFrame extends CanvasItemBase {
@@ -161,13 +165,13 @@ export type CreatePageInput = {
   date: string;
   last_edited: string;
 };
-export type Image = {
-  path: string;
-  type: ImageType;
-};
+// export type Image = {
+//   path: string;
+//   type: ImageType;
+// };
 export enum ImageType {
-  Web = "Web",
-  Local = "Local",
+  Web = "web",
+  Local = "local",
 }
 //Profile Types
 export type CreateProfileInput = {

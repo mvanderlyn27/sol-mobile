@@ -11,7 +11,19 @@ import {
   startOfToday,
   differenceInCalendarDays,
 } from "date-fns";
-import { Canvas, CanvasImage, CanvasItem, GroupMember, ImageType, Page } from "../types/shared.types";
+import {
+  Canvas,
+  CanvasImage,
+  CanvasText,
+  CanvasItem,
+  CanvasItemBase,
+  GroupMember,
+  ImageItem,
+  ImageType,
+  Page,
+  PageItem,
+  TextItem,
+} from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { supabase } from "../lib/supabase";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
@@ -32,15 +44,63 @@ import { Blurhash } from "react-native-blurhash";
 import { resizeImage } from "@/src/services/Media";
 import { reactStore$ } from "./ReactStore";
 import { posthog } from "../services/Posthog";
+import { images$ } from "./ImageStore";
 
 export const pages$ = observable<Record<string, Page>>(
   customSupabaseSynced({
     supabase,
-    collection: "pages",
+    collection: "pages_test",
     select: (from: any) => from.select("*"),
     realtime: true,
     persist: {
-      name: "pages",
+      name: "pages_test",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
+  })
+);
+
+export const pageItems$ = observable<Record<string, PageItem>>(
+  customSupabaseSynced({
+    supabase,
+    collection: "page_items",
+    select: (from: any) => from.select("*"),
+    realtime: true,
+    persist: {
+      name: "page_items",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
+  })
+);
+
+export const imagesItems$ = observable<Record<string, ImageItem>>(
+  customSupabaseSynced({
+    supabase,
+    collection: "image_items",
+    select: (from: any) => from.select("*"),
+    realtime: true,
+    persist: {
+      name: "image_items",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
+  })
+);
+export const textItems$ = observable<Record<string, TextItem>>(
+  customSupabaseSynced({
+    supabase,
+    collection: "text_items",
+    select: (from: any) => from.select("*"),
+    realtime: true,
+    persist: {
+      name: "text_items",
       retrySync: true, // Persist pending changes and retry
     },
     retry: {
@@ -189,15 +249,20 @@ export function navigateToPage(row: number, col: number) {
 /**
  * Toggle edit mode
  */
-export function handleEdit() {
+export async function handleEdit() {
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const pageId = getPageForUser(pages$.get(), user || "", day.date)?.id;
   if (pageId) {
     console.log("editing page");
     const page = pages$?.get()[pageId];
-    const canvas = (page.canvas as Canvas) || { ...defaultCanvas };
-    canvasStore$.curCanvas.set({ ...canvas });
+    /*
+      NEED TO FIX THIS
+
+    */
+    // await when(getCanvas$(pageId));
+    // const canvas = getCanvas$(pageId).get() || { ...defaultCanvas };
+    // canvasStore$.curCanvas.set({ ...canvas });
   } else {
     console.log("editing with no page, clearing");
     clearCanvas();
@@ -389,3 +454,70 @@ export function handlePageCancel() {
   clearCanvas();
   pageStore$.editMode.set(false);
 }
+// export const getCanvas$ = (pageId?: string): Observable<Canvas | undefined> =>
+//   computed(() => {
+//     if (!pageId) return { ...defaultCanvas };
+//     const page = pages$[pageId].get();
+//     if (!page) return;
+//     const backgroundImage = images$[page.background_image_id].get();
+//     // Get items linked to this page
+//     const pageItems = Object.values(pageItems$.get() || {}).filter((pageItem) => pageItem.page_id === pageId);
+
+//     // Build CanvasItems with type-specific logic
+//     const items = pageItems.map((item) => {
+//       const base: CanvasItemBase = {
+//         id: item.id,
+//         x: item.x,
+//         y: item.y,
+//         z: item.z,
+//         rotation: item.rotation,
+//         width: item.width,
+//         height: item.height,
+//       };
+
+//       // Switch on type to construct specific CanvasItem
+//       switch (item.type) {
+//         case "image": {
+//           const imageItem = imagesItems$[item.id].get();
+//           const image = imageItem && images$.get()[imageItem.image_id];
+//           return {
+//             ...base,
+//             type: "image",
+//             path: image?.path || "",
+//             placeholder: image?.placeholder,
+//             // width: image?.width || 0,
+//             // height: image?.height || 0,
+//           } as CanvasImage;
+//         }
+//         case "text": {
+//           const textItem = textItems$[item.id].get();
+//           return {
+//             ...base,
+//             type: "text",
+//             textContent: textItem.text || "",
+//             fontSize: textItem.font_size || 16,
+//             fontColor: textItem.color || "#000000",
+//             fontType: textItem.font || "Arial",
+//           } as CanvasText;
+//         }
+
+//         default:
+//           throw new Error(`Unsupported item type: ${item.type}`);
+//       }
+//     });
+
+//     // Construct the full Canvas object
+//     const canvas: Canvas = {
+//       id: page.id,
+//       backgroundImage: backgroundImage,
+//       items,
+//       screenWidth: page.screen_width,
+//       screenHeight: page.screen_height,
+//       maxZIndex: Math.max(...items.map((item) => item.z), 0),
+//     };
+
+//     console.log("canvas", canvas);
+//     return canvas;
+//   });
+
+export const saveCanvas = (pageId: string): void => {};

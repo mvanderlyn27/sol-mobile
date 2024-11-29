@@ -2,6 +2,8 @@ import { observable } from "@legendapp/state";
 import { Canvas, CanvasItem, ImageType } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { generateId } from "./AsyncStorage";
+import { Image } from "../types/shared.types";
+import { images$ } from "./ImageStore";
 
 interface CanvasStore {
   edits: CanvasItem[];
@@ -12,7 +14,7 @@ const { width, height } = Dimensions.get("window");
 
 export const defaultCanvas: Canvas = {
   id: generateId(),
-  backgroundImage: { path: "bg_04", type: ImageType.Local },
+  backgroundImage: { path: "bg_04", type: ImageType.Local } as Image,
   items: [],
   screenWidth: width,
   screenHeight: height,
@@ -47,7 +49,7 @@ export const updateCanvasItem = (id: string, item: CanvasItem) => {
 export const clearCanvas = () => {
   canvasStore$.curCanvas.set({
     id: generateId(),
-    backgroundImage: { path: "bg_04", type: ImageType.Local },
+    backgroundImage: { path: "bg_04", type: ImageType.Local } as Image,
     items: [],
     screenWidth: width,
     screenHeight: height,
