@@ -19,7 +19,7 @@ import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
 import { StyledPressable } from "../canvas/CanvasFrameHolder";
-import { handlePageCancel, handlePageSave, pageStore$ } from "@/src/stores/PagesStore";
+import { addPageItem, handlePageCancel, handlePageSave, pageStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -175,7 +175,7 @@ const CanvasMenu = observer(function CanvasMenu() {
         type: "image",
       };
 
-      addCanvasItem(image);
+      addPageItem(image);
       // uiStore$.displayCanvasMenu.set(false);
       // uiStore$.displayImageEditOverlay.set(true);
     }

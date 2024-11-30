@@ -25,7 +25,7 @@ const defaultImage: Image = {
 // Observable store
 export const canvasStore$ = observable<CanvasStore>({
   // curCanvas: { ...defaultCanvas },
-  backgroundImage: backgroundImages$.length > 0 ? (backgroundImages$[0].get() as Image) : defaultImage,
+  backgroundImage: defaultImage,
   pageId: "",
   items: [],
   edits: [],

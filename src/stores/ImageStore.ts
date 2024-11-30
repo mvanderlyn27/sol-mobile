@@ -19,4 +19,12 @@ export const images$ = observable<Record<string, Image>>(
   })
 );
 
-export const backgroundImages$ = Object.values(images$).filter((image) => image.type.get() === "background");
+export const backgroundImages$ = observable<Record<string, Image>>(
+  customSupabaseSynced({
+    supabase,
+    collection: "images",
+    select: (from: any) => from.select("*"),
+    filter: (select) => select.eq("type", "background"),
+    realtime: true,
+  })
+);

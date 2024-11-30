@@ -49,7 +49,7 @@ export const listMediaFiles = async () => {
   return files.map((file) => `${mediaDirectory}${file}`);
 };
 
-export const resizeImage = async (uri: string, originalWidth: number, originalHeight: number) => {
+export const resizeImage = async (uri: string, originalWidth?: number, originalHeight?: number) => {
   // Get screen dimensions
   // const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 

@@ -71,9 +71,9 @@ export const pages$ = observable<Record<string, Page>>(
     //   name: "pages_test",
     //   retrySync: true, // Persist pending changes and retry
     // },
-    retry: {
-      infinite: true, // Retry changes with exponential backoff
-    },
+    // retry: {
+    //   infinite: true, // Retry changes with exponential backoff
+    // },
   })
 );
 
@@ -83,6 +83,7 @@ export const pageItems$ = observable<Record<string, PageItem>>(
     collection: "page_items",
     select: (from: any) => from.select("*"),
     realtime: true,
+    actions: ["read", "create", "update", "delete"],
     // persist: {
     //   name: "page_items",
     //   retrySync: true, // Persist pending changes and retry
@@ -100,6 +101,7 @@ export const imagesItems$ = observable<Record<string, ImageItem>>(
     collection: "image_items",
     select: (from: any) => from.select("*"),
     realtime: true,
+    actions: ["read", "create", "update", "delete"],
     // persist: {
     //   name: "image_items",
     //   retrySync: true, // Persist pending changes and retry
@@ -283,14 +285,15 @@ export async function handleEdit() {
   /*
     Modifying this to duplicate existing page
   */
-  beginBatch();
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const page = getPageForUser(pages$.get(), user || "", day.date);
   const now = format(new Date(), "yyyy-MM-dd HH:mm:ss");
   const newPageId = generateId();
   const groupId = groupStore$.selectedGroup.get();
-  if (!user || !day || !groupId) {
+  const backgroundImages = await when(backgroundImages$);
+  console.log("backgroundImages", backgroundImages);
+  if (!user || !day || !groupId || !backgroundImages) {
     console.log("No user, day, or group found");
     return;
   }
@@ -353,26 +356,27 @@ export async function handleEdit() {
   } else {
     console.log("inserting new page");
     //if no group, create a new one
-    pages$[newPageId].set({
+    const newPage: Page = {
       id: newPageId,
-      created_at: now,
-      updated_at: now,
-      deleted: false,
       draft: true,
       group_id: groupId,
       created_by: user,
       date: day.date,
-      background_image_id: backgroundImages$.length > 0 ? backgroundImages$[0].id.get() : "",
+      background_image_id: Object.values(backgroundImages).find((item) => item.path === "bg_04")?.id || "",
       screen_height: height,
       screen_width: width,
-    });
+      // created_at: now,
+      // updated_at: now,
+      // deleted: false,
+    } as Page;
+    console.log("newPage", newPage, backgroundImages);
+    pages$[newPageId].set(newPage);
     //create new edit mode
   }
   console.log("pages after", pages$.get());
   uiStore$.displayCanvasMenu.set(true);
   uiStore$.displayJournalMenu.set(false);
   pageStore$.editMode.set(true);
-  endBatch();
 }
 
 export async function handlePageSave() {
@@ -437,7 +441,7 @@ export const uploadImage = async (
       return null;
     });
 
-  const image = await resizeImage(selectedImageUri, width, height)
+  const image = await resizeImage(selectedImageUri)
     .then((image) => image)
     .catch((error) => {
       console.log("error optimizing image");
@@ -497,27 +501,32 @@ const uploadImages = async (): Promise<Map<string, string>> => {
 
   modify upload to create an image entry?
   */
-
-  const items = canvasStore$.items.get();
-  const pageId = canvasStore$.pageId.get();
+  const day = pageStore$.dates[pageStore$.curCol.get()].get();
+  const user = authStore$.session.user.id.get();
+  const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
+  const pageItems = Object.values(pageItems$.get()).filter((item) => item.page_id === draftPageId);
+  const imageItems = Object.values(imagesItems$.get()).filter((item) =>
+    pageItems.some((pageItem) => pageItem.id === item.id)
+  );
   const curUserId = authStore$.session.user.id.get();
-  if (!items || !pageId || !curUserId) {
+  if (!imageItems || !draftPageId || !curUserId) {
     console.log("no items to upload, or no page, or not logged in");
     return new Map();
   }
   // let newItems: CanvasItem[] = [];
-  const promiseAr = items.map((item) => {
-    if (item.type === "image") {
-      const imageItem = imagesItems$[item.id].get();
-      const image = imageItem && images$[imageItem.image_id].get();
-      // if (!image || !image.uploaded) {
-      //don't worry about upload failing, or doing stuff offline and needing to upload later
-      if (!image) {
-        //we need to upload image
-        return uploadImage(pageId, item.id, item.path, item.width * 1.5, item.height * 1.5);
-      } else {
-        Promise.resolve(null);
-      }
+  const promiseAr = imageItems.map((item) => {
+    const image$ = images$[item.image_id];
+    if (!image$.uploaded.get()) {
+      //we need to upload image
+      return uploadImage(
+        draftPageId,
+        item.id,
+        image$.path.get(),
+        pageItems$[item.id].width.get() * 1.5,
+        pageItems$[item.id].height.get() * 1.5
+      );
+    } else {
+      Promise.resolve(null);
     }
   });
   // // Wait for all promises to complete
@@ -579,24 +588,35 @@ export const saveCanvas = async (newPageId: string, oldPageId: string): Promise<
 };
 
 export const deletePage = async (pageId: string): Promise<void> => {
+  console.log("removingPage", pageId);
   const oldPage$ = pages$[pageId];
-  oldPage$.delete();
-  const items = Object.values(pageItems$.get()).filter((item) => item.page_id === pageId);
-  items.forEach((item) => {
+  const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId);
+  beginBatch();
+  items$.forEach((item$) => {
+    const item = item$.peek();
     switch (item.type) {
       case "text": {
         textItems$[item.id].delete();
       }
       case "image": {
-        imagesItems$[item.id].delete();
+        const imageItem$ = imagesItems$[item.id];
+        const imageId = imageItem$.image_id.peek();
+        images$[imageId].deleted.set(true);
+        imageItem$.delete();
       }
     }
-    pageItems$[item.id].delete();
+    item$.delete();
   });
+  oldPage$.delete();
+  endBatch();
 };
 
-export const addPageItem = (pageId: string, item: CanvasItem) => {
-  pageItems$[item.id].set({
+export const addPageItem = (item: CanvasItem) => {
+  console.log("adding item", item);
+  const day = pageStore$.dates[pageStore$.curCol.get()].get();
+  const user = authStore$.session.user.id.get();
+  const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
+  const pageItem = {
     id: item.id,
     x: item.x,
     y: item.y,
@@ -604,7 +624,11 @@ export const addPageItem = (pageId: string, item: CanvasItem) => {
     width: item.width,
     height: item.height,
     rotation: item.rotation,
-  } as PageItem);
+    page_id: draftPageId,
+    type: item.type,
+  } as PageItem;
+  console.log("pageItem", pageItem);
+  pageItems$[item.id].set(pageItem);
   switch (item.type) {
     case "text": {
       textItems$[item.id].set({

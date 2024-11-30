@@ -25,7 +25,7 @@ export const CanvasHolder = observer(function CanvasHolder({
   editMode?: boolean;
 }) {
   const page$ = pages$[pageId || ""];
-  const backgroundImage = images$[page$.background_image_id.get()].get() || { type: "local", path: "bg_04" };
+  const backgroundImage = images$[page$.background_image_id.get()].get() || { type: "background", path: "bg_04" };
   const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId);
   return (
     <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
