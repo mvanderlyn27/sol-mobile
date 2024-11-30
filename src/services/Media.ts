@@ -79,7 +79,7 @@ export const resizeImage = async (uri: string, originalWidth?: number, originalH
 
   // Resize the image
   const manipResult = await ImageManipulator.manipulateAsync(uri, [], {
-    compress: 1,
+    compress: 0.7,
     format: ImageManipulator.SaveFormat.WEBP,
   });
 

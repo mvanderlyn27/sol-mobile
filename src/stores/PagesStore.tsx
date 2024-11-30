@@ -384,11 +384,14 @@ export async function handlePageSave() {
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const curPageId = getPageForUser(pages$.get(), user || "", day.date, false)?.id;
-  const oldPageId = getPageForUser(pages$.get(), user || "", day.date, true)?.id;
-  const newPageId = curPageId || generateId();
+  const draftPageId = getPageForUser(pages$.get(), user || "", day.date, true)?.id;
+  if (!draftPageId) {
+    console.log("no draft to save");
+    return;
+  }
   uiStore$.displayJournalMenu.set(true);
   uiStore$.displayCanvasMenu.set(false);
-  await saveCanvas(newPageId, oldPageId || "");
+  await saveCanvas(draftPageId, curPageId || "");
   pageStore$.editMode.set(false);
   pageStore$.saving.set(false);
   console.log("finished update");
@@ -470,21 +473,16 @@ export const uploadImage = async (
   }
   const path = supabase.storage.from("page_photos").getPublicUrl(`${pageId}/${imageId}.webp`);
   console.log("starting last update");
-  const now = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-  images$[imageId].set({
-    id: imageId,
+  //image should exist already from us adding it to draft page
+  images$[imageId].assign({
     path: path.data.publicUrl,
     placeholder: blurhash,
     width: width,
     height: height,
     type: "web",
-    updated_at: now,
-    created_at: now,
-    deleted: false,
     uploaded: true,
     created_by: userId,
-    hash: null,
-  });
+  } as Image);
   return { imageItemId: imageItemId, imageId: imageId };
 };
 const uploadImages = async (): Promise<Map<string, string>> => {
@@ -568,7 +566,6 @@ export const saveCanvas = async (newPageId: string, oldPageId: string): Promise<
   //delete all old items
 
   //save page
-  const now = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss.SSSSSS");
   const newPage$ = pages$[newPageId];
   const oldPage$ = pages$[oldPageId];
   if (newPage$.get()) {

@@ -29,7 +29,7 @@ export const CanvasHolder = observer(function CanvasHolder({
   const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId);
   return (
     <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
-      {(backgroundImage?.type === "background" || backgroundImage?.type === "local") && (
+      {backgroundImage && (
         <ExpoImage
           key="backgroundImage"
           source={getImageFromPath(backgroundImage.path || "bg_04")}

@@ -51,12 +51,12 @@ export const RootLayout = observer(function RootLayout() {
   useMount(() => {
     authStore$.init();
 
-    groupMembers$.onChange((val) => {
-      console.log("group members changed", val.changes);
-    });
-    pages$.onChange((val) => {
-      console.log("page changed", val.changes);
-    });
+    // groupMembers$.onChange((val) => {
+    //   console.log("group members changed", val.changes);
+    // });
+    // pages$.onChange((val) => {
+    //   console.log("page changed", val.changes);
+    // });
   });
 
   useAppNavigation();
