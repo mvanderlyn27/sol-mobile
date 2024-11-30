@@ -1,7 +1,8 @@
 import { observable } from "@legendapp/state";
 import { supabase } from "../lib/supabase";
-import { Image } from "../types/shared.types";
-import { customSupabaseSynced } from "./AsyncStorage";
+import { CanvasImage, CanvasItem, Image } from "../types/shared.types";
+import { customSupabaseSynced, generateId } from "./AsyncStorage";
+
 export const images$ = observable<Record<string, Image>>(
   customSupabaseSynced({
     supabase,
@@ -17,3 +18,5 @@ export const images$ = observable<Record<string, Image>>(
     },
   })
 );
+
+export const backgroundImages$ = Object.values(images$).filter((image) => image.type.get() === "background");

@@ -21,6 +21,7 @@ export const customSupabaseSynced = configureSynced(syncedSupabase, {
       AsyncStorage,
     }),
   },
+  actions: ["read", "create", "update", "delete"],
   generateId,
   supabase,
   changesSince: "last-sync",

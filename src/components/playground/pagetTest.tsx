@@ -21,7 +21,7 @@ import {
   reactStore$,
   reactions$,
 } from "@/src/stores/ReactStore";
-import { canvasStore$, defaultCanvas } from "@/src/stores/CanvasStore";
+import { canvasStore$ } from "@/src/stores/CanvasStore";
 import authStore$ from "@/src/stores/AuthStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { groupStore$ } from "@/src/stores/GroupStore";
@@ -33,7 +33,7 @@ const { width, height } = Dimensions.get("window");
 const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIndex: number }) => {
   const userId = pageStore$.members.get()?.[rowIndex]?.user_id;
   const date = pageStore$.dates.get()?.[colIndex]?.date;
-  const page = getPageForUser(pages$.get(), userId, date);
+  const page = getPageForUser(pages$.get(), userId, date, pageStore$.editMode.get());
   // Get current canvas directly from the stores
   const curRow = pageStore$.curRow.get();
   const curCol = pageStore$.curCol.get();
@@ -41,7 +41,6 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   const curUserId = authStore$.session.user.id.get();
   const active = curRow === rowIndex && curCol === colIndex;
   // Compute the active canvas based on conditions
-  const newDefault = { ...defaultCanvas } as Canvas;
 
   let reactions: Reaction[] = [];
   const nonUserCanvasReactions = filterNonUserReactions(reactions$.get(), page?.id || "");

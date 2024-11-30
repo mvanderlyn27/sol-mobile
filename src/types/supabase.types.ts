@@ -201,6 +201,7 @@ export type Database = {
       images: {
         Row: {
           created_at: string
+          created_by: string | null
           deleted: boolean
           hash: string | null
           height: number
@@ -209,10 +210,12 @@ export type Database = {
           placeholder: string | null
           type: string
           updated_at: string
+          uploaded: boolean
           width: number
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           deleted?: boolean
           hash?: string | null
           height: number
@@ -221,10 +224,12 @@ export type Database = {
           placeholder?: string | null
           type: string
           updated_at?: string
+          uploaded?: boolean
           width: number
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           deleted?: boolean
           hash?: string | null
           height?: number
@@ -233,6 +238,7 @@ export type Database = {
           placeholder?: string | null
           type?: string
           updated_at?: string
+          uploaded?: boolean
           width?: number
         }
         Relationships: []
@@ -396,6 +402,7 @@ export type Database = {
           created_by: string
           date: string
           deleted: boolean
+          draft: boolean
           group_id: string
           id: string
           screen_height: number
@@ -408,6 +415,7 @@ export type Database = {
           created_by?: string
           date: string
           deleted?: boolean
+          draft?: boolean
           group_id: string
           id?: string
           screen_height: number
@@ -420,6 +428,7 @@ export type Database = {
           created_by?: string
           date?: string
           deleted?: boolean
+          draft?: boolean
           group_id?: string
           id?: string
           screen_height?: number

@@ -119,17 +119,17 @@ const CanvasMenu = observer(function CanvasMenu() {
   //   };
   const backgrounds = ["bg_01", "bg_02", "bg_03", "bg_04", "bg_05", "bg_06", "bg_07", "bg_08", "bg_09"];
   let curIndex = 1;
-  const curBackground = canvasStore$.curCanvas.get()?.backgroundImage?.path;
-  if (curBackground) {
-    curIndex = backgrounds.indexOf(curBackground);
-  }
+  const curBackground = canvasStore$.backgroundImage?.path;
+  // if (curBackground) {
+  //   curIndex = backgrounds.indexOf(curBackground);
+  // }
   const handleBackground = () => {
-    const curCanvas = canvasStore$.curCanvas.get();
-    console.log("canvas before", curCanvas);
-    canvasStore$.curCanvas.set({
-      ...curCanvas,
-      backgroundImage: { type: ImageType.Local, path: backgrounds[(curIndex + 1) % backgrounds.length] },
-    } as Canvas);
+    // const curCanvas = canvasStore$.curCanvas.get();
+    // console.log("canvas before", curCanvas);
+    // canvasStore$.curCanvas.set({
+    //   ...curCanvas,
+    //   backgroundImage: { type: ImageType.Local, path: backgrounds[(curIndex + 1) % backgrounds.length] },
+    // } as Canvas);
   };
   const resizeImage = (uri: string, originalWidth: number, originalHeight: number) => {
     //ensure image is max the size of the screen
@@ -166,13 +166,12 @@ const CanvasMenu = observer(function CanvasMenu() {
         path: result.assets[0].uri,
         x: 50,
         y: 50,
-        z: canvasStore$.curCanvas.maxZIndex.get() || 1,
+        z: canvasStore$.maxZIndex.get() || 1,
         width: newWidth,
         // width: imgWidth,
         height: newHeight,
         // height: imgHeight,
         rotation: 0,
-        scale: 1,
         type: "image",
       };
 

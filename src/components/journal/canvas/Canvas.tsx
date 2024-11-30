@@ -12,7 +12,6 @@ import { getPageForUser, imagesItems$, pageItems$, pageStore$, pages$, textItems
 import CanvasTextHolder from "./CanvasText";
 import { Observable, observable, syncState } from "@legendapp/state";
 import LoadingScreen from "../../screens/SplashScreen";
-import { defaultCanvas } from "@/src/stores/CanvasStore";
 import { images$ } from "@/src/stores/ImageStore";
 import { Skeleton } from "moti/skeleton";
 
@@ -30,7 +29,7 @@ export const CanvasHolder = observer(function CanvasHolder({
   const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId);
   return (
     <StyledMotiView className="absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
-      {backgroundImage?.type === "local" && (
+      {(backgroundImage?.type === "background" || backgroundImage?.type === "local") && (
         <ExpoImage
           key="backgroundImage"
           source={getImageFromPath(backgroundImage.path || "bg_04")}
@@ -47,7 +46,6 @@ export const CanvasHolder = observer(function CanvasHolder({
 const CanvasObject = observer(function CanvasObject({ item$ }: { item$: Observable<PageItem> }) {
   const editMode = pageStore$.editMode.get();
   const item = item$.get();
-  console.log("item render", item);
   switch (item.type) {
     // case "frame":
     //   return <CanvasFrameHolder key={`frame-${item.id}`} observableItem={item} />;

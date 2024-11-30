@@ -6,7 +6,7 @@ import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { updateCanvasItem } from "@/src/stores/CanvasStore";
-import { pageStore$ } from "@/src/stores/PagesStore";
+import { pageStore$, updatePageItem } from "@/src/stores/PagesStore";
 import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
@@ -18,7 +18,7 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
-  console.log("image holder re-render");
+  // console.log("image holder re-render");
   const editMode = pageStore$.editMode.get();
   // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });
@@ -28,13 +28,14 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
   const savedRotation = useSharedValue(item.rotation);
   const rotation = useSharedValue(item.rotation);
   useEffect(() => {
+    // console.log("effect firing");
     offset.value = { x: item.x, y: item.y };
     start.value = { x: item.x, y: item.y };
     width.value = item.width;
     height.value = item.height;
     savedRotation.value = item.rotation;
     rotation.value = item.rotation;
-    updateCanvasItem(item.id, { ...item });
+    updatePageItem(item);
   }, [item]);
   const animatedFrameGroupStyles = useAnimatedStyle(() => ({
     width: width.value,
@@ -44,7 +45,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
   }));
   const handleGestureStart = () => {
     if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
-    updateCanvasItem(item.id, { ...item });
+    updatePageItem(item);
   };
   // Define drag gesture for moving the item
   const dragGesture = Gesture.Pan()
@@ -58,7 +59,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
     })
     .onEnd(() => {
       start.value = { x: offset.value.x, y: offset.value.y };
-      runOnJS(updateCanvasItem)(item.id, {
+      runOnJS(updatePageItem)({
         ...item,
         width: width.value,
         height: height.value,
@@ -76,7 +77,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
       height.value = item.height * event.scale;
     })
     .onEnd(() => {
-      runOnJS(updateCanvasItem)(item.id, {
+      runOnJS(updatePageItem)({
         ...item,
         width: width.value,
         height: height.value,
@@ -94,7 +95,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
     })
     .onEnd(() => {
       savedRotation.value = rotation.value;
-      runOnJS(updateCanvasItem)(item.id, {
+      runOnJS(updatePageItem)({
         ...item,
         rotation: rotation.value,
         width: width.value,
