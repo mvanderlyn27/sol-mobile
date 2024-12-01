@@ -15,11 +15,16 @@ export const profiles$ = observable(
     collection: "profiles",
     select: (from) => from.select("*"),
     filter: (select) => select.neq("deleted", true),
-    // persist: { name: "profiles" },
     realtime: true,
+    persist: {
+      name: "profiles",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
   })
 );
-export const profileStore$ = observable({});
 // addGroup
 
 export const updateUsername = (username: string): { error: string | undefined } => {

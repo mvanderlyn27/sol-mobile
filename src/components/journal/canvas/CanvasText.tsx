@@ -6,7 +6,7 @@ import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { updateCanvasItem } from "@/src/stores/CanvasStore";
-import { pageStore$ } from "@/src/stores/PagesStore";
+import { bringToFront, pageStore$, updatePageItem } from "@/src/stores/PagesStore";
 import { CanvasText } from "@/src/types/shared.types";
 import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
@@ -26,8 +26,16 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   // Initialize shared value for font size instead of scale
   const fontSize = useSharedValue(item.fontSize);
   const savedFontSize = useSharedValue(item.fontSize);
-
-  const { height, width } = Dimensions.get("screen");
+  useEffect(() => {
+    // console.log("effect firing");
+    offset.value = { x: item.x, y: item.y };
+    start.value = { x: item.x, y: item.y };
+    fontSize.value = item.fontSize;
+    savedFontSize.value = item.fontSize;
+    savedRotation.value = item.rotation;
+    rotation.value = item.rotation;
+    updatePageItem(item);
+  }, [item]);
 
   const animatedStyles = useAnimatedStyle(() => ({
     zIndex: item.z,
@@ -36,13 +44,10 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
   const animatedText = useAnimatedStyle(() => ({
     fontSize: fontSize.value,
   }));
-  useEffect(() => {
-    fontSize.value = item.fontSize;
-    savedFontSize.value = item.fontSize;
-  }, [item.fontSize]);
   const handleGestureStart = () => {
     if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
-    updateCanvasItem(item.id, { ...item });
+    //we want to bring the item to front
+    bringToFront(item.id);
   };
 
   // Define gestures
@@ -57,7 +62,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
     })
     .onEnd(() => {
       start.value = { x: offset.value.x, y: offset.value.y };
-      runOnJS(updateCanvasItem)(item.id, {
+      runOnJS(updatePageItem)({
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
         rotation: rotation.value,
@@ -74,7 +79,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
-      runOnJS(updateCanvasItem)(item.id, {
+      runOnJS(updatePageItem)({
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
         rotation: rotation.value,
@@ -90,7 +95,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
     })
     .onEnd(() => {
       savedRotation.value = rotation.value;
-      runOnJS(updateCanvasItem)(item.id, {
+      runOnJS(updatePageItem)({
         ...item,
         rotation: rotation.value,
         fontSize: fontSize.value, // Save the new font size to the store

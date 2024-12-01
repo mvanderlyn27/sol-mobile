@@ -25,9 +25,6 @@ export const CanvasHolder = observer(function CanvasHolder({
   editMode: boolean;
 }) {
   const page$ = pages$[pageId || ""];
-  if (pageId) {
-    console.log("canvas reload", pageId, page$.get());
-  }
   const backgroundImage = images$[page$.background_image_id.get()].get() || { type: "background", path: "bg_04" };
   const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId && !item.deleted.get());
 
@@ -50,7 +47,7 @@ export const CanvasHolder = observer(function CanvasHolder({
           pageId={pageId || ""}
         />
       ))}
-      <Text style={{ position: "absolute", left: 30, bottom: 100 }}>{pageId}</Text>
+      {/* <Text style={{ position: "absolute", left: 30, bottom: 100 }}>{pageId}</Text> */}
     </StyledMotiView>
   );
 });
@@ -68,7 +65,6 @@ const CanvasObject = observer(function CanvasObject({
     // case "frame":
     //   return <CanvasFrameHolder key={`frame-${item.id}`} observableItem={item} />;
     case "image": {
-      console.log("image object re-render", item$.get(), pageId);
       const imageItem = imagesItems$[item$.id.get()];
       const image = imageItem && images$[imageItem.image_id.get()];
       const canvasImage: CanvasImage = {
@@ -83,7 +79,6 @@ const CanvasObject = observer(function CanvasObject({
       );
     }
     case "text": {
-      console.log("text item re-render", item$.id.get(), pageId);
       const textItem = textItems$[item$.id.get()].get();
       const canvasText: CanvasText = {
         ...item$.get(),

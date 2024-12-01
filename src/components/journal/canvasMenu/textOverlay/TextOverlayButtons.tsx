@@ -8,39 +8,38 @@ import { CanvasText } from "@/src/types/shared.types";
 import { addCanvasItem, canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { Dimensions } from "react-native";
+import { addPageItem, updatePageItem } from "@/src/stores/PagesStore";
 const { height, width } = Dimensions.get("screen");
 
 const TextOverlayButtons = observer(function TextOverlayButtons() {
   const createText = () => {
     const newId = generateId();
-    const z = canvasStore$.curCanvas.maxZIndex.get() || 0;
     const textItem: CanvasText = {
       type: "text",
       id: newId,
-      // dbId: "",
       x: width / 2,
       y: height / 2,
       rotation: 0,
-      scale: 1,
-      z: z + 1,
+      z: 0,
       textContent: textStore$.text.get(),
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
       fontType: fonts[textStore$.fontIndex.get()],
+      width: 0,
+      height: 0,
     };
-    addCanvasItem(textItem);
+    addPageItem(textItem);
   };
   const updateText = (id: string) => {
-    const z = canvasStore$.curCanvas.maxZIndex.get() || 0;
     const textItem = {
-      z: z + 1,
+      id: id,
       textContent: textStore$.text.get(),
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
       fontType: fonts[textStore$.fontIndex.get()],
-    };
+    } as CanvasText;
     console.log("updated textItem", textItem);
-    updateCanvasItem(id, textItem as CanvasText);
+    updatePageItem(textItem);
   };
   const handleSave = () => {
     const id = textStore$.id.get();

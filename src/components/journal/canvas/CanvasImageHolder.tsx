@@ -6,7 +6,7 @@ import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { updateCanvasItem } from "@/src/stores/CanvasStore";
-import { pageStore$, updatePageItem } from "@/src/stores/PagesStore";
+import { bringToFront, pageStore$, updatePageItem } from "@/src/stores/PagesStore";
 import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
@@ -45,7 +45,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
   }));
   const handleGestureStart = () => {
     if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
-    updatePageItem(item);
+    bringToFront(item.id);
   };
   // Define drag gesture for moving the item
   const dragGesture = Gesture.Pan()
@@ -127,7 +127,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
             },
             animatedFrameGroupStyles,
           ]}>
-          <Text>{item.id}</Text>
+          {/* <Text>{item.id}</Text> */}
           <StyledPressable onPress={editMode ? handleEdit : null}>
             <StyledImage source={{ uri: item.path }} style={{ width: "100%", height: "100%" }} contentFit="contain" />
           </StyledPressable>

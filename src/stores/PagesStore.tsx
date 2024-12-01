@@ -59,6 +59,7 @@ import { resizeImage } from "@/src/services/Media";
 import { reactStore$ } from "./ReactStore";
 import { backgroundImages$, images$ } from "./ImageStore";
 import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
+import { max } from "lodash";
 const { width, height } = Dimensions.get("window");
 export const pages$ = observable<Record<string, Page>>(
   customSupabaseSynced({
@@ -67,13 +68,14 @@ export const pages$ = observable<Record<string, Page>>(
     select: (from: any) => from.select("*"),
     realtime: true,
     actions: ["read", "create", "update", "delete"],
-    // persist: {
-    //   name: "pages_test",
-    //   retrySync: true, // Persist pending changes and retry
-    // },
-    // retry: {
-    //   infinite: true, // Retry changes with exponential backoff
-    // },
+    persist: {
+      name: "pages_test",
+      //for some reason this is needed to make the real time syncing consistent
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
     waitForSet: ({ value, type }: WaitForSetCrudFnParams<Page>) => {
       if (type === "delete") {
         Object.values(pageItems$).forEach((item) => {
@@ -128,13 +130,13 @@ export const imagesItems$ = observable<Record<string, ImageItem>>(
     select: (from: any) => from.select("*"),
     realtime: true,
     actions: ["read", "create", "update", "delete"],
-    // persist: {
-    //   name: "image_items",
-    //   retrySync: true, // Persist pending changes and retry
-    // },
-    // retry: {
-    //   infinite: true, // Retry changes with exponential backoff
-    // },
+    persist: {
+      name: "image_items",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
     waitForSet: ({ value, type }: WaitForSetCrudFnParams<ImageItem>) => {
       if (type === "delete") {
         images$[value.image_id].delete();
@@ -673,6 +675,7 @@ export const addPageItem = (item: CanvasItem) => {
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
+  beginBatch();
   const pageItem = {
     id: item.id,
     x: item.x,
@@ -718,16 +721,31 @@ export const addPageItem = (item: CanvasItem) => {
       break;
     }
   }
+  bringToFront(item.id);
+  endBatch();
 };
 export const updatePageItem = (item: CanvasItem) => {
-  pageItems$[item.id].assign({
-    x: item.x,
-    y: item.y,
-    z: item.z,
-    width: item.width,
-    height: item.height,
-    rotation: item.rotation,
-  });
+  beginBatch();
+  const pageItem = {} as PageItem;
+  if (item.x !== undefined) {
+    pageItem.x = item.x;
+  }
+  if (item.y !== undefined) {
+    pageItem.y = item.y;
+  }
+  if (item.z !== undefined) {
+    pageItem.z = item.z;
+  }
+  if (item.width !== undefined) {
+    pageItem.width = item.width;
+  }
+  if (item.height !== undefined) {
+    pageItem.height = item.height;
+  }
+  if (item.rotation !== undefined) {
+    pageItem.rotation = item.rotation;
+  }
+  pageItems$[item.id].assign(pageItem);
   switch (item.type) {
     case "text": {
       textItems$[item.id].assign({
@@ -744,7 +762,19 @@ export const updatePageItem = (item: CanvasItem) => {
       break;
     }
   }
+  endBatch();
 };
 export const removePageItem = (itemId: string) => {
   pageItems$[itemId].delete();
+};
+const getMaxZ = (pageId: string) => {
+  const zValues = Object.values(pageItems$)
+    .filter((item) => item.page_id.get() === pageId)
+    .map((item) => item.z.get());
+  return max(zValues) || 0;
+};
+export const bringToFront = (itemId: string) => {
+  const curItem$ = pageItems$[itemId];
+  const curMax = getMaxZ(curItem$.page_id.get());
+  curItem$.z.set(curMax + 1);
 };
