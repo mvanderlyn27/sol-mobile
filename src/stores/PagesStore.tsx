@@ -93,13 +93,13 @@ export const pageItems$ = observable<Record<string, PageItem>>(
     select: (from: any) => from.select("*"),
     realtime: true,
     actions: ["read", "create", "update", "delete"],
-    // persist: {
-    //   name: "page_items",
-    //   retrySync: true, // Persist pending changes and retry
-    // },
-    // retry: {
-    //   infinite: true, // Retry changes with exponential backoff
-    // },
+    persist: {
+      name: "page_items",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
     waitForSet: ({ value, type }: WaitForSetCrudFnParams<PageItem>) => {
       if (type === "delete") {
         switch (value.type) {
@@ -113,6 +113,10 @@ export const pageItems$ = observable<Record<string, PageItem>>(
       } else {
         return pages$[value.page_id].created_at;
       }
+    },
+    onError: (error: any) => {
+      console.log("page items error", error);
+      posthog.capture("page-items-sync-error", { error });
     },
   })
 );
@@ -131,8 +135,18 @@ export const imagesItems$ = observable<Record<string, ImageItem>>(
     // retry: {
     //   infinite: true, // Retry changes with exponential backoff
     // },
-    waitForSet: ({ value }: WaitForSetCrudFnParams<ImageItem>) =>
-      !value.deleted && pageItems$[value.id].created_at && images$[value.image_id].created_at,
+    waitForSet: ({ value, type }: WaitForSetCrudFnParams<ImageItem>) => {
+      if (type === "delete") {
+        images$[value.image_id].delete();
+      } else {
+        // Wait for both pageItems$[value.id].created_at and images$[value.image_id].created_at
+        return () => !!pageItems$[value.id]?.created_at?.get() && !!images$[value.image_id]?.created_at?.get();
+      }
+    },
+    onError: (error: any) => {
+      console.log("image items error", error);
+      posthog.capture("image-items-sync-error", { error });
+    },
   })
 );
 export const textItems$ = observable<Record<string, TextItem>>(
@@ -291,7 +305,24 @@ function getAllUniqueDates(daysCount: number): DateItem[] {
 /**
  * Toggle edit mode
  */
-
+export function cleanUpPages(pageId: string, drafts = true) {
+  const curUserId = authStore$.session.user.id.get();
+  const curGroupId = groupStore$.selectedGroup.get();
+  const newPage$ = pages$[pageId];
+  const oldPages = Object.values(pages$.get()).filter(
+    (page) =>
+      page.created_by === curUserId &&
+      page.group_id === curGroupId &&
+      page.date === newPage$.date.get() &&
+      page.id !== pageId &&
+      //optionally only clean up drafts
+      (drafts ? page.draft : true)
+  );
+  oldPages.map((page) => {
+    console.log("deleting page", page.id);
+    deletePage(page.id);
+  });
+}
 export async function handleEdit() {
   /*
     Modifying this to duplicate existing page
@@ -308,10 +339,11 @@ export async function handleEdit() {
     return;
   }
   if (page) {
+    console.log("cleaning up any existing drafts");
+    cleanUpPages(page?.id);
     console.log("page exists, duplicating");
     console.log("pages before", pages$.get());
     //create new from this page
-
     const draftPage: Page = {
       id: newPageId,
       created_by: page.created_by,
@@ -323,49 +355,62 @@ export async function handleEdit() {
       draft: true,
     } as Page;
     console.log("draftPage", draftPage);
-    // const { error } = await supabase.from("pages_test").insert(draftPage);
-    // console.log("error", error);
-    beginBatch();
     pages$[newPageId].set(draftPage);
+    //get old page
     const items = Object.values(pageItems$.get()).filter((item) => item.page_id === page.id);
     console.log("items", items);
-    items.forEach(async (item) => {
-      const newItemId = generateId();
-      pageItems$[newItemId].set({
-        id: newItemId,
-        page_id: newPageId,
-        type: item.type,
-        x: item.x,
-        y: item.y,
-        z: item.z,
-        width: item.width,
-        height: item.height,
-        rotation: item.rotation,
-      } as PageItem);
-      switch (item.type) {
-        case "text": {
-          const textItem = textItems$[item.id].get();
-          textItems$[newItemId].set({
-            id: newItemId,
-            color: textItem.color,
-            font_size: textItem.font_size,
-            font: textItem.font,
-            text: textItem.text,
-          } as TextItem);
+    batch(() =>
+      items.forEach((item) => {
+        console.log("copying item:", item);
+        const newItemId = generateId();
+        pageItems$[newItemId].set({
+          id: newItemId,
+          page_id: newPageId,
+          type: item.type,
+          x: item.x,
+          y: item.y,
+          z: item.z,
+          width: item.width,
+          height: item.height,
+          rotation: item.rotation,
+        } as PageItem);
+        switch (item.type) {
+          case "text": {
+            const textItem = textItems$[item.id].get();
+            textItems$[newItemId].set({
+              id: newItemId,
+              color: textItem.color,
+              font_size: textItem.font_size,
+              font: textItem.font,
+              text: textItem.text,
+            } as TextItem);
+            break;
+          }
+          case "image": {
+            const imageItem = imagesItems$[item.id];
+            const image = images$[imageItem.image_id.get()].get();
+            const newImageId = generateId();
+            images$[newImageId].set({
+              id: newImageId,
+              width: image.width,
+              height: image.height,
+              type: image.type,
+              path: image.path,
+              placeholder: image.placeholder,
+              uploaded: image.uploaded,
+              created_by: image.created_by,
+            } as Image);
+            imagesItems$[newItemId].set({
+              id: newItemId,
+              image_id: newImageId,
+            } as ImageItem);
+            break;
+          }
+          default:
+            console.error(`Unexpected item type: ${item.type}`);
         }
-        case "image": {
-          const imageItem = await when(imagesItems$[item.id]);
-          console.log("imageItem", imageItem);
-          const imageItemData = {
-            id: newItemId,
-            image_id: imageItem.image_id,
-          } as ImageItem;
-          console.log("imageItemData", imageItemData);
-          imagesItems$[newItemId].set(imageItemData);
-        }
-      }
-    });
-    endBatch();
+      })
+    );
   } else {
     console.log("inserting new page");
     //if no group, create a new one
@@ -395,7 +440,6 @@ export async function handleEdit() {
 }
 
 export async function handlePageSave() {
-  pageStore$.saving.set(true);
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const draftPageId = getPageForUser(pages$.get(), user || "", day.date, true)?.id;
@@ -404,6 +448,7 @@ export async function handlePageSave() {
     return;
   }
   beginBatch();
+  pageStore$.saving.set(true);
   uiStore$.displayJournalMenu.set(true);
   uiStore$.displayCanvasMenu.set(false);
   endBatch();
@@ -599,19 +644,12 @@ export const saveCanvas = async (newPageId: string): Promise<void> => {
   //save page
   const newPage$ = pages$[newPageId];
   // page has same auther/group/date, and isn't the newPageId
-  const oldPages = Object.values(pages$.get()).filter(
-    (page) =>
-      page.created_by === curUserId &&
-      page.group_id === curGroupId &&
-      page.date === newPage$.date.get() &&
-      page.id !== newPageId
-  );
-  beginBatch();
+
   if (newPage$.get()) {
     console.log("new page");
     // existing page
     //remove draft
-    pages$[newPageId].draft.set(false);
+    newPage$.draft.set(false);
     //update image ids
     // console.log("imageItemMap", imageItemMap);
     // imageItemMap.forEach((itemId, imageId) => {
@@ -619,11 +657,9 @@ export const saveCanvas = async (newPageId: string): Promise<void> => {
     //   imagesItems$[itemId].assign({ image_id: imageId });
     // });
   }
-  if (oldPages.length > 0) {
-    //if old page then we delete it
-    oldPages.forEach((oldPage) => deletePage(oldPage.id));
-  }
-  endBatch();
+  //remove all pages besides the new entry
+
+  cleanUpPages(newPageId, false);
 };
 
 export const deletePage = (pageId: string): void => {

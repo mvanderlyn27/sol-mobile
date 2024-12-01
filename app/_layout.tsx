@@ -17,7 +17,7 @@ import * as Notifications from "expo-notifications";
 import { useAppNavigation } from "@/src/services/Navigation";
 import { computed, syncState } from "@legendapp/state";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { pages$ } from "@/src/stores/PagesStore";
+import { pageItems$, pages$ } from "@/src/stores/PagesStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { groupMembers$ } from "@/src/stores/MemberStore";
 import { supabase } from "@/src/lib/supabase";
@@ -54,9 +54,29 @@ export const RootLayout = observer(function RootLayout() {
     // groupMembers$.onChange((val) => {
     //   console.log("group members changed", val.changes);
     // });
-    pages$.onChange((val) => {
-      console.log("page changed", val.changes);
-    });
+    // pages$.onChange((val) => {
+    //   console.log("page changed", val.changes);
+    // });
+    // pageItems$.onChange((val) => {
+    //   console.log("page item changed", val.changes);
+    // });
+    supabase
+      .channel(`LS_TEST`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          table: "page_items",
+          schema: "public",
+        },
+        (payload) => {
+          console.log("page_items realtime", payload);
+        }
+      )
+      .subscribe((status, error) => {
+        console.log("1status", status);
+        console.log("1error", error);
+      });
   });
 
   useAppNavigation();
@@ -72,7 +92,7 @@ export const RootLayout = observer(function RootLayout() {
           options={{
             host: "https://us.i.posthog.com",
             disabled: process.env.EXPO_PUBLIC_ENV === "development",
-            enableSessionReplay: process.env.EXPO_PUBLIC_ENV !== "development",
+            // enableSessionReplay: process.env.EXPO_PUBLIC_ENV !== "development",
             sessionReplayConfig: {
               maskAllImages: false,
             },

@@ -1,6 +1,6 @@
 import { Show, observer } from "@legendapp/state/react";
 import React, { memo, useEffect } from "react";
-import { Dimensions, Pressable } from "react-native";
+import { Dimensions, Pressable, Text } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
@@ -18,7 +18,7 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
-  // console.log("image holder re-render");
+  console.log("image holder re-render", item);
   const editMode = pageStore$.editMode.get();
   // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });
@@ -127,6 +127,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
             },
             animatedFrameGroupStyles,
           ]}>
+          <Text>{item.id}</Text>
           <StyledPressable onPress={editMode ? handleEdit : null}>
             <StyledImage source={{ uri: item.path }} style={{ width: "100%", height: "100%" }} contentFit="contain" />
           </StyledPressable>

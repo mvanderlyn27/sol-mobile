@@ -31,14 +31,16 @@ import { addNotification } from "@/src/stores/NotificationStore";
 const { width, height } = Dimensions.get("window");
 
 const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIndex: number }) => {
-  console.log("PageRenderer", rowIndex, colIndex);
   const userId = pageStore$.members.get()?.[rowIndex]?.user_id;
   const date = pageStore$.dates.get()?.[colIndex]?.date;
-  const page = getPageForUser(pages$.get(), userId, date, pageStore$.editMode.get());
+  const editMode = pageStore$.editMode.get();
+  const page = getPageForUser(pages$.get(), userId, date, editMode);
+  if (page) {
+    // console.log("PageRenderer", rowIndex, colIndex, page);
+  }
   // Get current canvas directly from the stores
   const curRow = pageStore$.curRow.get();
   const curCol = pageStore$.curCol.get();
-  const editMode = pageStore$.editMode.get();
   const curUserId = authStore$.session.user.id.get();
   const active = curRow === rowIndex && curCol === colIndex;
   // Compute the active canvas based on conditions
@@ -70,7 +72,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   // console.log("canvas: ", rowIndex, colIndex, canvas);
   // console.log("reactions", rowIndex, colIndex, reactions);
   return (
-    <View style={{ width, height }}>
+    <View key={`${rowIndex}-${colIndex}-${editMode ? "edit" : "view"}-${page?.id}`} style={{ width, height }}>
       <CanvasHolder pageId={page?.id} editMode={editMode} />
       {/* <ReactHolder
         keyString={`${reactEditMode ? "edit-" : ""}reactions-${rowIndex}-${colIndex}`}
