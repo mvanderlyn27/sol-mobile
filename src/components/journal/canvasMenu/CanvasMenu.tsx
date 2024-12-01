@@ -47,6 +47,8 @@ const CanvasMenu = observer(function CanvasMenu() {
   const displayCanvasMenu = uiStore$.displayCanvasMenu.get();
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [canceling, setCanceling] = useState<boolean>(false);
   const handleExit = () => {
     if (selectedTab) setSelectedTab(null);
     // if (canvasHasChanges) {
@@ -56,13 +58,19 @@ const CanvasMenu = observer(function CanvasMenu() {
     // }
   };
   const handleSave = () => {
+    if (saving) return;
+    setSaving(true);
     reactStore$.showReactions.set(true);
     handlePageSave();
     handleClose();
+    setSaving(false);
   };
   const handleCancelEdit = () => {
+    if (canceling) return;
+    setCanceling(true);
     handlePageCancel();
     handleClose();
+    setCanceling(false);
   };
   const handleClose = () => {
     pageStore$.editMode.set(false);
@@ -192,10 +200,10 @@ const CanvasMenu = observer(function CanvasMenu() {
         exitTransition={{ type: "timing", duration: 200 }}
         transition={{ type: "timing", duration: 200 }}>
         <StyledView className="flex-1 items-start">
-          <MenuButton onPress={handleCancelEdit} buttonType={ButtonType.X} />
+          <MenuButton disabled={saving || canceling} onPress={handleCancelEdit} buttonType={ButtonType.X} />
         </StyledView>
         <StyledView className="flex-1 items-end">
-          <MenuButton onPress={handleSave} buttonType={ButtonType.Save} />
+          <MenuButton disabled={canceling || saving} onPress={handleSave} buttonType={ButtonType.Save} />
         </StyledView>
       </StyledMotiView>
       <StyledMotiView

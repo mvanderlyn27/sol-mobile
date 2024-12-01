@@ -9,13 +9,13 @@ export const images$ = observable<Record<string, Image>>(
     collection: "images",
     select: (from: any) => from.select("*"),
     realtime: true,
-    persist: {
-      name: "images",
-      retrySync: true, // Persist pending changes and retry
-    },
-    retry: {
-      infinite: true, // Retry changes with exponential backoff
-    },
+    // persist: {
+    //   name: "images",
+    //   retrySync: true, // Persist pending changes and retry
+    // },
+    // retry: {
+    //   infinite: true, // Retry changes with exponential backoff
+    // },
   })
 );
 

@@ -31,6 +31,7 @@ import { addNotification } from "@/src/stores/NotificationStore";
 const { width, height } = Dimensions.get("window");
 
 const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIndex: number }) => {
+  console.log("PageRenderer", rowIndex, colIndex);
   const userId = pageStore$.members.get()?.[rowIndex]?.user_id;
   const date = pageStore$.dates.get()?.[colIndex]?.date;
   const page = getPageForUser(pages$.get(), userId, date, pageStore$.editMode.get());

@@ -74,6 +74,15 @@ export const pages$ = observable<Record<string, Page>>(
     // retry: {
     //   infinite: true, // Retry changes with exponential backoff
     // },
+    waitForSet: ({ value, type }: WaitForSetCrudFnParams<Page>) => {
+      if (type === "delete") {
+        Object.values(pageItems$).forEach((item) => {
+          if (item.page_id.get() === value.id) {
+            item.delete();
+          }
+        });
+      }
+    },
   })
 );
 
@@ -91,7 +100,20 @@ export const pageItems$ = observable<Record<string, PageItem>>(
     // retry: {
     //   infinite: true, // Retry changes with exponential backoff
     // },
-    waitForSet: ({ value }: WaitForSetCrudFnParams<PageItem>) => pages$[value.page_id].created_at,
+    waitForSet: ({ value, type }: WaitForSetCrudFnParams<PageItem>) => {
+      if (type === "delete") {
+        switch (value.type) {
+          case "image": {
+            imagesItems$[value.id].delete();
+          }
+          case "text": {
+            textItems$[value.id].delete();
+          }
+        }
+      } else {
+        return pages$[value.page_id].created_at;
+      }
+    },
   })
 );
 
@@ -110,7 +132,7 @@ export const imagesItems$ = observable<Record<string, ImageItem>>(
     //   infinite: true, // Retry changes with exponential backoff
     // },
     waitForSet: ({ value }: WaitForSetCrudFnParams<ImageItem>) =>
-      pageItems$[value.id].created_at && images$[value.image_id].created_at,
+      !value.deleted && pageItems$[value.id].created_at && images$[value.image_id].created_at,
   })
 );
 export const textItems$ = observable<Record<string, TextItem>>(
@@ -126,7 +148,7 @@ export const textItems$ = observable<Record<string, TextItem>>(
     // retry: {
     //   infinite: true, // Retry changes with exponential backoff
     // },
-    waitForSet: ({ value }: WaitForSetCrudFnParams<TextItem>) => pageItems$[value.id].created_at,
+    waitForSet: ({ value }: WaitForSetCrudFnParams<TextItem>) => !value.deleted && pageItems$[value.id].created_at,
   })
 );
 
@@ -267,17 +289,6 @@ function getAllUniqueDates(daysCount: number): DateItem[] {
 }
 
 /**
- * Set the current row and column based on navigation inputs.
- */
-export function navigateToPage(row: number, col: number) {
-  const { dates } = pageStore$.get();
-  const maxCol = dates.length - 1;
-
-  pageStore$.curRow.set(Math.max(0, Math.min(row, pageStore$.members.length - 1)));
-  pageStore$.curCol.set(Math.max(0, Math.min(col, maxCol)));
-}
-
-/**
  * Toggle edit mode
  */
 
@@ -288,7 +299,6 @@ export async function handleEdit() {
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const page = getPageForUser(pages$.get(), user || "", day.date);
-  const now = format(new Date(), "yyyy-MM-dd HH:mm:ss");
   const newPageId = generateId();
   const groupId = groupStore$.selectedGroup.get();
   const backgroundImages = await when(backgroundImages$);
@@ -315,12 +325,11 @@ export async function handleEdit() {
     console.log("draftPage", draftPage);
     // const { error } = await supabase.from("pages_test").insert(draftPage);
     // console.log("error", error);
+    beginBatch();
     pages$[newPageId].set(draftPage);
-    const status$ = syncState(pages$[newPageId]);
-    console.log("status ", status$.get());
     const items = Object.values(pageItems$.get()).filter((item) => item.page_id === page.id);
     console.log("items", items);
-    items.forEach((item) => {
+    items.forEach(async (item) => {
       const newItemId = generateId();
       pageItems$[newItemId].set({
         id: newItemId,
@@ -345,14 +354,18 @@ export async function handleEdit() {
           } as TextItem);
         }
         case "image": {
-          const imageItem = imagesItems$[item.id].get();
-          imagesItems$[newItemId].set({
+          const imageItem = await when(imagesItems$[item.id]);
+          console.log("imageItem", imageItem);
+          const imageItemData = {
             id: newItemId,
             image_id: imageItem.image_id,
-          } as ImageItem);
+          } as ImageItem;
+          console.log("imageItemData", imageItemData);
+          imagesItems$[newItemId].set(imageItemData);
         }
       }
     });
+    endBatch();
   } else {
     console.log("inserting new page");
     //if no group, create a new one
@@ -374,26 +387,31 @@ export async function handleEdit() {
     //create new edit mode
   }
   console.log("pages after", pages$.get());
+  beginBatch();
   uiStore$.displayCanvasMenu.set(true);
   uiStore$.displayJournalMenu.set(false);
   pageStore$.editMode.set(true);
+  endBatch();
 }
 
 export async function handlePageSave() {
   pageStore$.saving.set(true);
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
-  const curPageId = getPageForUser(pages$.get(), user || "", day.date, false)?.id;
   const draftPageId = getPageForUser(pages$.get(), user || "", day.date, true)?.id;
   if (!draftPageId) {
     console.log("no draft to save");
     return;
   }
+  beginBatch();
   uiStore$.displayJournalMenu.set(true);
   uiStore$.displayCanvasMenu.set(false);
-  await saveCanvas(draftPageId, curPageId || "");
+  endBatch();
+  await saveCanvas(draftPageId);
+  beginBatch();
   pageStore$.editMode.set(false);
   pageStore$.saving.set(false);
+  endBatch();
   console.log("finished update");
 }
 
@@ -412,9 +430,11 @@ export function handlePageCancel() {
     return;
   }
   deletePage(draftPageId);
+  beginBatch();
   uiStore$.displayJournalMenu.set(true);
   uiStore$.displayCanvasMenu.set(false);
   pageStore$.editMode.set(false);
+  endBatch();
 }
 
 export const uploadImage = async (
@@ -423,14 +443,19 @@ export const uploadImage = async (
   selectedImageUri: string,
   width: number,
   height: number
-): Promise<{ imageItemId: string; imageId: string } | undefined> => {
+): Promise<void> => {
   const userId = authStore$.session.user.id.get();
   if (!userId) {
     console.log("not logged in");
     posthog.capture("upload-page-image-error", { error: "Not logged in" });
-    return;
+    throw new Error("error no user");
   }
-  const imageId = generateId();
+  const imageId = imagesItems$[imageItemId].image_id.get();
+  if (!imageId) {
+    console.log("no image found");
+    posthog.capture("upload-page-image-error", { error: "No image found" });
+    throw new Error("error no image found");
+  }
   // Resize the image to 100x100 using ImageManipulator
   const blurhash = await ImageManipulator.manipulateAsync(selectedImageUri, [{ resize: { width: 100, height: 100 } }], {
     compress: 0.5,
@@ -441,41 +466,48 @@ export const uploadImage = async (
       console.error("Error generating blurhash:", error);
       posthog.capture("upload-page-image-error", { error });
       // Alert.alert("Error", "Failed to generate blurhash.");
-      return null;
+      throw new Error("error generating blurhash ");
     });
 
-  const image = await resizeImage(selectedImageUri)
+  const image = await resizeImage(selectedImageUri, width, height)
     .then((image) => image)
     .catch((error) => {
       console.log("error optimizing image");
       posthog.capture("upload-page-image-error", { error });
-      return null;
+      throw new Error("error optimizing image");
     });
 
   if (!image || !blurhash) {
     // setLoading(false);
-    return;
+    console.log("error getting blurhash");
+    throw new Error("error getting blurhash");
   }
   const base64 = await FileSystem.readAsStringAsync(image, { encoding: "base64" });
-  const { success, data, error } = await StorageService.uploadFile({
-    bucket: "page_photos",
-    filePath: `${pageId}/${imageItemId}.webp`,
-    base64: base64,
-    fileExtension: "webp",
-    mimeType: "image/webp",
-  });
-  console.log("done uploading", error, data, success);
-  if (error || !data) {
-    console.error("error uploading", error);
-    posthog.capture("upload-page-image-error", { error });
-    //show notif here
-    return;
+  //check if we already have a photo with this blurhash
+  let photoPath = Object.values(images$[imageId]).find(
+    (item) => item.blurhash === blurhash && item.created_by === userId
+  )?.path;
+  if (!photoPath) {
+    const { success, data, error } = await StorageService.uploadFile({
+      bucket: "page_photos",
+      filePath: `${userId}/${blurhash}.webp`,
+      base64: base64,
+      fileExtension: "webp",
+      mimeType: "image/webp",
+    });
+    console.log("done uploading", error, data, success);
+    if (error || !data) {
+      console.error("error uploading", error);
+      posthog.capture("upload-page-image-error", { error });
+      //show notif here
+      throw new Error("Error uploading image");
+    }
+    photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${blurhash}.webp`).data.publicUrl;
+    console.log("starting last update");
+    //image should exist already from us adding it to draft page
   }
-  const path = supabase.storage.from("page_photos").getPublicUrl(`${pageId}/${imageId}.webp`);
-  console.log("starting last update");
-  //image should exist already from us adding it to draft page
   images$[imageId].assign({
-    path: path.data.publicUrl,
+    path: photoPath,
     placeholder: blurhash,
     width: width,
     height: height,
@@ -483,9 +515,9 @@ export const uploadImage = async (
     uploaded: true,
     created_by: userId,
   } as Image);
-  return { imageItemId: imageItemId, imageId: imageId };
+  // return { imageItemId: imageItemId, imageId: imageId };
 };
-const uploadImages = async (): Promise<Map<string, string>> => {
+const uploadImages = async (): Promise<{ success: boolean; error?: string }> => {
   /*
   Sudo code:
   go through items in canvasStore 
@@ -509,7 +541,7 @@ const uploadImages = async (): Promise<Map<string, string>> => {
   const curUserId = authStore$.session.user.id.get();
   if (!imageItems || !draftPageId || !curUserId) {
     console.log("no items to upload, or no page, or not logged in");
-    return new Map();
+    return { success: false, error: "No items to upload, or no page, or not logged in" };
   }
   // let newItems: CanvasItem[] = [];
   const promiseAr = imageItems.map((item) => {
@@ -529,21 +561,15 @@ const uploadImages = async (): Promise<Map<string, string>> => {
   });
   // // Wait for all promises to complete
   // //MODIFY THE RESULT TO JUST BE ID's, Do the IMAGE creation in the above part, and only for the images that aren't uploaded yet
-  const results = await Promise.all(promiseAr || []);
-  const imageIdMap = new Map<string, string>();
-  // const now = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-  // // Process the results after all uploads
-  results.forEach((result, index) => {
-    if (result) {
-      console.log(`Processed result for item  ${result.imageItemId}:`, result);
-      imageIdMap.set(result.imageItemId, result.imageId);
-    }
-  });
-
-  return imageIdMap;
+  try {
+    await Promise.all(promiseAr || []);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
 };
 
-export const saveCanvas = async (newPageId: string, oldPageId: string): Promise<void> => {
+export const saveCanvas = async (newPageId: string): Promise<void> => {
   /*
     modify this to set new page to no longer be draft
     set old page to be DELETED
@@ -560,52 +586,50 @@ export const saveCanvas = async (newPageId: string, oldPageId: string): Promise<
   console.log("saving canvas");
   //parallel save all images to storage on backend
   //upload images, get id for them
-  const imageItemMap = await uploadImages();
+  const { error } = await uploadImages();
+  if (error) {
+    console.log("error uploading images", error);
+    posthog.capture("page-save-error", { error });
+    return;
+  }
   //update new items to point to the new images that are uploaded
   //update new page to not be draft
   //delete all old items
 
   //save page
   const newPage$ = pages$[newPageId];
-  const oldPage$ = pages$[oldPageId];
+  // page has same auther/group/date, and isn't the newPageId
+  const oldPages = Object.values(pages$.get()).filter(
+    (page) =>
+      page.created_by === curUserId &&
+      page.group_id === curGroupId &&
+      page.date === newPage$.date.get() &&
+      page.id !== newPageId
+  );
+  beginBatch();
   if (newPage$.get()) {
     console.log("new page");
     // existing page
     //remove draft
     pages$[newPageId].draft.set(false);
     //update image ids
-    Object.entries(imageItemMap).forEach(([itemId, imageId]) => {
-      imagesItems$[itemId].image_id.set(imageId);
-    });
+    // console.log("imageItemMap", imageItemMap);
+    // imageItemMap.forEach((itemId, imageId) => {
+    //   console.log("imageId", imageId, "itemId", itemId);
+    //   imagesItems$[itemId].assign({ image_id: imageId });
+    // });
   }
-  if (oldPage$.get()) {
+  if (oldPages.length > 0) {
     //if old page then we delete it
-    deletePage(oldPageId);
+    oldPages.forEach((oldPage) => deletePage(oldPage.id));
   }
+  endBatch();
 };
 
-export const deletePage = async (pageId: string): Promise<void> => {
+export const deletePage = (pageId: string): void => {
   console.log("removingPage", pageId);
   const oldPage$ = pages$[pageId];
-  const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId);
-  beginBatch();
-  items$.forEach((item$) => {
-    const item = item$.peek();
-    switch (item.type) {
-      case "text": {
-        textItems$[item.id].delete();
-      }
-      case "image": {
-        const imageItem$ = imagesItems$[item.id];
-        const imageId = imageItem$.image_id.peek();
-        images$[imageId].deleted.set(true);
-        imageItem$.delete();
-      }
-    }
-    item$.delete();
-  });
   oldPage$.delete();
-  endBatch();
 };
 
 export const addPageItem = (item: CanvasItem) => {

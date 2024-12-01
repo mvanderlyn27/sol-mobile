@@ -24,6 +24,7 @@ export const CanvasHolder = observer(function CanvasHolder({
   pageId?: string;
   editMode?: boolean;
 }) {
+  console.log("canvas reload", pageId);
   const page$ = pages$[pageId || ""];
   const backgroundImage = images$[page$.background_image_id.get()].get() || { type: "background", path: "bg_04" };
   const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId);
@@ -46,20 +47,18 @@ export const CanvasHolder = observer(function CanvasHolder({
 const CanvasObject = observer(function CanvasObject({ item$ }: { item$: Observable<PageItem> }) {
   const editMode = pageStore$.editMode.get();
   const item = item$.get();
+  console.log("canvas object re-render", item.id);
   switch (item.type) {
     // case "frame":
     //   return <CanvasFrameHolder key={`frame-${item.id}`} observableItem={item} />;
     case "image": {
-      const imageItem = imagesItems$[item.id].get();
-      const image = imageItem && images$[imageItem.image_id].get();
-      if (!imageItem || !image) {
-        return <Skeleton width={100} height={100} />;
-      }
+      const imageItem = imagesItems$[item.id];
+      const image = imageItem && images$[imageItem.image_id.get()];
       const canvasImage: CanvasImage = {
         ...item,
         type: "image",
-        ...imageItem,
-        path: image.path,
+        ...imageItem.get(),
+        path: image.path.get(),
       };
 
       return <CanvasImageHolder key={`${editMode ? "edit-" : ""}image-${item.id}`} item={canvasImage} />;
