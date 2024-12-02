@@ -24,7 +24,7 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
       textContent: textStore$.text.get(),
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
-      fontType: fonts[textStore$.fontIndex.get()],
+      fontType: textStore$.font.get(),
       width: 0,
       height: 0,
     };
@@ -33,10 +33,11 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
   const updateText = (id: string) => {
     const textItem = {
       id: id,
+      type: "text",
       textContent: textStore$.text.get(),
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
-      fontType: fonts[textStore$.fontIndex.get()],
+      fontType: textStore$.font.get(),
     } as CanvasText;
     console.log("updated textItem", textItem);
     updatePageItem(textItem);

@@ -22,6 +22,7 @@ import MenuButton from "@/src/components/shared/MenuButton";
 import OverlayTextButton from "@/src/components/shared/OverlayTextButton";
 import { canvasStore$, removeCanvasItem } from "@/src/stores/CanvasStore";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
+import { removePageItem } from "@/src/stores/PagesStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -106,7 +107,7 @@ const ImageMenu = observer(function ImageMenu() {
   const maxHeight = 400;
   const handleDelete = () => {
     const id = imageEditStore$.id.get();
-    removeCanvasItem(id);
+    removePageItem(id);
     uiStore$.displayCanvasMenu.set(true);
     uiStore$.displayImageEditOverlay.set(false);
   };

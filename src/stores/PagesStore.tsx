@@ -106,9 +106,11 @@ export const pageItems$ = observable<Record<string, PageItem>>(
       if (type === "delete") {
         switch (value.type) {
           case "image": {
+            console.log("deleting image before page item", value.id);
             imagesItems$[value.id].delete();
           }
           case "text": {
+            console.log("deleting text before page item", value.id);
             textItems$[value.id].delete();
           }
         }
@@ -157,14 +159,14 @@ export const textItems$ = observable<Record<string, TextItem>>(
     collection: "text_items",
     select: (from: any) => from.select("*"),
     realtime: true,
-    // persist: {
-    //   name: "text_items",
-    //   retrySync: true, // Persist pending changes and retry
-    // },
-    // retry: {
-    //   infinite: true, // Retry changes with exponential backoff
-    // },
-    waitForSet: ({ value }: WaitForSetCrudFnParams<TextItem>) => !value.deleted && pageItems$[value.id].created_at,
+    persist: {
+      name: "text_items",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
+    waitForSet: ({ value }: WaitForSetCrudFnParams<TextItem>) => pageItems$[value.id].created_at,
   })
 );
 
@@ -359,10 +361,11 @@ export async function handleEdit() {
     console.log("draftPage", draftPage);
     pages$[newPageId].set(draftPage);
     //get old page
-    const items = Object.values(pageItems$.get()).filter((item) => item.page_id === page.id);
+    const items = Object.values(pageItems$).filter((item) => item.page_id.get() === page.id);
     console.log("items", items);
     batch(() =>
-      items.forEach((item) => {
+      items.forEach((item$) => {
+        const item = item$.get();
         console.log("copying item:", item);
         const newItemId = generateId();
         pageItems$[newItemId].set({
@@ -581,9 +584,9 @@ const uploadImages = async (): Promise<{ success: boolean; error?: string }> => 
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
-  const pageItems = Object.values(pageItems$.get()).filter((item) => item.page_id === draftPageId);
-  const imageItems = Object.values(imagesItems$.get()).filter((item) =>
-    pageItems.some((pageItem) => pageItem.id === item.id)
+  const pageItems = Object.values(pageItems$).filter((item) => item.page_id.get() === draftPageId);
+  const imageItems = Object.values(imagesItems$).filter((item) =>
+    pageItems.some((pageItem) => pageItem.id.get() === item.id.get())
   );
   const curUserId = authStore$.session.user.id.get();
   if (!imageItems || !draftPageId || !curUserId) {
@@ -591,7 +594,8 @@ const uploadImages = async (): Promise<{ success: boolean; error?: string }> => 
     return { success: false, error: "No items to upload, or no page, or not logged in" };
   }
   // let newItems: CanvasItem[] = [];
-  const promiseAr = imageItems.map((item) => {
+  const promiseAr = imageItems.map((item$) => {
+    const item = item$.get();
     const image$ = images$[item.image_id];
     if (!image$.uploaded.get()) {
       //we need to upload image
@@ -725,6 +729,7 @@ export const addPageItem = (item: CanvasItem) => {
   endBatch();
 };
 export const updatePageItem = (item: CanvasItem) => {
+  console.log("updating page item");
   beginBatch();
   const pageItem = {} as PageItem;
   if (item.x !== undefined) {
@@ -748,6 +753,7 @@ export const updatePageItem = (item: CanvasItem) => {
   pageItems$[item.id].assign(pageItem);
   switch (item.type) {
     case "text": {
+      console.log("updating text item", item);
       textItems$[item.id].assign({
         color: item.fontColor,
         font_size: item.fontSize,
@@ -776,5 +782,9 @@ const getMaxZ = (pageId: string) => {
 export const bringToFront = (itemId: string) => {
   const curItem$ = pageItems$[itemId];
   const curMax = getMaxZ(curItem$.page_id.get());
-  curItem$.z.set(curMax + 1);
+  const curZ = curItem$.z.get();
+  if (curMax > curZ) {
+    //only update if current z isn't already max
+    curItem$.z.set(curMax);
+  }
 };

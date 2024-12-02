@@ -1,6 +1,11 @@
 import { observable } from "@legendapp/state";
 import { canvasStore$ } from "./CanvasStore";
-import { CanvasImage } from "../types/shared.types";
+import { CanvasImage, NotificationType } from "../types/shared.types";
+import { imagesItems$ } from "./PagesStore";
+import { images$ } from "./ImageStore";
+import { add } from "lodash";
+import { addNotification } from "./NotificationStore";
+import { generateId } from "./AsyncStorage";
 interface ImageEditStore {
   id: string;
   selectedImage: string | null;
@@ -10,14 +15,18 @@ export const imageEditStore$ = observable<ImageEditStore>({
   id: "",
   selectedImage: null,
   editImage: (id: string) => {
-    let items = canvasStore$.curCanvas.items.get();
-
-    // Find the index of the item by ID
-    const itemIndex = items?.findIndex((i) => i.id === id);
-    console.log("curcanvas", canvasStore$.curCanvas.get());
-    if (itemIndex === -1 || itemIndex === undefined) return;
-    const curItem = canvasStore$.curCanvas.items[itemIndex].get() as CanvasImage;
+    const item$ = imagesItems$[id];
+    const path = images$[item$.image_id.get()].path.get();
+    if (!path) {
+      addNotification({
+        id: generateId(),
+        type: NotificationType.error,
+        message: "Image not found",
+      });
+      console.log("can't find image to edit");
+      return;
+    }
     imageEditStore$.id.set(id);
-    imageEditStore$.selectedImage.set(curItem.path);
+    imageEditStore$.selectedImage.set(path);
   },
 });

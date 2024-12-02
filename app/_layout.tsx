@@ -52,7 +52,6 @@ export const RootLayout = observer(function RootLayout() {
     authStore$.init();
   });
 
-  useAppNavigation();
   if (!loaded && !error) {
     return null;
   }

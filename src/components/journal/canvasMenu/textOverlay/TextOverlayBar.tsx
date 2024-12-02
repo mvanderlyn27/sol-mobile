@@ -10,6 +10,7 @@ import SettingsTab from "./SettingTab";
 import { fonts, textStore$ } from "@/src/stores/EditTextStore";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { canvasStore$, removeCanvasItem } from "@/src/stores/CanvasStore";
+import { removePageItem } from "@/src/stores/PagesStore";
 
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
@@ -23,8 +24,9 @@ const TextOverlayBar = observer(function TextOverlayBar() {
     setActiveMenu((current) => (current === menu ? null : menu));
   };
   const toggleFont = () => {
-    const index = textStore$.fontIndex.get();
-    textStore$.fontIndex.set((index + 1) % fonts.length);
+    const index = fonts.indexOf(textStore$.font.get());
+    console.log("toggling font", index);
+    textStore$.font.set(fonts[(index + 1) % fonts.length]);
   };
   const close = () => {
     // journalStore$.editMode.set(false);
@@ -34,7 +36,7 @@ const TextOverlayBar = observer(function TextOverlayBar() {
   const handleDelete = () => {
     const id = textStore$.id.get();
     if (id !== "") {
-      removeCanvasItem(id);
+      removePageItem(id);
     }
     textStore$.reset();
     close();

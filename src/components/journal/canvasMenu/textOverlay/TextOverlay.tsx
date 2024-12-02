@@ -17,7 +17,7 @@ const StyledKeyboardAvoidingView = styled(KeyboardAvoidingView);
 const TextOverlay = observer(function TextOverlay() {
   const textSize = textStore$.size.get();
   const textColor = textStore$.color.get();
-  const fontIndex = textStore$.fontIndex.get();
+  const font = textStore$.font.get();
   const text = textStore$.text.get();
 
   return (
@@ -30,7 +30,7 @@ const TextOverlay = observer(function TextOverlay() {
               style={{
                 color: textColor,
                 fontSize: textSize,
-                fontFamily: fontIndex ? fonts[fontIndex] : "Calibri",
+                fontFamily: font || "Calibri",
                 textAlign: "center",
               }}
               value={text}

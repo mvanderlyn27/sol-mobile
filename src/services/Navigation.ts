@@ -72,7 +72,7 @@ export function useAppNavigation() {
           message: "Error during app navigation",
           type: NotificationType.error,
         });
-        router.replace("/login");
+        // router.replace("/login");
       }
     };
     navigateApp();

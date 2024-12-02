@@ -79,15 +79,16 @@ const CanvasObject = observer(function CanvasObject({
       );
     }
     case "text": {
-      const textItem = textItems$[item$.id.get()].get();
+      const textItem = textItems$[item$.id.get()];
+      console.log("text item rendering", textItem.get());
       const canvasText: CanvasText = {
         ...item$.get(),
         type: "text",
-        ...textItem,
-        textContent: textItem.text || "",
-        fontSize: textItem.font_size || 16,
-        fontColor: textItem.color || "#000000",
-        fontType: textItem.font || "Pragmatica",
+        // ...textItem,
+        textContent: textItem.text.get() || "",
+        fontSize: textItem.font_size.get() || 16,
+        fontColor: textItem.color.get() || "#000000",
+        fontType: textItem.font.get() || "Pragmatica",
       };
       return <CanvasTextHolder key={`${pageId}-${editMode ? "edit-" : ""}text-${item$.id.get()}`} item={canvasText} />;
     }
