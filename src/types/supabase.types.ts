@@ -394,7 +394,7 @@ export type Database = {
       }
       pages: {
         Row: {
-          background_image_id: string
+          background_image: string | null
           created_at: string
           created_by: string
           date: string
@@ -407,7 +407,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          background_image_id: string
+          background_image?: string | null
           created_at?: string
           created_by?: string
           date: string
@@ -420,7 +420,7 @@ export type Database = {
           updated_at: string
         }
         Update: {
-          background_image_id?: string
+          background_image?: string | null
           created_at?: string
           created_by?: string
           date?: string
@@ -433,13 +433,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "pages_test_background_image_id_fkey"
-            columns: ["background_image_id"]
-            isOneToOne: false
-            referencedRelation: "images"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "pages_test_created_by_fkey"
             columns: ["created_by"]
@@ -631,13 +624,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "reaction_text_items_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "page_items"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "reaction_text_items_id_fkey1"
             columns: ["id"]

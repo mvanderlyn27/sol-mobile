@@ -24,23 +24,4 @@ export const images$ = observable<Record<string, Image>>(
   })
 );
 
-export const backgroundImages$ = observable<Record<string, Image>>(
-  customSupabaseSynced({
-    supabase,
-    collection: "images",
-    select: (from: any) => from.select("*"),
-    filter: (select) => select.eq("type", "background"),
-    realtime: true,
-    persist: {
-      name: "background-images",
-      retrySync: true, // Persist pending changes and retry
-    },
-    retry: {
-      infinite: true, // Retry changes with exponential backoff
-    },
-    onError: (error: any) => {
-      console.log("image error", error);
-      posthog.capture("image-sync-error", { error });
-    },
-  })
-);
+export const backgroundImages = ["bg_01", "bg_02", "bg_03", "bg_04", "bg_05", "bg_09"];

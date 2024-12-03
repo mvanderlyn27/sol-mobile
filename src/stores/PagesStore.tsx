@@ -25,7 +25,7 @@ import * as FileSystem from "expo-file-system";
 import StorageService from "@/src/api/storage";
 import { Blurhash } from "react-native-blurhash";
 import { resizeImage } from "@/src/services/Media";
-import { backgroundImages$, images$ } from "./ImageStore";
+import { backgroundImages, images$ } from "./ImageStore";
 import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
 import { max } from "lodash";
 import { addNotification } from "./NotificationStore";
@@ -317,9 +317,7 @@ export async function handleEdit() {
   const page = getPageForUser(pages$.get(), user || "", day.date);
   const newPageId = generateId();
   const groupId = groupStore$.selectedGroup.get();
-  const backgroundImages = await when(backgroundImages$);
-  console.log("backgroundImages", backgroundImages);
-  if (!user || !day || !groupId || !backgroundImages) {
+  if (!user || !day || !groupId) {
     console.log("No user, day, or group found");
     return;
   }
@@ -336,7 +334,7 @@ export async function handleEdit() {
       group_id: page.group_id,
       screen_width: page.screen_width,
       screen_height: page.screen_height,
-      background_image_id: page.background_image_id,
+      background_image: page.background_image,
       draft: true,
     } as Page;
     console.log("draftPage", draftPage);
@@ -406,7 +404,7 @@ export async function handleEdit() {
       group_id: groupId,
       created_by: user,
       date: day.date,
-      background_image_id: Object.values(backgroundImages).find((item) => item.path === "bg_04")?.id || "",
+      background_image: "bg_04",
       screen_height: height,
       screen_width: width,
       // created_at: now,
@@ -774,8 +772,7 @@ export const changeBackground = () => {
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const draftPage = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get());
-  const backgrounds = Object.values(backgroundImages$.get());
-  if (!draftPage || !backgrounds) {
+  if (!draftPage) {
     console.log("can't find page, or backgrounds");
     addNotification({
       id: generateId(),
@@ -785,8 +782,7 @@ export const changeBackground = () => {
     return;
   }
 
-  const index = backgrounds.findIndex((background: Image) => background.id === draftPage.background_image_id);
-  const nextBackground = backgrounds[(index + 1) % backgrounds.length];
-  console.log("background change", backgrounds, index, nextBackground);
-  pages$[draftPage.id].background_image_id.set(nextBackground.id);
+  const index = backgroundImages.findIndex((background: string) => background === draftPage.background_image);
+  const nextBackground = backgroundImages[(index + 1) % backgroundImages.length];
+  pages$[draftPage.id].background_image.set(nextBackground);
 };

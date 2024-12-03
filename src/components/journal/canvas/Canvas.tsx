@@ -26,20 +26,17 @@ export const CanvasHolder = observer(function CanvasHolder({
   editMode: boolean;
 }) {
   const page$ = pages$[pageId || ""];
-  const backgroundImage = images$[page$.background_image_id.get()].get() || { type: "background", path: "bg_04" };
   const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId && !item.deleted.get());
 
   return (
     <StyledMotiView
       key={`${editMode ? "edit-" : ""}canvas-${pageId}`}
       className="absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
-      {backgroundImage && (
-        <ExpoImage
-          key="backgroundImage"
-          source={getImageFromPath(backgroundImage.path || "bg_04")}
-          style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
-        />
-      )}
+      <ExpoImage
+        key="backgroundImage"
+        source={getImageFromPath(page$.background_image.get() || "bg_04")}
+        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
+      />
       {items$.map((item, index) => (
         <CanvasObject
           key={`item-${index}-${editMode ? "edit" : ""}-${item.id.get()}`}

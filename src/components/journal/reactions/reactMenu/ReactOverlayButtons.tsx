@@ -13,7 +13,6 @@ const { height, width } = Dimensions.get("screen");
 
 const ReactOverlayButtons = observer(function ReactOverlayButtons() {
   const createReaction = () => {
-    console.log("create button triggered");
     const newId = generateId();
     // const z = canvasStore$.curCanvas.maxZIndex.get() || 0;
     const reaction: CanvasTextReaction = {
@@ -33,7 +32,6 @@ const ReactOverlayButtons = observer(function ReactOverlayButtons() {
     addReactionItem(reaction);
   };
   const updateReaction = (id: string) => {
-    console.log("updating reaction");
     const reaction = {
       id: id,
       type: "text",
