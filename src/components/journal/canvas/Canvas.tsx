@@ -14,6 +14,7 @@ import { Observable, observable, syncState } from "@legendapp/state";
 import LoadingScreen from "../../screens/SplashScreen";
 import { images$ } from "@/src/stores/ImageStore";
 import { Skeleton } from "moti/skeleton";
+import { posthog } from "@/src/services/Posthog";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
@@ -67,6 +68,10 @@ const CanvasObject = observer(function CanvasObject({
     case "image": {
       const imageItem = imagesItems$[item$.id.get()];
       const image = imageItem && images$[imageItem.image_id.get()];
+      if (!image || !imageItem) {
+        posthog.capture("missing-image-items");
+        return;
+      }
       const canvasImage: CanvasImage = {
         ...item$.get(),
         type: "image",
@@ -79,16 +84,18 @@ const CanvasObject = observer(function CanvasObject({
       );
     }
     case "text": {
-      const textItem = textItems$[item$.id.get()];
-      console.log("text item rendering", textItem.get());
+      const textItem = textItems$[item$.id.get()].get();
+      if (!textItem) {
+        posthog.capture("missing-text-item");
+        return;
+      }
       const canvasText: CanvasText = {
         ...item$.get(),
         type: "text",
-        // ...textItem,
-        textContent: textItem.text.get() || "",
-        fontSize: textItem.font_size.get() || 16,
-        fontColor: textItem.color.get() || "#000000",
-        fontType: textItem.font.get() || "Pragmatica",
+        textContent: textItem.text,
+        fontSize: textItem.font_size || 16,
+        fontColor: textItem.color,
+        fontType: textItem.font,
       };
       return <CanvasTextHolder key={`${pageId}-${editMode ? "edit-" : ""}text-${item$.id.get()}`} item={canvasText} />;
     }

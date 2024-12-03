@@ -15,8 +15,8 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
   const createText = () => {
     const newId = generateId();
     const textItem: CanvasText = {
-      type: "text",
       id: newId,
+      type: "text",
       x: width / 2,
       y: height / 2,
       rotation: 0,

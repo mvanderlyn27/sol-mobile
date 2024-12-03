@@ -24,8 +24,8 @@ const ReactOverlayBar = observer(function ReactOverlayBar() {
     setActiveMenu((current) => (current === menu ? null : menu));
   };
   const toggleFont = () => {
-    const index = textStore$.fontIndex.get();
-    textStore$.fontIndex.set((index + 1) % fonts.length);
+    const index = fonts.indexOf(textStore$.font.get());
+    textStore$.font.set(fonts[(index + 1) % fonts.length]);
   };
   const close = () => {
     // journalStore$.editMode.set(false);

@@ -4,40 +4,45 @@ import { uiStore$ } from "@/src/stores/UIStore";
 import { observer } from "@legendapp/state/react";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
-import { CanvasReaction, CanvasText, Reaction } from "@/src/types/shared.types";
+import { CanvasText, CanvasTextReaction } from "@/src/types/shared.types";
 import { addCanvasItem, canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { Dimensions } from "react-native";
-import { addReactItem, reactStore$, updateReactItem } from "@/src/stores/ReactStore";
+import { addReactionItem, handleCancelReaction, reactStore$, updateReactionItem } from "@/src/stores/ReactStore";
 const { height, width } = Dimensions.get("screen");
 
 const ReactOverlayButtons = observer(function ReactOverlayButtons() {
   const createReaction = () => {
+    console.log("create button triggered");
     const newId = generateId();
     // const z = canvasStore$.curCanvas.maxZIndex.get() || 0;
-    const reaction: CanvasReaction = {
-      type: "reaction",
+    const reaction: CanvasTextReaction = {
       id: newId,
+      type: "text",
       x: width / 2,
       y: height / 2,
       rotation: 0,
-      scale: 1,
+      width: 0,
+      height: 0,
       z: 1,
       textContent: textStore$.text.get(),
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
-      fontType: fonts[textStore$.fontIndex.get()],
+      fontType: textStore$.font.get(),
     };
-    addReactItem(reaction);
+    addReactionItem(reaction);
   };
   const updateReaction = (id: string) => {
+    console.log("updating reaction");
     const reaction = {
+      id: id,
+      type: "text",
       textContent: textStore$.text.get(),
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
-      fontType: fonts[textStore$.fontIndex.get()],
+      fontType: textStore$.font.get(),
     };
-    updateReactItem(id, reaction as CanvasReaction);
+    updateReactionItem(reaction as CanvasTextReaction);
   };
   const handleSave = () => {
     const id = textStore$.id.get();

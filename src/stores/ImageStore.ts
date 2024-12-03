@@ -2,6 +2,7 @@ import { observable } from "@legendapp/state";
 import { supabase } from "../lib/supabase";
 import { CanvasImage, CanvasItem, Image } from "../types/shared.types";
 import { customSupabaseSynced, generateId } from "./AsyncStorage";
+import { posthog } from "../services/Posthog";
 
 export const images$ = observable<Record<string, Image>>(
   customSupabaseSynced({
@@ -16,6 +17,10 @@ export const images$ = observable<Record<string, Image>>(
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },
+    onError: (error: any) => {
+      console.log("image error", error);
+      posthog.capture("image-sync-error", { error });
+    },
   })
 );
 
@@ -26,5 +31,16 @@ export const backgroundImages$ = observable<Record<string, Image>>(
     select: (from: any) => from.select("*"),
     filter: (select) => select.eq("type", "background"),
     realtime: true,
+    persist: {
+      name: "background-images",
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
+    onError: (error: any) => {
+      console.log("image error", error);
+      posthog.capture("image-sync-error", { error });
+    },
   })
 );

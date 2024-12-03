@@ -19,7 +19,7 @@ import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
 import { StyledPressable } from "../canvas/CanvasFrameHolder";
-import { addPageItem, handlePageCancel, handlePageSave, pageStore$ } from "@/src/stores/PagesStore";
+import { addPageItem, changeBackground, handlePageCancel, handlePageSave, pageStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -126,18 +126,8 @@ const CanvasMenu = observer(function CanvasMenu() {
   //     }
   //   };
   const backgrounds = ["bg_01", "bg_02", "bg_03", "bg_04", "bg_05", "bg_06", "bg_07", "bg_08", "bg_09"];
-  let curIndex = 1;
-  const curBackground = canvasStore$.backgroundImage?.path;
-  // if (curBackground) {
-  //   curIndex = backgrounds.indexOf(curBackground);
-  // }
   const handleBackground = () => {
-    // const curCanvas = canvasStore$.curCanvas.get();
-    // console.log("canvas before", curCanvas);
-    // canvasStore$.curCanvas.set({
-    //   ...curCanvas,
-    //   backgroundImage: { type: ImageType.Local, path: backgrounds[(curIndex + 1) % backgrounds.length] },
-    // } as Canvas);
+    changeBackground();
   };
   const resizeImage = (uri: string, originalWidth: number, originalHeight: number) => {
     //ensure image is max the size of the screen
@@ -174,7 +164,7 @@ const CanvasMenu = observer(function CanvasMenu() {
         path: result.assets[0].uri,
         x: 50,
         y: 50,
-        z: canvasStore$.maxZIndex.get() || 1,
+        z: canvasStore$.maxZIndex.get() || 0,
         width: newWidth,
         // width: imgWidth,
         height: newHeight,

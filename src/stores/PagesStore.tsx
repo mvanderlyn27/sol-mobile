@@ -1,75 +1,44 @@
-import {
-  Observable,
-  batch,
-  beginBatch,
-  computed,
-  endBatch,
-  observable,
-  observe,
-  syncState,
-  when,
-  whenReady,
-} from "@legendapp/state";
-import {
-  format,
-  addDays,
-  parseISO,
-  startOfDay,
-  isBefore,
-  isEqual,
-  eachDayOfInterval,
-  subDays,
-  startOfToday,
-  differenceInCalendarDays,
-} from "date-fns";
+import { Observable, batch, beginBatch, endBatch, observable, when } from "@legendapp/state";
+import { format, eachDayOfInterval, subDays, startOfToday, differenceInCalendarDays } from "date-fns";
 import {
   Canvas,
-  CanvasImage,
-  CanvasText,
   CanvasItem,
-  CanvasItemBase,
   GroupMember,
   ImageItem,
-  ImageType,
   Page,
   PageItem,
   TextItem,
   Image,
+  NotificationType,
 } from "../types/shared.types";
 import { Dimensions } from "react-native";
 import { supabase } from "../lib/supabase";
-import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
 import { customSupabaseSynced, generateId } from "./AsyncStorage";
-import { configureSynced, syncObservable } from "@legendapp/state/sync";
-import { Json } from "../types/supabase.types";
 import authStore$ from "./AuthStore";
 import { uiStore$ } from "./UIStore";
 import { groupStore$ } from "./GroupStore";
 import { filterGroupMembers, groupMembers$ } from "./MemberStore";
-import { canvasStore$, clearCanvas } from "./CanvasStore";
-import { jsonToCanvas } from "../services/Canvas";
 
 import { posthog } from "../services/Posthog";
-import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator"; // Import ImageManipulator
 import * as FileSystem from "expo-file-system";
 import StorageService from "@/src/api/storage";
 import { Blurhash } from "react-native-blurhash";
 import { resizeImage } from "@/src/services/Media";
-import { reactStore$ } from "./ReactStore";
 import { backgroundImages$, images$ } from "./ImageStore";
 import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
 import { max } from "lodash";
+import { addNotification } from "./NotificationStore";
 const { width, height } = Dimensions.get("window");
 export const pages$ = observable<Record<string, Page>>(
   customSupabaseSynced({
     supabase,
-    collection: "pages_test",
+    collection: "pages",
     select: (from: any) => from.select("*"),
     realtime: true,
     actions: ["read", "create", "update", "delete"],
     persist: {
-      name: "pages_test",
+      name: "pages",
       //for some reason this is needed to make the real time syncing consistent
       retrySync: true, // Persist pending changes and retry
     },
@@ -85,6 +54,10 @@ export const pages$ = observable<Record<string, Page>>(
         });
       }
     },
+    // onError: (error: any) => {
+    //   console.log("page  error", error);
+    //   posthog.capture("page-sync-error", { error });
+    // },
   })
 );
 
@@ -166,7 +139,15 @@ export const textItems$ = observable<Record<string, TextItem>>(
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },
-    waitForSet: ({ value }: WaitForSetCrudFnParams<TextItem>) => pageItems$[value.id].created_at,
+    waitForSet: ({ value, type }: WaitForSetCrudFnParams<TextItem>) => {
+      if (type !== "delete") {
+        return pageItems$[value.id].created_at;
+      }
+    },
+    onError: (error: any) => {
+      console.log("text items error", error);
+      posthog.capture("text-items-sync-error", { error });
+    },
   })
 );
 
@@ -540,7 +521,7 @@ export const uploadImage = async (
   if (!photoPath) {
     const { success, data, error } = await StorageService.uploadFile({
       bucket: "page_photos",
-      filePath: `${userId}/${blurhash}.webp`,
+      filePath: `${userId}/${imageId}.webp`,
       base64: base64,
       fileExtension: "webp",
       mimeType: "image/webp",
@@ -552,7 +533,8 @@ export const uploadImage = async (
       //show notif here
       throw new Error("Error uploading image");
     }
-    photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${blurhash}.webp`).data.publicUrl;
+    //eventaully want to ensure that it isn't uploading duplicates, only one copy of a photo at a time
+    photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${imageId}.webp`).data.publicUrl;
     console.log("starting last update");
     //image should exist already from us adding it to draft page
   }
@@ -729,7 +711,6 @@ export const addPageItem = (item: CanvasItem) => {
   endBatch();
 };
 export const updatePageItem = (item: CanvasItem) => {
-  console.log("updating page item");
   beginBatch();
   const pageItem = {} as PageItem;
   if (item.x !== undefined) {
@@ -753,7 +734,6 @@ export const updatePageItem = (item: CanvasItem) => {
   pageItems$[item.id].assign(pageItem);
   switch (item.type) {
     case "text": {
-      console.log("updating text item", item);
       textItems$[item.id].assign({
         color: item.fontColor,
         font_size: item.fontSize,
@@ -775,7 +755,7 @@ export const removePageItem = (itemId: string) => {
 };
 const getMaxZ = (pageId: string) => {
   const zValues = Object.values(pageItems$)
-    .filter((item) => item.page_id.get() === pageId)
+    .filter((item: Observable<PageItem>) => item.page_id.get() === pageId)
     .map((item) => item.z.get());
   return max(zValues) || 0;
 };
@@ -783,8 +763,30 @@ export const bringToFront = (itemId: string) => {
   const curItem$ = pageItems$[itemId];
   const curMax = getMaxZ(curItem$.page_id.get());
   const curZ = curItem$.z.get();
-  if (curMax > curZ) {
-    //only update if current z isn't already max
-    curItem$.z.set(curMax);
+  console.log("curmax, curz", curMax, curZ);
+  // if (curZ === 0 || curMax > curZ) {
+  //only update if current z isn't already max
+  curItem$.z.set(curMax + 1);
+  // }
+};
+
+export const changeBackground = () => {
+  const day = pageStore$.dates[pageStore$.curCol.get()].get();
+  const user = authStore$.session.user.id.get();
+  const draftPage = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get());
+  const backgrounds = Object.values(backgroundImages$.get());
+  if (!draftPage || !backgrounds) {
+    console.log("can't find page, or backgrounds");
+    addNotification({
+      id: generateId(),
+      type: NotificationType.error,
+      message: "Error changing background, please try again later",
+    });
+    return;
   }
+
+  const index = backgrounds.findIndex((background: Image) => background.id === draftPage.background_image_id);
+  const nextBackground = backgrounds[(index + 1) % backgrounds.length];
+  console.log("background change", backgrounds, index, nextBackground);
+  pages$[draftPage.id].background_image_id.set(nextBackground.id);
 };

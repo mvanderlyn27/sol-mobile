@@ -26,7 +26,7 @@ import DateIndicator from "./DateIndicator";
 import UserPic from "../../shared/UserPic";
 import { router } from "expo-router";
 import authStore$ from "@/src/stores/AuthStore";
-import { editReactStore$, initializeEditReactStore, reactStore$ } from "@/src/stores/ReactStore";
+import { handleEditReaction, reactStore$ } from "@/src/stores/ReactStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -45,12 +45,7 @@ const JournalFabs = observer(function JournalFabs() {
   const pageId = getPageForUser(pages$.get(), curUser, curDate);
   const onUsersPage = loggedInUser === curUser;
   const handleReact = () => {
-    uiStore$.displayReactMenu.set(true);
-    uiStore$.displayJournalMenu.set(false);
-    reactStore$.reactEditMode.set(true);
-    reactStore$.showReactions.set(true);
-    editReactStore$.showNonUserReactions.set(true);
-    initializeEditReactStore();
+    handleEditReaction();
   };
   const editPage = () => {
     reactStore$.showReactions.set(false);

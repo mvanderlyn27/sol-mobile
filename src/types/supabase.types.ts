@@ -342,60 +342,57 @@ export type Database = {
             foreignKeyName: "page_items_page_id_fkey1"
             columns: ["page_id"]
             isOneToOne: false
-            referencedRelation: "pages_test"
+            referencedRelation: "pages"
             referencedColumns: ["id"]
           },
         ]
       }
-      pages: {
+      page_reactions: {
         Row: {
-          canvas: Json | null
           created_at: string
           created_by: string
-          date: string
           deleted: boolean
-          group_id: string
+          draft: boolean
           id: string
+          page_id: string
           updated_at: string
         }
         Insert: {
-          canvas?: Json | null
           created_at?: string
           created_by?: string
-          date: string
           deleted?: boolean
-          group_id: string
-          id: string
+          draft?: boolean
+          id?: string
+          page_id: string
           updated_at: string
         }
         Update: {
-          canvas?: Json | null
           created_at?: string
           created_by?: string
-          date?: string
           deleted?: boolean
-          group_id?: string
+          draft?: boolean
           id?: string
+          page_id?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "pages_created_by_fkey"
+            foreignKeyName: "page_reactions_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pages_group_id_fkey"
-            columns: ["group_id"]
+            foreignKeyName: "page_reactions_page_id_fkey"
+            columns: ["page_id"]
             isOneToOne: false
-            referencedRelation: "groups"
+            referencedRelation: "pages"
             referencedColumns: ["id"]
           },
         ]
       }
-      pages_test: {
+      pages: {
         Row: {
           background_image_id: string
           created_at: string
@@ -459,6 +456,54 @@ export type Database = {
           },
         ]
       }
+      pages_old: {
+        Row: {
+          canvas: Json | null
+          created_at: string
+          created_by: string
+          date: string
+          deleted: boolean
+          group_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          canvas?: Json | null
+          created_at?: string
+          created_by?: string
+          date: string
+          deleted?: boolean
+          group_id: string
+          id: string
+          updated_at: string
+        }
+        Update: {
+          canvas?: Json | null
+          created_at?: string
+          created_by?: string
+          date?: string
+          deleted?: boolean
+          group_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pages_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_placeholder: string | null
@@ -501,7 +546,108 @@ export type Database = {
         }
         Relationships: []
       }
-      reactions: {
+      reaction_items: {
+        Row: {
+          created_at: string
+          deleted: boolean
+          height: number
+          id: string
+          page_reaction_id: string
+          rotation: number
+          type: string
+          updated_at: string
+          width: number
+          x: number
+          y: number
+          z: number
+        }
+        Insert: {
+          created_at?: string
+          deleted?: boolean
+          height: number
+          id?: string
+          page_reaction_id: string
+          rotation: number
+          type: string
+          updated_at?: string
+          width: number
+          x: number
+          y: number
+          z: number
+        }
+        Update: {
+          created_at?: string
+          deleted?: boolean
+          height?: number
+          id?: string
+          page_reaction_id?: string
+          rotation?: number
+          type?: string
+          updated_at?: string
+          width?: number
+          x?: number
+          y?: number
+          z?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reaction_items_page_reaction_id_fkey"
+            columns: ["page_reaction_id"]
+            isOneToOne: false
+            referencedRelation: "page_reactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reaction_text_items: {
+        Row: {
+          color: string
+          created_at: string
+          deleted: boolean
+          font: string
+          font_size: number
+          id: string
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          deleted?: boolean
+          font: string
+          font_size: number
+          id: string
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          deleted?: boolean
+          font?: string
+          font_size?: number
+          id?: string
+          text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reaction_text_items_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "page_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reaction_text_items_id_fkey1"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "reaction_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reactions_old: {
         Row: {
           created_at: string
           created_by: string
@@ -541,7 +687,7 @@ export type Database = {
             foreignKeyName: "reactions_page_id_fkey"
             columns: ["page_id"]
             isOneToOne: false
-            referencedRelation: "pages"
+            referencedRelation: "pages_old"
             referencedColumns: ["id"]
           },
         ]

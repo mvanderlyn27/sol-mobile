@@ -18,7 +18,6 @@ export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
 const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
-  console.log("image holder re-render", item);
   const editMode = pageStore$.editMode.get();
   // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });
@@ -129,7 +128,12 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
           ]}>
           {/* <Text>{item.id}</Text> */}
           <StyledPressable onPress={editMode ? handleEdit : null}>
-            <StyledImage source={{ uri: item.path }} style={{ width: "100%", height: "100%" }} contentFit="contain" />
+            <StyledImage
+              source={{ uri: item.path }}
+              placeholder={{ blurhash: item.placeholder }}
+              style={{ width: "100%", height: "100%" }}
+              contentFit="contain"
+            />
           </StyledPressable>
         </StyledMotiView>
       </AnimatePresence>

@@ -17,7 +17,6 @@ export const StyledPressable = styled(Pressable);
 export const StyledText = styled(MotiText);
 
 const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: CanvasText }) {
-  console.log("CanvasTextHolder re-render", item);
   const editMode = pageStore$.editMode.get();
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });

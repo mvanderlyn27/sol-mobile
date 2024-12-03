@@ -6,10 +6,10 @@ import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
 import { pageStore$ } from "@/src/stores/PagesStore";
-import { CanvasReaction } from "@/src/types/shared.types";
+import { CanvasTextReaction } from "@/src/types/shared.types";
 import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
-import { reactStore$, updateReactItem } from "@/src/stores/ReactStore";
+import { reactStore$, updateReactionItem, bringReactionToFront } from "@/src/stores/ReactStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
@@ -20,7 +20,7 @@ const ReactItem = observer(function ReactItem({
   item,
   usersReaction,
 }: {
-  item: CanvasReaction;
+  item: CanvasTextReaction;
   usersReaction?: boolean;
 }) {
   const [gestureDone, setGestureDone] = useState(true);
@@ -29,12 +29,21 @@ const ReactItem = observer(function ReactItem({
   const start = useSharedValue({ x: item.x || 0, y: item.y || 0 });
   const rotation = useSharedValue(item.rotation || 0);
   const savedRotation = useSharedValue(item.rotation || 0);
+  console.log("rendering reaction", item.id);
 
   // Initialize shared value for font size instead of scale
   const fontSize = useSharedValue(item.fontSize || 16);
   const savedFontSize = useSharedValue(item.fontSize || 16);
-
-  const { height, width } = Dimensions.get("screen");
+  useEffect(() => {
+    // console.log("effect firing");
+    offset.value = { x: item.x, y: item.y };
+    start.value = { x: item.x, y: item.y };
+    fontSize.value = item.fontSize;
+    savedFontSize.value = item.fontSize;
+    savedRotation.value = item.rotation;
+    rotation.value = item.rotation;
+    // updateReactionItem(item);
+  }, [item]);
 
   const animatedStyles = useAnimatedStyle(() => ({
     zIndex: item.z || 0,
@@ -43,12 +52,8 @@ const ReactItem = observer(function ReactItem({
   const animatedText = useAnimatedStyle(() => ({
     fontSize: fontSize.value,
   }));
-  useEffect(() => {
-    fontSize.value = item.fontSize;
-    savedFontSize.value = item.fontSize;
-  }, [item.fontSize]);
   const handleGestureStart = () => {
-    if (editMode) updateReactItem(item.id, { ...item });
+    if (editMode) bringReactionToFront(item.id);
   };
 
   // Define gestures
@@ -63,7 +68,7 @@ const ReactItem = observer(function ReactItem({
     })
     .onEnd(() => {
       start.value = { x: offset.value.x, y: offset.value.y };
-      runOnJS(updateReactItem)(item.id, {
+      runOnJS(updateReactionItem)({
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
         rotation: rotation.value,
@@ -81,7 +86,7 @@ const ReactItem = observer(function ReactItem({
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
       console.log("font size: ", fontSize.value);
-      runOnJS(updateReactItem)(item.id, {
+      runOnJS(updateReactionItem)({
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
         rotation: rotation.value,
@@ -98,7 +103,7 @@ const ReactItem = observer(function ReactItem({
     })
     .onEnd(() => {
       savedRotation.value = rotation.value;
-      runOnJS(updateReactItem)(item.id, {
+      runOnJS(updateReactionItem)({
         ...item,
         rotation: rotation.value,
         fontSize: fontSize.value, // Save the new font size to the store
@@ -113,7 +118,7 @@ const ReactItem = observer(function ReactItem({
 
   const handleEdit = () => {
     console.log("test");
-    textStore$.editReact(item.id);
+    textStore$.editTextReact(item.id);
   };
 
   return (

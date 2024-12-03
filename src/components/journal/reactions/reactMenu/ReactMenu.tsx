@@ -28,7 +28,7 @@ import { addCanvasItem, canvasStore$ } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import RoundButton from "@/src/components/shared/CircleButton";
 import UserPic from "@/src/components/shared/UserPic";
-import { cancelReacts, editReactStore$, reactStore$, saveReacts } from "@/src/stores/ReactStore";
+import { handleCancelReaction, handleSaveReaction, reactStore$ } from "@/src/stores/ReactStore";
 import { textStore$ } from "@/src/stores/EditTextStore";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
@@ -43,10 +43,10 @@ const StyledBlurView = styled(BlurView);
 const StyledPressable = styled(Pressable);
 const ReactMenu = observer(function ReactMenu() {
   const handleSaveReact = () => {
-    saveReacts();
+    handleSaveReaction();
   };
   const handleCancelReact = () => {
-    cancelReacts();
+    handleCancelReaction();
   };
 
   const curUser = pageStore$.members[pageStore$.curRow.get()].get();
@@ -57,7 +57,7 @@ const ReactMenu = observer(function ReactMenu() {
     reactStore$.reactEditMode.set(true);
   };
   const handleViewReact = () => {
-    editReactStore$.showNonUserReactions.toggle();
+    reactStore$.showNonUserReactions.toggle();
   };
   return (
     <StyledView className="flex-1" pointerEvents="box-none">
