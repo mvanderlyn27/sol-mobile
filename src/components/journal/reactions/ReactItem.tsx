@@ -29,7 +29,6 @@ const ReactItem = observer(function ReactItem({
   const start = useSharedValue({ x: item.x || 0, y: item.y || 0 });
   const rotation = useSharedValue(item.rotation || 0);
   const savedRotation = useSharedValue(item.rotation || 0);
-  console.log("rendering reaction", item.id);
 
   // Initialize shared value for font size instead of scale
   const fontSize = useSharedValue(item.fontSize || 16);

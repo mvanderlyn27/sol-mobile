@@ -368,7 +368,6 @@ export const bringReactionToFront = (itemId: string) => {
   const curItem$ = reactionItems$[itemId];
   const curMax = getMaxReactionZ(curItem$.page_reaction_id.get());
   const curZ = curItem$.z.get();
-  console.log("curmax, curz", curMax, curZ);
   // if (curZ === 0 || curMax > curZ) {
   //only update if current z isn't already max
   curItem$.z.set(curMax + 1);

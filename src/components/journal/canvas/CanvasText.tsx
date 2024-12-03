@@ -34,7 +34,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({ item }: { item: Ca
     savedFontSize.value = item.fontSize;
     savedRotation.value = item.rotation;
     rotation.value = item.rotation;
-    updatePageItem(item);
+    // updatePageItem(item);
   }, [item]);
 
   const animatedStyles = useAnimatedStyle(() => ({

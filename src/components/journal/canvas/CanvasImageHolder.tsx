@@ -34,7 +34,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: 
     height.value = item.height;
     savedRotation.value = item.rotation;
     rotation.value = item.rotation;
-    updatePageItem(item);
+    // updatePageItem(item);
   }, [item]);
   const animatedFrameGroupStyles = useAnimatedStyle(() => ({
     width: width.value,

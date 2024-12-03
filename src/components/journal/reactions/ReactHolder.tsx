@@ -20,10 +20,6 @@ const ReactHolder = observer(function ReactHolder({
   pageId: string | undefined;
   editMode: boolean;
 }) {
-  // Fetching required observables
-  // edit mode = display draft mode for your edits only
-  // always display non draft modes for other edits
-  //
   if (!pageId) {
     return null;
   }
@@ -42,7 +38,6 @@ const ReactHolder = observer(function ReactHolder({
         reactionPage.page_id.get() === pageId && reactionPage.created_by.get() !== authStore$.session.user.id.get()
     )
     ?.map((reactionPage$) => reactionPage$.id.get());
-  console.log("user reaction page", pageId, curUserReactionPage.page_id, otherUserReactionPagesIds);
   const reactions = reactStore$.showReactions.get()
     ? Object.values(reactionItems$.get() || {}).filter((reactionItem) => {
         return [
@@ -51,7 +46,6 @@ const ReactHolder = observer(function ReactHolder({
         ].includes(reactionItem.page_reaction_id);
       })
     : [];
-  console.log("reactions", reactions);
   return (
     <StyledView
       key={`${curUserReactionPage.id}`}
