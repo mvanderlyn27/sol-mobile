@@ -54,10 +54,10 @@ export const pages$ = observable<Record<string, Page>>(
         });
       }
     },
-    // onError: (error: any) => {
-    //   console.log("page  error", error);
-    //   posthog.capture("page-sync-error", { error });
-    // },
+    onError: (error: any) => {
+      console.log("page  error", error);
+      posthog.capture("page-sync-error", { error });
+    },
   })
 );
 
@@ -79,11 +79,9 @@ export const pageItems$ = observable<Record<string, PageItem>>(
       if (type === "delete") {
         switch (value.type) {
           case "image": {
-            console.log("deleting image before page item", value.id);
             imagesItems$[value.id].delete();
           }
           case "text": {
-            console.log("deleting text before page item", value.id);
             textItems$[value.id].delete();
           }
         }
@@ -304,7 +302,6 @@ export function cleanUpPages(pageId: string, drafts = true) {
       (drafts ? page.draft : true)
   );
   oldPages.map((page) => {
-    console.log("deleting page", page.id);
     deletePage(page.id);
   });
 }
@@ -318,14 +315,16 @@ export async function handleEdit() {
   const newPageId = generateId();
   const groupId = groupStore$.selectedGroup.get();
   if (!user || !day || !groupId) {
-    console.log("No user, day, or group found");
+    addNotification({
+      id: generateId(),
+      type: NotificationType.error,
+      message: "Failed to edit, please try again",
+    });
+    posthog.capture("handled-edit-failed", { message: "missing user or day or groupId" });
     return;
   }
   if (page) {
-    console.log("cleaning up any existing drafts");
     cleanUpPages(page?.id);
-    console.log("page exists, duplicating");
-    console.log("pages before", pages$.get());
     //create new from this page
     const draftPage: Page = {
       id: newPageId,
@@ -337,15 +336,12 @@ export async function handleEdit() {
       background_image: page.background_image,
       draft: true,
     } as Page;
-    console.log("draftPage", draftPage);
     pages$[newPageId].set(draftPage);
     //get old page
     const items = Object.values(pageItems$).filter((item) => item.page_id.get() === page.id);
-    console.log("items", items);
     batch(() =>
       items.forEach((item$) => {
         const item = item$.get();
-        console.log("copying item:", item);
         const newItemId = generateId();
         pageItems$[newItemId].set({
           id: newItemId,
@@ -390,13 +386,10 @@ export async function handleEdit() {
             } as ImageItem);
             break;
           }
-          default:
-            console.error(`Unexpected item type: ${item.type}`);
         }
       })
     );
   } else {
-    console.log("inserting new page");
     //if no group, create a new one
     const newPage: Page = {
       id: newPageId,
@@ -411,11 +404,9 @@ export async function handleEdit() {
       // updated_at: now,
       // deleted: false,
     } as Page;
-    console.log("newPage", newPage, backgroundImages);
     pages$[newPageId].set(newPage);
     //create new edit mode
   }
-  console.log("pages after", pages$.get());
   beginBatch();
   uiStore$.displayCanvasMenu.set(true);
   uiStore$.displayJournalMenu.set(false);
@@ -428,7 +419,12 @@ export async function handlePageSave() {
   const user = authStore$.session.user.id.get();
   const draftPageId = getPageForUser(pages$.get(), user || "", day.date, true)?.id;
   if (!draftPageId) {
-    console.log("no draft to save");
+    posthog.capture("no drafts found to save", { message: "no draftpageid found" });
+    addNotification({
+      id: generateId(),
+      type: NotificationType.error,
+      message: "Failed to save, please try again",
+    });
     return;
   }
   beginBatch();
@@ -441,21 +437,29 @@ export async function handlePageSave() {
   pageStore$.editMode.set(false);
   pageStore$.saving.set(false);
   endBatch();
-  console.log("finished update");
 }
 
 export function handlePageCancel() {
-  console.log("canceling edits");
   //delete all entries for temp page
   if (!pageStore$.editMode.get()) {
-    console.log("not in edit mode, can't cancel");
+    addNotification({
+      id: generateId(),
+      type: NotificationType.error,
+      message: "Failed to cancel, please try again",
+    });
+    posthog.capture("cancel-edit-error", { error: "not in edit mode" });
     return;
   }
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
   if (!draftPageId) {
-    console.log("no page found");
+    addNotification({
+      id: generateId(),
+      type: NotificationType.error,
+      message: "Failed to cancel, please try again",
+    });
+    posthog.capture("cancel-edit-error", { error: "no draft page id" });
     return;
   }
   deletePage(draftPageId);
@@ -475,13 +479,12 @@ export const uploadImage = async (
 ): Promise<void> => {
   const userId = authStore$.session.user.id.get();
   if (!userId) {
-    console.log("not logged in");
     posthog.capture("upload-page-image-error", { error: "Not logged in" });
+
     throw new Error("error no user");
   }
   const imageId = imagesItems$[imageItemId].image_id.get();
   if (!imageId) {
-    console.log("no image found");
     posthog.capture("upload-page-image-error", { error: "No image found" });
     throw new Error("error no image found");
   }
@@ -492,23 +495,19 @@ export const uploadImage = async (
   })
     .then((resizedImage) => Blurhash.encode(resizedImage.uri, 4, 3))
     .catch((error) => {
-      console.error("Error generating blurhash:", error);
       posthog.capture("upload-page-image-error", { error });
-      // Alert.alert("Error", "Failed to generate blurhash.");
       throw new Error("error generating blurhash ");
     });
 
   const image = await resizeImage(selectedImageUri, width, height)
     .then((image) => image)
     .catch((error) => {
-      console.log("error optimizing image");
       posthog.capture("upload-page-image-error", { error });
       throw new Error("error optimizing image");
     });
 
   if (!image || !blurhash) {
     // setLoading(false);
-    console.log("error getting blurhash");
     throw new Error("error getting blurhash");
   }
   const base64 = await FileSystem.readAsStringAsync(image, { encoding: "base64" });
@@ -524,17 +523,13 @@ export const uploadImage = async (
       fileExtension: "webp",
       mimeType: "image/webp",
     });
-    console.log("done uploading", error, data, success);
     if (error || !data) {
-      console.error("error uploading", error);
       posthog.capture("upload-page-image-error", { error });
       //show notif here
       throw new Error("Error uploading image");
     }
     //eventaully want to ensure that it isn't uploading duplicates, only one copy of a photo at a time
     photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${imageId}.webp`).data.publicUrl;
-    console.log("starting last update");
-    //image should exist already from us adding it to draft page
   }
   images$[imageId].assign({
     path: photoPath,
@@ -545,22 +540,8 @@ export const uploadImage = async (
     uploaded: true,
     created_by: userId,
   } as Image);
-  // return { imageItemId: imageItemId, imageId: imageId };
 };
 const uploadImages = async (): Promise<{ success: boolean; error?: string }> => {
-  /*
-  Sudo code:
-  go through items in canvasStore 
-  if image, see if we have an images$ entry for it
-  //we can just look up if the image_items has an entry with the id of the page_items since they are the same
-  if there is an entry see if its uploaded
-  if not upload
-  if there is no entry upload
-  record all id's of new image entries for map to return 
-
-
-  modify upload to create an image entry?
-  */
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
@@ -570,7 +551,6 @@ const uploadImages = async (): Promise<{ success: boolean; error?: string }> => 
   );
   const curUserId = authStore$.session.user.id.get();
   if (!imageItems || !draftPageId || !curUserId) {
-    console.log("no items to upload, or no page, or not logged in");
     return { success: false, error: "No items to upload, or no page, or not logged in" };
   }
   // let newItems: CanvasItem[] = [];
@@ -591,7 +571,6 @@ const uploadImages = async (): Promise<{ success: boolean; error?: string }> => 
     }
   });
   // // Wait for all promises to complete
-  // //MODIFY THE RESULT TO JUST BE ID's, Do the IMAGE creation in the above part, and only for the images that aren't uploaded yet
   try {
     await Promise.all(promiseAr || []);
     return { success: true };
@@ -610,52 +589,43 @@ export const saveCanvas = async (newPageId: string): Promise<void> => {
   const curUserId = authStore$.session.user.id.get();
   const curGroupId = groupStore$.selectedGroup.get();
   if (!curUserId || !curGroupId) {
-    console.log("no user or group");
     posthog.capture("page-save-error", { error: "no user or selected group" });
+    addNotification({
+      id: generateId(),
+      type: NotificationType.error,
+      message: "Failed to save, please try again",
+    });
     return;
   }
-  console.log("saving canvas");
   //parallel save all images to storage on backend
   //upload images, get id for them
   const { error } = await uploadImages();
   if (error) {
-    console.log("error uploading images", error);
+    addNotification({
+      id: generateId(),
+      type: NotificationType.error,
+      message: "Failed to save, please try again",
+    });
     posthog.capture("page-save-error", { error });
     return;
   }
-  //update new items to point to the new images that are uploaded
-  //update new page to not be draft
-  //delete all old items
-
   //save page
   const newPage$ = pages$[newPageId];
-  // page has same auther/group/date, and isn't the newPageId
-
   if (newPage$.get()) {
-    console.log("new page");
-    // existing page
-    //remove draft
     newPage$.draft.set(false);
-    //update image ids
-    // console.log("imageItemMap", imageItemMap);
-    // imageItemMap.forEach((itemId, imageId) => {
-    //   console.log("imageId", imageId, "itemId", itemId);
-    //   imagesItems$[itemId].assign({ image_id: imageId });
-    // });
   }
   //remove all pages besides the new entry
-
   cleanUpPages(newPageId, false);
 };
 
 export const deletePage = (pageId: string): void => {
-  console.log("removingPage", pageId);
+  posthog.capture("delete-page", { message: "delete page " + pageId });
   const oldPage$ = pages$[pageId];
   oldPage$.delete();
 };
 
 export const addPageItem = (item: CanvasItem) => {
-  console.log("adding item", item);
+  posthog.capture("add-page-item", { message: "add item " + item.id });
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const user = authStore$.session.user.id.get();
   const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
@@ -671,7 +641,6 @@ export const addPageItem = (item: CanvasItem) => {
     page_id: draftPageId,
     type: item.type,
   } as PageItem;
-  console.log("pageItem", pageItem);
   pageItems$[item.id].set(pageItem);
   switch (item.type) {
     case "text": {
@@ -685,8 +654,6 @@ export const addPageItem = (item: CanvasItem) => {
       break;
     }
     case "image": {
-      // imagesItems$[item.id].assign({ });
-      //nothing to update for now
       const imageId = generateId();
       images$[imageId].set({
         id: imageId,
@@ -741,7 +708,6 @@ export const updatePageItem = (item: CanvasItem) => {
       break;
     }
     case "image": {
-      // imagesItems$[item.id].assign({ });
       //nothing to update for now
       break;
     }
@@ -761,7 +727,6 @@ export const bringToFront = (itemId: string) => {
   const curItem$ = pageItems$[itemId];
   const curMax = getMaxZ(curItem$.page_id.get());
   const curZ = curItem$.z.get();
-  console.log("curmax, curz", curMax, curZ);
   // if (curZ === 0 || curMax > curZ) {
   //only update if current z isn't already max
   curItem$.z.set(curMax + 1);
@@ -773,7 +738,7 @@ export const changeBackground = () => {
   const user = authStore$.session.user.id.get();
   const draftPage = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get());
   if (!draftPage) {
-    console.log("can't find page, or backgrounds");
+    posthog.capture("change-background-failed", { message: "couldn't find draftPage to update background" });
     addNotification({
       id: generateId(),
       type: NotificationType.error,
