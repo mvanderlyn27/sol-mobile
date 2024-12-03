@@ -29,6 +29,7 @@ import { backgroundImages, images$ } from "./ImageStore";
 import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
 import { max } from "lodash";
 import { addNotification } from "./NotificationStore";
+import { pageReactions$ } from "./ReactStore";
 const { width, height } = Dimensions.get("window");
 export const pages$ = observable<Record<string, Page>>(
   customSupabaseSynced({
@@ -288,20 +289,26 @@ function getAllUniqueDates(daysCount: number): DateItem[] {
 /**
  * Toggle edit mode
  */
-export function cleanUpPages(pageId: string, drafts = true) {
+export function cleanUpPages(newPageId: string, drafts = true) {
   const curUserId = authStore$.session.user.id.get();
   const curGroupId = groupStore$.selectedGroup.get();
-  const newPage$ = pages$[pageId];
+  const newPage$ = pages$[newPageId];
   const oldPages = Object.values(pages$.get()).filter(
     (page) =>
       page.created_by === curUserId &&
       page.group_id === curGroupId &&
       page.date === newPage$.date.get() &&
-      page.id !== pageId &&
+      page.id !== newPageId &&
       //optionally only clean up drafts
       (drafts ? page.draft : true)
   );
+
   oldPages.map((page) => {
+    //move all old pageReactions over to new page
+    Object.values(pageReactions$)
+      .filter((pageReaction) => pageReaction.page_id.get() === page.id)
+      .forEach((pageReaction) => pageReaction.page_id.set(newPageId));
+    //delete old page
     deletePage(page.id);
   });
 }
