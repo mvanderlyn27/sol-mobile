@@ -1,18 +1,14 @@
-import React, { useRef, useEffect, useMemo } from "react";
+import React, { useRef, useEffect } from "react";
 import { FlatList, View, Dimensions, Platform } from "react-native";
 import PagerView from "react-native-pager-view";
-import { observer, useComputed, useMount } from "@legendapp/state/react";
+import { observer } from "@legendapp/state/react";
 import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
-import { Canvas, GroupMember, LocalNotification, NotificationType } from "@/src/types/shared.types";
-import { getPageForUser, loadMorePages, pageStore$, pages$ } from "@/src/stores/PagesStore";
+import { GroupMember } from "@/src/types/shared.types";
+import { pageStore$, pages$ } from "@/src/stores/PagesStore";
 import ReactHolder from "../journal/reactions/ReactHolder";
 import { reactStore$ } from "@/src/stores/ReactStore";
-import authStore$ from "@/src/stores/AuthStore";
-import { jsonToCanvas } from "@/src/services/Canvas";
-import { groupStore$ } from "@/src/stores/GroupStore";
-import { addNotification } from "@/src/stores/NotificationStore";
-import { generateId } from "@/src/stores/AsyncStorage";
+import { getPageForUser, loadMorePages } from "@/src/services/Page";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
@@ -24,7 +20,6 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   const active = rowIndex === pageStore$.curRow.get() && colIndex === pageStore$.curCol.get();
   const page = getPageForUser(pages$.get(), userId, date, editMode);
   const reactEditMode = reactStore$.reactEditMode.get();
-  const showReactions = reactStore$.showReactions.get();
   return (
     <View key={`${rowIndex}-${colIndex}-${editMode && active ? "edit" : "view"}-${page?.id}`} style={{ width, height }}>
       <CanvasHolder pageId={page?.id} editMode={editMode && active} />
@@ -32,12 +27,6 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
     </View>
   );
 });
-
-// pageStore$.curRow.onChange(({ value: scrollIndex }) => {
-//   if (flatListRef.current && scrollIndex >= 0 && col !== pageStore$.curCol.get()) {
-//     flatListRef.current.scrollToIndex({ index: scrollIndex, animated: false });
-//   }
-// });
 
 const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMember[] }) => {
   const flatListRef = useRef<FlatList>(null);

@@ -20,7 +20,6 @@ const StyledPressable = styled(Pressable);
 const StyledLink = styled(Link);
 const FtuxScreen = observer(function FtuxScreen() {
   // form to setup username
-
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);

@@ -1,8 +1,10 @@
 import { getImageFromPath } from "@/src/assets/images/images";
+import { posthog } from "@/src/services/Posthog";
 import { checkNotificationStatus, scheduleDailyReminder } from "@/src/services/PushNotification";
 import { generateId } from "@/src/stores/AsyncStorage";
+import authStore$ from "@/src/stores/AuthStore";
 import { addNotification } from "@/src/stores/NotificationStore";
-import { requestPushNotificationPermission, updateUsername } from "@/src/stores/ProfileStore";
+import { profiles$, requestPushNotificationPermission, updateUsername } from "@/src/stores/ProfileStore";
 import { NotificationType } from "@/src/types/shared.types";
 import { observer } from "@legendapp/state/react";
 import { email } from "@snaplet/copycat/dist/email";
@@ -24,6 +26,18 @@ const PermissionsScreen = observer(function FtuxScreen() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [pushNotificationEnabled, setPushNotificationEnabled] = useState(false);
   const handleContinue = () => {
+    const userId = authStore$.session.user.id.get();
+    if (!userId) {
+      addNotification({
+        id: generateId(),
+        type: NotificationType.error,
+        message: "Failed to continue, please log in again",
+      });
+      posthog.capture("push-notification-setup-failed", { message: "not logged in" });
+      router.navigate("/login");
+      return;
+    }
+    profiles$[userId].new.set(false);
     router.push("/home");
   };
   const showDatePicker = () => {

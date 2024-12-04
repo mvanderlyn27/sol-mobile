@@ -5,13 +5,13 @@ import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
-import { updateCanvasItem } from "@/src/stores/CanvasStore";
-import { bringToFront, pageStore$, updatePageItem } from "@/src/stores/PagesStore";
+import { pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 import { format } from "date-fns";
+import { bringToFront, updatePageItem } from "@/src/services/Page";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);

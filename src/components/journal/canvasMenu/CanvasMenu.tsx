@@ -11,26 +11,16 @@ import Feather from "@expo/vector-icons/Feather";
 //<Feather name="image" size={24} color="black" />
 //<Feather name="layout" size={24} color="black" />
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { useJournal } from "@/src/contexts/JournalProvider";
-import { useCanvas } from "@/src/contexts/CanvasProvider";
-import { BlurView } from "expo-blur";
 import Foundation from "@expo/vector-icons/Foundation";
 import { observer } from "@legendapp/state/react";
 import { uiStore$ } from "@/src/stores/UIStore";
-import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
-import { StyledPressable } from "../canvas/CanvasFrameHolder";
-import { addPageItem, changeBackground, handlePageCancel, handlePageSave, pageStore$ } from "@/src/stores/PagesStore";
+import { pageStore$ } from "@/src/stores/PagesStore";
 import MenuButton from "@/src/components/shared/MenuButton";
-import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
-import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 import RoundButton from "../../shared/CircleButton";
 import { generateId } from "@/src/stores/AsyncStorage";
-import { batch } from "@legendapp/state";
 import { reactStore$ } from "@/src/stores/ReactStore";
-import { format } from "date-fns";
-//<AntDesign name="closecircleo" size={24} color="black" />
+import { handlePageSave, handlePageCancel, changeBackground, addPageItem } from "@/src/services/Page";
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);
@@ -39,19 +29,13 @@ const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const StyledFoundation = styled(Foundation);
 const { width, height } = Dimensions.get("window");
-const StyledBlurView = styled(BlurView);
 const CanvasMenu = observer(function CanvasMenu() {
-  // const { canvasHasChanges } = useCanvas();
-  // const { editMode, bottomBarVisible } = useJournal();
-  const displayCanvasMenu = uiStore$.displayCanvasMenu.get();
   const [selectedTab, setSelectedTab] = useState<BottomBarTab | null>(null);
-  const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
   const [canceling, setCanceling] = useState<boolean>(false);
   const handleExit = () => {
     if (selectedTab) setSelectedTab(null);
     // if (canvasHasChanges) {
-    setShowCancelDrawer(true);
     // } else {
     // onExit();
     // }
@@ -78,13 +62,11 @@ const CanvasMenu = observer(function CanvasMenu() {
     uiStore$.displayJournalMenu.set(true);
   };
   const handleDrawerSave = () => {
-    setShowCancelDrawer(false);
     // onSave();
     if (selectedTab) setSelectedTab(null);
     // onExit();
   };
   const handleDrawerExit = () => {
-    setShowCancelDrawer(false);
     if (selectedTab) setSelectedTab(null);
     // onExit();
   };

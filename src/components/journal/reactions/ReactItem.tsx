@@ -5,11 +5,11 @@ import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS } from "react-native-reanimated";
-import { pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasTextReaction } from "@/src/types/shared.types";
 import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
-import { reactStore$, updateReactionItem, bringReactionToFront } from "@/src/stores/ReactStore";
+import { reactStore$ } from "@/src/stores/ReactStore";
+import { bringReactionToFront, updateReactionItem } from "@/src/services/Reaction";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);

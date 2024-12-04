@@ -7,7 +7,7 @@ import { styled } from "nativewind";
 import { CanvasText } from "@/src/types/shared.types";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { Dimensions } from "react-native";
-import { addPageItem, updatePageItem } from "@/src/stores/PagesStore";
+import { addPageItem, updatePageItem } from "@/src/services/Page";
 const { height, width } = Dimensions.get("screen");
 
 const TextOverlayButtons = observer(function TextOverlayButtons() {

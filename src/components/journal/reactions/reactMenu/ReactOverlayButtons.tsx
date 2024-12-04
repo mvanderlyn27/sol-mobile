@@ -7,7 +7,7 @@ import { styled } from "nativewind";
 import { CanvasText, CanvasTextReaction } from "@/src/types/shared.types";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { Dimensions } from "react-native";
-import { addReactionItem, handleCancelReaction, reactStore$, updateReactionItem } from "@/src/stores/ReactStore";
+import { addReactionItem, updateReactionItem } from "@/src/services/Reaction";
 const { height, width } = Dimensions.get("screen");
 
 const ReactOverlayButtons = observer(function ReactOverlayButtons() {

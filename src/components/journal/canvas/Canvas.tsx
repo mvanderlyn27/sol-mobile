@@ -8,7 +8,7 @@ import { Image as ExpoImage } from "expo-image";
 import { getImageFromPath } from "@/src/assets/images/images";
 import CanvasImageHolder from "./CanvasImageHolder";
 import { For, Show, observer, useMount } from "@legendapp/state/react";
-import { getPageForUser, imagesItems$, pageItems$, pageStore$, pages$, textItems$ } from "@/src/stores/PagesStore";
+import { imagesItems$, pageItems$, pageStore$, pages$, textItems$ } from "@/src/stores/PagesStore";
 import CanvasTextHolder from "./CanvasText";
 import { Observable, observable, syncState } from "@legendapp/state";
 import LoadingScreen from "../../screens/SplashScreen";

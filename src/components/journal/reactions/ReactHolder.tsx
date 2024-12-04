@@ -1,16 +1,12 @@
-import { Show, observer, useMount } from "@legendapp/state/react";
+import { Show, observer } from "@legendapp/state/react";
 import ReactItem from "./ReactItem";
-import { getPageForUser, pageStore$ } from "@/src/stores/PagesStore";
-import { CanvasTextReaction, ReactionItem } from "@/src/types/shared.types";
+import { CanvasTextReaction } from "@/src/types/shared.types";
 import { styled } from "nativewind";
-import { jsonToReact } from "@/src/services/Reaction";
-import { memo, useEffect, useMemo } from "react";
+import { memo } from "react";
 import { AnimatePresence, MotiView, View } from "moti";
-import { whenReady } from "@legendapp/state";
 import authStore$ from "@/src/stores/AuthStore";
 import { pageReactions$, reactStore$, reactionItems$, reactionTextItems$ } from "@/src/stores/ReactStore";
 
-const StyledShow = styled(Show);
 const StyledView = styled(View);
 
 const ReactHolder = observer(function ReactHolder({
