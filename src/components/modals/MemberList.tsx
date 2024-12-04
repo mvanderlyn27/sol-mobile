@@ -5,7 +5,12 @@ import UserPic from "../shared/UserPic";
 import { router } from "expo-router";
 import { GroupMember } from "@/src/types/shared.types";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
+import {
+  filterGroupMembers,
+  filterOutPending,
+  filterPendingGroupMembers,
+  groupMembers$,
+} from "@/src/stores/MemberStore";
 import authStore$ from "@/src/stores/AuthStore";
 
 const StyledView = styled(View);
@@ -25,14 +30,11 @@ export default function MemberList({ groupId }: { groupId: string }) {
   // Split members into chunks of 8 for each page
   const userId = authStore$.session.get()?.user.id;
   const groupMembersRaw = filterOutPending(groupMembers$.get());
+  const groupMemberList = Object.values(filterGroupMembers(groupMembers$.get(), groupId) || {});
+  const pendingMemberList = Object.values(filterPendingGroupMembers(groupMembers$.get(), groupId) || {});
+  const groupList = [...groupMemberList, ...pendingMemberList];
   if (!userId || !groupMembersRaw) return null;
-  const groupMembersMap = Object.entries(groupMembersRaw).reduce((acc: any, [_, member]) => {
-    (acc[member.group_id] = acc[member.group_id] || []).push(member);
-    return acc;
-  }, {});
-  const groupMembers = groupMembersMap[groupId];
-  if (!groupMembers) return null;
-  const pages = chunkArray(groupMembers, 8);
+  const pages = chunkArray(groupList, 8);
   const visitMember = (memberId: string) => {
     console.log("clicked");
     if (memberId === userId) {
@@ -54,7 +56,7 @@ export default function MemberList({ groupId }: { groupId: string }) {
                   key={index}
                   className="px-2 justify-center items-center">
                   {/* <UserPic source={ member.avatar_url } /> */}
-                  <UserPic userId={member.user_id} />
+                  <UserPic userId={member.user_id} pending={pendingMemberList.includes(member)} />
                   <StyledText className="text-center mt-2">
                     {profiles$[member.user_id].username.get() || profiles$[member.user_id].name.get()}
                   </StyledText>

@@ -14,14 +14,10 @@ import { View, Text, Dimensions, Pressable } from "react-native";
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
-const ensureNotArray = (input: string | string[]) => {
-  if (Array.isArray(input)) {
-    return input[0];
-  }
-  return input;
-};
+
 const GroupDetails = observer(function GroupDetails() {
-  let group_id = ensureNotArray(useLocalSearchParams()?.id);
+  const { id }: { id: string } = useLocalSearchParams();
+  const group_id = id;
   const currentUser = authStore$.session.get()?.user?.id;
 
   const selectedGroup = groups$[group_id].get();
@@ -34,15 +30,9 @@ const GroupDetails = observer(function GroupDetails() {
     router.push("./inviteGroupMember");
   };
   const handleDelete = () => {
-    if (Array.isArray(group_id)) {
-      group_id = group_id[0];
-    }
     deleteGroup(group_id);
   };
   const handleUpdateName = (val: string) => {
-    if (Array.isArray(group_id)) {
-      group_id = group_id[0];
-    }
     groups$[group_id].name.set(val);
   };
   const isAdmin = currentUser ? checkAdmin(group_id, currentUser) : false;

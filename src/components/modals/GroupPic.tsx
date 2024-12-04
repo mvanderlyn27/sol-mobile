@@ -105,7 +105,7 @@ const GroupPic = observer(function GroupPic({
   return (
     <StyledPressable
       pointerEvents={editable && !loading ? "auto" : "none"}
-      className={`rounded-md w-full aspect-auto flex-1 bg-secondary overflow-hidden`}
+      className={`rounded-lg w-full aspect-auto flex-1 bg-secondary overflow-hidden`}
       onPress={editable ? handleUpdatePic : () => {}}>
       {invitation && (
         <StyledView
