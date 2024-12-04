@@ -143,6 +143,7 @@ export const handleEditReaction = () => {
   //create draft object, duplicate any needed values
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const userId = pageStore$.members[pageStore$.curRow.get()]?.user_id.get();
+  const curUserId = authStore$.session.user.id.get();
   const pageId = getPageForUser(pages$.get(), userId, day.date)?.id;
   if (!pageId) {
     console.log("error finding page for edit");
@@ -208,7 +209,7 @@ export const handleEditReaction = () => {
     pageReactions$[newReactionPageId].set({
       id: newReactionPageId,
       page_id: pageId,
-      created_by: userId,
+      created_by: curUserId,
       draft: true,
     } as PageReaction);
   }
