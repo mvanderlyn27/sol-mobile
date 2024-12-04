@@ -26,7 +26,6 @@ import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 import RoundButton from "../../shared/CircleButton";
-import { addCanvasItem, canvasStore$ } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { batch } from "@legendapp/state";
 import { reactStore$ } from "@/src/stores/ReactStore";
@@ -164,7 +163,7 @@ const CanvasMenu = observer(function CanvasMenu() {
         path: result.assets[0].uri,
         x: 50,
         y: 50,
-        z: canvasStore$.maxZIndex.get() || 0,
+        z: 1,
         width: newWidth,
         // width: imgWidth,
         height: newHeight,

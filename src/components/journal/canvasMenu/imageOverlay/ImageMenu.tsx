@@ -20,7 +20,6 @@ import { uiStore$ } from "@/src/stores/UIStore";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
 import MenuButton from "@/src/components/shared/MenuButton";
 import OverlayTextButton from "@/src/components/shared/OverlayTextButton";
-import { canvasStore$, removeCanvasItem } from "@/src/stores/CanvasStore";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 import { removePageItem } from "@/src/stores/PagesStore";
 //<AntDesign name="closecircleo" size={24} color="black" />

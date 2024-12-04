@@ -27,7 +27,6 @@ import DateIndicator from "./DateIndicator";
 import UserPic from "../../shared/UserPic";
 import { router } from "expo-router";
 import JournalFabs from "./JournalFabs";
-import { canvasStore$, clearCanvas, defaultCanvas } from "@/src/stores/CanvasStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { groupStore$ } from "@/src/stores/GroupStore";
 import { reactStore$ } from "@/src/stores/ReactStore";
@@ -69,9 +68,9 @@ const JournalMenu = observer(function JournalMenu() {
               pageStore$.editMode.set(false);
               pageStore$.curRow.set(0);
               pageStore$.curCol.set(0);
+              pageStore$.ready.set(false);
               reactStore$.reactEditMode.set(false);
               textStore$.reset();
-              clearCanvas();
             });
             router.navigate("/home");
           }}

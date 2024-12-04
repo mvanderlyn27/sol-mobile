@@ -5,7 +5,6 @@ import { observer } from "@legendapp/state/react";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { CanvasText } from "@/src/types/shared.types";
-import { addCanvasItem, canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { Dimensions } from "react-native";
 import { addPageItem, updatePageItem } from "@/src/stores/PagesStore";

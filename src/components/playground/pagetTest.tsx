@@ -1,18 +1,18 @@
 import React, { useRef, useEffect, useMemo } from "react";
 import { FlatList, View, Dimensions, Platform } from "react-native";
 import PagerView from "react-native-pager-view";
-import { observer, useComputed } from "@legendapp/state/react";
+import { observer, useComputed, useMount } from "@legendapp/state/react";
 import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
 import { Canvas, GroupMember, LocalNotification, NotificationType } from "@/src/types/shared.types";
 import { getPageForUser, loadMorePages, pageStore$, pages$ } from "@/src/stores/PagesStore";
 import ReactHolder from "../journal/reactions/ReactHolder";
 import { reactStore$ } from "@/src/stores/ReactStore";
-import { canvasStore$ } from "@/src/stores/CanvasStore";
 import authStore$ from "@/src/stores/AuthStore";
 import { jsonToCanvas } from "@/src/services/Canvas";
 import { groupStore$ } from "@/src/stores/GroupStore";
 import { addNotification } from "@/src/stores/NotificationStore";
+import { generateId } from "@/src/stores/AsyncStorage";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
@@ -83,7 +83,6 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
 // Outer parent component with PagerView
 const Canvas2DScroller = observer(() => {
   const pagerRef = useRef(null);
-
   const handlePagerChange = (e: any) => {
     const { position } = e.nativeEvent;
     if (pageStore$.dates.get().length - position <= 2) {

@@ -4,19 +4,37 @@ import { useEffect, useState } from "react";
 import authStore$ from "../stores/AuthStore";
 import { groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";
-import { pages$ } from "../stores/PagesStore";
+import { imagesItems$, pageItems$, pageStore$, pages$, textItems$ } from "../stores/PagesStore";
 import { profiles$ } from "../stores/ProfileStore";
 import * as Notifications from "expo-notifications";
 import { addNotification } from "../stores/NotificationStore";
 import { generateId } from "../stores/AsyncStorage";
 import { NotificationType } from "../types/shared.types";
+import { pageReactions$, reactionItems$, reactionTextItems$ } from "../stores/ReactStore";
 
 export const initializeStores = async () => {
   const profileReady = when(profiles$);
   const pagesReady = when(pages$);
+  const pageItems = when(pageItems$);
+  const textItems = when(textItems$);
+  const imageItems = when(imagesItems$);
+  const reactions = when(pageReactions$);
+  const reactionItems = when(reactionItems$);
+  const reactionTextItem = when(reactionTextItems$);
   const groupReady = when(groups$);
   const groupMemberReady = when(groupMembers$);
-  await Promise.all([profileReady, pagesReady, groupReady, groupMemberReady]);
+  await Promise.all([
+    profileReady,
+    pagesReady,
+    groupReady,
+    groupMemberReady,
+    pageItems,
+    textItems,
+    imageItems,
+    reactions,
+    reactionItems,
+    reactionTextItem,
+  ]);
 };
 export function useAppNavigation() {
   useEffect(() => {
@@ -61,12 +79,13 @@ export function useAppNavigation() {
 
           if (url) {
             const isAuthenticated = authStore$.session.get() !== null;
-            router.push(isAuthenticated ? url : "/login"); // Use push for better stack handling
+            //hack to get journal working, fixes issue when journal is already open and notification comes in
+            pageStore$.ready.set(false);
+            router.replace(isAuthenticated ? url : "/login"); // Use push for better stack handling
           }
         });
       } catch (error) {
         console.error("Error during app navigation:", error);
-        SplashScreen.hideAsync();
         addNotification({
           id: generateId(),
           message: "Error during app navigation",

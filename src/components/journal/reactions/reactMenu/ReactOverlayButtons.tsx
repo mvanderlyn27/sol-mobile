@@ -5,7 +5,6 @@ import { observer } from "@legendapp/state/react";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { CanvasText, CanvasTextReaction } from "@/src/types/shared.types";
-import { addCanvasItem, canvasStore$, updateCanvasItem } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { Dimensions } from "react-native";
 import { addReactionItem, handleCancelReaction, reactStore$, updateReactionItem } from "@/src/stores/ReactStore";
@@ -14,7 +13,6 @@ const { height, width } = Dimensions.get("screen");
 const ReactOverlayButtons = observer(function ReactOverlayButtons() {
   const createReaction = () => {
     const newId = generateId();
-    // const z = canvasStore$.curCanvas.maxZIndex.get() || 0;
     const reaction: CanvasTextReaction = {
       id: newId,
       type: "text",

@@ -24,7 +24,6 @@ import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
-import { addCanvasItem, canvasStore$ } from "@/src/stores/CanvasStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import RoundButton from "@/src/components/shared/CircleButton";
 import UserPic from "@/src/components/shared/UserPic";

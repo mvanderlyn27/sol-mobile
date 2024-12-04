@@ -1,5 +1,4 @@
 import { observable } from "@legendapp/state";
-import { canvasStore$ } from "./CanvasStore";
 import { CanvasImage, NotificationType } from "../types/shared.types";
 import { imagesItems$ } from "./PagesStore";
 import { images$ } from "./ImageStore";

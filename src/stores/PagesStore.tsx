@@ -170,8 +170,6 @@ export const getPageForUser = (
 
 interface PageStore {
   members: GroupMember[];
-  initialUser: string | undefined;
-  initialDate: string | undefined;
   dates: DateItem[];
   curRow: number;
   curCol: number;
@@ -195,8 +193,6 @@ const LOAD_MORE_PAGES = 5; // Number of pages to load in each additional batch
 export const pageStore$ = observable<PageStore>({
   members: [],
   dates: [],
-  initialDate: undefined,
-  initialUser: undefined,
   curRow: 0,
   curCol: 0,
   editMode: false,
@@ -208,16 +204,9 @@ export const pageStore$ = observable<PageStore>({
 /**
  * Initialize the group members and pages for a specific group.
  */
-export function initializePageStore() {
-  pageStore$.ready.set(false);
-  // const syncPage$ = syncState(pages$);
-  // await syncPage$.sync();
-  // await when(syncPage$.isLoaded);
-  const user = pageStore$.initialUser.get();
-  const day = pageStore$.initialDate.get();
+export function initializePageStore(user?: string, day?: string) {
   loadGroupMembers(user);
   loadInitialPages(day);
-  pageStore$.ready.set(true);
 }
 
 /**
