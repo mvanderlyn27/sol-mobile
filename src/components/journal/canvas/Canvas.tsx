@@ -15,6 +15,7 @@ import LoadingScreen from "../../screens/SplashScreen";
 import { images$ } from "@/src/stores/ImageStore";
 import { Skeleton } from "moti/skeleton";
 import { posthog } from "@/src/services/Posthog";
+import authStore$ from "@/src/stores/AuthStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
@@ -59,6 +60,7 @@ const CanvasObject = observer(function CanvasObject({
   item$: Observable<PageItem>;
   editMode: boolean;
 }) {
+  const userItem = pages$[item$.page_id.get()].created_by.get() === authStore$.session.user.id.get();
   switch (item$.type.get()) {
     // case "frame":
     //   return <CanvasFrameHolder key={`frame-${item.id}`} observableItem={item} />;
@@ -77,7 +79,11 @@ const CanvasObject = observer(function CanvasObject({
       };
 
       return (
-        <CanvasImageHolder key={`${pageId}-${editMode ? "edit-" : ""}image-${item$.id.get()}`} item={canvasImage} />
+        <CanvasImageHolder
+          key={`${pageId}-${editMode ? "edit-" : ""}image-${item$.id.get()}`}
+          item={canvasImage}
+          userItem={userItem}
+        />
       );
     }
     case "text": {
@@ -94,7 +100,13 @@ const CanvasObject = observer(function CanvasObject({
         fontColor: textItem.color,
         fontType: textItem.font,
       };
-      return <CanvasTextHolder key={`${pageId}-${editMode ? "edit-" : ""}text-${item$.id.get()}`} item={canvasText} />;
+      return (
+        <CanvasTextHolder
+          key={`${pageId}-${editMode ? "edit-" : ""}text-${item$.id.get()}`}
+          item={canvasText}
+          userItem={userItem}
+        />
+      );
     }
     default:
       return null;

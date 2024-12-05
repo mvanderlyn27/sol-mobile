@@ -38,7 +38,7 @@ export const handleEditReaction = () => {
   }
   cleanUpReactions(pageId);
   const oldReactionPageId = Object.values(pageReactions$)
-    .find((reaction) => reaction.page_id.get() === pageId)
+    .find((reaction) => reaction.page_id.get() === pageId && reaction.created_by.get() === curUserId)
     ?.id.get();
   const newReactionPageId = generateId();
   if (oldReactionPageId) {

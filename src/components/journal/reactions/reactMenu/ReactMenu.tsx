@@ -89,7 +89,11 @@ const ReactMenu = observer(function ReactMenu() {
           <RoundButton selected onClick={handleReact} buttonType={ButtonType.Add} primary />
         </StyledView>
         <StyledView className="flex-1 items-center">
-          <RoundButton selected onClick={handleViewReact} buttonType={ButtonType.View} />
+          <RoundButton
+            selected={reactStore$.showNonUserReactions.get()}
+            onClick={handleViewReact}
+            buttonType={ButtonType.View}
+          />
         </StyledView>
       </StyledMotiView>
     </StyledView>

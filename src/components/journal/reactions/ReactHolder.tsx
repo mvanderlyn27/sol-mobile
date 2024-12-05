@@ -16,35 +16,38 @@ const ReactHolder = observer(function ReactHolder({
   pageId: string | undefined;
   editMode: boolean;
 }) {
-  if (!pageId) {
+  const curUserId = authStore$.session.user.id.get();
+  if (!pageId || !curUserId) {
     return null;
   }
   const curUserReactionPage = Object.values(pageReactions$)
     .find((reactionPage) => {
-      return reactionPage.page_id.get() === pageId && (editMode ? reactionPage.draft.get() : !reactionPage.draft.get());
+      return (
+        reactionPage.page_id.get() === pageId &&
+        (editMode ? reactionPage.draft.get() : !reactionPage.draft.get() && reactionPage.created_by.get() === curUserId)
+      );
     })
     ?.get();
-  if (!curUserReactionPage) {
-    console.log("no reactions found");
-    return null;
-  }
+  console.log("curUserReactionPage", curUserReactionPage);
   const otherUserReactionPagesIds = Object.values(pageReactions$)
-    .filter(
-      (reactionPage) =>
-        reactionPage.page_id.get() === pageId && reactionPage.created_by.get() !== authStore$.session.user.id.get()
-    )
+    .filter((reactionPage) => reactionPage.page_id.get() === pageId && reactionPage.created_by.get() !== curUserId)
     ?.map((reactionPage$) => reactionPage$.id.get());
+
+  console.log("otherUserReactionPage", otherUserReactionPagesIds);
+  const curReactionPageIds = [
+    ...(curUserReactionPage ? [curUserReactionPage.id] : []),
+    ...(reactStore$.showNonUserReactions.get() ? otherUserReactionPagesIds : []),
+  ];
+  console.log("curReactionPageIds", curReactionPageIds);
   const reactions = reactStore$.showReactions.get()
     ? Object.values(reactionItems$.get() || {}).filter((reactionItem) => {
-        return [
-          ...([curUserReactionPage.id] || []),
-          ...[reactStore$.showNonUserReactions ? otherUserReactionPagesIds : []],
-        ].includes(reactionItem.page_reaction_id);
+        return curReactionPageIds.includes(reactionItem.page_reaction_id);
       })
     : [];
+  console.log("reactions", reactions, reactStore$.showNonUserReactions.get());
   return (
     <StyledView
-      key={`${curUserReactionPage.id}`}
+      key={`${pageId}`}
       className="absolute top-0 right-0 left-0 bottom-0 bg-transparent"
       pointerEvents="box-none">
       {reactions.map((reaction, index) => {
@@ -68,7 +71,7 @@ const ReactHolder = observer(function ReactHolder({
                   transition={{ type: "timing", duration: 200 }}>
                   <ReactItem
                     item={canvasReaction}
-                    usersReaction={reaction.page_reaction_id === curUserReactionPage.id}
+                    usersReaction={reaction.page_reaction_id === curUserReactionPage?.id}
                   />
                 </MotiView>
               </AnimatePresence>

@@ -17,8 +17,14 @@ export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
 export const StyledPressable = styled(Pressable);
 
-const CanvasImageHolder = observer(function CanvasImageHolder({ item }: { item: CanvasImage }) {
-  const editMode = pageStore$.editMode.get();
+const CanvasImageHolder = observer(function CanvasImageHolder({
+  item,
+  userItem,
+}: {
+  item: CanvasImage;
+  userItem: boolean;
+}) {
+  const editMode = pageStore$.editMode.get() && userItem;
   // Initialize offset, start position, and rotation based on item properties
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });
