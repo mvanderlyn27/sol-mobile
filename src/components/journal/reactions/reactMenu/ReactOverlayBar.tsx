@@ -9,7 +9,7 @@ import { Text, View } from "react-native";
 import SettingsTab from "./SettingTab";
 import { fonts, textStore$ } from "@/src/stores/EditTextStore";
 import { uiStore$ } from "@/src/stores/UIStore";
-import { removeReactItem } from "@/src/stores/ReactStore";
+import { removeReactItem } from "@/src/services/Reaction";
 
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
