@@ -42,7 +42,6 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     name,
     created_by: session?.user.id,
   });
-  await syncState(groups$).sync();
 
   const groupMemberId = generateId();
   groupMembers$[groupMemberId].set({
@@ -51,10 +50,7 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     group_id: id,
     role: "admin",
     status: "completed",
-    deleted: false,
-    created_at: null,
-    updated_at: null,
-  });
+  } as GroupMember);
 
   //upload image after we create new component for rls policies to work
   const base64 = await FileSystem.readAsStringAsync(cover_uri, { encoding: "base64" });

@@ -8,13 +8,14 @@ import authStore$ from "./AuthStore";
 import { posthog } from "../services/Posthog";
 import { addNotification } from "./NotificationStore";
 import { supabase } from "../lib/supabase";
+import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
+import { groups$ } from "./GroupStore";
 
 export const groupMembers$ = observable(
   customSupabaseSynced({
+    supabase,
     collection: "group_members",
     select: (from) => from.select("*"),
-    // filter: (select) => select.eq("status", "completed"),
-    // filter: (select) => select.neq("deleted", true),
     actions: ["read", "create", "update", "delete"],
     realtime: true,
     persist: {
@@ -24,6 +25,7 @@ export const groupMembers$ = observable(
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },
+    waitForSet: ({ value }): WaitForSetCrudFnParams<GroupMember> => groups$[value.group_id].created_at,
   })
 );
 export const filterOutPending = (map: Record<string, GroupMember>): Record<string, GroupMember> | null => {
@@ -107,7 +109,7 @@ export const checkAdmin = (groupId: string, userId: string) => {
   return groupMembers$[id].role.get() === "admin";
 };
 export const inviteGroupMember = async (groupId: string, username: string): Promise<string | null> => {
-  const entry = Object.entries(profiles$.get()).find(([key, profile]) => profile.username === username);
+  const entry = Object.values(profiles$.get()).find((profile) => profile.username === username);
   if (!entry) {
     posthog.capture("invite-group-member-error", { error: "user not found" });
     addNotification({
@@ -118,15 +120,14 @@ export const inviteGroupMember = async (groupId: string, username: string): Prom
     console.log("can't find user");
     return null;
   }
-  const id = entry[0];
   const inviteId = generateId();
 
   groupMembers$[inviteId].set({
     id: inviteId,
     group_id: groupId,
-    user_id: id,
+    user_id: entry.id,
     role: "member",
     status: "pending",
-  });
+  } as GroupMember);
   return inviteId;
 };

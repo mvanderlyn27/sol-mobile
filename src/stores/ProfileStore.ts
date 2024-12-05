@@ -9,9 +9,10 @@ import { checkNotificationStatus, registerForPushNotificationsAsync } from "../s
 import { addNotification, notificationStore$ } from "./NotificationStore";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
+import { supabase } from "../lib/supabase";
 export const profiles$ = observable(
   customSupabaseSynced({
-    // supabase,
+    supabase,
     collection: "profiles",
     select: (from) => from.select("*"),
     filter: (select) => select.neq("deleted", true),
