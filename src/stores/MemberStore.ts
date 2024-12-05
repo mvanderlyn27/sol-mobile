@@ -17,10 +17,10 @@ export const groupMembers$ = observable(
     // filter: (select) => select.neq("deleted", true),
     actions: ["read", "create", "update", "delete"],
     realtime: true,
-    persist: {
-      name: "groupMembers",
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "groupMembers",
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },

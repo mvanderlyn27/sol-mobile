@@ -14,10 +14,10 @@ export const groups$ = observable(
     collection: "groups",
     select: (from) => from.select("*"),
     realtime: true,
-    persist: {
-      name: "groups",
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "groups",
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },

@@ -13,11 +13,11 @@ export const pages$ = observable<Record<string, Page>>(
     select: (from: any) => from.select("*"),
     realtime: true,
     actions: ["read", "create", "update", "delete"],
-    persist: {
-      name: "pages",
-      //for some reason this is needed to make the real time syncing consistent
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "pages",
+    //   //for some reason this is needed to make the real time syncing consistent
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },
@@ -44,10 +44,10 @@ export const pageItems$ = observable<Record<string, PageItem>>(
     select: (from: any) => from.select("*"),
     realtime: true,
     actions: ["read", "create", "update", "delete"],
-    persist: {
-      name: "page_items",
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "page_items",
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },
@@ -79,10 +79,10 @@ export const imagesItems$ = observable<Record<string, ImageItem>>(
     select: (from: any) => from.select("*"),
     realtime: true,
     actions: ["read", "create", "update", "delete"],
-    persist: {
-      name: "image_items",
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "image_items",
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },
@@ -106,10 +106,10 @@ export const textItems$ = observable<Record<string, TextItem>>(
     collection: "text_items",
     select: (from: any) => from.select("*"),
     realtime: true,
-    persist: {
-      name: "text_items",
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "text_items",
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },

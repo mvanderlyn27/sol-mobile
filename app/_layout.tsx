@@ -50,6 +50,7 @@ export const RootLayout = observer(function RootLayout() {
   });
   useMount(() => {
     authStore$.init();
+    supabase.channel("realtime").subscribe((info, info2) => console.log("info", info, info2));
   });
 
   if (!loaded && !error) {

@@ -15,11 +15,11 @@ export const pageReactions$ = observable(
     select: (from: any) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
     realtime: true,
-    persist: {
-      name: "page_reactions",
-      //for some reason this is needed to make the real time syncing consistent
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "page_reactions",
+    //   //for some reason this is needed to make the real time syncing consistent
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },
@@ -47,11 +47,11 @@ export const reactionItems$ = observable(
     select: (from: any) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
     realtime: true,
-    persist: {
-      name: "reaction_items",
-      //for some reason this is needed to make the real time syncing consistent
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "reaction_items",
+    //   //for some reason this is needed to make the real time syncing consistent
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },
@@ -81,11 +81,11 @@ export const reactionTextItems$ = observable(
     select: (from: any) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
     realtime: true,
-    persist: {
-      name: "reaction_text_items",
-      //for some reason this is needed to make the real time syncing consistent
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "reaction_text_items",
+    //   //for some reason this is needed to make the real time syncing consistent
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },

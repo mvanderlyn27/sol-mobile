@@ -21,8 +21,8 @@ import * as FileSystem from "expo-file-system";
 import { Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
-export const START_PAGE_NUM = 7; // Number of pages to load initially per user
-export const LOAD_MORE_PAGES = 5; // Number of pages to load in each additional batch
+export const START_PAGE_NUM = 3; // Number of pages to load initially per user
+export const LOAD_MORE_PAGES = 3; // Number of pages to load in each additional batch
 
 export const getPageForUser = (
   pages: Record<string, Page>,

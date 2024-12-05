@@ -16,10 +16,10 @@ export const profiles$ = observable(
     select: (from) => from.select("*"),
     filter: (select) => select.neq("deleted", true),
     realtime: true,
-    persist: {
-      name: "profiles",
-      retrySync: true, // Persist pending changes and retry
-    },
+    // persist: {
+    //   name: "profiles",
+    //   retrySync: true, // Persist pending changes and retry
+    // },
     retry: {
       infinite: true, // Retry changes with exponential backoff
     },

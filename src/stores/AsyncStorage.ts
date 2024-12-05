@@ -7,25 +7,19 @@ import { v4 as uuidv4 } from "uuid";
 export const generateId = () => uuidv4();
 
 // Global configuration
-export const persistOptions = configureSynced({
-  persist: {
-    plugin: observablePersistAsyncStorage({
-      AsyncStorage,
-    }),
-  },
-});
+
 export const customSupabaseSynced = configureSynced(syncedSupabase, {
   // Use React Native Async Storage
-  persist: {
-    plugin: observablePersistAsyncStorage({
-      AsyncStorage,
-    }),
-  },
+  // persist: {
+  //   plugin: observablePersistAsyncStorage({
+  //     AsyncStorage,
+  //   }),
+  // },
   actions: ["read", "create", "update", "delete"],
   generateId,
   supabase,
-  changesSince: "last-sync",
-  fieldCreatedAt: "created_at",
-  fieldUpdatedAt: "updated_at",
+  // changesSince: "last-sync",
+  // fieldCreatedAt: "created_at",
+  // fieldUpdatedAt: "updated_at",
   fieldDeleted: "deleted",
 });
