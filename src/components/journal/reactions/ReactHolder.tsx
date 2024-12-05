@@ -28,23 +28,19 @@ const ReactHolder = observer(function ReactHolder({
       );
     })
     ?.get();
-  console.log("curUserReactionPage", curUserReactionPage);
   const otherUserReactionPagesIds = Object.values(pageReactions$)
     .filter((reactionPage) => reactionPage.page_id.get() === pageId && reactionPage.created_by.get() !== curUserId)
     ?.map((reactionPage$) => reactionPage$.id.get());
 
-  console.log("otherUserReactionPage", otherUserReactionPagesIds);
   const curReactionPageIds = [
     ...(curUserReactionPage ? [curUserReactionPage.id] : []),
     ...(reactStore$.showNonUserReactions.get() ? otherUserReactionPagesIds : []),
   ];
-  console.log("curReactionPageIds", curReactionPageIds);
   const reactions = reactStore$.showReactions.get()
     ? Object.values(reactionItems$.get() || {}).filter((reactionItem) => {
         return curReactionPageIds.includes(reactionItem.page_reaction_id);
       })
     : [];
-  console.log("reactions", reactions, reactStore$.showNonUserReactions.get());
   return (
     <StyledView
       key={`${pageId}`}

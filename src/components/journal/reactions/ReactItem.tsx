@@ -84,7 +84,6 @@ const ReactItem = observer(function ReactItem({
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
-      console.log("font size: ", fontSize.value);
       runOnJS(updateReactionItem)({
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
@@ -116,7 +115,6 @@ const ReactItem = observer(function ReactItem({
   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
 
   const handleEdit = () => {
-    console.log("test");
     textStore$.editTextReact(item.id);
   };
 
