@@ -47,6 +47,12 @@ const Layout = observer(function Layout() {
           }}
         />
         <Stack.Screen
+          name="home"
+          options={{
+            animation: "fade",
+          }}
+        />
+        <Stack.Screen
           name="journal/[id]"
           options={{
             animation: "slide_from_left",

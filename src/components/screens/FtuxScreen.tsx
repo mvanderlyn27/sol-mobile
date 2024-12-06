@@ -34,7 +34,7 @@ const FtuxScreen = observer(function FtuxScreen() {
       setLoading(false);
     } else {
       setLoading(false);
-      router.push("./permissions");
+      router.replace("./permissions");
     }
   };
   const showDatePicker = () => {

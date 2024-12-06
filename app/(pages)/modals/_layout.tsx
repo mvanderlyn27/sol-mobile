@@ -31,7 +31,8 @@ export default function Modal() {
   const { height: windowHeight } = useWindowDimensions();
 
   const handleClose = () => {
-    router.dismissAll();
+    // router.dismissAll();
+    router.replace("/home");
   };
 
   const handleBack = () => {

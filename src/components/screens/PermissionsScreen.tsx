@@ -38,7 +38,7 @@ const PermissionsScreen = observer(function FtuxScreen() {
       return;
     }
     profiles$[userId].new.set(false);
-    router.push("/home");
+    router.replace("/home");
   };
   const showDatePicker = () => {
     setDatePickerVisibility(true);

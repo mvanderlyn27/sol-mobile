@@ -25,7 +25,7 @@ const Modal = observer(function Modal() {
     const firstRoute = path.split("/")[1];
     // router.push(firstRoute ? (firstRoute as Href) : "/");
     // router.push(("/" + firstRoute) as Href);
-    router.dismissAll();
+    router.replace("/home");
   };
   const handleBack = () => {
     router.back();
