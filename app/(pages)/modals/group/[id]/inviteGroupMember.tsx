@@ -5,11 +5,12 @@ import ModalButton from "@/src/components/shared/ModalButton"; // Assuming this 
 import { router, useLocalSearchParams } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import authStore$ from "@/src/stores/AuthStore";
-import { groupMembers$, inviteGroupMember } from "@/src/stores/MemberStore";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 import { addNotification, notificationStore$ } from "@/src/stores/NotificationStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { NotificationType } from "@/src/types/shared.types";
 import { profiles$ } from "@/src/stores/ProfileStore";
+import { inviteGroupMember } from "@/src/services/Group";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);

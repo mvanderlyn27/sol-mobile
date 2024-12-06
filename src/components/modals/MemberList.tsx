@@ -5,13 +5,10 @@ import UserPic from "../shared/UserPic";
 import { router } from "expo-router";
 import { GroupMember } from "@/src/types/shared.types";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import {
-  filterGroupMembers,
-  filterOutPending,
-  filterPendingGroupMembers,
-  groupMembers$,
-} from "@/src/stores/MemberStore";
+
 import authStore$ from "@/src/stores/AuthStore";
+import { filterOutPending, filterGroupMembers, filterPendingGroupMembers } from "@/src/services/Group";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);

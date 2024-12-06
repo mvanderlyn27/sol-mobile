@@ -1,8 +1,9 @@
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
+import { removeMember } from "@/src/services/Group";
 import authStore$ from "@/src/stores/AuthStore";
-import { filterOutPending, groupMembers$, removeMember } from "@/src/stores/MemberStore";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, Profile } from "@/src/types/shared.types";
 import { AntDesign } from "@expo/vector-icons";

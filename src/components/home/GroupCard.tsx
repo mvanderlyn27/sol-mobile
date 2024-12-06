@@ -7,14 +7,10 @@ import GroupPic from "../modals/GroupPic";
 import { ButtonType, Group, GroupMember } from "@/src/types/shared.types";
 import Feather from "@expo/vector-icons/Feather";
 import { observer } from "@legendapp/state/react";
-import {
-  filterGroupMembers,
-  filterOutPending,
-  filterPendingGroupMembers,
-  groupMembers$,
-} from "@/src/stores/MemberStore";
 import RectangleButton from "../shared/RectangleButton";
 import CircleButton from "../shared/CircleButton";
+import { filterGroupMembers, filterPendingGroupMembers } from "@/src/services/Group";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);

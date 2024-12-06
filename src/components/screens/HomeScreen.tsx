@@ -6,9 +6,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { styled } from "nativewind";
 import HomeButtons from "../home/HomeButtons";
 import CreateGroupButton from "../home/CreateGroupButton";
-import { filterMyGroups, filterMyInvites, groupMembers$ } from "@/src/stores/MemberStore";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
+import { filterMyGroups, filterMyInvites } from "@/src/services/Group";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledScrollView = styled(ScrollView);
 const StyledView = styled(View);

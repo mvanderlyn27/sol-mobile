@@ -10,9 +10,9 @@ import { Skeleton } from "moti/skeleton";
 import { Image } from "expo-image";
 import { Blurhash } from "react-native-blurhash";
 import StorageService from "@/src/api/storage";
-import { addGroup } from "@/src/stores/GroupStore";
 import { AnimatePresence, MotiView } from "moti";
 import { resizeImage } from "@/src/services/Media";
+import { addGroup } from "@/src/services/Group";
 
 const StyledView = styled(View);
 const StyledMotiView = styled(MotiView);

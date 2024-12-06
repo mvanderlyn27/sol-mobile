@@ -8,7 +8,6 @@ import { generateId } from "../stores/AsyncStorage";
 import authStore$ from "../stores/AuthStore";
 import { groupStore$ } from "../stores/GroupStore";
 import { images$, backgroundImages } from "../stores/ImageStore";
-import { filterGroupMembers, groupMembers$ } from "../stores/MemberStore";
 import { addNotification } from "../stores/NotificationStore";
 import { pageStore$, pages$, pageItems$, textItems$, imagesItems$, DateItem } from "../stores/PagesStore";
 import { pageReactions$ } from "../stores/ReactStore";
@@ -19,6 +18,8 @@ import { posthog } from "./Posthog";
 import * as ImageManipulator from "expo-image-manipulator"; // Import ImageManipulator
 import * as FileSystem from "expo-file-system";
 import { Dimensions } from "react-native";
+import { filterGroupMembers } from "./Group";
+import { groupMembers$ } from "../stores/MemberStore";
 
 const { width, height } = Dimensions.get("window");
 export const START_PAGE_NUM = 7; // Number of pages to load initially per user

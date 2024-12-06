@@ -15,10 +15,11 @@ import { Link, router } from "expo-router";
 import { styled } from "nativewind";
 import { View, Text, Dimensions, Pressable, ScrollView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import { filterMyGroups, filterOutPending, groupMembers$ } from "@/src/stores/MemberStore";
 import { Share, Button } from "react-native";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { addNotification } from "@/src/stores/NotificationStore";
+import { filterMyGroups, filterOutPending } from "@/src/services/Group";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 
 const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
