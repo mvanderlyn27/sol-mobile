@@ -159,13 +159,16 @@ export const inviteGroupMember = async (groupId: string, username: string): Prom
     return null;
   }
   const inviteId = generateId();
-
-  groupMembers$[inviteId].set({
+  const invite = {
     id: inviteId,
     group_id: groupId,
     user_id: entry.id,
     role: "member",
     status: "pending",
-  } as GroupMember);
+  } as GroupMember;
+  const { error } = await supabase.from("group_members").insert(invite);
+  console.log("erorr", error);
+  //   groupMembers$[inviteId].set(invite);
+
   return inviteId;
 };

@@ -16,7 +16,7 @@ export const pageReactions$ = observable(
     actions: ["read", "create", "update", "delete"],
     realtime: true,
     persist: {
-      name: "page_reactions",
+      name: `page_reactions-${process.env.APP_VARIANT}`,
       //for some reason this is needed to make the real time syncing consistent
       retrySync: true, // Persist pending changes and retry
     },
@@ -48,7 +48,7 @@ export const reactionItems$ = observable(
     actions: ["read", "create", "update", "delete"],
     realtime: true,
     persist: {
-      name: "reaction_items",
+      name: `reaction_items-${process.env.APP_VARIANT}`,
       //for some reason this is needed to make the real time syncing consistent
       retrySync: true, // Persist pending changes and retry
     },
@@ -82,7 +82,7 @@ export const reactionTextItems$ = observable(
     actions: ["read", "create", "update", "delete"],
     realtime: true,
     persist: {
-      name: "reaction_text_items",
+      name: `reaction_text_items-${process.env.APP_VARIANT}`,
       //for some reason this is needed to make the real time syncing consistent
       retrySync: true, // Persist pending changes and retry
     },

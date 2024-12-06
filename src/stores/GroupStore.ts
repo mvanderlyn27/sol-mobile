@@ -7,11 +7,14 @@ export const groups$ = observable(
     select: (from) => from.select("*"),
     realtime: true,
     persist: {
-      name: "groups",
+      name: `groups-${process.env.APP_VARIANT}`,
       retrySync: true, // Persist pending changes and retry
     },
     retry: {
       infinite: true, // Retry changes with exponential backoff
+    },
+    onError: (error) => {
+      console.log("error with group store", error);
     },
   })
 );

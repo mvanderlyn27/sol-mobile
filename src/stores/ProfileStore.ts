@@ -10,6 +10,7 @@ import { addNotification, notificationStore$ } from "./NotificationStore";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
 import { supabase } from "../lib/supabase";
+const name: string = "profiles-" + (process.env.APP_VARIANT || "");
 export const profiles$ = observable(
   customSupabaseSynced({
     supabase,
@@ -18,7 +19,7 @@ export const profiles$ = observable(
     filter: (select) => select.neq("deleted", true),
     realtime: true,
     persist: {
-      name: "profiles",
+      name: `profiles-${process.env.APP_VARIANT}`,
       retrySync: true, // Persist pending changes and retry
     },
     retry: {

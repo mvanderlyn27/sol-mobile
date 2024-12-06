@@ -11,7 +11,7 @@ export const images$ = observable<Record<string, Image>>(
     select: (from: any) => from.select("*"),
     realtime: true,
     persist: {
-      name: "images",
+      name: `images-${process.env.APP_VARIANT}`,
       retrySync: true, // Persist pending changes and retry
     },
     retry: {

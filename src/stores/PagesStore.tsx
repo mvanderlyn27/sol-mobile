@@ -14,7 +14,7 @@ export const pages$ = observable<Record<string, Page>>(
     realtime: true,
     actions: ["read", "create", "update", "delete"],
     persist: {
-      name: "pages",
+      name: `pages-${process.env.APP_VARIANT}`,
       //for some reason this is needed to make the real time syncing consistent
       retrySync: true, // Persist pending changes and retry
     },
@@ -45,7 +45,7 @@ export const pageItems$ = observable<Record<string, PageItem>>(
     realtime: true,
     actions: ["read", "create", "update", "delete"],
     persist: {
-      name: "page_items",
+      name: `page_items-${process.env.APP_VARIANT}`,
       retrySync: true, // Persist pending changes and retry
     },
     retry: {
@@ -80,7 +80,7 @@ export const imagesItems$ = observable<Record<string, ImageItem>>(
     realtime: true,
     actions: ["read", "create", "update", "delete"],
     persist: {
-      name: "image_items",
+      name: `image_items-${process.env.APP_VARIANT}`,
       retrySync: true, // Persist pending changes and retry
     },
     retry: {
@@ -107,7 +107,7 @@ export const textItems$ = observable<Record<string, TextItem>>(
     select: (from: any) => from.select("*"),
     realtime: true,
     persist: {
-      name: "text_items",
+      name: `text_items-${process.env.APP_VARIANT}`,
       retrySync: true, // Persist pending changes and retry
     },
     retry: {
