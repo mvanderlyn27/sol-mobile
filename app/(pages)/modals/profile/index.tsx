@@ -7,7 +7,7 @@ import UserPic from "@/src/components/shared/UserPic";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { pages$ } from "@/src/stores/PagesStore";
-import { profiles$ } from "@/src/stores/ProfileStore";
+import { profiles$, updateUsername } from "@/src/stores/ProfileStore";
 import { GroupMember, NotificationType, Page } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { observer } from "@legendapp/state/react";
@@ -20,6 +20,8 @@ import { generateId } from "@/src/stores/AsyncStorage";
 import { addNotification } from "@/src/stores/NotificationStore";
 import { filterMyGroups, filterOutPending } from "@/src/services/Group";
 import { groupMembers$ } from "@/src/stores/MemberStore";
+import { useState } from "react";
+import UsernameInput from "@/src/components/modals/UsernameInput";
 
 const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
@@ -28,6 +30,7 @@ const StyledPressable = styled(Pressable);
 const StyledFeather = styled(Feather);
 
 const CurProfile = observer(function CurProfile() {
+  const [loading, setLoading] = useState(false);
   const { back } = useLocalSearchParams();
   const handleRemove = (userId: string) => {};
 
@@ -46,14 +49,7 @@ const CurProfile = observer(function CurProfile() {
   const entriesCount =
     Object.values((pages$.get() as Record<string, Page>) || {}).filter((item: Page) => item.created_by === curUserId)
       ?.length || 0;
-  const handleUpdateUsername = (val: string) => {
-    profiles$[curUserId].username.set(val);
-    addNotification({
-      id: generateId(),
-      message: `Name Updated`,
-      type: NotificationType.info,
-    });
-  };
+
   const handleInvite = async () => {
     try {
       const result = await Share.share({
@@ -93,7 +89,7 @@ const CurProfile = observer(function CurProfile() {
           <ProfilePic editable />
         </StyledView>
         <StyledView className="flex-row  items-center px-10 p-2">
-          <EditableText placeholder={profile.username || "Username"} action={handleUpdateUsername} />
+          <UsernameInput disabled={loading} />
         </StyledView>
         {/* Separator */}
         <StyledView className="w-full h-[1px] my-2  bg-slate-400" />

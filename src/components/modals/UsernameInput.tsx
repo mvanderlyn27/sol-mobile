@@ -1,7 +1,7 @@
 import { generateId } from "@/src/stores/AsyncStorage";
 import authStore$ from "@/src/stores/AuthStore";
 import { addNotification } from "@/src/stores/NotificationStore";
-import { profiles$ } from "@/src/stores/ProfileStore";
+import { profiles$, updateUsername } from "@/src/stores/ProfileStore";
 import { NotificationType } from "@/src/types/shared.types";
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
@@ -9,25 +9,38 @@ import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
 import { useState } from "react";
 import { Pressable, View, Text, TextInput } from "react-native";
+
 const StyledView = styled(View);
 const StyledMotiView = styled(MotiView);
 const StyledPressable = styled(Pressable);
 const StyledText = styled(Text);
 const StyledTextInput = styled(TextInput);
 const StyledFeather = styled(Feather);
-export default function EditableText({
-  disabled,
-  placeholder,
-  action,
-}: {
-  disabled?: boolean;
-  placeholder: string;
-  action: (dval: string) => void;
-}) {
+
+export default function UsernameInput({ disabled }: { disabled?: boolean }) {
+  const placeholder = profiles$[authStore$.session.user.id.peek() || ""].username.peek();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [newValue, setNewValue] = useState(placeholder);
+
+  const handleUpdateUsername = (val: string) => {
+    const { error } = updateUsername(val);
+    if (error) {
+      addNotification({ id: generateId(), message: error, type: NotificationType.error });
+      setNewValue(placeholder);
+      setLoading(false);
+    } else {
+      setLoading(false);
+      addNotification({
+        id: generateId(),
+        message: `Name Updated`,
+        type: NotificationType.info,
+      });
+    }
+  };
+
   const handleSubmit = () => {
-    if (newValue === "") {
+    if (!newValue || newValue === "") {
       addNotification({
         id: generateId(),
         message: "Please enter a value to update",
@@ -36,8 +49,15 @@ export default function EditableText({
       return;
     }
     setIsEditing(false);
-    action(newValue);
+    handleUpdateUsername(newValue);
   };
+
+  const updateValue = (value: string) => {
+    // Clean the input: trim spaces and convert to lowercase
+    const cleanedValue = value.trim().toLowerCase();
+    setNewValue(cleanedValue);
+  };
+
   return (
     <AnimatePresence>
       {!isEditing && (
@@ -57,8 +77,8 @@ export default function EditableText({
           className="w-full px-10">
           <StyledTextInput
             editable={!disabled}
-            value={newValue}
-            onChangeText={setNewValue}
+            value={newValue || ""}
+            onChangeText={updateValue}
             onSubmitEditing={handleSubmit}
             onBlur={handleSubmit}
             autoFocus
