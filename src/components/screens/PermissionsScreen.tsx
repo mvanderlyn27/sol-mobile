@@ -22,7 +22,6 @@ const StyledPressable = styled(Pressable);
 const StyledLink = styled(Link);
 const PermissionsScreen = observer(function FtuxScreen() {
   // form to setup username
-
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [pushNotificationEnabled, setPushNotificationEnabled] = useState(false);
   const handleContinue = () => {

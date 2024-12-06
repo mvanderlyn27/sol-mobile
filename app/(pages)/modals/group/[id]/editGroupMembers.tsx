@@ -86,7 +86,6 @@ const EditGroupMembers = observer(function EditGroupMembers() {
           <ModalButton disabled={false} action={handleInvite} color={"bg-primary"} text="Invite new" />
         </StyledView>
       </StyledView>
-      <Link href="/home"></Link>
     </StyledView>
   );
 });

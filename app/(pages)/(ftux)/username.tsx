@@ -11,7 +11,6 @@ const Ftux = observer(function Ftux() {
       router.navigate("/login");
     }
     const newUser = profiles$[userId || ""]?.new.get();
-    console.log("new user", newUser);
     if (!newUser) {
       router.navigate("/home");
     }

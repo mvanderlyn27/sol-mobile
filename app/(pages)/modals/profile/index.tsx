@@ -117,8 +117,6 @@ const CurProfile = observer(function CurProfile() {
           <ModalButton disabled={false} action={handleInvite} color={"bg-primary"} text="Invite friend" />
         </StyledView>
       </StyledView>
-
-      <Link href="/home"></Link>
     </StyledView>
   );
 });

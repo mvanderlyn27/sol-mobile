@@ -10,7 +10,7 @@ const StyledView = styled(View);
 const Layout = observer(function Layout() {
   const session = authStore$.session.get();
   if (session !== null) {
-    return <Redirect href="/home" />;
+    return <Redirect href="/loading" />;
   }
   return (
     <StyledView className="absolute top-0 bottom-0 right-0 left-0">

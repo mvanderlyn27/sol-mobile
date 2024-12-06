@@ -1,4 +1,4 @@
-import { when } from "@legendapp/state";
+import { syncState, when } from "@legendapp/state";
 import { Href, SplashScreen, router } from "expo-router";
 import { useEffect, useState } from "react";
 import authStore$ from "../stores/AuthStore";
@@ -12,30 +12,32 @@ import { generateId } from "../stores/AsyncStorage";
 import { NotificationType } from "../types/shared.types";
 import { pageReactions$, reactionItems$, reactionTextItems$ } from "../stores/ReactStore";
 
-export const initializeStores = async () => {
-  const profileReady = when(profiles$);
-  const pagesReady = when(pages$);
-  const pageItems = when(pageItems$);
-  const textItems = when(textItems$);
-  const imageItems = when(imagesItems$);
-  const reactions = when(pageReactions$);
-  const reactionItems = when(reactionItems$);
-  const reactionTextItem = when(reactionTextItems$);
-  const groupReady = when(groups$);
-  const groupMemberReady = when(groupMembers$);
-  await Promise.all([
-    profileReady,
-    pagesReady,
-    groupReady,
-    groupMemberReady,
-    pageItems,
-    textItems,
-    imageItems,
-    reactions,
-    reactionItems,
-    reactionTextItem,
-  ]);
-};
+// export const initializeStores = async () => {
+//   //want to wait until these are all synced
+//   const profileReady = syncState(profiles$).sync();
+//   const pagesReady = syncState(pages$).sync();
+//   const pageItems = syncState(pageItems$).sync();
+//   const textItems = syncState(textItems$).sync();
+//   const imageItems = syncState(imagesItems$).sync();
+//   const reactions = syncState(pageReactions$).sync();
+//   const reactionItems = syncState(reactionItems$).sync();
+//   const reactionTextItem = syncState(reactionTextItems$).sync();
+//   const groupReady = syncState(groups$).sync();
+//   const groupMemberReady = syncState(groupMembers$).sync();
+//   const out = await Promise.all([
+//     profileReady,
+//     pagesReady,
+//     groupReady,
+//     groupMemberReady,
+//     pageItems,
+//     textItems,
+//     imageItems,
+//     reactions,
+//     reactionItems,
+//     reactionTextItem,
+//   ]);
+//   console.log("stores", profiles$.get());
+// };
 export function useAppNavigation() {
   useEffect(() => {
     let notificationSubscription;
@@ -43,32 +45,26 @@ export function useAppNavigation() {
     const navigateApp = async () => {
       try {
         // Wait for auth to finish loading
-        await when(() => !authStore$.loading.get());
-        await initializeStores();
-
+        // await initializeStores();
+        const userId = authStore$.session.user.id.get();
+        if (!userId) {
+          SplashScreen.hideAsync();
+          router.navigate("/login");
+          return;
+        }
+        SplashScreen.hideAsync();
+        const profile = await when(profiles$[userId]);
         // Check if the app was opened via a notification
         const response = await Notifications.getLastNotificationResponseAsync();
         const url = response?.notification?.request.content.data?.url;
 
-        SplashScreen.hideAsync();
-
         if (url) {
-          console.log("URL found");
-          const isAuthenticated = authStore$.session.get() !== null;
-          router.replace(isAuthenticated ? url : "/login");
+          router.replace(url);
         } else {
-          console.log("URL not found");
-          const isAuthenticated = authStore$.session.get() !== null;
-          if (!isAuthenticated) {
-            router.replace("/login");
+          if (profile && profile.new) {
+            router.replace("/(ftux)/username");
           } else {
-            const userId = authStore$.session.user.id.get();
-            const profile = userId && profiles$[userId].get();
-            if (profile && profile.new) {
-              router.replace("/(ftux)/username");
-            } else {
-              router.replace("/home");
-            }
+            router.replace("/home");
           }
         }
 
