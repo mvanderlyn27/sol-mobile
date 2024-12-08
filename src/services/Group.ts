@@ -166,9 +166,7 @@ export const inviteGroupMember = async (groupId: string, username: string): Prom
     role: "member",
     status: "pending",
   } as GroupMember;
-  const { error } = await supabase.from("group_members").insert(invite);
-  console.log("erorr", error);
-  //   groupMembers$[inviteId].set(invite);
+  groupMembers$[inviteId].set(invite);
 
   return inviteId;
 };
