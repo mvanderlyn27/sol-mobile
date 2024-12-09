@@ -19,13 +19,13 @@ export const textStore$ = observable({
   id: "",
   size: 30,
   scale: 1,
-  color: "#ffffff",
+  color: "#000",
   font: "Calibri",
   text: "",
   reset: () => {
     textStore$.id.set("");
     textStore$.size.set(30);
-    textStore$.color.set("#ffffff");
+    textStore$.color.set("#000");
     textStore$.font.set("Calibri");
     textStore$.text.set("");
   },

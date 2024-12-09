@@ -17,7 +17,7 @@ const StyledText = styled(Text);
 const StyledBlurView = styled(BlurView);
 
 const TextOverlayBar = observer(function TextOverlayBar() {
-  const [activeMenu, setActiveMenu] = useState<"settings" | "text" | null>(null);
+  const [activeMenu, setActiveMenu] = useState<"settings" | "text" | null>("settings");
 
   const toggleMenu = (menu: "settings" | "text") => {
     setActiveMenu((current) => (current === menu ? null : menu));

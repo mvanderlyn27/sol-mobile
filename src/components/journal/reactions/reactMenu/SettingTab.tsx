@@ -11,11 +11,11 @@ const StyledText = styled(Text);
 const StyledTouchableOpacity = styled(TouchableOpacity);
 
 // Color options (you can add more colors as needed)
-const colorOptions = ["#FFF", "#000", "#fdf0d5", "#c1121f", "#FFC300", "#669bbc"];
+const colorOptions = ["#000", "#FFF", "#fdf0d5", "#c1121f", "#FFC300", "#669bbc"];
 
 const SettingsTab = observer(function () {
   const size = textStore$.size.get();
-  const color = textStore$.color.get() || "#fff";
+  const color = textStore$.color.get() || "#000";
   const handleTextSizeChange = (size: number) => {
     // onTextSizeChange(size); // Notify parent component of text size change
     textStore$.size.set(size);
