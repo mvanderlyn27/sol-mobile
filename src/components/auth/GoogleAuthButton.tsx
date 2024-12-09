@@ -8,6 +8,7 @@ import { observer } from "@legendapp/state/react";
 import { addNotification } from "@/src/stores/NotificationStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { NotificationType } from "@/src/types/shared.types";
+import { signInGoogle } from "@/src/services/Auth";
 const StyledGoogleButton = styled(GoogleSigninButton);
 const GoogleAuthButton = observer(function GoogleAuthButton() {
   // const { signInWithGoogle } = useAuth();
@@ -41,7 +42,7 @@ const GoogleAuthButton = observer(function GoogleAuthButton() {
           await GoogleSignin.hasPlayServices();
           const userInfo = await GoogleSignin.signIn();
           if (userInfo?.data?.idToken) {
-            await authStore$.signInGoogle(userInfo.data.idToken, userInfo?.data?.user?.name || "");
+            await signInGoogle(userInfo.data.idToken, userInfo?.data?.user?.name || "");
           } else {
             console.error("no id token/canelled login");
             posthog.capture("google-signin-error", { error: "no id token, or canceled login" });

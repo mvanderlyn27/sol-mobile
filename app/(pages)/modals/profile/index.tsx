@@ -7,7 +7,7 @@ import UserPic from "@/src/components/shared/UserPic";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { pages$ } from "@/src/stores/PagesStore";
-import { profiles$, updateUsername } from "@/src/stores/ProfileStore";
+import { profiles$ } from "@/src/stores/ProfileStore";
 import { GroupMember, NotificationType, Page } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { observer } from "@legendapp/state/react";

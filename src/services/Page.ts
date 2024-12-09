@@ -23,8 +23,8 @@ import { groupMembers$ } from "../stores/MemberStore";
 import { resyncObservables } from "./AppStore";
 
 const { width, height } = Dimensions.get("window");
-export const START_PAGE_NUM = 7; // Number of pages to load initially per user
-export const LOAD_MORE_PAGES = 5; // Number of pages to load in each additional batch
+export const START_PAGE_NUM = 3; // Number of pages to load initially per user
+export const LOAD_MORE_PAGES = 2; // Number of pages to load in each additional batch
 
 export const getPageForUser = (
   pages: Record<string, Page>,

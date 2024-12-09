@@ -1,7 +1,8 @@
+import { updateUsername } from "@/src/services/Profile";
 import { generateId } from "@/src/stores/AsyncStorage";
 import authStore$ from "@/src/stores/AuthStore";
 import { addNotification } from "@/src/stores/NotificationStore";
-import { profiles$, updateUsername } from "@/src/stores/ProfileStore";
+import { profiles$ } from "@/src/stores/ProfileStore";
 import { NotificationType } from "@/src/types/shared.types";
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";

@@ -1,8 +1,8 @@
 import { getImageFromPath } from "@/src/assets/images/images";
+import { updateUsername, requestPushNotificationPermission } from "@/src/services/Profile";
 import { scheduleDailyReminder } from "@/src/services/PushNotification";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { addNotification } from "@/src/stores/NotificationStore";
-import { requestPushNotificationPermission, updateUsername } from "@/src/stores/ProfileStore";
 import { NotificationType } from "@/src/types/shared.types";
 import { observer } from "@legendapp/state/react";
 import { email } from "@snaplet/copycat/dist/email";

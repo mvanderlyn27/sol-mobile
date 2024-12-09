@@ -8,6 +8,7 @@ import AppleAuthButton from "./AppleAuthButton";
 import GoogleAuthButton from "./GoogleAuthButton";
 import { observer } from "@legendapp/state/react";
 import authStore$ from "@/src/stores/AuthStore";
+import { signIn } from "@/src/services/Auth";
 
 const StyledMotiView = styled(MotiView);
 const StyledTextInput = styled(TextInput);
@@ -22,7 +23,7 @@ const SignupForm = observer(function SignupForm() {
 
   async function handleSignin() {
     setLoading(true);
-    await authStore$.signIn(email, password);
+    await signIn(email, password);
     setLoading(false);
   }
 

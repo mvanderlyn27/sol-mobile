@@ -5,13 +5,14 @@ import { Text, Pressable } from "react-native";
 import authStore$ from "@/src/stores/AuthStore";
 import { observer } from "@legendapp/state/react";
 import { router } from "expo-router";
+import { signOut } from "@/src/services/Auth";
 const StyledPressable = styled(Pressable);
 const StyledText = styled(Text);
 const LogoutButton = observer(function LogoutButton() {
   return (
     <StyledPressable
       onPress={() => {
-        authStore$.signOut();
+        signOut();
         router.dismissAll();
         router.push("/");
       }}

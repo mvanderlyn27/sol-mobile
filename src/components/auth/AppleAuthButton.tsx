@@ -1,4 +1,5 @@
 import { useAuth } from "@/src/contexts/AuthProvider";
+import { signInApple } from "@/src/services/Auth";
 import { generateId } from "@/src/stores/AsyncStorage";
 import authStore$ from "@/src/stores/AuthStore";
 import { addNotification } from "@/src/stores/NotificationStore";
@@ -24,7 +25,7 @@ const AppleAuthButton = observer(function AppleAuthButton({ type }: { type: stri
       });
       // logged in
       if (credential.identityToken) {
-        await authStore$.signInApple(credential.identityToken, credential.fullName?.givenName || "");
+        await signInApple(credential.identityToken, credential.fullName?.givenName || "");
       } else {
         posthog.capture("sign-in-with-apple-failed", { error: "missing identity token" });
         addNotification({

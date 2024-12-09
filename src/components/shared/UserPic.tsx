@@ -36,7 +36,7 @@ const UserPic = observer(function UserPic({
           <Image
             style={{ flex: 1 }}
             source={profile.avatar_url}
-            placeholder={{ blurhash: profile.avatar_placeholder }}
+            placeholder={{ blurhash: profile.avatar_placeholder || "" }}
           />
         ) : (
           <Image style={{ flex: 1 }} source={`https://api.dicebear.com/9.x/miniavs/svg?seed=${shortId}`} />

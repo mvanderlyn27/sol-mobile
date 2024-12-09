@@ -9,6 +9,7 @@ import { router } from "expo-router";
 import { NotificationType } from "@/src/types/shared.types";
 import { addNotification } from "@/src/stores/NotificationStore";
 import { generateId } from "@/src/stores/AsyncStorage";
+import { updateEmail, updatePassword } from "@/src/services/Auth";
 
 // Styled components using NativeWind
 const StyledView = styled(View);
@@ -58,7 +59,7 @@ const AccountForm = () => {
       return;
     }
     if (email !== authStore$.session.get()?.user.email) {
-      await authStore$.updateEmail(email);
+      await updateEmail(email);
     }
     if (password !== confirmPassword) {
       console.log("Passwords do not match");
@@ -71,7 +72,7 @@ const AccountForm = () => {
       return;
     }
     if (password !== "") {
-      await authStore$.updatePassword(password);
+      await updatePassword(password);
     }
     addNotification({
       id: generateId(),

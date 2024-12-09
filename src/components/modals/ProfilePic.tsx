@@ -113,7 +113,7 @@ const ProfilePic = observer(function ProfilePic({ editable, userId }: { editable
           <Image
             style={{ flex: 1 }}
             source={profile.avatar_url}
-            placeholder={{ blurhash: profile.avatar_placeholder }}
+            placeholder={{ blurhash: profile.avatar_placeholder || "" }}
           />
         </StyledView>
       )}

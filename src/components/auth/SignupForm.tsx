@@ -12,6 +12,7 @@ import { observer } from "@legendapp/state/react";
 import { NotificationType } from "@/src/types/shared.types";
 import { addNotification } from "@/src/stores/NotificationStore";
 import { generateId } from "@/src/stores/AsyncStorage";
+import { signUp } from "@/src/services/Auth";
 
 const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
@@ -27,7 +28,7 @@ const SignupForm = observer(function SignupForm() {
 
   async function handleSignUp() {
     setLoading(true);
-    await authStore$.signUp(email, password);
+    await signUp(email, password);
     addNotification({
       id: generateId(),
       message: "Check email for verification",
