@@ -29,7 +29,12 @@ const ReactHolder = observer(function ReactHolder({
     })
     ?.get();
   const otherUserReactionPagesIds = Object.values(pageReactions$)
-    .filter((reactionPage) => reactionPage.page_id.get() === pageId && reactionPage.created_by.get() !== curUserId)
+    .filter(
+      (reactionPage) =>
+        reactionPage.page_id.get() === pageId &&
+        reactionPage.created_by.get() !== curUserId &&
+        !reactionPage.draft.get()
+    )
     ?.map((reactionPage$) => reactionPage$.id.get());
 
   const curReactionPageIds = [
