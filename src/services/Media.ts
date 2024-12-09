@@ -48,44 +48,35 @@ export const listMediaFiles = async () => {
   const files = await FileSystem.readDirectoryAsync(mediaDirectory);
   return files.map((file) => `${mediaDirectory}${file}`);
 };
-
 export const resizeImage = async (uri: string, originalWidth: number, originalHeight: number) => {
-  // Get screen dimensions
-  const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+  // const MAX_DIMENSION = 1024; // Define the maximum width or height
+  // const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
-  // Get original image info
+  // const aspectRatio = originalWidth / originalHeight;
+  // let newWidth, newHeight;
 
-  // Use the width and height from the metadata
+  // if (originalWidth > MAX_DIMENSION || originalHeight > MAX_DIMENSION) {
+  //   if (aspectRatio > 1) {
+  //     newWidth = MAX_DIMENSION;
+  //     newHeight = Math.round(MAX_DIMENSION / aspectRatio);
+  //   } else {
+  //     newHeight = MAX_DIMENSION;
+  //     newWidth = Math.round(MAX_DIMENSION * aspectRatio);
+  //   }
+  // } else {
+  //   newWidth = originalWidth;
+  //   newHeight = originalHeight;
+  // }
 
-  // Calculate new dimensions based on the screen size
-  const aspectRatio = originalWidth / originalHeight;
-  let newWidth, newHeight;
-
-  if (originalWidth > screenWidth || originalHeight > screenHeight) {
-    if (aspectRatio > 1) {
-      // Landscape
-      newWidth = screenWidth;
-      newHeight = Math.round(screenWidth / aspectRatio);
-    } else {
-      // Portrait or Square
-      newHeight = screenHeight;
-      newWidth = Math.round(screenHeight * aspectRatio);
-    }
-  } else {
-    // If the original image is already smaller than screen dimensions, keep it as is
-    newWidth = originalWidth;
-    newHeight = originalHeight;
-  }
-
-  // Resize the image
   const manipResult = await ImageManipulator.manipulateAsync(
     uri,
-    [{ resize: { width: newWidth, height: newHeight } }],
+    // [{ resize: { width: originalWidth, height: originalHeight} }],
+    [],
     {
-      compress: 1,
-      format: ImageManipulator.SaveFormat.WEBP,
+      compress: 0.8, // Adjust compression level
+      format: ImageManipulator.SaveFormat.JPEG, // Use JPEG for good quality and size balance
     }
   );
 
-  return manipResult.uri; // Return the URI of the resized image
+  return manipResult.uri;
 };

@@ -357,10 +357,10 @@ export const uploadImage = async (
   if (!photoPath) {
     const { success, data, error } = await StorageService.uploadFile({
       bucket: "page_photos",
-      filePath: `${userId}/${imageId}.webp`,
+      filePath: `${userId}/${imageId}.avif`,
       base64: base64,
-      fileExtension: "webp",
-      mimeType: "image/webp",
+      fileExtension: "avif",
+      mimeType: "image/avif",
     });
     if (error || !data) {
       posthog.capture("upload-page-image-error", { error });
@@ -368,7 +368,7 @@ export const uploadImage = async (
       throw new Error("Error uploading image");
     }
     //eventaully want to ensure that it isn't uploading duplicates, only one copy of a photo at a time
-    photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${imageId}.webp`).data.publicUrl;
+    photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${imageId}.avif`).data.publicUrl;
   }
   images$[imageId].assign({
     path: photoPath,
