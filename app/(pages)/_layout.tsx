@@ -10,6 +10,8 @@ import { posthog } from "@/src/services/Posthog";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { imagesItems$, pageItems$, pages$, textItems$ } from "@/src/stores/PagesStore";
 import { images$ } from "@/src/stores/ImageStore";
+import { clearLocalPersist, resyncObservables } from "@/src/services/AppStore";
+import { supabase } from "@/src/lib/supabase";
 
 export const unstable_settings = {
   initialRouteName: "home",
@@ -19,13 +21,13 @@ const Layout = observer(function Layout() {
   // useAppStateListener();
   useMount(async () => {
     const curId = authStore$.session.user.id.get();
-    profiles$.onChange(() => {
+    profiles$.onChange(async () => {
       const shouldResetStorage = curId && profiles$[curId].should_reset_storage.get();
       if (shouldResetStorage) {
         profiles$[curId].should_reset_storage.set(false);
+        const { error } = await supabase.from("profiles").update({ should_reset_storage: false }).eq("id", curId);
+        await resyncObservables();
         posthog.capture("reset-local-storage");
-        AsyncStorage.clear().then(() => console.log("Cleared all persisted local data."));
-        authStore$.signOut();
       }
     });
   });

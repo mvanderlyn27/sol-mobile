@@ -23,6 +23,7 @@ import { groupMembers$ } from "@/src/stores/MemberStore";
 import { supabase } from "@/src/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { posthog } from "@/src/services/Posthog";
+import { setupAppStateListener } from "@/src/services/AppStore";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -48,6 +49,7 @@ export const RootLayout = observer(function RootLayout() {
       shouldSetBadge: false,
     }),
   });
+  setupAppStateListener();
   useMount(() => {
     authStore$.init();
   });

@@ -167,6 +167,5 @@ export const inviteGroupMember = async (groupId: string, username: string): Prom
     status: "pending",
   } as GroupMember;
   groupMembers$[inviteId].set(invite);
-
   return inviteId;
 };

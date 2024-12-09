@@ -16,7 +16,6 @@ export const profiles$ = observable(
     supabase,
     collection: "profiles",
     select: (from) => from.select("*"),
-    filter: (select) => select.neq("deleted", true),
     realtime: true,
     persist: {
       name: `profiles-${process.env.APP_VARIANT}`,

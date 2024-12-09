@@ -10,11 +10,11 @@ import { useLocalSearchParams } from "expo-router";
 const Journal = observer(function Journal() {
   const { id, user, date } = useLocalSearchParams<{ id: string; user?: string; date?: string }>();
   // Extract parameters from URL
-  useMount(() => {
+  useMount(async () => {
     beginBatch();
     pageStore$.ready.set(false);
     groupStore$.selectedGroup.set(id);
-    initializePageStore(user, date);
+    await initializePageStore(user, date);
     endBatch();
     pageStore$.ready.set(true);
   });

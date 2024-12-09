@@ -20,6 +20,7 @@ import * as FileSystem from "expo-file-system";
 import { Dimensions } from "react-native";
 import { filterGroupMembers } from "./Group";
 import { groupMembers$ } from "../stores/MemberStore";
+import { resyncObservables } from "./AppStore";
 
 const { width, height } = Dimensions.get("window");
 export const START_PAGE_NUM = 7; // Number of pages to load initially per user
@@ -45,7 +46,8 @@ export const getPageForUser = (
 /**
  * Initialize the group members and pages for a specific group.
  */
-export function initializePageStore(user?: string, day?: string) {
+export async function initializePageStore(user?: string, day?: string) {
+  await resyncObservables();
   loadGroupMembers(user);
   loadInitialPages(day);
 }
