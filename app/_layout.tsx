@@ -17,13 +17,14 @@ import * as Notifications from "expo-notifications";
 import { useAppNavigation } from "@/src/services/Navigation";
 import { computed, syncState } from "@legendapp/state";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { pageItems$, pages$ } from "@/src/stores/PagesStore";
+import { pages$ } from "@/src/stores/PagesStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { groupMembers$ } from "@/src/stores/MemberStore";
 import { supabase } from "@/src/lib/supabase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { posthog } from "@/src/services/Posthog";
 import { setupAppStateListener } from "@/src/services/AppStore";
+import { Page } from "@/src/types/shared.types";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -52,6 +53,14 @@ export const RootLayout = observer(function RootLayout() {
   setupAppStateListener();
   useMount(() => {
     authStore$.init();
+    // supabase.realtime
+    //   .channel("test")
+    //   .on("postgres_changes", { event: "*", schema: "public" }, (payload) => {
+    //     console.log("payload", payload);
+    //     const newPage: Page = payload.new as Page;
+    //     pages$[newPage.id].set(newPage);
+    //   })
+    //   .subscribe();
   });
 
   if (!loaded && !error) {

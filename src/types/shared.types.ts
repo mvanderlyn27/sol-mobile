@@ -4,15 +4,9 @@ export type Json = Record<string, any>;
 //Supabase Types
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Page = Database["public"]["Tables"]["pages"]["Row"];
-export type PageItem = Database["public"]["Tables"]["page_items"]["Row"];
-export type ImageItem = Database["public"]["Tables"]["image_items"]["Row"];
-export type TextItem = Database["public"]["Tables"]["text_items"]["Row"];
-export type Image = Database["public"]["Tables"]["images"]["Row"];
 export type Group = Database["public"]["Tables"]["groups"]["Row"];
 export type GroupMember = Database["public"]["Tables"]["group_members"]["Row"];
 export type PageReaction = Database["public"]["Tables"]["page_reactions"]["Row"];
-export type ReactionItem = Database["public"]["Tables"]["reaction_items"]["Row"];
-export type ReactionTextItem = Database["public"]["Tables"]["reaction_text_items"]["Row"];
 export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 export type Font = Database["public"]["Tables"]["fonts"]["Row"];
 export type Sticker = Database["public"]["Tables"]["stickers"]["Row"];
@@ -141,8 +135,6 @@ export interface Canvas {
   backgroundImage: Image; // Path to the background image
   items: CanvasItem[]; // Array of canvas items};
   //screen size canvas was last saved with
-  screenWidth: number;
-  screenHeight: number;
   maxZIndex: number;
 }
 //Book Types
@@ -168,10 +160,10 @@ export type CreatePageInput = {
   date: string;
   last_edited: string;
 };
-// export type Image = {
-//   path: string;
-//   type: ImageType;
-// };
+export type Image = {
+  path: string;
+  type: ImageType;
+};
 export enum ImageType {
   Web = "web",
   Local = "local",

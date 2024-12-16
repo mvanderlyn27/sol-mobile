@@ -2,13 +2,13 @@ import { styled } from "nativewind";
 import { AnimatePresence, MotiView } from "moti";
 import React, { memo, useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
-import { Canvas, CanvasImage, CanvasText, CanvasItem, Image, Page, PageItem } from "@/src/types/shared.types";
+import { Canvas, CanvasImage, CanvasText, CanvasItem, Image, Page } from "@/src/types/shared.types";
 import { Image as ExpoImage } from "expo-image";
 
 import { getImageFromPath } from "@/src/assets/images/images";
 import CanvasImageHolder from "./CanvasImageHolder";
-import { For, Show, observer, useMount } from "@legendapp/state/react";
-import { imagesItems$, pageItems$, pageStore$, pages$, textItems$ } from "@/src/stores/PagesStore";
+import { For, Show, observer, useMount, useObservable } from "@legendapp/state/react";
+import { pageStore$, pages$ } from "@/src/stores/PagesStore";
 import CanvasTextHolder from "./CanvasText";
 import { Observable, observable, syncState } from "@legendapp/state";
 import LoadingScreen from "../../screens/SplashScreen";
@@ -16,33 +16,39 @@ import { images$ } from "@/src/stores/ImageStore";
 import { Skeleton } from "moti/skeleton";
 import { posthog } from "@/src/services/Posthog";
 import authStore$ from "@/src/stores/AuthStore";
+import { canvasStore$ } from "@/src/services/Page";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
 export const CanvasHolder = observer(function CanvasHolder({
   pageId,
   editMode,
+  active,
 }: {
   pageId?: string;
   editMode: boolean;
+  active: boolean;
 }) {
   const page$ = pages$[pageId || ""];
-  const items$ = Object.values(pageItems$).filter((item) => item.page_id.get() === pageId && !item.deleted.get());
-
+  const canvas: Observable<Canvas | null> =
+    !pageStore$.editMode.get() || !active ? observable(page$.canvas.get() as Canvas) : canvasStore$.canvas;
+  // console.log("canvas items", canvas, items$.get());
   return (
     <StyledMotiView
       key={`${editMode ? "edit-" : ""}canvas-${pageId}`}
       className="absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
       <ExpoImage
+        priority={active ? "high" : "low"}
         key="backgroundImage"
-        source={getImageFromPath(page$.background_image.get() || "bg_04")}
+        source={getImageFromPath(canvas?.backgroundImage.path.get() || "bg_04")}
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
       />
-      {items$.map((item, index) => (
+      {canvas.items.map((item, index) => (
         <CanvasObject
+          active={active}
           key={`item-${index}-${editMode ? "edit" : ""}-${item.id.get()}`}
           item$={item}
-          editMode={editMode}
+          editable={editMode && canvas?.id.get() === canvasStore$.canvas.id.get()}
           pageId={pageId || ""}
         />
       ))}
@@ -54,57 +60,45 @@ export const CanvasHolder = observer(function CanvasHolder({
 const CanvasObject = observer(function CanvasObject({
   pageId,
   item$,
-  editMode,
+  editable,
+  active,
 }: {
   pageId: string;
-  item$: Observable<PageItem>;
-  editMode: boolean;
+  item$: Observable<CanvasItem>;
+  editable: boolean;
+  active: boolean;
 }) {
-  const userItem = pages$[item$.page_id.get()].created_by.get() === authStore$.session.user.id.get();
   switch (item$.type.get()) {
     // case "frame":
     //   return <CanvasFrameHolder key={`frame-${item.id}`} observableItem={item} />;
     case "image": {
-      const imageItem = imagesItems$[item$.id.get()];
-      const image = imageItem && images$[imageItem.image_id.get()];
-      if (!image || !imageItem) {
+      const imageItem = item$.get() as CanvasImage;
+      if (!imageItem) {
         posthog.capture("missing-image-items");
         return;
       }
-      const canvasImage: CanvasImage = {
-        ...item$.get(),
-        type: "image",
-        ...imageItem.get(),
-        path: image.path.get(),
-      };
 
       return (
         <CanvasImageHolder
-          key={`${pageId}-${editMode ? "edit-" : ""}image-${item$.id.get()}`}
-          item={canvasImage}
-          userItem={userItem}
+          key={`${pageId}-${editable ? "edit-" : ""}image-${item$.id.get()}`}
+          item={imageItem}
+          userItem={editable}
+          active={active}
         />
       );
     }
     case "text": {
-      const textItem = textItems$[item$.id.get()].get();
+      const textItem = item$.get() as CanvasText;
       if (!textItem) {
         posthog.capture("missing-text-item");
         return;
       }
-      const canvasText: CanvasText = {
-        ...item$.get(),
-        type: "text",
-        textContent: textItem.text,
-        fontSize: textItem.font_size || 16,
-        fontColor: textItem.color,
-        fontType: textItem.font,
-      };
       return (
         <CanvasTextHolder
-          key={`${pageId}-${editMode ? "edit-" : ""}text-${item$.id.get()}`}
-          item={canvasText}
-          userItem={userItem}
+          key={`${pageId}-${editable ? "edit-" : ""}text-${item$.id.get()}`}
+          item={textItem}
+          userItem={editable}
+          active={active}
         />
       );
     }

@@ -11,7 +11,7 @@ import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 import { format } from "date-fns";
-import { bringToFront, updatePageItem } from "@/src/services/Page";
+import { bringToFront, updateCanvasItem } from "@/src/services/Page";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
@@ -20,9 +20,11 @@ export const StyledPressable = styled(Pressable);
 const CanvasImageHolder = observer(function CanvasImageHolder({
   item,
   userItem,
+  active,
 }: {
   item: CanvasImage;
   userItem: boolean;
+  active: boolean;
 }) {
   const editMode = pageStore$.editMode.get() && userItem;
   // Initialize offset, start position, and rotation based on item properties
@@ -45,7 +47,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
   const animatedFrameGroupStyles = useAnimatedStyle(() => ({
     width: width.value,
     height: height.value,
-    zIndex: item.z,
+    // zIndex: item.z,
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
   }));
   const handleGestureStart = () => {
@@ -64,7 +66,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
     })
     .onEnd(() => {
       start.value = { x: offset.value.x, y: offset.value.y };
-      runOnJS(updatePageItem)({
+      runOnJS(updateCanvasItem)({
         ...item,
         width: width.value,
         height: height.value,
@@ -82,7 +84,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
       height.value = item.height * event.scale;
     })
     .onEnd(() => {
-      runOnJS(updatePageItem)({
+      runOnJS(updateCanvasItem)({
         ...item,
         width: width.value,
         height: height.value,
@@ -100,7 +102,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
     })
     .onEnd(() => {
       savedRotation.value = rotation.value;
-      runOnJS(updatePageItem)({
+      runOnJS(updateCanvasItem)({
         ...item,
         rotation: rotation.value,
         width: width.value,
@@ -124,6 +126,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
           style={[
             {
               position: "absolute",
+              zIndex: item.z,
               // width: item.width,
               // height: item.height,
               // transform: [{ translateX: item.x }, { translateY: item.y }, { rotateZ: `${item.rotation}rad` }],
@@ -135,6 +138,7 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
           {/* <Text>{item.id}</Text> */}
           <StyledPressable onPress={editMode ? handleEdit : null}>
             <StyledImage
+              priority={active ? "high" : "low"}
               source={{ uri: item.path }}
               placeholder={{ blurhash: item.placeholder }}
               style={{ width: "100%", height: "100%" }}

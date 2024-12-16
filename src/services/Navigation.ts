@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import authStore$ from "../stores/AuthStore";
 import { groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";
-import { imagesItems$, pageItems$, pageStore$, pages$, textItems$ } from "../stores/PagesStore";
+import { pageStore$, pages$ } from "../stores/PagesStore";
 import { profiles$ } from "../stores/ProfileStore";
 import * as Notifications from "expo-notifications";
 import { addNotification } from "../stores/NotificationStore";

@@ -1,5 +1,5 @@
-import { batch, beginBatch, endBatch, Observable } from "@legendapp/state";
-import { differenceInCalendarDays, startOfToday, subDays, eachDayOfInterval, format } from "date-fns";
+import { batch, beginBatch, endBatch, observable, Observable, when } from "@legendapp/state";
+import { differenceInCalendarDays, startOfToday, subDays, eachDayOfInterval, format, addDays } from "date-fns";
 import { max } from "lodash";
 import { Blurhash } from "react-native-blurhash";
 import StorageService from "../api/storage";
@@ -9,10 +9,10 @@ import authStore$ from "../stores/AuthStore";
 import { groupStore$ } from "../stores/GroupStore";
 import { images$, backgroundImages } from "../stores/ImageStore";
 import { addNotification } from "../stores/NotificationStore";
-import { pageStore$, pages$, pageItems$, textItems$, imagesItems$, DateItem } from "../stores/PagesStore";
+import { pageStore$, pages$, DateItem } from "../stores/PagesStore";
 import { pageReactions$ } from "../stores/ReactStore";
 import { uiStore$ } from "../stores/UIStore";
-import { NotificationType, Page, PageItem, TextItem, ImageItem, CanvasItem, Image } from "../types/shared.types";
+import { NotificationType, Page, CanvasItem, Image, Json, Canvas, ImageType, CanvasImage } from "../types/shared.types";
 import { resizeImage } from "./Media";
 import { posthog } from "./Posthog";
 import * as ImageManipulator from "expo-image-manipulator"; // Import ImageManipulator
@@ -22,24 +22,15 @@ import { filterGroupMembers } from "./Group";
 import { groupMembers$ } from "../stores/MemberStore";
 import { resyncObservables } from "./AppStore";
 
-const { width, height } = Dimensions.get("window");
-export const START_PAGE_NUM = 3; // Number of pages to load initially per user
-export const LOAD_MORE_PAGES = 2; // Number of pages to load in each additional batch
+export const START_PAGE_NUM = 5; // Number of pages to load initially per user
+// export const START_PAGE_NUM = 3; // Number of pages to load initially per user
+export const LOAD_MORE_PAGES = 5; // Number of pages to load in each additional batch
+// export const LOAD_MORE_PAGES = 2; // Number of pages to load in each additional batch
 
-export const getPageForUser = (
-  pages: Record<string, Page>,
-  curUser: string,
-  date: string,
-  editMode?: boolean
-): Page | undefined => {
+export const getPageForUser = (pages: Record<string, Page>, curUser: string, date: string): Page | undefined => {
   const groupId = groupStore$.selectedGroup.get();
   const out = Object.values(pages || {}).find((page: Page) => {
-    return (
-      page.created_by === curUser &&
-      page.date === date &&
-      page.group_id === groupId &&
-      (editMode ? page.draft : !page.draft)
-    );
+    return page.created_by === curUser && page.date === date && page.group_id === groupId;
   });
   return out;
 };
@@ -47,9 +38,11 @@ export const getPageForUser = (
  * Initialize the group members and pages for a specific group.
  */
 export async function initializePageStore(user?: string, day?: string) {
-  await resyncObservables();
+  // await resyncObservables();
+  await when(pages$);
   loadGroupMembers(user);
-  loadInitialPages(day);
+  await loadInitialPages(day);
+  initializeRealtimeUpdates();
 }
 
 /**
@@ -74,244 +67,66 @@ function loadGroupMembers(user?: string) {
 /**
  * Load initial members and dates, setting up a specified number of unique dates.
  */
-function loadInitialPages(date?: string) {
+async function loadInitialPages(date?: string) {
   if (date) {
     const dateNum = differenceInCalendarDays(new Date(), new Date(date));
     const allDates = getAllUniqueDates(Math.max(dateNum, START_PAGE_NUM)); // Get unique dates for initial range
     const index = allDates.findIndex((dateObject) => dateObject.date === date);
     pageStore$.dates.set(allDates); // Set initial dates range
+    if (allDates.length > 0) {
+      pageStore$.startDate.set(allDates[-1].date);
+      pageStore$.endDate.set(allDates[0].date);
+    }
     pageStore$.curCol.set(index);
   } else {
     const allDates = getAllUniqueDates(START_PAGE_NUM); // Get unique dates for initial range
     pageStore$.dates.set(allDates); // Set initial dates range
   }
-  pageStore$.loadedPages.set(START_PAGE_NUM); // Track number of loaded dates/pages
 }
 
 /**
  * Load additional dates, extending the date range backward in time.
  */
-export function loadMorePages() {
-  const { loadedPages } = pageStore$.get();
-  const newLoadedPages = loadedPages + LOAD_MORE_PAGES;
+export async function loadMorePages() {
+  console.log("Loading more pages...");
+  const dates = pageStore$.dates.peek();
+  const startDate = dates[dates.length - 1].date;
+  const newDates = getAllUniqueDates(LOAD_MORE_PAGES, startDate);
+  pageStore$.dates.set([...dates, ...newDates]);
+}
 
-  // Extend the date range with additional dates further back in time
-  const newDates = getAllUniqueDates(newLoadedPages);
+async function initializeRealtimeUpdates() {
+  const subscription = supabase
+    .channel("realtime-pages")
+    .on("postgres_changes", { event: "*", schema: "public", table: "pages" }, (payload) => {
+      if (payload.eventType === "DELETE") {
+        const deletedPageId = payload.old.id;
+        pages$[deletedPageId].delete();
+      } else {
+        const newPage: Page = payload.new as Page;
+        pages$[newPage.id].set(newPage);
+      }
+    })
+    .subscribe();
 
-  // Batch update to set the new expanded date range
-  pageStore$.dates.set(newDates); // Update dates to include additional range
-  pageStore$.loadedPages.set(newLoadedPages); // Update the count of loaded dates
+  return subscription;
 }
 
 /**
  * Get unique dates from today, descending backward by `daysCount`.
  */
-function getAllUniqueDates(daysCount: number): DateItem[] {
-  const start = startOfToday();
-  const end = subDays(start, daysCount - 1); // Calculate the end date based on the daysCount
+function getAllUniqueDates(count: number, startDate?: string): DateItem[] {
+  const start = startDate ? new Date(startDate) : startOfToday();
+  const end = subDays(start, count - 1); // Calculate the end date
   const dates = eachDayOfInterval({ start, end });
-
-  // Map each date to a DateItem with unique IDs
   return dates.map((date) => ({
     id: generateId(),
     date: format(date, "yyyy-MM-dd"),
   }));
 }
 
-/**
- * Toggle edit mode
- */
-export function cleanUpPages(newPageId: string, drafts = true) {
-  const curUserId = authStore$.session.user.id.get();
-  const curGroupId = groupStore$.selectedGroup.get();
-  const newPage$ = pages$[newPageId];
-  const oldPages = Object.values(pages$.get()).filter(
-    (page) =>
-      page.created_by === curUserId &&
-      page.group_id === curGroupId &&
-      page.date === newPage$.date.get() &&
-      page.id !== newPageId &&
-      //optionally only clean up drafts
-      (drafts ? page.draft : true)
-  );
-
-  oldPages.map((page) => {
-    //move all old pageReactions over to new page
-    Object.values(pageReactions$)
-      .filter((pageReaction) => pageReaction.page_id.get() === page.id)
-      .forEach((pageReaction) => pageReaction.page_id.set(newPageId));
-    //delete old page
-    deletePage(page.id);
-  });
-}
-export async function handleEdit() {
-  /*
-      Modifying this to duplicate existing page
-    */
-  const day = pageStore$.dates[pageStore$.curCol.get()].get();
-  const user = authStore$.session.user.id.get();
-  const page = getPageForUser(pages$.get(), user || "", day.date);
-  const newPageId = generateId();
-  const groupId = groupStore$.selectedGroup.get();
-  if (!user || !day || !groupId) {
-    addNotification({
-      id: generateId(),
-      type: NotificationType.error,
-      message: "Failed to edit, please try again",
-    });
-    posthog.capture("handled-edit-failed", { message: "missing user or day or groupId" });
-    return;
-  }
-  if (page) {
-    cleanUpPages(page?.id);
-    //create new from this page
-    const draftPage: Page = {
-      id: newPageId,
-      created_by: page.created_by,
-      date: page.date,
-      group_id: page.group_id,
-      screen_width: page.screen_width,
-      screen_height: page.screen_height,
-      background_image: page.background_image,
-      draft: true,
-    } as Page;
-    pages$[newPageId].set(draftPage);
-    //get old page
-    const items = Object.values(pageItems$).filter((item) => item.page_id.get() === page.id);
-    batch(() =>
-      items.forEach((item$) => {
-        const item = item$.get();
-        const newItemId = generateId();
-        pageItems$[newItemId].set({
-          id: newItemId,
-          page_id: newPageId,
-          type: item.type,
-          x: item.x,
-          y: item.y,
-          z: item.z,
-          width: item.width,
-          height: item.height,
-          rotation: item.rotation,
-        } as PageItem);
-        switch (item.type) {
-          case "text": {
-            const textItem = textItems$[item.id].get();
-            textItems$[newItemId].set({
-              id: newItemId,
-              color: textItem.color,
-              font_size: textItem.font_size,
-              font: textItem.font,
-              text: textItem.text,
-            } as TextItem);
-            break;
-          }
-          case "image": {
-            const imageItem = imagesItems$[item.id];
-            const image = images$[imageItem.image_id.get()].get();
-            const newImageId = generateId();
-            images$[newImageId].set({
-              id: newImageId,
-              width: image.width,
-              height: image.height,
-              type: image.type,
-              path: image.path,
-              placeholder: image.placeholder,
-              uploaded: image.uploaded,
-              created_by: image.created_by,
-            } as Image);
-            imagesItems$[newItemId].set({
-              id: newItemId,
-              image_id: newImageId,
-            } as ImageItem);
-            break;
-          }
-        }
-      })
-    );
-  } else {
-    //if no group, create a new one
-    const newPage: Page = {
-      id: newPageId,
-      draft: true,
-      group_id: groupId,
-      created_by: user,
-      date: day.date,
-      background_image: "bg_04",
-      screen_height: height,
-      screen_width: width,
-      // created_at: now,
-      // updated_at: now,
-      // deleted: false,
-    } as Page;
-    pages$[newPageId].set(newPage);
-    //create new edit mode
-  }
-  beginBatch();
-  uiStore$.displayCanvasMenu.set(true);
-  uiStore$.displayJournalMenu.set(false);
-  pageStore$.editMode.set(true);
-  endBatch();
-}
-
-export async function handlePageSave() {
-  const day = pageStore$.dates[pageStore$.curCol.get()].get();
-  const user = authStore$.session.user.id.get();
-  const draftPageId = getPageForUser(pages$.get(), user || "", day.date, true)?.id;
-  if (!draftPageId) {
-    posthog.capture("no drafts found to save", { message: "no draftpageid found" });
-    addNotification({
-      id: generateId(),
-      type: NotificationType.error,
-      message: "Failed to save, please try again",
-    });
-    return;
-  }
-  beginBatch();
-  pageStore$.saving.set(true);
-  uiStore$.displayJournalMenu.set(true);
-  uiStore$.displayCanvasMenu.set(false);
-  endBatch();
-  await saveCanvas(draftPageId);
-  beginBatch();
-  pageStore$.editMode.set(false);
-  pageStore$.saving.set(false);
-  endBatch();
-}
-
-export function handlePageCancel() {
-  //delete all entries for temp page
-  if (!pageStore$.editMode.get()) {
-    addNotification({
-      id: generateId(),
-      type: NotificationType.error,
-      message: "Failed to cancel, please try again",
-    });
-    posthog.capture("cancel-edit-error", { error: "not in edit mode" });
-    return;
-  }
-  const day = pageStore$.dates[pageStore$.curCol.get()].get();
-  const user = authStore$.session.user.id.get();
-  const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
-  if (!draftPageId) {
-    addNotification({
-      id: generateId(),
-      type: NotificationType.error,
-      message: "Failed to cancel, please try again",
-    });
-    posthog.capture("cancel-edit-error", { error: "no draft page id" });
-    return;
-  }
-  deletePage(draftPageId);
-  beginBatch();
-  uiStore$.displayJournalMenu.set(true);
-  uiStore$.displayCanvasMenu.set(false);
-  pageStore$.editMode.set(false);
-  endBatch();
-}
-
 export const uploadImage = async (
-  pageId: string,
-  imageItemId: string,
+  index: number,
   selectedImageUri: string,
   width: number,
   height: number
@@ -319,13 +134,7 @@ export const uploadImage = async (
   const userId = authStore$.session.user.id.get();
   if (!userId) {
     posthog.capture("upload-page-image-error", { error: "Not logged in" });
-
     throw new Error("error no user");
-  }
-  const imageId = imagesItems$[imageItemId].image_id.get();
-  if (!imageId) {
-    posthog.capture("upload-page-image-error", { error: "No image found" });
-    throw new Error("error no image found");
   }
   // Resize the image to 100x100 using ImageManipulator
   const blurhash = await ImageManipulator.manipulateAsync(selectedImageUri, [{ resize: { width: 100, height: 100 } }], {
@@ -337,74 +146,55 @@ export const uploadImage = async (
       posthog.capture("upload-page-image-error", { error });
       throw new Error("error generating blurhash ");
     });
-
-  const image = await resizeImage(selectedImageUri, width, height)
-    .then((image) => image)
-    .catch((error) => {
-      posthog.capture("upload-page-image-error", { error });
-      throw new Error("error optimizing image");
-    });
-
+  const image = await resizeImage(selectedImageUri, width, height).catch((error) => {
+    posthog.capture("upload-page-image-error", { error });
+    throw new Error("error optimizing image");
+  });
   if (!image || !blurhash) {
     // setLoading(false);
     throw new Error("error getting blurhash");
   }
   const base64 = await FileSystem.readAsStringAsync(image, { encoding: "base64" });
   //check if we already have a photo with this blurhash
-  let photoPath = Object.values(images$[imageId]).find(
-    (item) => item.blurhash === blurhash && item.created_by === userId
-  )?.path;
-  if (!photoPath) {
-    const { success, data, error } = await StorageService.uploadFile({
-      bucket: "page_photos",
-      filePath: `${userId}/${imageId}.avif`,
-      base64: base64,
-      fileExtension: "avif",
-      mimeType: "image/avif",
-    });
-    if (error || !data) {
-      posthog.capture("upload-page-image-error", { error });
-      //show notif here
-      throw new Error("Error uploading image");
-    }
-    //eventaully want to ensure that it isn't uploading duplicates, only one copy of a photo at a time
-    photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${imageId}.avif`).data.publicUrl;
+  let item = canvasStore$.canvas.items[index].get();
+  if (!item) {
+    console.log("error can't upload, no item found");
+    addNotification({ id: generateId(), type: NotificationType.error, message: "Failed uploading image" });
+    return;
   }
-  images$[imageId].assign({
-    path: photoPath,
-    placeholder: blurhash,
-    width: width,
-    height: height,
-    type: "web",
-    uploaded: true,
-    created_by: userId,
-  } as Image);
+  const { success, data, error } = await StorageService.uploadFile({
+    bucket: "page_photos",
+    filePath: `${userId}/${item.id}.webp`,
+    base64: base64,
+    fileExtension: "webp",
+    mimeType: "image/webp",
+  });
+  if (error || !data) {
+    posthog.capture("upload-page-image-error", { error });
+    //show notif here
+    console.log("error", error);
+    throw new Error("Error uploading image");
+  }
+  //eventaully want to ensure that it isn't uploading duplicates, only one copy of a photo at a time
+  const photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${item.id}.webp`).data.publicUrl;
+  canvasStore$.canvas.items[index].set({ ...item, path: photoPath });
 };
 const uploadImages = async (): Promise<{ success: boolean; error?: string }> => {
-  const day = pageStore$.dates[pageStore$.curCol.get()].get();
-  const user = authStore$.session.user.id.get();
-  const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
-  const pageItems = Object.values(pageItems$).filter((item) => item.page_id.get() === draftPageId);
-  const imageItems = Object.values(imagesItems$).filter((item) =>
-    pageItems.some((pageItem) => pageItem.id.get() === item.id.get())
-  );
-  const curUserId = authStore$.session.user.id.get();
-  if (!imageItems || !draftPageId || !curUserId) {
-    return { success: false, error: "No items to upload, or no page, or not logged in" };
+  const items$ = canvasStore$.canvas.items;
+  if (!items$.get()?.length) {
+    return { success: true };
   }
   // let newItems: CanvasItem[] = [];
-  const promiseAr = imageItems.map((item$) => {
+  const promiseAr = items$.map((item$, index) => {
     const item = item$.get();
-    const image$ = images$[item.image_id];
-    if (!image$.uploaded.get()) {
+    if (item$.type.get() === "image") {
       //we need to upload image
-      return uploadImage(
-        draftPageId,
-        item.id,
-        image$.path.get(),
-        pageItems$[item.id].width.get() * 1.5,
-        pageItems$[item.id].height.get() * 1.5
-      );
+      const item: CanvasImage = item$.get() as CanvasImage;
+      if (item.path.includes("file://")) {
+        return uploadImage(index, item.path, item.width * 1.5, item.height * 1.5);
+      } else {
+        Promise.resolve(null);
+      }
     } else {
       Promise.resolve(null);
     }
@@ -418,28 +208,62 @@ const uploadImages = async (): Promise<{ success: boolean; error?: string }> => 
   }
 };
 
-export const saveCanvas = async (newPageId: string): Promise<void> => {
+export const changeBackground = () => {
+  const index = backgroundImages.findIndex(
+    (background: string) => background === canvasStore$.canvas.backgroundImage.get()?.path
+  );
+  const nextBackground = { path: backgroundImages[(index + 1) % backgroundImages.length], type: ImageType.Local };
+  canvasStore$.canvas.backgroundImage.set(nextBackground);
+};
+
+interface CanvasStore {
+  canvas: Canvas | null;
+}
+export const canvasStore$ = observable<CanvasStore>({
+  canvas: null,
+});
+
+export const resetCanvas = () => {
+  const defaultCanvas = {
+    id: generateId(),
+    backgroundImage: { path: "bg_04", type: ImageType.Local },
+    items: [],
+    maxZIndex: 0,
+  } as Canvas;
+  canvasStore$.canvas.set(defaultCanvas);
+};
+export const handleEdit = () => {
   /*
-      modify this to set new page to no longer be draft
-      set old page to be DELETED
-      set all old items to be DELETED 
-  
-    */
-  const curUserId = authStore$.session.user.id.get();
-  const curGroupId = groupStore$.selectedGroup.get();
-  if (!curUserId || !curGroupId) {
-    posthog.capture("page-save-error", { error: "no user or selected group" });
-    addNotification({
-      id: generateId(),
-      type: NotificationType.error,
-      message: "Failed to save, please try again",
-    });
-    return;
+    set edit mode to true
+    update canvas store to hold the data from the db
+  */
+  const curUser = pageStore$.members[pageStore$.curRow.get()].user_id.get();
+  const curDate = pageStore$.dates[pageStore$.curCol.get()].date.get();
+  const page = getPageForUser(pages$.get(), curUser, curDate);
+  const canvas = page?.canvas;
+  console.log("canvas for edit", canvas, page, curUser, curDate);
+  if (!canvas) {
+    resetCanvas();
+  } else {
+    canvasStore$.canvas.set(canvas as Canvas);
   }
-  //parallel save all images to storage on backend
-  //upload images, get id for them
+  pageStore$.editMode.set(true);
+  uiStore$.displayCanvasMenu.set(true);
+  uiStore$.displayJournalMenu.set(false);
+  pageStore$.curPageId.set(page?.id || null);
+};
+export const handleSave = async () => {
+  /*
+    save the current editing canvas to the pages 
+  */
+  //save here
+  //@ts-ignore
+  pageStore$.saving.set(true);
+  let pageId = pageStore$.curPageId.get();
   const { error } = await uploadImages();
+  // modify so it updates the paths in the canavs items
   if (error) {
+    console.log("error", error);
     addNotification({
       id: generateId(),
       type: NotificationType.error,
@@ -448,145 +272,62 @@ export const saveCanvas = async (newPageId: string): Promise<void> => {
     posthog.capture("page-save-error", { error });
     return;
   }
-  //save page
-  const newPage$ = pages$[newPageId];
-  if (newPage$.get()) {
-    newPage$.draft.set(false);
+  if (!pageId) {
+    pageId = generateId();
+    const page = {
+      id: pageId,
+      created_by: authStore$.session.user.id.get(),
+      group_id: groupStore$.selectedGroup.get(),
+      date: pageStore$.dates[pageStore$.curCol.get()].get().date,
+      canvas: canvasStore$.canvas.get(),
+    } as Page;
+    //save new canvas
+    pages$[pageId].set(page);
+  } else {
+    const newPage = { canvas: canvasStore$.canvas.get() } as Page;
+    pages$[pageId].set(newPage);
   }
-  //remove all pages besides the new entry
-  cleanUpPages(newPageId, false);
+  batch(() => {
+    canvasStore$.canvas.set(null);
+    pageStore$.curPageId.set(null);
+    pageStore$.editMode.set(false);
+    uiStore$.displayCanvasMenu.set(false);
+    uiStore$.displayJournalMenu.set(true);
+    pageStore$.saving.set(false);
+  });
 };
-
-export const deletePage = (pageId: string): void => {
-  posthog.capture("delete-page", { message: "delete page " + pageId });
-  const oldPage$ = pages$[pageId];
-  oldPage$.delete();
+export const handleCancel = () => {
+  canvasStore$.canvas.set(null);
+  pageStore$.editMode.set(false);
+  uiStore$.displayCanvasMenu.set(false);
+  uiStore$.displayJournalMenu.set(true);
 };
-
-export const addPageItem = (item: CanvasItem) => {
-  posthog.capture("add-page-item", { message: "add item " + item.id });
-  const day = pageStore$.dates[pageStore$.curCol.get()].get();
-  const user = authStore$.session.user.id.get();
-  const draftPageId = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get())?.id;
-  beginBatch();
-  const pageItem = {
-    id: item.id,
-    x: item.x,
-    y: item.y,
-    z: item.z,
-    width: item.width,
-    height: item.height,
-    rotation: item.rotation,
-    page_id: draftPageId,
-    type: item.type,
-  } as PageItem;
-  pageItems$[item.id].set(pageItem);
-  switch (item.type) {
-    case "text": {
-      textItems$[item.id].set({
-        id: item.id,
-        color: item.fontColor,
-        font_size: item.fontSize,
-        font: item.fontType,
-        text: item.textContent,
-      } as TextItem);
-      break;
-    }
-    case "image": {
-      const imageId = generateId();
-      images$[imageId].set({
-        id: imageId,
-        width: item.width,
-        height: item.height,
-        type: "local",
-        path: item.path,
-        placeholder: item.placeholder,
-        uploaded: false,
-        created_by: authStore$.session.user.id.get(),
-      } as Image);
-      imagesItems$[item.id].set({
-        id: item.id,
-        image_id: imageId,
-      } as ImageItem);
-      break;
-    }
-  }
-  bringToFront(item.id);
-  endBatch();
+export const addCanvasItem = (item: CanvasItem) => {
+  const curMax = canvasStore$.canvas.maxZIndex.get();
+  const newMax = (curMax || 0) + 1;
+  batch(() => {
+    canvasStore$.canvas.items.push({ ...item, z: newMax });
+    canvasStore$.canvas.maxZIndex.set(newMax);
+  });
 };
-export const updatePageItem = (item: CanvasItem) => {
-  beginBatch();
-  const pageItem = {} as PageItem;
-  if (item.x !== undefined) {
-    pageItem.x = item.x;
-  }
-  if (item.y !== undefined) {
-    pageItem.y = item.y;
-  }
-  if (item.z !== undefined) {
-    pageItem.z = item.z;
-  }
-  if (item.width !== undefined) {
-    pageItem.width = item.width;
-  }
-  if (item.height !== undefined) {
-    pageItem.height = item.height;
-  }
-  if (item.rotation !== undefined) {
-    pageItem.rotation = item.rotation;
-  }
-  pageItems$[item.id].assign(pageItem);
-  switch (item.type) {
-    case "text": {
-      textItems$[item.id].assign({
-        color: item.fontColor,
-        font_size: item.fontSize,
-        font: item.fontType,
-        text: item.textContent,
-      });
-      break;
-    }
-    case "image": {
-      //nothing to update for now
-      break;
-    }
-  }
-  endBatch();
+export const updateCanvasItem = (item: CanvasItem) => {
+  const index = getCanvasItemIndex(item.id);
+  canvasStore$.canvas.items[index].set(item);
 };
-export const removePageItem = (itemId: string) => {
-  pageItems$[itemId].delete();
+export const removeCanvasItem = (id: string) => {
+  const index = getCanvasItemIndex(id);
+  canvasStore$.canvas.items.splice(index, 1);
 };
-const getMaxZ = (pageId: string) => {
-  const zValues = Object.values(pageItems$)
-    .filter((item: Observable<PageItem>) => item.page_id.get() === pageId)
-    .map((item) => item.z.get());
-  return max(zValues) || 0;
+export const getCanvasItemIndex = (id: string) => {
+  return canvasStore$.canvas.items.findIndex((val) => val.id.get() === id);
 };
-export const bringToFront = (itemId: string) => {
-  const curItem$ = pageItems$[itemId];
-  const curMax = getMaxZ(curItem$.page_id.get());
-  const curZ = curItem$.z.get();
-  // if (curZ === 0 || curMax > curZ) {
-  //only update if current z isn't already max
-  curItem$.z.set(curMax + 1);
-  // }
-};
-
-export const changeBackground = () => {
-  const day = pageStore$.dates[pageStore$.curCol.get()].get();
-  const user = authStore$.session.user.id.get();
-  const draftPage = getPageForUser(pages$.get(), user || "", day.date, pageStore$.editMode.get());
-  if (!draftPage) {
-    posthog.capture("change-background-failed", { message: "couldn't find draftPage to update background" });
-    addNotification({
-      id: generateId(),
-      type: NotificationType.error,
-      message: "Error changing background, please try again later",
-    });
-    return;
+export const bringToFront = (id: string) => {
+  console.log("bringing to front");
+  const index = getCanvasItemIndex(id);
+  const curMax = canvasStore$.canvas.maxZIndex.get();
+  const item = canvasStore$.canvas.items[index].get();
+  if (curMax && item && item.z < curMax) {
+    canvasStore$.canvas.items[index].set({ ...item, z: curMax + 1 });
+    canvasStore$.canvas.maxZIndex.set(curMax + 1);
   }
-
-  const index = backgroundImages.findIndex((background: string) => background === draftPage.background_image);
-  const nextBackground = backgroundImages[(index + 1) % backgroundImages.length];
-  pages$[draftPage.id].background_image.set(nextBackground);
 };

@@ -36,6 +36,9 @@ const DateIndicator = observer(function DateIndicator() {
   const dates = pageStore$.dates.get();
   const col = pageStore$.curCol.get();
   const date = dates[col];
+  if (!date) {
+    return null;
+  }
   return (
     <StyledMotiView
       key="bottom-bar"

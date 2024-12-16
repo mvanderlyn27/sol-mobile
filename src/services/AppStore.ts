@@ -1,5 +1,5 @@
 import { syncState } from "@legendapp/state";
-import { pageItems$, pages$, textItems$ } from "../stores/PagesStore";
+import { pages$ } from "../stores/PagesStore";
 import { reactionItems$, reactionTextItems$ } from "../stores/ReactStore";
 import { groupStore$, groups$ } from "../stores/GroupStore";
 import { images$ } from "../stores/ImageStore";
@@ -11,49 +11,49 @@ import { posthog } from "./Posthog";
 
 export const clearLocalPersist = async () => {
   const pagesState$ = syncState(pages$);
-  const pageItemsState$ = syncState(pageItems$);
-  const textItemsState$ = syncState(textItems$);
+  // const pageItemsState$ = syncState(pageItems$);
+  // const textItemsState$ = syncState(textItems$);
   const profilesState$ = syncState(profiles$);
   const groupsState$ = syncState(groups$);
   const groupMembersState$ = syncState(groupMembers$);
-  const imagesState$ = syncState(images$);
-  const reactionItemsState$ = syncState(reactionItems$);
-  const reactionTextItemsState$ = syncState(reactionTextItems$);
+  // const imagesState$ = syncState(images$);
+  // const reactionItemsState$ = syncState(reactionItems$);
+  // const reactionTextItemsState$ = syncState(reactionTextItems$);
 
   await Promise.all([
     pagesState$.clearPersist(),
-    pageItemsState$.clearPersist(),
-    textItemsState$.clearPersist(),
+    // pageItemsState$.clearPersist(),
+    // textItemsState$.clearPersist(),
     profilesState$.clearPersist(),
     groupsState$.clearPersist(),
     groupMembersState$.clearPersist(),
-    imagesState$.clearPersist(),
-    reactionItemsState$.clearPersist(),
-    reactionTextItemsState$.clearPersist(),
+    // imagesState$.clearPersist(),
+    // reactionItemsState$.clearPersist(),
+    // reactionTextItemsState$.clearPersist(),
   ]);
 };
 export const resyncObservables = async () => {
   console.log("resyncing observables");
   const pagesState$ = syncState(pages$);
-  const pageItemsState$ = syncState(pageItems$);
-  const textItemsState$ = syncState(textItems$);
+  // const pageItemsState$ = syncState(pageItems$);
+  // const textItemsState$ = syncState(textItems$);
   const profilesState$ = syncState(profiles$);
   const groupsState$ = syncState(groups$);
   const groupMembersState$ = syncState(groupMembers$);
-  const imagesState$ = syncState(images$);
-  const reactionItemsState$ = syncState(reactionItems$);
-  const reactionTextItemsState$ = syncState(reactionTextItems$);
+  // const imagesState$ = syncState(images$);
+  // const reactionItemsState$ = syncState(reactionItems$);
+  // const reactionTextItemsState$ = syncState(reactionTextItems$);
 
   await Promise.all([
     pagesState$.sync(),
-    pageItemsState$.sync(),
-    textItemsState$.sync(),
+    // pageItemsState$.sync(),
+    // textItemsState$.sync(),
     profilesState$.sync(),
     groupsState$.sync(),
     groupMembersState$.sync(),
-    imagesState$.sync(),
-    reactionItemsState$.sync(),
-    reactionTextItemsState$.sync(),
+    // imagesState$.sync(),
+    // reactionItemsState$.sync(),
+    // reactionTextItemsState$.sync(),
   ]);
 };
 

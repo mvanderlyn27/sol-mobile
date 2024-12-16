@@ -82,6 +82,16 @@ file_size_limit = "50MiB"
 enabled = true
 
 # Uncomment to configure local storage buckets
+[storage.buckets.group_covers]
+public = true
+file_size_limit = "50MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/jpg", "text/xml"]
+# objects_path = "./storage/group_covers"
+[storage.buckets.page_photos]
+public = true
+file_size_limit = "50MiB"
+allowed_mime_types = ["image/png", "image/jpeg", "image/webp", "image/jpg", "text/xml"]
+# objects_path = "./storage/page_photos"
 [storage.buckets.frames]
 public = true
 file_size_limit = "50MiB"

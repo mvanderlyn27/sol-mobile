@@ -7,7 +7,7 @@ import { styled } from "nativewind";
 import { CanvasText } from "@/src/types/shared.types";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { Dimensions } from "react-native";
-import { addPageItem, updatePageItem } from "@/src/services/Page";
+import { addCanvasItem, updateCanvasItem } from "@/src/services/Page";
 const { height, width } = Dimensions.get("screen");
 
 const TextOverlayButtons = observer(function TextOverlayButtons() {
@@ -27,7 +27,7 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
       width: 0,
       height: 0,
     };
-    addPageItem(textItem);
+    addCanvasItem(textItem);
   };
   const updateText = (id: string) => {
     const textItem = {
@@ -39,7 +39,7 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
       fontType: textStore$.font.get(),
     } as CanvasText;
     console.log("updated textItem", textItem);
-    updatePageItem(textItem);
+    updateCanvasItem(textItem);
   };
   const handleSave = () => {
     const id = textStore$.id.get();

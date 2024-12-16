@@ -13,7 +13,7 @@ const JournalFabs = observer(function JournalFabs() {
   const loggedInUser = authStore$.session.user.id.get();
   const curUser = pageStore$.members[pageStore$.curRow.get()].get().user_id;
   const curDate = pageStore$.dates[pageStore$.curCol.get()].get()?.date;
-  const pageId = getPageForUser(pages$.get(), curUser, curDate);
+  const pageId = getPageForUser(pages$.get(), curUser, curDate)?.id;
   const onUsersPage = loggedInUser === curUser;
   const handleReact = () => {
     handleEditReaction();

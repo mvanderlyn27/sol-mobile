@@ -14,11 +14,15 @@ import ReactMenu from "./reactions/reactMenu/ReactMenu";
 import ReactOverlay from "./reactions/reactMenu/ReactOverlay";
 import { pageStore$ } from "@/src/stores/PagesStore";
 import SavingScreen from "../screens/SavingScreen";
+import LoadingScreen from "../screens/LoadingScreen";
 const StyledSafeAreaView = styled(SafeAreaView);
 const StyledView = styled(View);
 const JournalOverlays = observer(function JournalOverlays() {
   if (pageStore$.saving.get()) {
     return <SavingScreen />;
+  }
+  if (pageStore$.loading.get()) {
+    return <LoadingScreen />;
   }
   return (
     <StyledView className="absolute top-0 bottom-0 right-0 left-0 z-10" pointerEvents="box-none">

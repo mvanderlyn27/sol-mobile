@@ -9,7 +9,7 @@ import { pageStore$ } from "@/src/stores/PagesStore";
 import { CanvasText } from "@/src/types/shared.types";
 import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
-import { bringToFront, updatePageItem } from "@/src/services/Page";
+import { bringToFront, updateCanvasItem } from "@/src/services/Page";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
@@ -19,9 +19,11 @@ export const StyledText = styled(MotiText);
 const CanvasTextHolder = observer(function CanvasTextHolder({
   item,
   userItem,
+  active,
 }: {
   item: CanvasText;
   userItem: boolean;
+  active: boolean;
 }) {
   const editMode = pageStore$.editMode.get() && userItem;
   const offset = useSharedValue({ x: item.x, y: item.y });
@@ -68,7 +70,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
     })
     .onEnd(() => {
       start.value = { x: offset.value.x, y: offset.value.y };
-      runOnJS(updatePageItem)({
+      runOnJS(updateCanvasItem)({
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
         rotation: rotation.value,
@@ -85,7 +87,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
-      runOnJS(updatePageItem)({
+      runOnJS(updateCanvasItem)({
         ...item,
         fontSize: fontSize.value, // Save the new font size to the store
         rotation: rotation.value,
@@ -101,7 +103,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
     })
     .onEnd(() => {
       savedRotation.value = rotation.value;
-      runOnJS(updatePageItem)({
+      runOnJS(updateCanvasItem)({
         ...item,
         rotation: rotation.value,
         fontSize: fontSize.value, // Save the new font size to the store

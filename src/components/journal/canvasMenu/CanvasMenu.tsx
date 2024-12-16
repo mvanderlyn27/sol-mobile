@@ -20,7 +20,7 @@ import * as ImagePicker from "expo-image-picker";
 import RoundButton from "../../shared/CircleButton";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { reactStore$ } from "@/src/stores/ReactStore";
-import { handlePageSave, handlePageCancel, changeBackground, addPageItem } from "@/src/services/Page";
+import { addCanvasItem, changeBackground, handleCancel, handleSave } from "@/src/services/Page";
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);
@@ -40,18 +40,18 @@ const CanvasMenu = observer(function CanvasMenu() {
     // onExit();
     // }
   };
-  const handleSave = () => {
+  const handleCanvasSave = () => {
     if (saving) return;
     setSaving(true);
     reactStore$.showReactions.set(true);
-    handlePageSave();
+    handleSave();
     handleClose();
     setSaving(false);
   };
   const handleCancelEdit = () => {
     if (canceling) return;
     setCanceling(true);
-    handlePageCancel();
+    handleCancel();
     handleClose();
     setCanceling(false);
   };
@@ -123,7 +123,7 @@ const CanvasMenu = observer(function CanvasMenu() {
   };
   const handleImage = async () => {
     // No permissions request is necessary for launching the image library
-    pageStore$.ready.set(false);
+    pageStore$.loading.set(true);
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       // base64: false,
@@ -145,7 +145,7 @@ const CanvasMenu = observer(function CanvasMenu() {
         path: result.assets[0].uri,
         x: 50,
         y: 50,
-        z: 1,
+        z: 0,
         width: newWidth,
         // width: imgWidth,
         height: newHeight,
@@ -154,11 +154,11 @@ const CanvasMenu = observer(function CanvasMenu() {
         type: "image",
       };
 
-      addPageItem(image);
+      addCanvasItem(image);
       // uiStore$.displayCanvasMenu.set(false);
       // uiStore$.displayImageEditOverlay.set(true);
     }
-    pageStore$.ready.set(true);
+    pageStore$.loading.set(false);
   };
   const handleSticker = () => {};
   return (
@@ -174,7 +174,7 @@ const CanvasMenu = observer(function CanvasMenu() {
           <MenuButton disabled={saving || canceling} onPress={handleCancelEdit} buttonType={ButtonType.X} />
         </StyledView>
         <StyledView className="flex-1 items-end">
-          <MenuButton disabled={canceling || saving} onPress={handleSave} buttonType={ButtonType.Save} />
+          <MenuButton disabled={canceling || saving} onPress={handleCanvasSave} buttonType={ButtonType.Save} />
         </StyledView>
       </StyledMotiView>
       <StyledMotiView
