@@ -293,20 +293,20 @@ export const handleSave = async () => {
     console.log("updating existing page");
     pages$[pageId].canvas.set(canvasStore$.canvas.get());
   }
-  resetCanvas();
-  pageStore$.editMode.set(false);
-  uiStore$.displayCanvasMenu.set(false);
-  uiStore$.displayJournalMenu.set(true);
-  pageStore$.curPageId.set(null);
-  pageStore$.saving.set(false);
+  handleClose();
+};
+const handleClose = () => {
+  batch(() => {
+    resetCanvas();
+    pageStore$.editMode.set(false);
+    uiStore$.displayCanvasMenu.set(false);
+    uiStore$.displayJournalMenu.set(true);
+    pageStore$.curPageId.set(null);
+    pageStore$.saving.set(false);
+  });
 };
 export const handleCancel = () => {
-  resetCanvas();
-  pageStore$.editMode.set(false);
-  uiStore$.displayCanvasMenu.set(false);
-  uiStore$.displayJournalMenu.set(true);
-  pageStore$.curPageId.set(null);
-  pageStore$.saving.set(false);
+  handleClose();
 };
 export const addCanvasItem = (item: CanvasItem) => {
   const curMax = canvasStore$.canvas.maxZIndex.get();
