@@ -27,7 +27,11 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   // console.log("active", active, rowIndex, colIndex);
   // const reactEditMode = reactStore$.reactEditMode.get();
   return (
-    <View key={`${rowIndex}-${colIndex}-${editMode && active ? "edit" : "view"}-${page?.id}`} style={{ width, height }}>
+    <View
+      key={`${rowIndex}-${colIndex}${page ? "-" + page.updated_at : ""}-${editMode && active ? "edit" : "view"}-${
+        page?.id
+      }`}
+      style={{ width, height }}>
       <CanvasHolder pageId={page?.id} editMode={editMode} active={active} />
       {/* <ReactHolder pageId={page?.id} editMode={reactEditMode && active} /> */}
     </View>

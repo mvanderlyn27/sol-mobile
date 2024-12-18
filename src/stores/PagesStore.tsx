@@ -54,9 +54,15 @@ export const pages$ = observable(
   customSupabaseSynced({
     supabase,
     collection: "pages",
-    select: (from) => from.select("*").eq("group_id", groupStore$.selectedGroup.get() || ""),
-    onError: (error, params) => {
-      console.error("pages error", error, params);
+    select: (from) => {
+      const selectedGroup = groupStore$.selectedGroup.get();
+      if (!selectedGroup) {
+        return from.select().limit(0);
+      }
+      return from.select("*").eq("group_id", selectedGroup);
+    },
+    onError: (error) => {
+      console.log("pages error", error);
     },
   })
 );

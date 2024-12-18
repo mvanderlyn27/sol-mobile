@@ -1,6 +1,5 @@
 import { syncState } from "@legendapp/state";
 import { pages$ } from "../stores/PagesStore";
-import { reactionItems$, reactionTextItems$ } from "../stores/ReactStore";
 import { groupStore$, groups$ } from "../stores/GroupStore";
 import { images$ } from "../stores/ImageStore";
 import { groupMembers$ } from "../stores/MemberStore";

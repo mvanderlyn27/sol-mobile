@@ -32,7 +32,7 @@ export const CanvasHolder = observer(function CanvasHolder({
   const page$ = pages$[pageId || ""];
   const canvas: Observable<Canvas | null> = !editMode ? observable(page$.canvas.get() as Canvas) : canvasStore$.canvas;
   if (active) {
-    console.log("canvas items", canvas.items.get());
+    console.log("canvas items", editMode, active, canvas.items.get());
   }
   return (
     <StyledMotiView

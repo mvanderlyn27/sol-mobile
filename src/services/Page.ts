@@ -104,14 +104,11 @@ async function initializeRealtimeUpdates() {
         pages$[deletedPageId].delete();
       } else {
         const newPage: Page = payload.new as Page;
-        //if we already have the update, don't do anything
-        if (pages$[payload.new.id].updated_at.get() === newPage.updated_at) return;
+        console.log("after realtime update", pages$[newPage.id].canvas.get() as Canvas);
         pages$[newPage.id].set(newPage);
-        console.log("after realtime update", pages$[newPage.id].get());
       }
     })
     .subscribe();
-
   return subscription;
 }
 
@@ -194,6 +191,7 @@ const uploadImages = async (): Promise<{ success: boolean; error?: string }> => 
       //we need to upload image
       const item: CanvasImage = item$.get() as CanvasImage;
       if (item.path.includes("file://")) {
+        console.log("uploading image");
         return uploadImage(index, item.path, item.width * 1.5, item.height * 1.5);
       } else {
         Promise.resolve(null);
@@ -233,7 +231,7 @@ export const resetCanvas = () => {
     items: [],
     maxZIndex: 0,
   } as Canvas;
-  canvasStore$.canvas.set(defaultCanvas);
+  canvasStore$.canvas.set({ ...defaultCanvas });
 };
 export const handleEdit = () => {
   /*
@@ -249,7 +247,9 @@ export const handleEdit = () => {
     console.log("reseting canvas");
     resetCanvas();
   } else {
-    canvasStore$.canvas.set(canvas as Canvas);
+    // resetCanvas();
+    const canvasCopy = JSON.parse(JSON.stringify(canvas)) as Canvas;
+    canvasStore$.canvas.set(canvasCopy);
   }
   uiStore$.displayCanvasMenu.set(true);
   uiStore$.displayJournalMenu.set(false);
@@ -265,7 +265,6 @@ export const handleSave = async () => {
   pageStore$.saving.set(true);
   let pageId = pageStore$.curPageId.get();
   const { error } = await uploadImages();
-  // modify so it updates the paths in the canavs items
   if (error) {
     console.log("error", error);
     addNotification({
@@ -276,7 +275,9 @@ export const handleSave = async () => {
     posthog.capture("page-save-error", { error });
     return;
   }
+  console.log("saving for page: ", pageId);
   if (!pageId) {
+    console.log("creaitng new page");
     pageId = generateId();
     canvasStore$.canvas.id.set(pageId);
     const page = {
@@ -289,11 +290,8 @@ export const handleSave = async () => {
     //save new canvas
     pages$[pageId].set(page);
   } else {
-    // const { error } = await supabase.from("pages").update(newPage).eq("id", pageId);
-    // console.log("error", error);
-    console.log("old page", pages$[pageId].canvas.peek());
-    pages$[pageId].canvas.set(canvasStore$.canvas.peek());
-    console.log("new page", pages$[pageId].canvas.peek());
+    console.log("updating existing page");
+    pages$[pageId].canvas.set(canvasStore$.canvas.get());
   }
   resetCanvas();
   pageStore$.editMode.set(false);
