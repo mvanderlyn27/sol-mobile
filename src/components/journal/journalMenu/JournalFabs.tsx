@@ -19,7 +19,7 @@ const JournalFabs = observer(function JournalFabs() {
     handleEditReaction();
   };
   const editPage = () => {
-    reactStore$.showReactions.set(false);
+    // reactStore$.showReactions.set(false);
     handleEdit();
   };
   return (
@@ -34,7 +34,7 @@ const JournalFabs = observer(function JournalFabs() {
       </StyledView>
       <StyledView className="py-2">
         {onUsersPage ? (
-          <RoundButton primary onClick={editPage} buttonType={ButtonType.Edit} />
+          <RoundButton primary onClick={handleEdit} buttonType={ButtonType.Edit} />
         ) : (
           <RoundButton
             primary={pageId !== undefined}

@@ -10,7 +10,6 @@ import * as Notifications from "expo-notifications";
 import { addNotification } from "../stores/NotificationStore";
 import { generateId } from "../stores/AsyncStorage";
 import { NotificationType } from "../types/shared.types";
-import { pageReactions$, reactionItems$, reactionTextItems$ } from "../stores/ReactStore";
 
 // export const initializeStores = async () => {
 //   //want to wait until these are all synced

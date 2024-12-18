@@ -246,7 +246,7 @@ export type Database = {
           notification_data: Json;
           processed: boolean | null;
           recipient_id: string;
-          sender_id: string;
+          sender_id: string | null;
           updated_at: string;
         };
         Insert: {
@@ -257,7 +257,7 @@ export type Database = {
           notification_data: Json;
           processed?: boolean | null;
           recipient_id: string;
-          sender_id: string;
+          sender_id?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -268,7 +268,7 @@ export type Database = {
           notification_data?: Json;
           processed?: boolean | null;
           recipient_id?: string;
-          sender_id?: string;
+          sender_id?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -417,7 +417,15 @@ export type Database = {
           id?: string;
           updated_at?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "pages_created_by_fkey1";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       pages_old: {
         Row: {
@@ -514,6 +522,51 @@ export type Database = {
           username?: string | null;
         };
         Relationships: [];
+      };
+      reactions: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          deleted: boolean;
+          id: string;
+          page_id: string;
+          reaction: Json;
+          updated_at: string;
+        };
+        Insert: {
+          created_at: string;
+          created_by: string;
+          deleted: boolean;
+          id?: string;
+          page_id: string;
+          reaction: Json;
+          updated_at: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          deleted?: boolean;
+          id?: string;
+          page_id?: string;
+          reaction?: Json;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reactions_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reactions_page_id_fkey";
+            columns: ["page_id"];
+            isOneToOne: false;
+            referencedRelation: "pages";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       reactions_old: {
         Row: {

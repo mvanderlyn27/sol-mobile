@@ -25,6 +25,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   userItem: boolean;
   active: boolean;
 }) {
+  // console.log("text item", item);
   const editMode = pageStore$.editMode.get() && userItem;
   const offset = useSharedValue({ x: item.x, y: item.y });
   const start = useSharedValue({ x: item.x, y: item.y });

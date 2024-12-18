@@ -24,6 +24,7 @@ const JournalOverlays = observer(function JournalOverlays() {
   if (pageStore$.loading.get()) {
     return <LoadingScreen />;
   }
+
   return (
     <StyledView className="absolute top-0 bottom-0 right-0 left-0 z-10" pointerEvents="box-none">
       <StyledSafeAreaView className="flex-1" pointerEvents="box-none">

@@ -55,6 +55,9 @@ export const pages$ = observable(
     supabase,
     collection: "pages",
     select: (from) => from.select("*").eq("group_id", groupStore$.selectedGroup.get() || ""),
+    onError: (error, params) => {
+      console.error("pages error", error, params);
+    },
   })
 );
 

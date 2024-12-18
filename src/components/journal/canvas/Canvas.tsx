@@ -7,7 +7,7 @@ import { Image as ExpoImage } from "expo-image";
 
 import { getImageFromPath } from "@/src/assets/images/images";
 import CanvasImageHolder from "./CanvasImageHolder";
-import { For, Show, observer, useMount, useObservable } from "@legendapp/state/react";
+import { For, Memo, Show, observer, useMount, useObservable } from "@legendapp/state/react";
 import { pageStore$, pages$ } from "@/src/stores/PagesStore";
 import CanvasTextHolder from "./CanvasText";
 import { Observable, observable, syncState } from "@legendapp/state";
@@ -30,9 +30,10 @@ export const CanvasHolder = observer(function CanvasHolder({
   active: boolean;
 }) {
   const page$ = pages$[pageId || ""];
-  const canvas: Observable<Canvas | null> =
-    !pageStore$.editMode.get() || !active ? observable(page$.canvas.get() as Canvas) : canvasStore$.canvas;
-  // console.log("canvas items", canvas, items$.get());
+  const canvas: Observable<Canvas | null> = !editMode ? observable(page$.canvas.get() as Canvas) : canvasStore$.canvas;
+  if (active) {
+    console.log("canvas items", canvas.items.get());
+  }
   return (
     <StyledMotiView
       key={`${editMode ? "edit-" : ""}canvas-${pageId}`}
@@ -48,7 +49,7 @@ export const CanvasHolder = observer(function CanvasHolder({
           active={active}
           key={`item-${index}-${editMode ? "edit" : ""}-${item.id.get()}`}
           item$={item}
-          editable={editMode && canvas?.id.get() === canvasStore$.canvas.id.get()}
+          editable={editMode}
           pageId={pageId || ""}
         />
       ))}

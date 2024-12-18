@@ -10,7 +10,6 @@ import { groupStore$ } from "../stores/GroupStore";
 import { images$, backgroundImages } from "../stores/ImageStore";
 import { addNotification } from "../stores/NotificationStore";
 import { pageStore$, pages$, DateItem } from "../stores/PagesStore";
-import { pageReactions$ } from "../stores/ReactStore";
 import { uiStore$ } from "../stores/UIStore";
 import { NotificationType, Page, CanvasItem, Image, Json, Canvas, ImageType, CanvasImage } from "../types/shared.types";
 import { resizeImage } from "./Media";
@@ -59,7 +58,8 @@ function loadGroupMembers(user?: string) {
   });
   const userIds = users.map((user) => user.user_id);
   if (user && userIds.includes(user)) {
-    pageStore$.curRow.set(userIds.indexOf(user));
+    const userIndex = userIds.indexOf(user);
+    pageStore$.curRow.set(userIndex || 0);
   }
   pageStore$.members.set(users);
 }
@@ -74,10 +74,10 @@ async function loadInitialPages(date?: string) {
     const index = allDates.findIndex((dateObject) => dateObject.date === date);
     pageStore$.dates.set(allDates); // Set initial dates range
     if (allDates.length > 0) {
-      pageStore$.startDate.set(allDates[-1].date);
+      pageStore$.startDate.set(allDates[allDates.length - 1].date);
       pageStore$.endDate.set(allDates[0].date);
     }
-    pageStore$.curCol.set(index);
+    pageStore$.curCol.set(index || 0);
   } else {
     const allDates = getAllUniqueDates(START_PAGE_NUM); // Get unique dates for initial range
     pageStore$.dates.set(allDates); // Set initial dates range
@@ -104,7 +104,10 @@ async function initializeRealtimeUpdates() {
         pages$[deletedPageId].delete();
       } else {
         const newPage: Page = payload.new as Page;
+        //if we already have the update, don't do anything
+        if (pages$[payload.new.id].updated_at.get() === newPage.updated_at) return;
         pages$[newPage.id].set(newPage);
+        console.log("after realtime update", pages$[newPage.id].get());
       }
     })
     .subscribe();
@@ -225,7 +228,7 @@ export const canvasStore$ = observable<CanvasStore>({
 
 export const resetCanvas = () => {
   const defaultCanvas = {
-    id: generateId(),
+    id: "",
     backgroundImage: { path: "bg_04", type: ImageType.Local },
     items: [],
     maxZIndex: 0,
@@ -241,15 +244,16 @@ export const handleEdit = () => {
   const curDate = pageStore$.dates[pageStore$.curCol.get()].date.get();
   const page = getPageForUser(pages$.get(), curUser, curDate);
   const canvas = page?.canvas;
-  console.log("canvas for edit", canvas, page, curUser, curDate);
+  console.log("canvas for edit", page?.canvas);
   if (!canvas) {
+    console.log("reseting canvas");
     resetCanvas();
   } else {
     canvasStore$.canvas.set(canvas as Canvas);
   }
-  pageStore$.editMode.set(true);
   uiStore$.displayCanvasMenu.set(true);
   uiStore$.displayJournalMenu.set(false);
+  pageStore$.editMode.set(true);
   pageStore$.curPageId.set(page?.id || null);
 };
 export const handleSave = async () => {
@@ -274,6 +278,7 @@ export const handleSave = async () => {
   }
   if (!pageId) {
     pageId = generateId();
+    canvasStore$.canvas.id.set(pageId);
     const page = {
       id: pageId,
       created_by: authStore$.session.user.id.get(),
@@ -284,23 +289,26 @@ export const handleSave = async () => {
     //save new canvas
     pages$[pageId].set(page);
   } else {
-    const newPage = { canvas: canvasStore$.canvas.get() } as Page;
-    pages$[pageId].set(newPage);
+    // const { error } = await supabase.from("pages").update(newPage).eq("id", pageId);
+    // console.log("error", error);
+    console.log("old page", pages$[pageId].canvas.peek());
+    pages$[pageId].canvas.set(canvasStore$.canvas.peek());
+    console.log("new page", pages$[pageId].canvas.peek());
   }
-  batch(() => {
-    canvasStore$.canvas.set(null);
-    pageStore$.curPageId.set(null);
-    pageStore$.editMode.set(false);
-    uiStore$.displayCanvasMenu.set(false);
-    uiStore$.displayJournalMenu.set(true);
-    pageStore$.saving.set(false);
-  });
-};
-export const handleCancel = () => {
-  canvasStore$.canvas.set(null);
+  resetCanvas();
   pageStore$.editMode.set(false);
   uiStore$.displayCanvasMenu.set(false);
   uiStore$.displayJournalMenu.set(true);
+  pageStore$.curPageId.set(null);
+  pageStore$.saving.set(false);
+};
+export const handleCancel = () => {
+  resetCanvas();
+  pageStore$.editMode.set(false);
+  uiStore$.displayCanvasMenu.set(false);
+  uiStore$.displayJournalMenu.set(true);
+  pageStore$.curPageId.set(null);
+  pageStore$.saving.set(false);
 };
 export const addCanvasItem = (item: CanvasItem) => {
   const curMax = canvasStore$.canvas.maxZIndex.get();
@@ -322,7 +330,6 @@ export const getCanvasItemIndex = (id: string) => {
   return canvasStore$.canvas.items.findIndex((val) => val.id.get() === id);
 };
 export const bringToFront = (id: string) => {
-  console.log("bringing to front");
   const index = getCanvasItemIndex(id);
   const curMax = canvasStore$.canvas.maxZIndex.get();
   const item = canvasStore$.canvas.items[index].get();

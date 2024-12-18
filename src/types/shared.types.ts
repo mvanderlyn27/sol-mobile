@@ -6,7 +6,7 @@ export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Page = Database["public"]["Tables"]["pages"]["Row"];
 export type Group = Database["public"]["Tables"]["groups"]["Row"];
 export type GroupMember = Database["public"]["Tables"]["group_members"]["Row"];
-export type PageReaction = Database["public"]["Tables"]["page_reactions"]["Row"];
+export type Reaction = Database["public"]["Tables"]["reactions"]["Row"];
 export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
 export type Font = Database["public"]["Tables"]["fonts"]["Row"];
 export type Sticker = Database["public"]["Tables"]["stickers"]["Row"];
@@ -135,6 +135,11 @@ export interface Canvas {
   backgroundImage: Image; // Path to the background image
   items: CanvasItem[]; // Array of canvas items};
   //screen size canvas was last saved with
+  maxZIndex: number;
+}
+export interface CanvasReaction {
+  id: string;
+  items: CanvasReactionItem[];
   maxZIndex: number;
 }
 //Book Types

@@ -45,21 +45,13 @@ const CanvasMenu = observer(function CanvasMenu() {
     setSaving(true);
     reactStore$.showReactions.set(true);
     handleSave();
-    handleClose();
     setSaving(false);
   };
   const handleCancelEdit = () => {
     if (canceling) return;
     setCanceling(true);
     handleCancel();
-    handleClose();
     setCanceling(false);
-  };
-  const handleClose = () => {
-    pageStore$.editMode.set(false);
-    reactStore$.showReactions.set(true);
-    uiStore$.displayCanvasMenu.set(false);
-    uiStore$.displayJournalMenu.set(true);
   };
   const handleDrawerSave = () => {
     // onSave();
