@@ -7,29 +7,23 @@ import { profiles$ } from "../stores/ProfileStore";
 import { useEffect } from "react";
 import { AppStateStatus, AppState } from "react-native";
 import { posthog } from "./Posthog";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import authStore$ from "../stores/AuthStore";
+import { signOut } from "./Auth";
 
 export const clearLocalPersist = async () => {
-  const pagesState$ = syncState(pages$);
-  // const pageItemsState$ = syncState(pageItems$);
-  // const textItemsState$ = syncState(textItems$);
-  const profilesState$ = syncState(profiles$);
-  const groupsState$ = syncState(groups$);
-  const groupMembersState$ = syncState(groupMembers$);
-  // const imagesState$ = syncState(images$);
-  // const reactionItemsState$ = syncState(reactionItems$);
-  // const reactionTextItemsState$ = syncState(reactionTextItems$);
-
-  await Promise.all([
-    pagesState$.clearPersist(),
-    // pageItemsState$.clearPersist(),
-    // textItemsState$.clearPersist(),
-    profilesState$.clearPersist(),
-    groupsState$.clearPersist(),
-    groupMembersState$.clearPersist(),
-    // imagesState$.clearPersist(),
-    // reactionItemsState$.clearPersist(),
-    // reactionTextItemsState$.clearPersist(),
-  ]);
+  // // const pageItemsState$ = syncState(pageItems$);
+  // // const textItemsState$ = syncState(textItems$);
+  // const clearProfiles = syncState(profiles$).clearPersist();
+  // const clearGroups = syncState(groups$).clearPersist();
+  // const clearGroupMembers = syncState(groupMembers$).clearPersist();
+  // // const imagesState$ = syncState(images$);
+  // // const reactionItemsState$ = syncState(reactionItems$);
+  // // const reactionTextItemsState$ = syncState(reactionTextItems$);
+  // console.log("info", clearProfiles);
+  // await Promise.all([clearGroupMembers, clearProfiles, clearGroups]);
+  AsyncStorage.clear();
+  signOut();
 };
 export const resyncObservables = async () => {
   console.log("resyncing observables");

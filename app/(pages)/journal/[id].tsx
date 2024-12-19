@@ -1,7 +1,7 @@
 import Canvas2DScroller from "@/src/components/playground/pagetTest";
 import LoadingScreen from "@/src/components/screens/LoadingScreen";
-import { initializePageStore } from "@/src/services/Page";
-import { initializeReactStore } from "@/src/services/Reaction";
+import { initializePageStore, useInitializePageRealtimeUpdates } from "@/src/services/Page";
+import { initializeReactStore, useInitializeReactRealtimeListeners } from "@/src/services/Reaction";
 import { groupStore$ } from "@/src/stores/GroupStore";
 import { pageStore$, pages$ } from "@/src/stores/PagesStore";
 import { beginBatch, endBatch } from "@legendapp/state";
@@ -11,11 +11,12 @@ import { useLocalSearchParams } from "expo-router";
 const Journal = observer(function Journal() {
   const { id, user, date } = useLocalSearchParams<{ id: string; user?: string; date?: string }>();
   // Extract parameters from URL
+  useInitializePageRealtimeUpdates();
+  useInitializeReactRealtimeListeners();
   useMount(async () => {
     pageStore$.ready.set(false);
     groupStore$.selectedGroup.set(id);
     await initializePageStore(user, date);
-    initializeReactStore();
     pageStore$.ready.set(true);
   });
   if (pageStore$.ready.get()) {

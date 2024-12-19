@@ -1,5 +1,4 @@
 export type Json = Record<string, any>;
-
 export type Database = {
   public: {
     Tables: {
@@ -494,6 +493,8 @@ export type Database = {
           name: string | null;
           new: boolean;
           push_token: string | null;
+          should_clear_storage: boolean;
+          should_reset_storage: boolean;
           updated_at: string;
           username: string | null;
         };
@@ -506,6 +507,8 @@ export type Database = {
           name?: string | null;
           new?: boolean;
           push_token?: string | null;
+          should_clear_storage?: boolean;
+          should_reset_storage?: boolean;
           updated_at?: string;
           username?: string | null;
         };
@@ -518,6 +521,8 @@ export type Database = {
           name?: string | null;
           new?: boolean;
           push_token?: string | null;
+          should_clear_storage?: boolean;
+          should_reset_storage?: boolean;
           updated_at?: string;
           username?: string | null;
         };
@@ -536,7 +541,7 @@ export type Database = {
         Insert: {
           created_at: string;
           created_by: string;
-          deleted: boolean;
+          deleted?: boolean;
           id?: string;
           page_id: string;
           reaction: Json;

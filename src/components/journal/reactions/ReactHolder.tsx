@@ -41,6 +41,8 @@ const ReactHolder = observer(function ReactHolder({
       return reaction.items;
     })
     .flat();
+  console.log("my reactions", myReactions);
+  console.log("other reactions", otherReactions);
   return (
     <StyledView
       key={`${pageId}`}

@@ -9,24 +9,53 @@ import { CanvasReaction, CanvasReactionItem, Json, NotificationType, Reaction } 
 import { max } from "lodash";
 import { getPageForUser } from "./Page";
 import { supabase } from "../lib/supabase";
-export const initializeReactStore = () => {
-  initializeReactListners();
-};
-export const initializeReactListners = () => {
-  const subscription = supabase
-    .channel("realtime-reactions")
-    .on("postgres_changes", { event: "*", schema: "public", table: "reactions" }, (payload) => {
-      if (payload.eventType === "DELETE") {
-        const deletedPageId = payload.old.id;
-        pages$[deletedPageId].delete();
-      } else {
-        const newPage: Reaction = payload.new as Reaction;
-        console.log("reactions after realtime update", reactions$[newPage.id].reaction.get() as CanvasReaction);
-        reactions$[newPage.id].set(newPage);
-      }
-    })
-    .subscribe();
-  return subscription;
+import { useEffect } from "react";
+import { groupStore$ } from "../stores/GroupStore";
+export const initializeReactStore = () => {};
+export const useInitializeReactRealtimeListeners = () => {
+  useEffect(() => {
+    const subscription = supabase
+      .channel("realtime-reactions")
+      .on("postgres_changes", { event: "*", schema: "public", table: "reactions" }, (payload) => {
+        console.log("recieved real time reaction update!");
+        if (payload.eventType === "DELETE") {
+          const deletedReactionId = payload.old.id;
+          reactions$[deletedReactionId].delete();
+        } else {
+          //check if reaction is in current pages
+          if (
+            pages$[payload.new.page_id].group_id.get() !== groupStore$.selectedGroup.get() ||
+            !pageStore$.dates
+              .get()
+              .map((d) => d.date)
+              .includes(pages$[payload.new.page_id].date.get())
+          ) {
+            console.log("reaction not in current page");
+            return;
+          }
+          // const cur = reactions$.peek()?.[payload.new.id];
+          // let lastSync = undefined;
+          // const curDateStr = cur && (cur.updated_at || cur.created_at);
+          // const valueDateStr = payload.new.updated_at || payload.new.created_at;
+          // lastSync = +new Date(valueDateStr);
+          // let isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
+          const isOk =
+            JSON.stringify(payload.new.reaction) !== JSON.stringify(reactions$.peek()[payload.new.id].reaction);
+          console.log("reaction changed", isOk);
+          if (isOk) {
+            const newReaction: Reaction = payload.new as Reaction;
+            reactions$[newReaction.id].set(newReaction);
+            console.log("new reaction updated");
+          }
+        }
+      })
+      .subscribe();
+
+    // Cleanup function to unsubscribe
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []); // Empty dependency array ensures this runs only on mount/unmount
 };
 export const handleEditReaction = () => {
   //create draft object, duplicate any needed values

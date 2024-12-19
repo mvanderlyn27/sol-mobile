@@ -8,7 +8,7 @@ import ProtectedLayout from "@/src/components/navigation/ProtectedRoute";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { posthog } from "@/src/services/Posthog";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { imagesItems$, pageItems$, pages$, textItems$ } from "@/src/stores/PagesStore";
+import { pages$ } from "@/src/stores/PagesStore";
 import { images$ } from "@/src/stores/ImageStore";
 import { clearLocalPersist, resyncObservables } from "@/src/services/AppStore";
 import { supabase } from "@/src/lib/supabase";
@@ -23,11 +23,20 @@ const Layout = observer(function Layout() {
     const curId = authStore$.session.user.id.get();
     profiles$.onChange(async () => {
       const shouldResetStorage = curId && profiles$[curId].should_reset_storage.get();
+      const shouldClearStorage = curId && profiles$[curId].should_clear_storage.get();
       if (shouldResetStorage) {
         profiles$[curId].should_reset_storage.set(false);
         const { error } = await supabase.from("profiles").update({ should_reset_storage: false }).eq("id", curId);
         await resyncObservables();
         posthog.capture("reset-local-storage");
+        console.log("reset local persist");
+      }
+      if (shouldClearStorage) {
+        profiles$[curId].should_reset_storage.set(false);
+        const { error } = await supabase.from("profiles").update({ should_clear_storage: false }).eq("id", curId);
+        posthog.capture("reset-local-storage");
+        console.log("reset local persist");
+        await clearLocalPersist();
       }
     });
   });

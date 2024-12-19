@@ -107,10 +107,10 @@ const Canvas2DScroller = observer(() => {
         onScrollToIndexFailed={({ index }) => {
           console.log("failed to scroll horizontal: ", index);
         }}
-        initialNumToRender={14}
-        maxToRenderPerBatch={7}
-        windowSize={14}
-        onEndReachedThreshold={0.3}
+        initialNumToRender={6}
+        maxToRenderPerBatch={3}
+        windowSize={6}
+        onEndReachedThreshold={0.5}
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         horizontal
