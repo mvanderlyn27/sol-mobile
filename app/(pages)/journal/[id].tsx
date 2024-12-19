@@ -1,6 +1,7 @@
 import Canvas2DScroller from "@/src/components/playground/pagetTest";
 import LoadingScreen from "@/src/components/screens/LoadingScreen";
 import { initializePageStore } from "@/src/services/Page";
+import { initializeReactStore } from "@/src/services/Reaction";
 import { groupStore$ } from "@/src/stores/GroupStore";
 import { pageStore$, pages$ } from "@/src/stores/PagesStore";
 import { beginBatch, endBatch } from "@legendapp/state";
@@ -14,6 +15,7 @@ const Journal = observer(function Journal() {
     pageStore$.ready.set(false);
     groupStore$.selectedGroup.set(id);
     await initializePageStore(user, date);
+    initializeReactStore();
     pageStore$.ready.set(true);
   });
   if (pageStore$.ready.get()) {

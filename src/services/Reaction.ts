@@ -8,7 +8,26 @@ import { uiStore$ } from "../stores/UIStore";
 import { CanvasReaction, CanvasReactionItem, Json, NotificationType, Reaction } from "../types/shared.types";
 import { max } from "lodash";
 import { getPageForUser } from "./Page";
-export const initializeReactListners = () => {};
+import { supabase } from "../lib/supabase";
+export const initializeReactStore = () => {
+  initializeReactListners();
+};
+export const initializeReactListners = () => {
+  const subscription = supabase
+    .channel("realtime-reactions")
+    .on("postgres_changes", { event: "*", schema: "public", table: "reactions" }, (payload) => {
+      if (payload.eventType === "DELETE") {
+        const deletedPageId = payload.old.id;
+        pages$[deletedPageId].delete();
+      } else {
+        const newPage: Reaction = payload.new as Reaction;
+        console.log("reactions after realtime update", reactions$[newPage.id].reaction.get() as CanvasReaction);
+        reactions$[newPage.id].set(newPage);
+      }
+    })
+    .subscribe();
+  return subscription;
+};
 export const handleEditReaction = () => {
   //create draft object, duplicate any needed values
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
@@ -28,7 +47,8 @@ export const handleEditReaction = () => {
     (r) => r.page_id === pageId && r.created_by === curUserId
   )?.id;
   if (reactionId) {
-    reactStore$.reaction.set(reactions$[reactionId].get().reaction as CanvasReaction);
+    const oldReaction = reactions$[reactionId].get().reaction as CanvasReaction;
+    reactStore$.reaction.set(JSON.parse(JSON.stringify(oldReaction)));
     reactStore$.curReactionId.set(reactionId);
   } else {
     //create new reaction
@@ -62,6 +82,7 @@ export const handleSaveReaction = () => {
     const updatedReaction = { reaction: reactStore$.reaction.get() as Json } as Reaction;
     reactions$[reactionId].assign(updatedReaction);
   } else {
+    console.log("creating new reaction");
     //create new reaction
     const newReactionId = generateId();
     const newReaction = {
