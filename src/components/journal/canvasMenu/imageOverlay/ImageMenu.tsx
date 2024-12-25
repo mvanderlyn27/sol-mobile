@@ -21,7 +21,7 @@ import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-conte
 import MenuButton from "@/src/components/shared/MenuButton";
 import OverlayTextButton from "@/src/components/shared/OverlayTextButton";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
-import { removePageItem } from "@/src/services/Page";
+import { removeCanvasItem } from "@/src/services/Page";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -106,7 +106,7 @@ const ImageMenu = observer(function ImageMenu() {
   const maxHeight = 400;
   const handleDelete = () => {
     const id = imageEditStore$.id.get();
-    removePageItem(id);
+    removeCanvasItem(id);
     uiStore$.displayCanvasMenu.set(true);
     uiStore$.displayImageEditOverlay.set(false);
   };

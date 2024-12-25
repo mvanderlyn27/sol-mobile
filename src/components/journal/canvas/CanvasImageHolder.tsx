@@ -142,7 +142,8 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
               source={{ uri: item.path }}
               placeholder={{ blurhash: item.placeholder }}
               style={{ width: "100%", height: "100%" }}
-              contentFit="contain"
+              // contentFit="contain"
+              contentFit="cover" // Use 'cover' to make sure the image fills the container
             />
           </StyledPressable>
         </StyledMotiView>

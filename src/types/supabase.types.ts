@@ -1,4 +1,5 @@
 export type Json = Record<string, any>;
+
 export type Database = {
   public: {
     Tables: {

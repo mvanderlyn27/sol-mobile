@@ -136,6 +136,8 @@ export interface Canvas {
   items: CanvasItem[]; // Array of canvas items};
   //screen size canvas was last saved with
   maxZIndex: number;
+  screenWidth: number;
+  screenHeight: number;
 }
 export interface CanvasReaction {
   id: string;

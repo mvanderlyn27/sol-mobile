@@ -1,3 +1,1 @@
-alter table "public"."profiles" add column "should_reset_storage" boolean not null default false;
-
-
+-- alter table "public"."profiles" add column "should_reset_storage" boolean not null default false;

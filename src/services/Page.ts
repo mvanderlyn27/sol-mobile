@@ -9,7 +9,7 @@ import authStore$ from "../stores/AuthStore";
 import { groupStore$ } from "../stores/GroupStore";
 import { images$, backgroundImages } from "../stores/ImageStore";
 import { addNotification } from "../stores/NotificationStore";
-import { pageStore$, pages$, DateItem } from "../stores/PagesStore";
+import { pageStore$, pages$, DateItem, canvasStore$ } from "../stores/PagesStore";
 import { uiStore$ } from "../stores/UIStore";
 import { NotificationType, Page, CanvasItem, Image, Json, Canvas, ImageType, CanvasImage } from "../types/shared.types";
 import { resizeImage } from "./Media";
@@ -26,6 +26,7 @@ export const START_PAGE_NUM = 5; // Number of pages to load initially per user
 // export const START_PAGE_NUM = 3; // Number of pages to load initially per user
 export const LOAD_MORE_PAGES = 5; // Number of pages to load in each additional batch
 // export const LOAD_MORE_PAGES = 2; // Number of pages to load in each additional batch
+const { width, height } = Dimensions.get("window");
 
 export const getPageForUser = (pages: Record<string, Page>, curUser: string, date: string): Page | undefined => {
   const groupId = groupStore$.selectedGroup.get();
@@ -114,7 +115,7 @@ export async function useInitializePageRealtimeUpdates() {
           // console.log("is ok to update? :", isOk, lastSync, curDateStr, valueDateStr);
 
           //test right now to see if we have new values to canvas
-          const isOk = JSON.stringify(pages$.peek()[payload.new.id].canvas) !== JSON.stringify(payload.new.canvas);
+          const isOk = JSON.stringify(pages$.peek()[payload.new.id]?.canvas) !== JSON.stringify(payload.new.canvas);
           if (isOk) {
             const newPage: Page = payload.new as Page;
             // console.log("updating pages!", pages$[newPage.id].canvas.get() as Canvas);
@@ -195,7 +196,7 @@ export const uploadImage = async (
   }
   //eventaully want to ensure that it isn't uploading duplicates, only one copy of a photo at a time
   const photoPath = supabase.storage.from("page_photos").getPublicUrl(`${userId}/${item.id}.webp`).data.publicUrl;
-  canvasStore$.canvas.items[index].set({ ...item, path: photoPath });
+  canvasStore$.canvas.items[index].set({ ...item, path: photoPath, placeholder: blurhash });
 };
 const uploadImages = async (): Promise<{ success: boolean; error?: string }> => {
   const items$ = canvasStore$.canvas.items;
@@ -235,19 +236,14 @@ export const changeBackground = () => {
   canvasStore$.canvas.backgroundImage.set(nextBackground);
 };
 
-interface CanvasStore {
-  canvas: Canvas | null;
-}
-export const canvasStore$ = observable<CanvasStore>({
-  canvas: null,
-});
-
 export const resetCanvas = () => {
   const defaultCanvas = {
     id: "",
     backgroundImage: { path: "bg_04", type: ImageType.Local },
     items: [],
     maxZIndex: 0,
+    screenWidth: width,
+    screenHeight: height,
   } as Canvas;
   canvasStore$.canvas.set({ ...defaultCanvas });
 };
@@ -268,6 +264,7 @@ export const handleEdit = () => {
     // resetCanvas();
     const canvasCopy = JSON.parse(JSON.stringify(canvas)) as Canvas;
     canvasStore$.canvas.set(canvasCopy);
+    // console.log("set canvas", canvasStore$.canvas.get());
   }
   uiStore$.displayCanvasMenu.set(true);
   uiStore$.displayJournalMenu.set(false);
@@ -336,7 +333,8 @@ export const addCanvasItem = (item: CanvasItem) => {
 };
 export const updateCanvasItem = (item: CanvasItem) => {
   const index = getCanvasItemIndex(item.id);
-  canvasStore$.canvas.items[index].set(item);
+  const oldItem = canvasStore$.canvas.items[index].get();
+  canvasStore$.canvas.items[index].set({ ...oldItem, ...item });
 };
 export const removeCanvasItem = (id: string) => {
   const index = getCanvasItemIndex(id);

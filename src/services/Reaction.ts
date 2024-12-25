@@ -24,7 +24,7 @@ export const useInitializeReactRealtimeListeners = () => {
         } else {
           //check if reaction is in current pages
           if (
-            pages$[payload.new.page_id].group_id.get() !== groupStore$.selectedGroup.get() ||
+            pages$[payload.new.page_id]?.group_id.get() !== groupStore$.selectedGroup.get() ||
             !pageStore$.dates
               .get()
               .map((d) => d.date)
@@ -40,8 +40,13 @@ export const useInitializeReactRealtimeListeners = () => {
           // lastSync = +new Date(valueDateStr);
           // let isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
           const isOk =
-            JSON.stringify(payload.new.reaction) !== JSON.stringify(reactions$.peek()[payload.new.id].reaction);
-          console.log("reaction changed", isOk);
+            JSON.stringify(payload.new.reaction) !== JSON.stringify(reactions$.peek()[payload.new.id]?.reaction);
+          console.log(
+            "reaction changed",
+            JSON.stringify(payload.new.reaction),
+            JSON.stringify(reactions$.peek()[payload.new.id]?.reaction),
+            isOk
+          );
           if (isOk) {
             const newReaction: Reaction = payload.new as Reaction;
             reactions$[newReaction.id].set(newReaction);
@@ -144,7 +149,8 @@ export const addReactionItem = (item: CanvasReactionItem) => {
 
 export const updateReactionItem = (item: CanvasReactionItem) => {
   const index = getCanvasReactionItemIndex(item.id);
-  reactStore$.reaction.items[index].set(item);
+  const oldItem = reactStore$.reaction.items[index].get();
+  reactStore$.reaction.items[index].set({ ...oldItem, ...item });
 };
 export const removeReactItem = (id: string) => {
   const index = getCanvasReactionItemIndex(id);
