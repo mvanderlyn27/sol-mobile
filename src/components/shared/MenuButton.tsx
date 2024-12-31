@@ -2,7 +2,7 @@ import { ButtonType } from "@/src/types/shared.types";
 import React, { useState } from "react";
 import { Dimensions, Pressable, View } from "react-native";
 import { styled } from "nativewind";
-import { AntDesign, MaterialIcons, MaterialCommunityIcons, Feather, Foundation } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons, MaterialCommunityIcons, Feather, Foundation, FontAwesome } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { MotiView } from "moti";
 //<AntDesign name="closecircleo" size={24} color="black" />
@@ -13,6 +13,7 @@ const StyledFeather = styled(Feather);
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const StyledFoundation = styled(Foundation);
+const StyledAwesome = styled(FontAwesome);
 const { width, height } = Dimensions.get("window");
 const StyledBlurView = styled(BlurView);
 // const { canvasHasChanges } = useCanvas();
@@ -57,6 +58,10 @@ export default function MenuButton({
         return <StyledFeather name="align-left" size={24} className={"text-secondary"} />;
       case "text-right":
         return <StyledFeather name="align-right" size={24} className={"text-secondary"} />;
+      case "text-size":
+        return <StyledMaterialCommunity name="format-size" size={24} className={"text-gray-400"} />;
+      case "sliders":
+        return <StyledAwesome name="sliders" size={24} className={"text-secondary"} />;
       default:
         return null;
     }

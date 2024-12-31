@@ -40,6 +40,8 @@ export enum ButtonType {
   TextLeft = "text-left",
   TextRight = "text-right",
   TextCenter = "text-center",
+  TextSize = "text-size",
+  Sliders = "sliders",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {

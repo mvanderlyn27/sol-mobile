@@ -12,9 +12,14 @@ import ColorPicker, {
   returnedResults,
 } from "reanimated-color-picker";
 import { debounce } from "lodash";
+import MenuButton from "@/src/components/shared/MenuButton";
+import { ButtonType } from "@/src/types/shared.types";
+import { AnimatePresence, MotiView } from "moti";
+import { Keyboard } from "react-native";
 
 // Styled components
 const StyledView = styled(View);
+const StyledMotiView = styled(MotiView);
 const StyledText = styled(Text);
 const StyledTouchableOpacity = styled(TouchableOpacity);
 
@@ -28,12 +33,21 @@ const SettingsTab = observer(function () {
     // onTextSizeChange(size); // Notify parent component of text size change
     textStore$.size.set(size);
   }, 0);
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
 
   const handleColorSelect = debounce((colors: returnedResults) => {
     // onColorChange(color); // Notify parent component of color selection
 
     textStore$.color.set(colors.hex);
   }, 100);
+  const handleColorSliderClick = () => {
+    if (isColorPickerOpen) {
+      setIsColorPickerOpen(false);
+      return;
+    }
+    Keyboard.dismiss();
+    setIsColorPickerOpen(true);
+  };
   return (
     <StyledView className="px-4 pt-2">
       {/* Text Size Slider */}
@@ -47,38 +61,63 @@ const SettingsTab = observer(function () {
         boundedThumb
         thumbShape="circle"
         sliderThickness={5}
-        thumbSize={26}
+        thumbSize={20}
         thumbInnerStyle={{ borderWidth: 2, borderColor: "#e7dbcb" }}>
-        <StyledView className="pt-3 pb-2">
-          <Slider
-            minimumValue={10}
-            maximumValue={100}
-            step={1}
-            value={size}
-            thumbTintColor={color}
-            onValueChange={handleTextSizeChange}
-            style={{ width: "100%", height: 10 }}
-            maximumTrackTintColor="#fff"
-            minimumTrackTintColor="#fff"
-            thumbSize={26}
-            trackHeight={5}
-            thumbStyle={{ borderWidth: 2, borderColor: "#e7dbcb" }}
-          />
+        <StyledView className="pt-3 flex-row items-center justify-center">
+          <StyledView className="flex-none">
+            <MenuButton disabled onPress={() => console.log("slider")} buttonType={ButtonType.TextSize} />
+          </StyledView>
+
+          <StyledView className="flex-1">
+            <Slider
+              minimumValue={10}
+              maximumValue={100}
+              step={1}
+              value={size}
+              thumbTintColor={color}
+              onValueChange={handleTextSizeChange}
+              style={{ width: "100%", height: 10 }}
+              maximumTrackTintColor="#e7dbcb"
+              minimumTrackTintColor="#e7dbcb"
+              thumbSize={26}
+              trackHeight={5}
+              thumbStyle={{ borderWidth: 2, borderColor: "#e7dbcb" }}
+            />
+          </StyledView>
         </StyledView>
-        <StyledView className="py-3">
-          <HueSlider />
-        </StyledView>
-        <StyledView className="py-3">
-          <BrightnessSlider />
-        </StyledView>
-        <StyledView className="py-3">
-          <SaturationSlider />
-        </StyledView>
-        <StyledView className="pt-3">
-          <Swatches
-            colors={colorOptions}
-            swatchStyle={{ width: 30, height: 30, borderWidth: 2, borderColor: "#e7dbcb" }}
-          />
+
+        <StyledView className="py-3 flex-row items-start justify-center">
+          <StyledView className="flex-none">
+            <MenuButton onPress={() => handleColorSliderClick()} buttonType={ButtonType.Sliders} />
+          </StyledView>
+
+          <StyledView className="flex-1">
+            <Swatches
+              colors={colorOptions}
+              swatchStyle={{ width: 26, height: 26, borderWidth: 2, borderColor: "#e7dbcb" }}
+              style={{ alignItems: "center" }}
+            />
+            <AnimatePresence>
+              {isColorPickerOpen && (
+                <StyledMotiView
+                  className=" pt-2"
+                  from={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "timing", duration: 300 }}>
+                  <StyledView className="py-3">
+                    <HueSlider />
+                  </StyledView>
+                  <StyledView className="py-3">
+                    <BrightnessSlider />
+                  </StyledView>
+                  <StyledView className="py-3">
+                    <SaturationSlider />
+                  </StyledView>
+                </StyledMotiView>
+              )}
+            </AnimatePresence>
+          </StyledView>
         </StyledView>
       </ColorPicker>
       {/* Color Selector */}
