@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { styled } from "nativewind";
-import Slider from "@react-native-community/slider";
+import Slider from "@react-native-assets/slider";
 import { textStore$ } from "@/src/stores/EditTextStore";
 import { observer } from "@legendapp/state/react";
 

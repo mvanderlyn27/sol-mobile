@@ -20,19 +20,33 @@ export const fonts = [
   "PragmaticaExtended-Light",
   "PragmaticaExtended",
 ];
-export const textStore$ = observable({
+interface TextStore {
+  id: string;
+  size: number;
+  scale: number;
+  color: string;
+  font: string;
+  text: string;
+  textAlign: "left" | "center" | "right";
+  reset: () => void;
+  editText: (id: string) => void;
+  editTextReact: (id: string) => void;
+}
+export const textStore$ = observable<TextStore>({
   id: "",
   size: 30,
   scale: 1,
   color: "#000",
   font: "Calibri",
   text: "",
+  textAlign: "left",
   reset: () => {
     textStore$.id.set("");
     textStore$.size.set(30);
     textStore$.color.set("#000");
     textStore$.font.set("Calibri");
     textStore$.text.set("");
+    textStore$.textAlign.set("left");
   },
   editText: (id: string) => {
     // const textItem = textItems$[id];
@@ -51,6 +65,7 @@ export const textStore$ = observable({
     textStore$.color.set(textItem.fontColor || "#ffffff");
     textStore$.font.set(textItem.fontType || "Calibri");
     textStore$.text.set(textItem.textContent || "");
+    textStore$.textAlign.set(textItem.fontAlign || "left");
     uiStore$.displayCanvasMenu.set(false);
     uiStore$.displayTextOverlay.set(true);
   },
@@ -71,6 +86,7 @@ export const textStore$ = observable({
     textStore$.color.set(curTextItem.fontColor || "#ffffff");
     textStore$.font.set(curTextItem.fontType || "Calibri");
     textStore$.text.set(curTextItem.textContent || "");
+    textStore$.textAlign.set(curTextItem.fontAlign || "left");
     uiStore$.displayCanvasMenu.set(false);
     uiStore$.displayReactOverlay.set(true);
   },

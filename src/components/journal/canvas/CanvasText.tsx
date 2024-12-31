@@ -122,7 +122,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   };
 
   return (
-    <StyledMotiView key={"text-" + item.id} style={[animatedStyles, { position: "absolute" }]}>
+    <StyledMotiView key={"text-" + item.id} style={[animatedStyles, { position: "absolute", paddingHorizontal: 10 }]}>
       <GestureDetector gesture={composed}>
         <Pressable onPress={editMode ? handleEdit : null}>
           <StyledText
@@ -130,6 +130,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
               animatedText,
               {
                 fontFamily: item.fontType || "Inkfree",
+                textAlign: item.fontAlign ? item.fontAlign : "left",
                 // fontSize: fontSize.value, // Use the updated font size here
                 color: item.fontColor,
               },

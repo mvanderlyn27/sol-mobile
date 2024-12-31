@@ -11,6 +11,7 @@ import { reactStore$ } from "@/src/stores/ReactStore";
 import { LOAD_MORE_PAGES, START_PAGE_NUM, getPageForUser, loadMorePages } from "@/src/services/Page";
 import { styled } from "nativewind";
 import LoadingScreen from "../screens/LoadingScreen";
+import { debounce } from "lodash";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
@@ -27,6 +28,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   // console.log("active", active, rowIndex, colIndex);
   const reactEditMode = reactStore$.reactEditMode.get() && active;
   return (
+    // <Memo>
     <View
       key={`${rowIndex}-${colIndex}${page ? "-" + page.updated_at : ""}-${editMode && active ? "edit" : "view"}-${
         page?.id
@@ -35,6 +37,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
       <CanvasHolder pageId={page?.id} editMode={editMode} active={active} />
       <ReactHolder pageId={page?.id} editMode={reactEditMode} />
     </View>
+    // </Memo>
   );
 });
 
@@ -52,11 +55,11 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
   }, [col]);
 
   // Viewable items handler
-  const onViewableItemsChanged = ({ viewableItems }: any) => {
+  const onViewableItemsChanged = debounce(({ viewableItems }: any) => {
     if (viewableItems.length > 0 && col === pageStore$.curCol.get()) {
       pageStore$.curRow.set(viewableItems[0].index);
     }
-  };
+  }, 100);
   return (
     <FlatList
       key={`${col}`}
@@ -64,9 +67,11 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       extraData={pageStore$.editMode.get()}
       data={rows}
       pagingEnabled
-      initialNumToRender={10}
-      maxToRenderPerBatch={5}
-      windowSize={10}
+      initialNumToRender={5}
+      maxToRenderPerBatch={3}
+      windowSize={7}
+      scrollEventThrottle={16} // Syncs scroll with 60fps
+      // removeClippedSubviews={true} // Improves performance by removing off-screen components
       scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
@@ -88,11 +93,11 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
 // Outer parent component with PagerView
 const Canvas2DScroller = observer(() => {
   const listRef = useRef<FlatList>(null);
-  const onViewableItemsChanged = ({ viewableItems }: any) => {
+  const onViewableItemsChanged = debounce(({ viewableItems }) => {
     if (viewableItems.length > 0) {
       pageStore$.curCol.set(viewableItems[0].index);
     }
-  };
+  }, 100);
   const handleEndReached = async () => {
     await loadMorePages();
   };
@@ -107,9 +112,11 @@ const Canvas2DScroller = observer(() => {
         onScrollToIndexFailed={({ index }) => {
           console.log("failed to scroll horizontal: ", index);
         }}
-        initialNumToRender={6}
+        initialNumToRender={5}
         maxToRenderPerBatch={3}
-        windowSize={6}
+        windowSize={7}
+        scrollEventThrottle={16} // Syncs scroll with 60fps
+        // removeClippedSubviews={true} // Improves performance by removing off-screen components
         onEndReachedThreshold={0.5}
         pagingEnabled
         showsHorizontalScrollIndicator={false}

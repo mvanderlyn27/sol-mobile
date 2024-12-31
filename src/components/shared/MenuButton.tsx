@@ -51,7 +51,12 @@ export default function MenuButton({
         return <StyledFeather name="settings" size={24} className={"text-secondary"} />;
       case "trash":
         return <StyledFeather name="trash" size={24} className={"text-red-500"} />;
-
+      case "text-center":
+        return <StyledFeather name="align-center" size={24} className={"text-secondary"} />;
+      case "text-left":
+        return <StyledFeather name="align-left" size={24} className={"text-secondary"} />;
+      case "text-right":
+        return <StyledFeather name="align-right" size={24} className={"text-secondary"} />;
       default:
         return null;
     }

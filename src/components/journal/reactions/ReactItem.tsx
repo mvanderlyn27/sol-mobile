@@ -130,6 +130,7 @@ const ReactItem = observer(function ReactItem({
               animatedText,
               {
                 fontFamily: item.fontType || "Inkfree",
+                textAlign: item.fontAlign || "center",
                 color: item.fontColor,
               },
             ]}>

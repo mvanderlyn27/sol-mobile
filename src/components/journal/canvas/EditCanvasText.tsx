@@ -4,7 +4,7 @@ import { BottomDrawerType, CanvasText } from "@/src/types/shared.types";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Dimensions, Pressable, Text, TextInput } from "react-native";
-import Slider from "@react-native-community/slider";
+import Slider from "@react-native-assets/slider";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Drawer from "../../shared/Drawer";
 import { useState } from "react";

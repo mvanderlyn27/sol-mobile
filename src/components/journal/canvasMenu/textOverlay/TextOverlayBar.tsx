@@ -32,6 +32,12 @@ const TextOverlayBar = observer(function TextOverlayBar() {
     uiStore$.displayCanvasMenu.set(true);
     uiStore$.displayTextOverlay.set(false);
   };
+  const toggleTextAlign = () => {
+    const curTextAlign = textStore$.textAlign.get();
+    const index = ["left", "center", "right"].indexOf(curTextAlign);
+    console.log("toggling text align", index);
+    textStore$.textAlign.set(["left", "center", "right"][(index + 1) % 3] as "left" | "center" | "right");
+  };
   const handleDelete = () => {
     const id = textStore$.id.get();
     if (id !== "") {
@@ -40,7 +46,18 @@ const TextOverlayBar = observer(function TextOverlayBar() {
     textStore$.reset();
     close();
   };
-
+  const getTextAlignButton = (align: "left" | "center" | "right") => {
+    switch (align) {
+      case "left":
+        return ButtonType.TextLeft;
+      case "center":
+        return ButtonType.TextCenter;
+      case "right":
+        return ButtonType.TextRight;
+      default:
+        return ButtonType.TextLeft;
+    }
+  };
   return (
     <StyledView className="justify-end px-4" pointerEvents="box-none">
       {/* Sliding Menus */}
@@ -67,7 +84,9 @@ const TextOverlayBar = observer(function TextOverlayBar() {
           <StyledView className="flex-1 justify-center items-center">
             <MenuButton onPress={() => toggleMenu("settings")} buttonType={ButtonType.Settings} />
           </StyledView>
-
+          <StyledView className="flex-1 justify-center items-center">
+            <MenuButton onPress={() => toggleTextAlign()} buttonType={getTextAlignButton(textStore$.textAlign.get())} />
+          </StyledView>
           {/* Text Button */}
           <StyledView className="flex-1 justify-center items-center">
             <MenuButton onPress={toggleFont} buttonType={ButtonType.Text} />

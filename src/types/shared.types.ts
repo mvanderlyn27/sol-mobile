@@ -37,6 +37,9 @@ export enum ButtonType {
   React = "react",
   Trash = "trash",
   Add = "add",
+  TextLeft = "text-left",
+  TextRight = "text-right",
+  TextCenter = "text-center",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {
@@ -119,6 +122,7 @@ export interface CanvasText extends CanvasItemBase {
   fontSize: number; // Size of the text font
   fontColor: string; // Color of the text
   fontType: string;
+  fontAlign: "left" | "right" | "center";
 }
 export interface CanvasTextReaction extends CanvasItemBase {
   type: "text";
@@ -126,6 +130,7 @@ export interface CanvasTextReaction extends CanvasItemBase {
   fontSize: number; // Size of the text font
   fontColor: string; // Color of the text
   fontType: string;
+  fontAlign: "left" | "right" | "center";
 }
 export type CanvasItem = CanvasFrame | CanvasText | CanvasImage;
 export type CanvasReactionItem = CanvasTextReaction;

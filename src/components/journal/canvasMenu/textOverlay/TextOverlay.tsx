@@ -19,19 +19,20 @@ const TextOverlay = observer(function TextOverlay() {
   const textColor = textStore$.color.get();
   const font = textStore$.font.get();
   const text = textStore$.text.get();
+  const textAlign = textStore$.textAlign.get();
 
   return (
     <StyledBlurView tint="dark" className="absolute top-0 right-0 left-0 bottom-0" pointerEvents="box-none">
       <SafeAreaView style={{ flex: 1 }}>
         <StyledKeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : "height"}>
           <TextOverlayButtons />
-          <StyledView className="flex-1 items-center justify-center px-8">
+          <StyledView className="flex-1  justify-center" style={{ paddingHorizontal: 10 }}>
             <StyledTextInput
               style={{
                 color: textColor,
                 fontSize: textSize,
                 fontFamily: font || "Calibri",
-                textAlign: "center",
+                textAlign: textAlign || "left",
               }}
               value={text}
               // placeholder={text}
