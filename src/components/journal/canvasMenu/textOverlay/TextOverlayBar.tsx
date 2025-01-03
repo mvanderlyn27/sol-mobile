@@ -10,12 +10,26 @@ import SettingsTab from "./SettingTab";
 import { fonts, textStore$ } from "@/src/stores/EditTextStore";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { removeCanvasItem } from "@/src/services/Page";
+import tinycolor from "tinycolor2";
 
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledBlurView = styled(BlurView);
+export const getNiceContrastingColor = (color: string) => {
+  const baseColor = tinycolor(color);
 
+  if (baseColor.isDark()) {
+    // If the color is dark, lighten it to create contrast
+    return baseColor.lighten(30).toHexString();
+  } else if (baseColor.isLight()) {
+    // If the color is light, darken it to create contrast
+    return baseColor.darken(30).toHexString();
+  }
+
+  // Fallback for colors that might be exactly black or white
+  return baseColor.isValid() ? baseColor.complement().toHexString() : "#000000";
+};
 const TextOverlayBar = observer(function TextOverlayBar() {
   const [activeMenu, setActiveMenu] = useState<"settings" | "text" | null>("settings");
 
@@ -38,6 +52,35 @@ const TextOverlayBar = observer(function TextOverlayBar() {
     console.log("toggling text align", index);
     textStore$.textAlign.set(["left", "center", "right"][(index + 1) % 3] as "left" | "center" | "right");
   };
+  const toggleBackground = () => {
+    // States: normal, inversed
+    const curBackgroundState = textStore$.textBackground.get();
+    const newBackgroundState =
+      curBackgroundState === "normal" ? "inversed" : curBackgroundState === "inversed" ? null : "normal";
+    // Update the background state
+    textStore$.textBackground.set(newBackgroundState as "normal" | "inversed" | null);
+
+    // Get current colors
+    const curColor = textStore$.color.get();
+    const curBackgroundColor = textStore$.textBackgroundColor.get();
+    if (!curBackgroundColor) {
+      // Determine and set the initial background color based on the current text color
+      const newBackgroundColor = getNiceContrastingColor(curColor);
+      textStore$.textBackgroundColor.set(newBackgroundColor);
+      console.log(`Background color set to ${newBackgroundColor} for contrast.`);
+    }
+    // else if (newBackgroundState === "inversed") {
+    //   // Swap text and background colors when in inversed state
+    //   textStore$.color.set(curBackgroundColor);
+    //   textStore$.textBackgroundColor.set(curColor);
+    //   console.log("Swapped text and background colors.");
+    // } else {
+    //   // Reset to normal state
+    //   textStore$.color.set(curColor);
+    //   textStore$.textBackgroundColor.set(null);
+    //   console.log("Reset to normal state, removed background color.");
+    // }
+  };
   const handleDelete = () => {
     const id = textStore$.id.get();
     if (id !== "") {
@@ -58,6 +101,7 @@ const TextOverlayBar = observer(function TextOverlayBar() {
         return ButtonType.TextLeft;
     }
   };
+
   return (
     <StyledView className="justify-end px-4" pointerEvents="box-none">
       {/* Sliding Menus */}
@@ -89,7 +133,7 @@ const TextOverlayBar = observer(function TextOverlayBar() {
           </StyledView>
           {/* Text Button */}
           <StyledView className="flex-1 justify-center items-center">
-            <MenuButton onPress={toggleFont} buttonType={ButtonType.Text} />
+            <MenuButton onPress={toggleBackground} buttonType={ButtonType.TextBackground} />
           </StyledView>
         </StyledView>
       </StyledView>

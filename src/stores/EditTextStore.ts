@@ -27,6 +27,8 @@ interface TextStore {
   color: string;
   font: string;
   text: string;
+  textBackgroundColor: string | null;
+  textBackground: "normal" | "inversed" | null;
   textAlign: "left" | "center" | "right";
   reset: () => void;
   editText: (id: string) => void;
@@ -40,6 +42,8 @@ export const textStore$ = observable<TextStore>({
   font: "Calibri",
   text: "",
   textAlign: "left",
+  textBackground: null,
+  textBackgroundColor: null,
   reset: () => {
     textStore$.id.set("");
     textStore$.size.set(30);
@@ -47,6 +51,8 @@ export const textStore$ = observable<TextStore>({
     textStore$.font.set("Calibri");
     textStore$.text.set("");
     textStore$.textAlign.set("left");
+    textStore$.textBackground.set(null);
+    textStore$.textBackgroundColor.set(null);
   },
   editText: (id: string) => {
     // const textItem = textItems$[id];
@@ -66,6 +72,8 @@ export const textStore$ = observable<TextStore>({
     textStore$.font.set(textItem.fontType || "Calibri");
     textStore$.text.set(textItem.textContent || "");
     textStore$.textAlign.set(textItem.fontAlign || "left");
+    textStore$.textBackground.set(textItem.fontBackground || null);
+    textStore$.textBackgroundColor.set(textItem.fontBackgroundColor || null);
     uiStore$.displayCanvasMenu.set(false);
     uiStore$.displayTextOverlay.set(true);
   },
@@ -86,6 +94,8 @@ export const textStore$ = observable<TextStore>({
     textStore$.color.set(curTextItem.fontColor || "#ffffff");
     textStore$.font.set(curTextItem.fontType || "Calibri");
     textStore$.text.set(curTextItem.textContent || "");
+    textStore$.textBackground.set(curTextItem.fontBackground || null);
+    textStore$.textBackgroundColor.set(curTextItem.fontBackgroundColor || null);
     textStore$.textAlign.set(curTextItem.fontAlign || "left");
     uiStore$.displayCanvasMenu.set(false);
     uiStore$.displayReactOverlay.set(true);

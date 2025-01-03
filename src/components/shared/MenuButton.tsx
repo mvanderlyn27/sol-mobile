@@ -60,6 +60,8 @@ export default function MenuButton({
         return <StyledFeather name="align-right" size={24} className={"text-secondary"} />;
       case "text-size":
         return <StyledMaterialCommunity name="format-size" size={24} className={"text-gray-400"} />;
+      case "text-background":
+        return <StyledFoundation name="background-color" size={24} className={"text-secondary"} />;
       case "sliders":
         return <StyledAwesome name="sliders" size={24} className={"text-secondary"} />;
       default:

@@ -25,6 +25,8 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
       fontColor: textStore$.color.get(),
       fontType: textStore$.font.get(),
       fontAlign: textStore$.textAlign.get(),
+      fontBackground: textStore$.textBackground.get(),
+      fontBackgroundColor: textStore$.textBackgroundColor.get(),
       width: 0,
       height: 0,
     };
@@ -39,6 +41,8 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
       fontColor: textStore$.color.get(),
       fontType: textStore$.font.get(),
       fontAlign: textStore$.textAlign.get(),
+      fontBackground: textStore$.textBackground.get(),
+      fontBackgroundColor: textStore$.textBackgroundColor.get(),
     } as CanvasText;
     console.log("updated textItem", textItem);
     updateCanvasItem(textItem);

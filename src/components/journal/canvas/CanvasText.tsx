@@ -1,6 +1,6 @@
 import { Show, observer } from "@legendapp/state/react";
 import React, { memo, useEffect } from "react";
-import { Dimensions, Pressable, Text } from "react-native";
+import { Dimensions, Pressable, Text, TextInput, View } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
@@ -10,6 +10,7 @@ import { CanvasText } from "@/src/types/shared.types";
 import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
 import { bringToFront, updateCanvasItem } from "@/src/services/Page";
+import tinycolor from "tinycolor2"; // Use tinycolor2 for color manipulation
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
@@ -36,7 +37,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   const fontSize = useSharedValue(item.fontSize);
   const savedFontSize = useSharedValue(item.fontSize);
   useEffect(() => {
-    // console.log("effect firing");
+    console.log("effect firing");
     offset.value = { x: item.x, y: item.y };
     start.value = { x: item.x, y: item.y };
     fontSize.value = item.fontSize;
@@ -52,6 +53,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   }));
   const animatedText = useAnimatedStyle(() => ({
     fontSize: fontSize.value,
+    lineHeight: fontSize.value * 1.2,
   }));
   const handleGestureStart = () => {
     if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
@@ -120,24 +122,60 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   const handleEdit = () => {
     textStore$.editText(item.id);
   };
-
+  const getBackgroundColor = (isSpace: boolean): string => {
+    if (item.fontBackground === null || isSpace) {
+      console.log("transparent");
+      return "transparent";
+    }
+    if (item.fontBackground === "inversed") {
+      console.log("inversed", item.fontColor);
+      return item.fontColor;
+    }
+    console.log("normal", item.fontBackground, item.fontBackgroundColor);
+    return item.fontBackgroundColor ? item.fontBackgroundColor : "transparent";
+  };
   return (
     <StyledMotiView key={"text-" + item.id} style={[animatedStyles, { position: "absolute", paddingHorizontal: 10 }]}>
       <GestureDetector gesture={composed}>
-        <Pressable onPress={editMode ? handleEdit : null}>
+        <StyledPressable onPress={editMode ? handleEdit : null}>
           <StyledText
             style={[
               animatedText,
               {
-                fontFamily: item.fontType || "Inkfree",
-                textAlign: item.fontAlign ? item.fontAlign : "left",
-                // fontSize: fontSize.value, // Use the updated font size here
+                fontFamily: item.fontType || "Calibri",
+                textAlign: item.fontAlign || "left",
                 color: item.fontColor,
+                // backgroundColor: "transparent", // Ensure no global background
               },
             ]}>
-            {item.textContent}
+            {item.textContent.split("").map((char, index) => {
+              const isSpace = char === "\n";
+              return (
+                <StyledText
+                  key={index}
+                  style={[
+                    animatedText,
+                    {
+                      alignSelf: "flex-start",
+                      textAlign: item.fontAlign || "left",
+                      fontFamily: item.fontType || "Calibri",
+                      color:
+                        item.fontBackground !== "inversed"
+                          ? item.fontColor
+                          : item.fontBackgroundColor
+                          ? item.fontBackgroundColor
+                          : "#000",
+                      backgroundColor: getBackgroundColor(isSpace),
+                      paddingVertical: 0, // Prevent excessive padding that could cause space between lines
+                      marginVertical: 0, // Remove margins that could push the background out of place
+                    },
+                  ]}>
+                  {char}
+                </StyledText>
+              );
+            })}
           </StyledText>
-        </Pressable>
+        </StyledPressable>
       </GestureDetector>
     </StyledMotiView>
   );

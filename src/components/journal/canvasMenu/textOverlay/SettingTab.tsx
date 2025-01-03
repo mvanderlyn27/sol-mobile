@@ -37,7 +37,6 @@ const SettingsTab = observer(function () {
 
   const handleColorSelect = debounce((colors: returnedResults) => {
     // onColorChange(color); // Notify parent component of color selection
-
     textStore$.color.set(colors.hex);
   }, 100);
   const handleColorSliderClick = () => {
@@ -71,7 +70,7 @@ const SettingsTab = observer(function () {
           <StyledView className="flex-1">
             <Slider
               minimumValue={10}
-              maximumValue={100}
+              maximumValue={50}
               step={1}
               value={size}
               thumbTintColor={color}

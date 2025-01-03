@@ -41,6 +41,7 @@ export enum ButtonType {
   TextRight = "text-right",
   TextCenter = "text-center",
   TextSize = "text-size",
+  TextBackground = "text-background",
   Sliders = "sliders",
 }
 //Vertical Stack Types
@@ -123,7 +124,9 @@ export interface CanvasText extends CanvasItemBase {
   textContent: string; // The text content to be displayed
   fontSize: number; // Size of the text font
   fontColor: string; // Color of the text
+  fontBackgroundColor: string | null;
   fontType: string;
+  fontBackground: "normal" | "inversed" | null;
   fontAlign: "left" | "right" | "center";
 }
 export interface CanvasTextReaction extends CanvasItemBase {
@@ -131,7 +134,9 @@ export interface CanvasTextReaction extends CanvasItemBase {
   textContent: string; // The text content to be displayed
   fontSize: number; // Size of the text font
   fontColor: string; // Color of the text
+  fontBackgroundColor: string | null;
   fontType: string;
+  fontBackground: "normal" | "inversed" | null;
   fontAlign: "left" | "right" | "center";
 }
 export type CanvasItem = CanvasFrame | CanvasText | CanvasImage;
