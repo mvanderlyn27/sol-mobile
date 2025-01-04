@@ -93,7 +93,7 @@ const ReactOverlayBar = observer(function ReactOverlayBar() {
 
           {/* Text Button */}
           <StyledView className="flex-1 justify-center items-center">
-            <MenuButton onPress={toggleFont} buttonType={ButtonType.Text} />
+            <MenuButton onPress={toggleBackground} buttonType={ButtonType.TextBackground} />
           </StyledView>
         </StyledView>
       </StyledView>
