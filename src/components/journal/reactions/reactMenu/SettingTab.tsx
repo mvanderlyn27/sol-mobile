@@ -32,13 +32,13 @@ const SettingsTab = observer(function () {
   const handleTextSizeChange = debounce((size: number) => {
     // onTextSizeChange(size); // Notify parent component of text size change
     textStore$.size.set(size);
-  }, 0);
+  }, 10);
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
 
   const handleColorSelect = debounce((colors: returnedResults) => {
     // onColorChange(color); // Notify parent component of color selection
     textStore$.color.set(colors.hex);
-  }, 100);
+  }, 10);
   const handleColorSliderClick = () => {
     if (isColorPickerOpen) {
       setIsColorPickerOpen(false);
