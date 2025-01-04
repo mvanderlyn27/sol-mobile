@@ -16,19 +16,36 @@ const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledBlurView = styled(BlurView);
-export const getNiceContrastingColor = (color: string) => {
-  const baseColor = tinycolor(color);
+export const getNiceContrastingColor = (textColor: string): string => {
+  const color = tinycolor(textColor);
 
-  if (baseColor.isDark()) {
-    // If the color is dark, lighten it to create contrast
-    return baseColor.lighten(30).toHexString();
-  } else if (baseColor.isLight()) {
-    // If the color is light, darken it to create contrast
-    return baseColor.darken(30).toHexString();
+  if (tinycolor.equals(color, "#000000")) {
+    return "#FFFFFF";
   }
+  if (tinycolor.equals(color, "#FFFFFF")) {
+    return "#000000";
+  }
+  // Start with a complementary color
+  // let backgroundColor = color.complement();
+  let backgroundColor = tinycolor(color);
 
-  // Fallback for colors that might be exactly black or white
-  return baseColor.isValid() ? baseColor.complement().toHexString() : "#000000";
+  // Adjust lightness based on text brightness
+  if (color.isLight()) {
+    backgroundColor = backgroundColor.desaturate(40).darken(40);
+  } else {
+    backgroundColor = backgroundColor.desaturate(40).lighten(40);
+  }
+  // Validate contrast (fallback to black or white if needed)
+  // const isReadable = tinycolor.isReadable(textColor, backgroundColor, {
+  //   level: "AA",
+  //   size: "large",
+  // });
+
+  // if (!isReadable) {
+  //   backgroundColor = color.isLight() ? tinycolor("black") : tinycolor("white");
+  // }
+
+  return backgroundColor.toHexString();
 };
 const TextOverlayBar = observer(function TextOverlayBar() {
   const [activeMenu, setActiveMenu] = useState<"settings" | "text" | null>("settings");
@@ -69,17 +86,6 @@ const TextOverlayBar = observer(function TextOverlayBar() {
       textStore$.textBackgroundColor.set(newBackgroundColor);
       console.log(`Background color set to ${newBackgroundColor} for contrast.`);
     }
-    // else if (newBackgroundState === "inversed") {
-    //   // Swap text and background colors when in inversed state
-    //   textStore$.color.set(curBackgroundColor);
-    //   textStore$.textBackgroundColor.set(curColor);
-    //   console.log("Swapped text and background colors.");
-    // } else {
-    //   // Reset to normal state
-    //   textStore$.color.set(curColor);
-    //   textStore$.textBackgroundColor.set(null);
-    //   console.log("Reset to normal state, removed background color.");
-    // }
   };
   const handleDelete = () => {
     const id = textStore$.id.get();

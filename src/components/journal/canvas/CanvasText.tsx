@@ -37,7 +37,6 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   const fontSize = useSharedValue(item.fontSize);
   const savedFontSize = useSharedValue(item.fontSize);
   useEffect(() => {
-    console.log("effect firing");
     offset.value = { x: item.x, y: item.y };
     start.value = { x: item.x, y: item.y };
     fontSize.value = item.fontSize;
@@ -86,7 +85,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   const zoomGesture = Gesture.Pinch()
     .onUpdate((event) => {
       // Adjust font size instead of scale
-      fontSize.value = Math.min(savedFontSize.value * event.scale, 150);
+      fontSize.value = Math.min(savedFontSize.value * event.scale, 100);
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
@@ -124,14 +123,11 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   };
   const getBackgroundColor = (isSpace: boolean): string => {
     if (item.fontBackground === null || isSpace) {
-      console.log("transparent");
       return "transparent";
     }
     if (item.fontBackground === "inversed") {
-      console.log("inversed", item.fontColor);
       return item.fontColor;
     }
-    console.log("normal", item.fontBackground, item.fontBackgroundColor);
     return item.fontBackgroundColor ? item.fontBackgroundColor : "transparent";
   };
   return (
@@ -154,7 +150,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
                 <StyledText
                   key={index}
                   style={[
-                    animatedText,
+                    // animatedText,
                     {
                       alignSelf: "flex-start",
                       textAlign: item.fontAlign || "left",

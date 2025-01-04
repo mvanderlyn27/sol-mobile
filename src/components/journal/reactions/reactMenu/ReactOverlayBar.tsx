@@ -10,6 +10,7 @@ import SettingsTab from "./SettingTab";
 import { fonts, textStore$ } from "@/src/stores/EditTextStore";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { removeReactItem } from "@/src/services/Reaction";
+import { getNiceContrastingColor } from "../../canvasMenu/textOverlay/TextOverlayBar";
 
 const StyledMotiView = styled(MotiView);
 const StyledView = styled(View);
@@ -38,6 +39,29 @@ const ReactOverlayBar = observer(function ReactOverlayBar() {
     }
     textStore$.reset();
     close();
+  };
+  const toggleTextAlign = () => {
+    const curTextAlign = textStore$.textAlign.get();
+    const index = ["left", "center", "right"].indexOf(curTextAlign);
+    console.log("toggling text align", index);
+    textStore$.textAlign.set(["left", "center", "right"][(index + 1) % 3] as "left" | "center" | "right");
+  };
+  const toggleBackground = () => {
+    // States: normal, inversed
+    const curBackgroundState = textStore$.textBackground.get();
+    const newBackgroundState =
+      curBackgroundState === "normal" ? "inversed" : curBackgroundState === "inversed" ? null : "normal";
+    // Update the background state
+    textStore$.textBackground.set(newBackgroundState as "normal" | "inversed" | null);
+
+    // Get current colors
+    const curColor = textStore$.color.get();
+    const curBackgroundColor = textStore$.textBackgroundColor.get();
+    if (!curBackgroundColor) {
+      // Determine and set the initial background color based on the current text color
+      const newBackgroundColor = getNiceContrastingColor(curColor);
+      textStore$.textBackgroundColor.set(newBackgroundColor);
+    }
   };
 
   return (

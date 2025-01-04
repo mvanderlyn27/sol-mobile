@@ -70,7 +70,7 @@ const SettingsTab = observer(function () {
           <StyledView className="flex-1">
             <Slider
               minimumValue={10}
-              maximumValue={50}
+              maximumValue={100}
               step={1}
               value={size}
               thumbTintColor={color}

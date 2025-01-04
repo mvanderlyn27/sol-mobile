@@ -26,6 +26,9 @@ const ReactOverlayButtons = observer(function ReactOverlayButtons() {
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
       fontType: textStore$.font.get(),
+      fontAlign: textStore$.textAlign.get(),
+      fontBackground: textStore$.textBackground.get(),
+      fontBackgroundColor: textStore$.textBackgroundColor.get(),
     };
     addReactionItem(reaction);
   };
@@ -37,6 +40,9 @@ const ReactOverlayButtons = observer(function ReactOverlayButtons() {
       fontSize: textStore$.size.get(),
       fontColor: textStore$.color.get(),
       fontType: textStore$.font.get(),
+      fontAlign: textStore$.textAlign.get(),
+      fontBackground: textStore$.textBackground.get(),
+      fontBackgroundColor: textStore$.textBackgroundColor.get(),
     };
     updateReactionItem(reaction as CanvasTextReaction);
   };

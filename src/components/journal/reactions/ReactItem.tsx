@@ -80,7 +80,7 @@ const ReactItem = observer(function ReactItem({
   const zoomGesture = Gesture.Pinch()
     .onUpdate((event) => {
       // Adjust font size instead of scale
-      fontSize.value = Math.min(savedFontSize.value * event.scale, 150);
+      fontSize.value = Math.min(savedFontSize.value * event.scale, 100);
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
@@ -117,11 +117,20 @@ const ReactItem = observer(function ReactItem({
   const handleEdit = () => {
     textStore$.editTextReact(item.id);
   };
+  const getBackgroundColor = (isSpace: boolean): string => {
+    if (item.fontBackground === null || isSpace) {
+      return "transparent";
+    }
+    if (item.fontBackground === "inversed") {
+      return item.fontColor;
+    }
+    return item.fontBackgroundColor ? item.fontBackgroundColor : "transparent";
+  };
 
   return (
     <StyledMotiView
       key={"reaction-" + item.id}
-      style={[animatedStyles, { position: "absolute" }]}
+      style={[animatedStyles, { position: "absolute", paddingHorizontal: 10 }]}
       pointerEvents={editMode ? "box-none" : "none"}>
       <GestureDetector gesture={composed}>
         <Pressable onPress={handleEdit}>
@@ -129,12 +138,37 @@ const ReactItem = observer(function ReactItem({
             style={[
               animatedText,
               {
-                fontFamily: item.fontType || "Inkfree",
-                textAlign: item.fontAlign || "center",
+                fontFamily: item.fontType || "Calibri",
+                textAlign: item.fontAlign || "left",
                 color: item.fontColor,
+                // backgroundColor: "transparent", // Ensure no global background
               },
             ]}>
-            {item.textContent}
+            {item.textContent.split("").map((char, index) => {
+              const isSpace = char === "\n";
+              return (
+                <StyledText
+                  key={index}
+                  style={[
+                    {
+                      alignSelf: "flex-start",
+                      textAlign: item.fontAlign || "left",
+                      fontFamily: item.fontType || "Calibri",
+                      color:
+                        item.fontBackground !== "inversed"
+                          ? item.fontColor
+                          : item.fontBackgroundColor
+                          ? item.fontBackgroundColor
+                          : "#000",
+                      backgroundColor: getBackgroundColor(isSpace),
+                      paddingVertical: 0, // Prevent excessive padding that could cause space between lines
+                      marginVertical: 0, // Remove margins that could push the background out of place
+                    },
+                  ]}>
+                  {char}
+                </StyledText>
+              );
+            })}
           </StyledText>
         </Pressable>
       </GestureDetector>
