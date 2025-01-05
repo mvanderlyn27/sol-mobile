@@ -63,7 +63,18 @@ const ReactOverlayBar = observer(function ReactOverlayBar() {
       textStore$.textBackgroundColor.set(newBackgroundColor);
     }
   };
-
+  const getTextAlignButton = (align: "left" | "center" | "right") => {
+    switch (align) {
+      case "left":
+        return ButtonType.TextLeft;
+      case "center":
+        return ButtonType.TextCenter;
+      case "right":
+        return ButtonType.TextRight;
+      default:
+        return ButtonType.TextLeft;
+    }
+  };
   return (
     <StyledView className="justify-end px-4" pointerEvents="box-none">
       {/* Sliding Menus */}
@@ -91,7 +102,12 @@ const ReactOverlayBar = observer(function ReactOverlayBar() {
             <MenuButton onPress={() => toggleMenu("settings")} buttonType={ButtonType.Settings} />
           </StyledView>
 
-          {/* Text Button */}
+          {/* Align Button */}
+          <StyledView className="flex-1 justify-center items-center">
+            <MenuButton onPress={() => toggleTextAlign()} buttonType={getTextAlignButton(textStore$.textAlign.get())} />
+          </StyledView>
+
+          {/* Background Button */}
           <StyledView className="flex-1 justify-center items-center">
             <MenuButton onPress={toggleBackground} buttonType={ButtonType.TextBackground} />
           </StyledView>
