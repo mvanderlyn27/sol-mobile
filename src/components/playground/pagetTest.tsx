@@ -12,6 +12,10 @@ import { LOAD_MORE_PAGES, START_PAGE_NUM, getPageForUser, loadMorePages } from "
 import { styled } from "nativewind";
 import LoadingScreen from "../screens/LoadingScreen";
 import { debounce } from "lodash";
+import { BlurView } from "expo-blur";
+import { BackgroundImage } from "@rneui/themed/dist/config";
+import { ImageBackground } from "expo-image";
+import { getImageFromPath } from "@/src/assets/images/images";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
@@ -33,7 +37,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
       key={`${rowIndex}-${colIndex}${page ? "-" + page.updated_at : ""}-${editMode && active ? "edit" : "view"}-${
         page?.id
       }`}
-      style={{ width, height }}>
+      style={{ flex: 1 }}>
       <CanvasHolder pageId={page?.id} editMode={editMode} active={active} />
       <ReactHolder pageId={page?.id} editMode={reactEditMode} />
     </View>
@@ -41,55 +45,71 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   );
 });
 
-const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMember[] }) => {
-  const flatListRef = useRef<FlatList>(null);
+const VerticalPageList = observer(
+  ({
+    col,
+    rows,
+    adjustedHeight,
+    adjustedWidth,
+  }: {
+    col: number;
+    rows: GroupMember[];
+    adjustedHeight: number;
+    adjustedWidth: number;
+  }) => {
+    const flatListRef = useRef<FlatList>(null);
 
-  // Monitor scroll and update current row index
-  useEffect(() => {
-    const unsubscribe = pageStore$.curRow.onChange(({ value: scrollIndex }) => {
-      if (flatListRef.current && scrollIndex >= 0 && col !== pageStore$.curCol.get()) {
-        flatListRef.current.scrollToIndex({ index: scrollIndex, animated: false });
+    // Monitor scroll and update current row index
+    useEffect(() => {
+      const unsubscribe = pageStore$.curRow.onChange(({ value: scrollIndex }) => {
+        if (flatListRef.current && scrollIndex >= 0 && col !== pageStore$.curCol.get()) {
+          flatListRef.current.scrollToIndex({ index: scrollIndex, animated: false });
+        }
+      });
+      return () => unsubscribe();
+    }, [col]);
+
+    // Viewable items handler
+    const onViewableItemsChanged = debounce(({ viewableItems }: any) => {
+      if (viewableItems.length > 0 && col === pageStore$.curCol.get()) {
+        pageStore$.curRow.set(viewableItems[0].index);
       }
-    });
-    return () => unsubscribe();
-  }, [col]);
-
-  // Viewable items handler
-  const onViewableItemsChanged = debounce(({ viewableItems }: any) => {
-    if (viewableItems.length > 0 && col === pageStore$.curCol.get()) {
-      pageStore$.curRow.set(viewableItems[0].index);
-    }
-  }, 100);
-  return (
-    <FlatList
-      key={`${col}`}
-      ref={flatListRef}
-      extraData={pageStore$.editMode.get()}
-      data={rows}
-      pagingEnabled
-      initialNumToRender={5}
-      maxToRenderPerBatch={3}
-      windowSize={7}
-      scrollEventThrottle={16} // Syncs scroll with 60fps
-      // removeClippedSubviews={true} // Improves performance by removing off-screen components
-      scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
-      showsVerticalScrollIndicator={false}
-      onViewableItemsChanged={onViewableItemsChanged}
-      initialScrollIndex={pageStore$.curRow.get() || 0}
-      keyExtractor={(row) => `${row.user_id}-${col}`}
-      renderItem={({ item: row, index }) => <PageRenderer rowIndex={index} colIndex={col} />}
-      viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, waitForInteraction: false }}
-      onScrollToIndexFailed={() => {
-        console.log("failed to scroll vertical");
-      }}
-      getItemLayout={(data, index) => ({
-        length: height, // Replace with actual item height
-        offset: height * index,
-        index,
-      })}
-    />
-  );
-});
+    }, 100);
+    return (
+      <FlatList
+        key={`${col}`}
+        ref={flatListRef}
+        extraData={pageStore$.editMode.get()}
+        data={rows}
+        pagingEnabled
+        initialNumToRender={5}
+        maxToRenderPerBatch={3}
+        windowSize={7}
+        scrollEventThrottle={16} // Syncs scroll with 60fps
+        // removeClippedSubviews={true} // Improves performance by removing off-screen components
+        scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
+        showsVerticalScrollIndicator={false}
+        onViewableItemsChanged={onViewableItemsChanged}
+        initialScrollIndex={pageStore$.curRow.get() || 0}
+        keyExtractor={(row) => `${row.user_id}-${col}`}
+        renderItem={({ item: row, index }) => (
+          <View style={{ width: adjustedWidth, height: adjustedHeight }}>
+            <PageRenderer rowIndex={index} colIndex={col} />
+          </View>
+        )}
+        viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, waitForInteraction: false }}
+        onScrollToIndexFailed={() => {
+          console.log("failed to scroll vertical");
+        }}
+        // getItemLayout={(data, index) => ({
+        //   length: height, // Replace with actual item height
+        //   offset: height * index,
+        //   index,
+        // })}
+      />
+    );
+  }
+);
 // Outer parent component with PagerView
 const Canvas2DScroller = observer(() => {
   const listRef = useRef<FlatList>(null);
@@ -98,51 +118,81 @@ const Canvas2DScroller = observer(() => {
       pageStore$.curCol.set(viewableItems[0].index);
     }
   }, 100);
+  const aspectRatio = 9 / 18;
+  let adjustedWidth = width;
+  let adjustedHeight = width / aspectRatio;
+
+  if (adjustedHeight > height) {
+    // If the calculated height is greater than the screen height, adjust the width
+    adjustedHeight = height;
+    adjustedWidth = height * aspectRatio;
+  }
+  console.log("adjusted", adjustedWidth, adjustedHeight);
+  console.log("nonadjusted", width, height);
   const handleEndReached = async () => {
     await loadMorePages();
   };
   return (
-    <View style={{ flex: 1 }}>
-      <FlatList
-        ref={listRef}
-        data={pageStore$.dates.get()}
-        scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
-        onViewableItemsChanged={onViewableItemsChanged}
-        initialScrollIndex={pageStore$.curCol.get() || 0}
-        onScrollToIndexFailed={({ index }) => {
-          console.log("failed to scroll horizontal: ", index);
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <BlurView
+        tint="prominent"
+        intensity={80}
+        style={{
+          backgroundColor: "#000",
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
         }}
-        initialNumToRender={5}
-        maxToRenderPerBatch={3}
-        windowSize={7}
-        scrollEventThrottle={16} // Syncs scroll with 60fps
-        // removeClippedSubviews={true} // Improves performance by removing off-screen components
-        onEndReachedThreshold={0.5}
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        horizontal
-        inverted
-        onEndReached={handleEndReached}
-        renderItem={({ item, index }) => (
-          <View key={`${item.date}`} style={{ flex: 1 }}>
-            <VerticalPageList rows={pageStore$.members.get()} col={index} />
-          </View>
-        )}
-        keyExtractor={(item, index) => `${item.date}`}
-        getItemLayout={(data, index) => ({
-          length: width,
-          offset: width * index,
-          index,
-        })}
-        ListFooterComponent={
-          <View style={{ width, height, justifyContent: "center", alignItems: "center" }}>
-            <LoadingScreen />
-          </View>
-        }
       />
+      <View style={{ width: adjustedWidth, height: adjustedHeight }}>
+        <FlatList
+          style={{ flex: 1 }}
+          ref={listRef}
+          data={pageStore$.dates.get()}
+          scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
+          onViewableItemsChanged={onViewableItemsChanged}
+          initialScrollIndex={pageStore$.curCol.get() || 0}
+          onScrollToIndexFailed={({ index }) => {
+            console.log("failed to scroll horizontal: ", index);
+          }}
+          initialNumToRender={5}
+          maxToRenderPerBatch={3}
+          windowSize={7}
+          scrollEventThrottle={16} // Syncs scroll with 60fps
+          // removeClippedSubviews={true} // Improves performance by removing off-screen components
+          onEndReachedThreshold={0.5}
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          horizontal
+          inverted
+          onEndReached={handleEndReached}
+          renderItem={({ item, index }) => (
+            <VerticalPageList
+              rows={pageStore$.members.get()}
+              col={index}
+              adjustedHeight={adjustedHeight}
+              adjustedWidth={adjustedWidth}
+            />
+          )}
+          keyExtractor={(item, index) => `${item.date}`}
+          // getItemLayout={(data, index) => ({
+          //   length: width,
+          //   offset: width * index,
+          //   index,
+          // })}
+          ListFooterComponent={
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+              <LoadingScreen />
+            </View>
+          }
+        />
+      </View>
       <Memo>
         <JournalOverlays />
       </Memo>
+      {/* </StyledView> */}
     </View>
   );
 });

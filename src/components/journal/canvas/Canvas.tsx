@@ -1,7 +1,7 @@
 import { styled } from "nativewind";
 import { AnimatePresence, MotiView } from "moti";
 import React, { memo, useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Dimensions, Text, View } from "react-native";
 import { Canvas, CanvasImage, CanvasText, CanvasItem, Image, Page } from "@/src/types/shared.types";
 import { Image as ExpoImage } from "expo-image";
 
@@ -19,6 +19,8 @@ import authStore$ from "@/src/stores/AuthStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
+export const DEFAULT_ASPECT_RATIO = 18 / 9;
+const { width, height } = Dimensions.get("window");
 export const CanvasHolder = observer(function CanvasHolder({
   pageId,
   editMode,
@@ -34,14 +36,12 @@ export const CanvasHolder = observer(function CanvasHolder({
   //   console.log("canvas items", editMode, active, canvas.items.get());
   // }
   return (
-    <StyledMotiView
-      key={`${editMode ? "edit-" : ""}canvas-${pageId}`}
-      className="absolute top-0 bottom-0 right-0 left-0 overflow-hidden">
+    <StyledMotiView key={`${editMode ? "edit-" : ""}canvas-${pageId}`} className="flex-1">
       <ExpoImage
         priority={active ? "high" : "low"}
         key="backgroundImage"
         source={getImageFromPath(canvas?.backgroundImage.path.get() || "bg_04")}
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}
+        style={{ flex: 1, zIndex: -1 }}
       />
       {canvas.items.map((item, index) => (
         <CanvasObject
