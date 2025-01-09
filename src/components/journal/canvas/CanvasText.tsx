@@ -11,6 +11,7 @@ import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
 import { bringToFront, updateCanvasItem } from "@/src/services/Page";
 import tinycolor from "tinycolor2"; // Use tinycolor2 for color manipulation
+import { appState$ } from "@/src/services/AppStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
@@ -26,37 +27,55 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   userItem: boolean;
   active: boolean;
 }) {
-  // console.log("text item", item);
+  const { adjustedWidth, adjustedHeight } = appState$.get(); // Get adjusted width and height
+
   const editMode = pageStore$.editMode.get() && userItem;
-  const offset = useSharedValue({ x: item.x, y: item.y });
-  const start = useSharedValue({ x: item.x, y: item.y });
+
+  // Convert percentage values to absolute values
+  const offset = useSharedValue({
+    x: item.x * adjustedWidth,
+    y: item.y * adjustedHeight,
+  });
+
+  const start = useSharedValue({
+    x: item.x * adjustedWidth,
+    y: item.y * adjustedHeight,
+  });
+
   const rotation = useSharedValue(item.rotation);
   const savedRotation = useSharedValue(item.rotation);
 
-  // Initialize shared value for font size instead of scale
-  const fontSize = useSharedValue(item.fontSize);
-  const savedFontSize = useSharedValue(item.fontSize);
+  // Font size calculation based on adjustedHeight
+  const fontSize = useSharedValue(item.fontSize * adjustedHeight);
+  const savedFontSize = useSharedValue(item.fontSize * adjustedHeight);
+
   useEffect(() => {
-    offset.value = { x: item.x, y: item.y };
-    start.value = { x: item.x, y: item.y };
-    fontSize.value = item.fontSize;
-    savedFontSize.value = item.fontSize;
+    offset.value = {
+      x: item.x * adjustedWidth,
+      y: item.y * adjustedHeight,
+    };
+    start.value = {
+      x: item.x * adjustedWidth,
+      y: item.y * adjustedHeight,
+    };
+    fontSize.value = item.fontSize * adjustedHeight;
+    savedFontSize.value = item.fontSize * adjustedHeight;
     savedRotation.value = item.rotation;
     rotation.value = item.rotation;
-    // updatePageItem(item);
-  }, [item]);
+  }, [item, adjustedWidth, adjustedHeight]);
 
   const animatedStyles = useAnimatedStyle(() => ({
     zIndex: item.z,
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
   }));
+
   const animatedText = useAnimatedStyle(() => ({
     fontSize: fontSize.value,
-    lineHeight: fontSize.value * 1.2,
+    lineHeight: fontSize.value * 1.1,
   }));
+
   const handleGestureStart = () => {
     if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
-    //we want to bring the item to front
     bringToFront(item.id);
   };
 
@@ -74,27 +93,26 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
       start.value = { x: offset.value.x, y: offset.value.y };
       runOnJS(updateCanvasItem)({
         ...item,
-        fontSize: fontSize.value, // Save the new font size to the store
+        x: start.value.x / adjustedWidth, // Convert back to percentage
+        y: start.value.y / adjustedHeight, // Convert back to percentage
+        fontSize: fontSize.value / adjustedHeight, // Convert back to percentage
         rotation: rotation.value,
-        x: start.value.x,
-        y: start.value.y,
       });
     })
     .enabled(editMode);
 
   const zoomGesture = Gesture.Pinch()
     .onUpdate((event) => {
-      // Adjust font size instead of scale
-      fontSize.value = Math.min(savedFontSize.value * event.scale, 100);
+      fontSize.value = Math.min(savedFontSize.value * event.scale, 0.2 * adjustedHeight);
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
       runOnJS(updateCanvasItem)({
         ...item,
-        fontSize: fontSize.value, // Save the new font size to the store
+        fontSize: fontSize.value / adjustedHeight, // Convert back to percentage
         rotation: rotation.value,
-        x: start.value.x,
-        y: start.value.y,
+        x: start.value.x / adjustedWidth, // Convert back to percentage
+        y: start.value.y / adjustedHeight, // Convert back to percentage
       });
     })
     .enabled(editMode);
@@ -108,19 +126,19 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
       runOnJS(updateCanvasItem)({
         ...item,
         rotation: rotation.value,
-        fontSize: fontSize.value, // Save the new font size to the store
-        x: start.value.x,
-        y: start.value.y,
+        fontSize: fontSize.value / adjustedHeight, // Convert back to percentage
+        x: start.value.x / adjustedWidth, // Convert back to percentage
+        y: start.value.y / adjustedHeight, // Convert back to percentage
       });
     })
     .enabled(editMode);
 
-  // Combine gestures
   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
 
   const handleEdit = () => {
     textStore$.editText(item.id);
   };
+
   const getBackgroundColor = (isSpace: boolean): string => {
     if (item.fontBackground === null || isSpace) {
       return "transparent";
@@ -130,6 +148,8 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
     }
     return item.fontBackgroundColor ? item.fontBackgroundColor : "transparent";
   };
+
+  console.log("item", item, animatedStyles.transform);
   return (
     <StyledMotiView key={"text-" + item.id} style={[animatedStyles, { position: "absolute", paddingHorizontal: 10 }]}>
       <GestureDetector gesture={composed}>
@@ -141,7 +161,6 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
                 fontFamily: item.fontType || "Calibri",
                 textAlign: item.fontAlign || "left",
                 color: item.fontColor,
-                // backgroundColor: "transparent", // Ensure no global background
               },
             ]}>
             {item.textContent.split("").map((char, index) => {
@@ -150,7 +169,6 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
                 <StyledText
                   key={index}
                   style={[
-                    // animatedText,
                     {
                       alignSelf: "flex-start",
                       textAlign: item.fontAlign || "left",
@@ -162,8 +180,8 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
                           ? item.fontBackgroundColor
                           : "#000",
                       backgroundColor: getBackgroundColor(isSpace),
-                      paddingVertical: 0, // Prevent excessive padding that could cause space between lines
-                      marginVertical: 0, // Remove margins that could push the background out of place
+                      paddingVertical: 0,
+                      marginVertical: 0,
                     },
                   ]}>
                   {char}
@@ -171,6 +189,9 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
               );
             })}
           </StyledText>
+          {/* <StyledText className="absolute bottom-0 left-0 text-xs text-red-500">
+            {fontSize.value} {item.fontSize} {adjustedHeight}
+          </StyledText> */}
         </StyledPressable>
       </GestureDetector>
     </StyledMotiView>

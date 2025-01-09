@@ -68,15 +68,16 @@ export interface CanvasItemBase {
   //database id of item used eg font id, or frame id
   id: string;
   // dbId: string;
-  //pixel count
+  // percent
   x: number;
-  //pixel count
+  // percents
   y: number;
-  // z index, default to 0
+  // z integer
   z: number;
   //rad
   rotation: number;
   //calc when adding to screen to ensure it fits in the frame properly, increase/decrease as desiread
+  //should be percent based on aspect ratio space
   width: number;
   height: number;
   //original picture width/height, doesn't change
@@ -92,6 +93,7 @@ export interface CanvasImage extends CanvasItemBase {
   type: "image";
   path: string; // Path to the frame image
   placeholder?: string;
+  // percents now
   width: number;
   height: number;
 }
@@ -122,6 +124,7 @@ export interface CanvasFrameSlotImage {
 export interface CanvasText extends CanvasItemBase {
   type: "text";
   textContent: string; // The text content to be displayed
+  //figure out how to tie this to the screen size, so it looks the same on different screens
   fontSize: number; // Size of the text font
   fontColor: string; // Color of the text
   fontBackgroundColor: string | null;

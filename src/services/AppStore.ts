@@ -1,16 +1,35 @@
-import { syncState } from "@legendapp/state";
+import { observable, syncState } from "@legendapp/state";
 import { pages$ } from "../stores/PagesStore";
 import { groupStore$, groups$ } from "../stores/GroupStore";
 import { images$ } from "../stores/ImageStore";
 import { groupMembers$ } from "../stores/MemberStore";
 import { profiles$ } from "../stores/ProfileStore";
 import { useEffect } from "react";
-import { AppStateStatus, AppState } from "react-native";
+import { AppStateStatus, AppState, Dimensions } from "react-native";
 import { posthog } from "./Posthog";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import authStore$ from "../stores/AuthStore";
 import { signOut } from "./Auth";
+const { height, width } = Dimensions.get("window");
+interface AppStore {
+  adjustedWidth: number;
+  adjustedHeight: number;
+}
+export const appState$ = observable<AppStore>({
+  adjustedHeight: height,
+  adjustedWidth: width,
+});
+export const initAppDimensions = () => {
+  const aspectRatio = 9 / 18;
+  appState$.adjustedWidth.set(width);
+  appState$.adjustedHeight.set(width / aspectRatio);
 
+  if (appState$.adjustedHeight.peek() > height) {
+    // If the calculated height is greater than the screen height, adjust the width
+    appState$.adjustedHeight.set(height);
+    appState$.adjustedWidth.set(height * aspectRatio);
+  }
+};
 export const clearLocalPersist = async () => {
   // // const pageItemsState$ = syncState(pageItems$);
   // // const textItemsState$ = syncState(textItems$);

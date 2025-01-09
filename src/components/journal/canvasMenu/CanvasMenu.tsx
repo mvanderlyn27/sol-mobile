@@ -21,6 +21,7 @@ import RoundButton from "../../shared/CircleButton";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { reactStore$ } from "@/src/stores/ReactStore";
 import { addCanvasItem, changeBackground, handleCancel, handleSave } from "@/src/services/Page";
+import { appState$ } from "@/src/services/AppStore";
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);
@@ -135,12 +136,12 @@ const CanvasMenu = observer(function CanvasMenu() {
       const image: CanvasImage = {
         id: id,
         path: result.assets[0].uri,
-        x: 50,
-        y: 50,
+        x: 0.1,
+        y: 0.1,
         z: 0,
-        width: newWidth,
+        width: newWidth / appState$.adjustedWidth.get(),
         // width: imgWidth,
-        height: newHeight,
+        height: newHeight / appState$.adjustedHeight.get(),
         // height: imgHeight,
         rotation: 0,
         type: "image",

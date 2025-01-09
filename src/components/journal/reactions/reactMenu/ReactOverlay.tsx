@@ -13,6 +13,7 @@ import ReactOverlayBar from "./ReactOverlayBar";
 import { getNiceContrastingColor } from "../../canvasMenu/textOverlay/TextOverlayBar";
 import TextOverlayButtons from "../../canvasMenu/textOverlay/TextOverlayButtons";
 import ReactOverlayButtons from "./ReactOverlayButtons";
+import { appState$ } from "@/src/services/AppStore";
 
 const StyledPressable = styled(Pressable);
 const StyledText = styled(Text);
@@ -74,7 +75,7 @@ const ReactOverlay = observer(function TextOverlay() {
               ref={textInputRef}>
               <Text
                 style={{
-                  fontSize: textSize,
+                  fontSize: textSize * appState$.adjustedHeight.get(),
                   color:
                     textBackground === "inversed"
                       ? textBackgroundColor
@@ -84,7 +85,7 @@ const ReactOverlay = observer(function TextOverlay() {
                   fontFamily: font || "Calibri",
                   textAlign: textAlign || "left",
                   // lineHeight: textSize * 1.1, // Match line height
-                  lineHeight: textSize * 1.1, // Match line height
+                  lineHeight: textSize * appState$.adjustedHeight.get() * 1.1, // Match line height
                   backgroundColor:
                     textBackground === null
                       ? "transparent"

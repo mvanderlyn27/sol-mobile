@@ -11,6 +11,7 @@ import TextOverlayButtons from "./TextOverlayButtons";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import tinycolor from "tinycolor2";
 import { set } from "lodash";
+import { appState$ } from "@/src/services/AppStore";
 
 const StyledPressable = styled(Pressable);
 const StyledText = styled(Text);
@@ -50,6 +51,7 @@ const TextOverlay = observer(function TextOverlay() {
     // Focus the TextInput when parent is pressed
     textInputRef.current?.focus();
   };
+  console.log("text input size:", textSize * appState$.adjustedWidth.get());
   return (
     <StyledBlurView tint="dark" className="absolute top-0 right-0 left-0 bottom-0" pointerEvents="box-none">
       <SafeAreaView style={{ flex: 1 }}>
@@ -72,7 +74,7 @@ const TextOverlay = observer(function TextOverlay() {
               ref={textInputRef}>
               <Text
                 style={{
-                  fontSize: textSize,
+                  fontSize: textSize * appState$.adjustedHeight.get(),
                   color:
                     textBackground === "inversed"
                       ? textBackgroundColor
@@ -82,7 +84,7 @@ const TextOverlay = observer(function TextOverlay() {
                   fontFamily: font || "Calibri",
                   textAlign: textAlign || "left",
                   // lineHeight: textSize * 1.1, // Match line height
-                  lineHeight: textSize * 1.1, // Match line height
+                  lineHeight: textSize * appState$.adjustedHeight.get() * 1.1, // Match line height
                   backgroundColor:
                     textBackground === null
                       ? "transparent"

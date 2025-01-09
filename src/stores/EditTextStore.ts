@@ -23,7 +23,6 @@ export const fonts = [
 interface TextStore {
   id: string;
   size: number;
-  scale: number;
   color: string;
   font: string;
   text: string;
@@ -36,8 +35,7 @@ interface TextStore {
 }
 export const textStore$ = observable<TextStore>({
   id: "",
-  size: 30,
-  scale: 1,
+  size: 0.1,
   color: "#000",
   font: "Calibri",
   text: "",
@@ -46,7 +44,7 @@ export const textStore$ = observable<TextStore>({
   textBackgroundColor: null,
   reset: () => {
     textStore$.id.set("");
-    textStore$.size.set(30);
+    textStore$.size.set(0.1);
     textStore$.color.set("#000");
     textStore$.font.set("Calibri");
     textStore$.text.set("");
@@ -67,7 +65,7 @@ export const textStore$ = observable<TextStore>({
       return;
     }
     textStore$.id.set(id);
-    textStore$.size.set(textItem.fontSize || 30);
+    textStore$.size.set(textItem.fontSize || 0.1);
     textStore$.color.set(textItem.fontColor || "#ffffff");
     textStore$.font.set(textItem.fontType || "Calibri");
     textStore$.text.set(textItem.textContent || "");
@@ -90,7 +88,7 @@ export const textStore$ = observable<TextStore>({
       return;
     }
     textStore$.id.set(id);
-    textStore$.size.set(curTextItem.fontSize || 30);
+    textStore$.size.set(curTextItem.fontSize || 0.1);
     textStore$.color.set(curTextItem.fontColor || "#ffffff");
     textStore$.font.set(curTextItem.fontType || "Calibri");
     textStore$.text.set(curTextItem.textContent || "");

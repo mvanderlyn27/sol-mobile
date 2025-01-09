@@ -16,8 +16,8 @@ const ReactOverlayButtons = observer(function ReactOverlayButtons() {
     const reaction: CanvasTextReaction = {
       id: newId,
       type: "text",
-      x: width / 2,
-      y: height / 2,
+      x: 0.1,
+      y: 0.1,
       rotation: 0,
       width: 0,
       height: 0,

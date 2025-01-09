@@ -16,6 +16,7 @@ import { BlurView } from "expo-blur";
 import { BackgroundImage } from "@rneui/themed/dist/config";
 import { ImageBackground } from "expo-image";
 import { getImageFromPath } from "@/src/assets/images/images";
+import { appState$, initAppDimensions } from "@/src/services/AppStore";
 
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
@@ -45,71 +46,59 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   );
 });
 
-const VerticalPageList = observer(
-  ({
-    col,
-    rows,
-    adjustedHeight,
-    adjustedWidth,
-  }: {
-    col: number;
-    rows: GroupMember[];
-    adjustedHeight: number;
-    adjustedWidth: number;
-  }) => {
-    const flatListRef = useRef<FlatList>(null);
+const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMember[] }) => {
+  const flatListRef = useRef<FlatList>(null);
 
-    // Monitor scroll and update current row index
-    useEffect(() => {
-      const unsubscribe = pageStore$.curRow.onChange(({ value: scrollIndex }) => {
-        if (flatListRef.current && scrollIndex >= 0 && col !== pageStore$.curCol.get()) {
-          flatListRef.current.scrollToIndex({ index: scrollIndex, animated: false });
-        }
-      });
-      return () => unsubscribe();
-    }, [col]);
-
-    // Viewable items handler
-    const onViewableItemsChanged = debounce(({ viewableItems }: any) => {
-      if (viewableItems.length > 0 && col === pageStore$.curCol.get()) {
-        pageStore$.curRow.set(viewableItems[0].index);
+  // Monitor scroll and update current row index
+  useEffect(() => {
+    const unsubscribe = pageStore$.curRow.onChange(({ value: scrollIndex }) => {
+      if (flatListRef.current && scrollIndex >= 0 && col !== pageStore$.curCol.get()) {
+        flatListRef.current.scrollToIndex({ index: scrollIndex, animated: false });
       }
-    }, 100);
-    return (
-      <FlatList
-        key={`${col}`}
-        ref={flatListRef}
-        extraData={pageStore$.editMode.get()}
-        data={rows}
-        pagingEnabled
-        initialNumToRender={5}
-        maxToRenderPerBatch={3}
-        windowSize={7}
-        scrollEventThrottle={16} // Syncs scroll with 60fps
-        // removeClippedSubviews={true} // Improves performance by removing off-screen components
-        scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
-        showsVerticalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        initialScrollIndex={pageStore$.curRow.get() || 0}
-        keyExtractor={(row) => `${row.user_id}-${col}`}
-        renderItem={({ item: row, index }) => (
-          <View style={{ width: adjustedWidth, height: adjustedHeight }}>
-            <PageRenderer rowIndex={index} colIndex={col} />
-          </View>
-        )}
-        viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, waitForInteraction: false }}
-        onScrollToIndexFailed={() => {
-          console.log("failed to scroll vertical");
-        }}
-        // getItemLayout={(data, index) => ({
-        //   length: height, // Replace with actual item height
-        //   offset: height * index,
-        //   index,
-        // })}
-      />
-    );
-  }
-);
+    });
+    return () => unsubscribe();
+  }, [col]);
+
+  // Viewable items handler
+  const onViewableItemsChanged = debounce(({ viewableItems }: any) => {
+    if (viewableItems.length > 0 && col === pageStore$.curCol.get()) {
+      pageStore$.curRow.set(viewableItems[0].index);
+    }
+  }, 100);
+  return (
+    <FlatList
+      key={`${col}`}
+      ref={flatListRef}
+      extraData={pageStore$.editMode.get()}
+      data={rows}
+      pagingEnabled
+      initialNumToRender={5}
+      maxToRenderPerBatch={3}
+      windowSize={7}
+      scrollEventThrottle={16} // Syncs scroll with 60fps
+      // removeClippedSubviews={true} // Improves performance by removing off-screen components
+      scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
+      showsVerticalScrollIndicator={false}
+      onViewableItemsChanged={onViewableItemsChanged}
+      initialScrollIndex={pageStore$.curRow.get() || 0}
+      keyExtractor={(row) => `${row.user_id}-${col}`}
+      renderItem={({ item: row, index }) => (
+        <View style={{ width: appState$.adjustedWidth.get(), height: appState$.adjustedHeight.get() }}>
+          <PageRenderer rowIndex={index} colIndex={col} />
+        </View>
+      )}
+      viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, waitForInteraction: false }}
+      onScrollToIndexFailed={() => {
+        console.log("failed to scroll vertical");
+      }}
+      // getItemLayout={(data, index) => ({
+      //   length: height, // Replace with actual item height
+      //   offset: height * index,
+      //   index,
+      // })}
+    />
+  );
+});
 // Outer parent component with PagerView
 const Canvas2DScroller = observer(() => {
   const listRef = useRef<FlatList>(null);
@@ -118,16 +107,8 @@ const Canvas2DScroller = observer(() => {
       pageStore$.curCol.set(viewableItems[0].index);
     }
   }, 100);
-  const aspectRatio = 9 / 18;
-  let adjustedWidth = width;
-  let adjustedHeight = width / aspectRatio;
-
-  if (adjustedHeight > height) {
-    // If the calculated height is greater than the screen height, adjust the width
-    adjustedHeight = height;
-    adjustedWidth = height * aspectRatio;
-  }
-  console.log("adjusted", adjustedWidth, adjustedHeight);
+  initAppDimensions();
+  console.log("adjusted", appState$.adjustedWidth.peek(), appState$.adjustedHeight.peek());
   console.log("nonadjusted", width, height);
   const handleEndReached = async () => {
     await loadMorePages();
@@ -146,7 +127,7 @@ const Canvas2DScroller = observer(() => {
           bottom: 0,
         }}
       />
-      <View style={{ width: adjustedWidth, height: adjustedHeight }}>
+      <View style={{ width: appState$.adjustedWidth.get(), height: appState$.adjustedHeight.get() }}>
         <FlatList
           style={{ flex: 1 }}
           ref={listRef}
@@ -168,14 +149,7 @@ const Canvas2DScroller = observer(() => {
           horizontal
           inverted
           onEndReached={handleEndReached}
-          renderItem={({ item, index }) => (
-            <VerticalPageList
-              rows={pageStore$.members.get()}
-              col={index}
-              adjustedHeight={adjustedHeight}
-              adjustedWidth={adjustedWidth}
-            />
-          )}
+          renderItem={({ item, index }) => <VerticalPageList rows={pageStore$.members.get()} col={index} />}
           keyExtractor={(item, index) => `${item.date}`}
           // getItemLayout={(data, index) => ({
           //   length: width,

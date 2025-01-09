@@ -16,8 +16,8 @@ const TextOverlayButtons = observer(function TextOverlayButtons() {
     const textItem: CanvasText = {
       id: newId,
       type: "text",
-      x: width / 2,
-      y: height / 2,
+      x: 0.1,
+      y: 0.1,
       rotation: 0,
       z: 0,
       textContent: textStore$.text.get(),

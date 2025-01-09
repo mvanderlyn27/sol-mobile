@@ -1,6 +1,6 @@
 import { Show, observer } from "@legendapp/state/react";
 import React, { memo, useEffect } from "react";
-import { Dimensions, Pressable, Text } from "react-native";
+import { Pressable } from "react-native";
 import { Image } from "expo-image";
 import { styled } from "nativewind";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
@@ -10,8 +10,8 @@ import { CanvasImage } from "@/src/types/shared.types";
 import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
-import { format } from "date-fns";
 import { bringToFront, updateCanvasItem } from "@/src/services/Page";
+import { appState$ } from "@/src/services/AppStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
@@ -26,35 +26,44 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
   userItem: boolean;
   active: boolean;
 }) {
+  const adjustedWidth = appState$.adjustedWidth.get();
+  const adjustedHeight = appState$.adjustedHeight.get();
   const editMode = pageStore$.editMode.get() && userItem;
-  // Initialize offset, start position, and rotation based on item properties
-  const offset = useSharedValue({ x: item.x, y: item.y });
-  const start = useSharedValue({ x: item.x, y: item.y });
-  const width = useSharedValue(item.width);
-  const height = useSharedValue(item.height);
+
+  // Convert percentage values to absolute positions and dimensions
+  const offset = useSharedValue({
+    x: item.x * adjustedWidth,
+    y: item.y * adjustedHeight,
+  });
+  const start = useSharedValue({
+    x: item.x * adjustedWidth,
+    y: item.y * adjustedHeight,
+  });
+  const width = useSharedValue(item.width * adjustedWidth);
+  const height = useSharedValue(item.height * adjustedHeight);
   const savedRotation = useSharedValue(item.rotation);
   const rotation = useSharedValue(item.rotation);
+
   useEffect(() => {
-    // console.log("effect firing");
-    offset.value = { x: item.x, y: item.y };
-    start.value = { x: item.x, y: item.y };
-    width.value = item.width;
-    height.value = item.height;
+    offset.value = { x: item.x * adjustedWidth, y: item.y * adjustedHeight };
+    start.value = { x: item.x * adjustedWidth, y: item.y * adjustedHeight };
+    width.value = item.width * adjustedWidth;
+    height.value = item.height * adjustedHeight;
     savedRotation.value = item.rotation;
     rotation.value = item.rotation;
-    // updatePageItem(item);
-  }, [item]);
+  }, [item, adjustedWidth, adjustedHeight]);
+
   const animatedFrameGroupStyles = useAnimatedStyle(() => ({
     width: width.value,
     height: height.value,
-    // zIndex: item.z,
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
   }));
+
   const handleGestureStart = () => {
-    if (!pageStore$.editMode) return; // Disable gestures if not in edit mode
+    if (!pageStore$.editMode) return;
     bringToFront(item.id);
   };
-  // Define drag gesture for moving the item
+
   const dragGesture = Gesture.Pan()
     .onBegin(() => runOnJS(handleGestureStart)())
     .averageTouches(true)
@@ -68,34 +77,32 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
       start.value = { x: offset.value.x, y: offset.value.y };
       runOnJS(updateCanvasItem)({
         ...item,
-        width: width.value,
-        height: height.value,
+        width: width.value / adjustedWidth,
+        height: height.value / adjustedHeight,
         rotation: rotation.value,
-        x: start.value.x,
-        y: start.value.y,
+        x: start.value.x / adjustedWidth,
+        y: start.value.y / adjustedHeight,
       });
     })
     .enabled(editMode);
 
-  // Define zoom gesture for adjusting width and height
   const zoomGesture = Gesture.Pinch()
     .onUpdate((event) => {
-      width.value = item.width * event.scale;
-      height.value = item.height * event.scale;
+      width.value = item.width * adjustedWidth * event.scale;
+      height.value = item.height * adjustedHeight * event.scale;
     })
     .onEnd(() => {
       runOnJS(updateCanvasItem)({
         ...item,
-        width: width.value,
-        height: height.value,
+        width: width.value / adjustedWidth,
+        height: height.value / adjustedHeight,
         rotation: rotation.value,
-        x: start.value.x,
-        y: start.value.y,
+        x: start.value.x / adjustedWidth,
+        y: start.value.y / adjustedHeight,
       });
     })
     .enabled(editMode);
 
-  // Define rotation gesture for rotating the item
   const rotateGesture = Gesture.Rotation()
     .onUpdate((event) => {
       rotation.value = savedRotation.value + event.rotation;
@@ -105,20 +112,22 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
       runOnJS(updateCanvasItem)({
         ...item,
         rotation: rotation.value,
-        width: width.value,
-        height: height.value,
-        x: start.value.x,
-        y: start.value.y,
+        width: width.value / adjustedWidth,
+        height: height.value / adjustedHeight,
+        x: start.value.x / adjustedWidth,
+        y: start.value.y / adjustedHeight,
       });
     })
     .enabled(editMode);
 
   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
+
   const handleEdit = () => {
     imageEditStore$.editImage(item.id);
     uiStore$.displayImageEditOverlay.set(true);
     uiStore$.displayCanvasMenu.set(false);
   };
+
   return (
     <GestureDetector gesture={composed}>
       <AnimatePresence>
@@ -127,23 +136,16 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
             {
               position: "absolute",
               zIndex: item.z,
-              // width: item.width,
-              // height: item.height,
-              // transform: [{ translateX: item.x }, { translateY: item.y }, { rotateZ: `${item.rotation}rad` }],
-              // left: item.x,
-              // top: item.y,
             },
             animatedFrameGroupStyles,
           ]}>
-          {/* <Text>{item.id}</Text> */}
           <StyledPressable onPress={editMode ? handleEdit : null}>
             <StyledImage
               priority={active ? "high" : "low"}
               source={{ uri: item.path }}
               placeholder={{ blurhash: item.placeholder }}
               style={{ width: "100%", height: "100%" }}
-              // contentFit="contain"
-              contentFit="cover" // Use 'cover' to make sure the image fills the container
+              contentFit="cover"
             />
           </StyledPressable>
         </StyledMotiView>

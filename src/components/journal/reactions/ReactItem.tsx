@@ -10,6 +10,7 @@ import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
 import { reactStore$ } from "@/src/stores/ReactStore";
 import { bringReactionToFront, updateReactionItem } from "@/src/services/Reaction";
+import { appState$ } from "@/src/services/AppStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);
@@ -25,37 +26,40 @@ const ReactItem = observer(function ReactItem({
 }) {
   const [gestureDone, setGestureDone] = useState(true);
   const editMode = (reactStore$.reactEditMode.get() && usersReaction) || false;
-  const offset = useSharedValue({ x: item.x || 0, y: item.y || 0 });
-  const start = useSharedValue({ x: item.x || 0, y: item.y || 0 });
+
+  const adjustedWidth = appState$.adjustedWidth.get();
+  const adjustedHeight = appState$.adjustedHeight.get();
+
+  const offset = useSharedValue({ x: item.x * adjustedWidth, y: item.y * adjustedHeight });
+  const start = useSharedValue({ x: item.x * adjustedWidth, y: item.y * adjustedHeight });
   const rotation = useSharedValue(item.rotation || 0);
   const savedRotation = useSharedValue(item.rotation || 0);
 
-  // Initialize shared value for font size instead of scale
-  const fontSize = useSharedValue(item.fontSize || 16);
-  const savedFontSize = useSharedValue(item.fontSize || 16);
+  const fontSize = useSharedValue(item.fontSize * adjustedHeight);
+  const savedFontSize = useSharedValue(item.fontSize * adjustedHeight);
+
   useEffect(() => {
-    // console.log("effect firing");
-    offset.value = { x: item.x, y: item.y };
-    start.value = { x: item.x, y: item.y };
-    fontSize.value = item.fontSize;
-    savedFontSize.value = item.fontSize;
+    offset.value = { x: item.x * adjustedWidth, y: item.y * adjustedHeight };
+    start.value = { x: item.x * adjustedWidth, y: item.y * adjustedHeight };
+    fontSize.value = item.fontSize * adjustedHeight;
+    savedFontSize.value = item.fontSize * adjustedHeight;
     savedRotation.value = item.rotation;
     rotation.value = item.rotation;
-    // updateReactionItem(item);
-  }, [item]);
+  }, [item, adjustedWidth, adjustedHeight]);
 
   const animatedStyles = useAnimatedStyle(() => ({
     zIndex: item.z || 0,
     transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
   }));
+
   const animatedText = useAnimatedStyle(() => ({
     fontSize: fontSize.value,
   }));
+
   const handleGestureStart = () => {
     if (editMode) bringReactionToFront(item.id);
   };
 
-  // Define gestures
   const dragGesture = Gesture.Pan()
     .onBegin(() => runOnJS(handleGestureStart)())
     .averageTouches(true)
@@ -69,27 +73,26 @@ const ReactItem = observer(function ReactItem({
       start.value = { x: offset.value.x, y: offset.value.y };
       runOnJS(updateReactionItem)({
         ...item,
-        fontSize: fontSize.value, // Save the new font size to the store
+        fontSize: fontSize.value / adjustedHeight,
         rotation: rotation.value,
-        x: start.value.x,
-        y: start.value.y,
+        x: start.value.x / adjustedWidth,
+        y: start.value.y / adjustedHeight,
       });
     })
     .enabled(editMode);
 
   const zoomGesture = Gesture.Pinch()
     .onUpdate((event) => {
-      // Adjust font size instead of scale
-      fontSize.value = Math.min(savedFontSize.value * event.scale, 100);
+      fontSize.value = Math.min(savedFontSize.value * event.scale, 0.2 * adjustedHeight);
     })
     .onEnd(() => {
       savedFontSize.value = fontSize.value;
       runOnJS(updateReactionItem)({
         ...item,
-        fontSize: fontSize.value, // Save the new font size to the store
+        fontSize: fontSize.value / adjustedHeight,
         rotation: rotation.value,
-        x: start.value.x,
-        y: start.value.y,
+        x: start.value.x / adjustedWidth,
+        y: start.value.y / adjustedHeight,
       });
       runOnJS(setGestureDone)(true);
     })
@@ -104,19 +107,19 @@ const ReactItem = observer(function ReactItem({
       runOnJS(updateReactionItem)({
         ...item,
         rotation: rotation.value,
-        fontSize: fontSize.value, // Save the new font size to the store
-        x: start.value.x,
-        y: start.value.y,
+        fontSize: fontSize.value / adjustedHeight,
+        x: start.value.x / adjustedWidth,
+        y: start.value.y / adjustedHeight,
       });
     })
     .enabled(editMode);
 
-  // Combine gestures
   const composed = Gesture.Simultaneous(dragGesture, zoomGesture, rotateGesture);
 
   const handleEdit = () => {
     textStore$.editTextReact(item.id);
   };
+
   const getBackgroundColor = (isSpace: boolean): string => {
     if (item.fontBackground === null || isSpace) {
       return "transparent";
@@ -141,7 +144,6 @@ const ReactItem = observer(function ReactItem({
                 fontFamily: item.fontType || "Calibri",
                 textAlign: item.fontAlign || "left",
                 color: item.fontColor,
-                // backgroundColor: "transparent", // Ensure no global background
               },
             ]}>
             {item.textContent.split("").map((char, index) => {
@@ -161,8 +163,8 @@ const ReactItem = observer(function ReactItem({
                           ? item.fontBackgroundColor
                           : "#000",
                       backgroundColor: getBackgroundColor(isSpace),
-                      paddingVertical: 0, // Prevent excessive padding that could cause space between lines
-                      marginVertical: 0, // Remove margins that could push the background out of place
+                      paddingVertical: 0,
+                      marginVertical: 0,
                     },
                   ]}>
                   {char}
