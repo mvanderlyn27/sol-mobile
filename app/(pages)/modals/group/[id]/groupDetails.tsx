@@ -57,8 +57,8 @@ const GroupDetails = observer(function GroupDetails() {
         <StyledView className="px-8 w-full h-[150px] flex-none justify-between">
           <MemberList groupId={selectedGroup?.id} />
         </StyledView>
-        {isAdmin && (
-          <StyledView className="flex-row flex-none  px-8 pb-4 justify-between">
+        <StyledView className="flex-row flex-none  px-8 pb-4 justify-between">
+          {isAdmin && (
             <ModalButton
               action={handleEdit}
               color="bg-black"
@@ -66,15 +66,15 @@ const GroupDetails = observer(function GroupDetails() {
               disabled={false}
               textColor={"text-white"}
             />
-            <ModalButton
-              action={handleInvite}
-              color="bg-primary"
-              text="Invite New"
-              disabled={false}
-              textColor={"text-white"}
-            />
-          </StyledView>
-        )}
+          )}
+          <ModalButton
+            action={handleInvite}
+            color="bg-primary"
+            text="Invite New"
+            disabled={false}
+            textColor={"text-white"}
+          />
+        </StyledView>
       </StyledView>
     </View>
   );
