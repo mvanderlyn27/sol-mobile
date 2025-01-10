@@ -13,11 +13,13 @@ import { profiles$ } from "@/src/stores/ProfileStore";
 import { inviteGroupMember } from "@/src/services/Group";
 import * as Clipboard from "expo-clipboard";
 import ModalIconButton from "@/src/components/shared/ModalIconButton";
+import { Feather } from "@expo/vector-icons";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledTextInput = styled(TextInput);
 const StyledPressable = styled(Pressable);
+const StyledFeather = styled(Feather);
 
 const ensureNotArray = (input: string | string[]) => {
   if (Array.isArray(input)) {
@@ -104,21 +106,18 @@ export default function InviteGroupMember() {
         </StyledPressable>
       </StyledView>
       {/* Text Input for Username */}
-      <StyledView className="flex-1 flex-col justify-center items-start px-4">
-        <StyledText className="text-lg font-bold">Share group code, or enter username:</StyledText>
-        <StyledView className=" py-2">
-          <StyledText className="text-xs" numberOfLines={2}>
-            {groupId}
-          </StyledText>
-          <StyledView className="flex-row justify-end  py-2">
-            <ModalIconButton action={copyGroupId} text="Copy" color={"bg-darkPrimary"} buttonType={ButtonType.Copy} />
-            <ModalIconButton
-              action={shareGroupId}
-              text="Share"
-              color={"bg-darkPrimary"}
-              buttonType={ButtonType.Share}
-            />
-          </StyledView>
+      <StyledView className="flex-1 flex-col justify-center items-center px-4">
+        <StyledText className="w-full text-start text-lg font-bold">Share group code, or enter username:</StyledText>
+        <StyledView className=" py-4">
+          <StyledPressable onPress={copyGroupId} className="flex-row">
+            <StyledText selectable className="text-bold text-xs underline text-primary" numberOfLines={2}>
+              {groupId}
+            </StyledText>
+          </StyledPressable>
+        </StyledView>
+        <StyledView className="flex-row  px-20 py-4">
+          {/* <ModalIconButton action={copyGroupId} text="Copy" color={"bg-darkPrimary"} buttonType={ButtonType.Copy} /> */}
+          <ModalIconButton action={shareGroupId} text="Share" color={"bg-darkPrimary"} buttonType={ButtonType.Share} />
         </StyledView>
       </StyledView>
       <StyledView className="h-[1px] w-full bg-slate-400 my-4" />
