@@ -58,7 +58,7 @@ const CurProfile = observer(function CurProfile() {
           ? "https://play.google.com/apps/internaltest/4700953126034984120"
           : "https://testflight.apple.com/join/MajqukKt";
       const result = await Share.share({
-        message: `Hey! I want to invite you to my shared journal on Slice of Life! Sign up the beta here:\n${url}`,
+        message: `Hey! I wanted to invite you to the Slice of Life Beta. Join here:\n${url}`,
       });
 
       if (result.action === Share.sharedAction) {
