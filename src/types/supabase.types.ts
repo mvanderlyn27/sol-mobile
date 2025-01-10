@@ -146,97 +146,6 @@ export type Database = {
           }
         ];
       };
-      image_items: {
-        Row: {
-          created_at: string;
-          deleted: boolean;
-          id: string;
-          image_id: string;
-          updated_at: string;
-        };
-        Insert: {
-          created_at?: string;
-          deleted?: boolean;
-          id: string;
-          image_id: string;
-          updated_at?: string;
-        };
-        Update: {
-          created_at?: string;
-          deleted?: boolean;
-          id?: string;
-          image_id?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "image_items_id_fkey";
-            columns: ["id"];
-            isOneToOne: true;
-            referencedRelation: "page_items";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "image_items_image_id_fkey";
-            columns: ["image_id"];
-            isOneToOne: false;
-            referencedRelation: "images";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "image_items_item_id_fkey";
-            columns: ["id"];
-            isOneToOne: true;
-            referencedRelation: "page_items";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      images: {
-        Row: {
-          created_at: string;
-          created_by: string | null;
-          deleted: boolean;
-          hash: string | null;
-          height: number;
-          id: string;
-          path: string;
-          placeholder: string | null;
-          type: string;
-          updated_at: string;
-          uploaded: boolean;
-          width: number;
-        };
-        Insert: {
-          created_at?: string;
-          created_by?: string | null;
-          deleted?: boolean;
-          hash?: string | null;
-          height: number;
-          id?: string;
-          path: string;
-          placeholder?: string | null;
-          type: string;
-          updated_at?: string;
-          uploaded?: boolean;
-          width: number;
-        };
-        Update: {
-          created_at?: string;
-          created_by?: string | null;
-          deleted?: boolean;
-          hash?: string | null;
-          height?: number;
-          id?: string;
-          path?: string;
-          placeholder?: string | null;
-          type?: string;
-          updated_at?: string;
-          uploaded?: boolean;
-          width?: number;
-        };
-        Relationships: [];
-      };
       notifications: {
         Row: {
           created_at: string;
@@ -288,104 +197,6 @@ export type Database = {
           }
         ];
       };
-      page_items: {
-        Row: {
-          created_at: string;
-          deleted: boolean;
-          height: number;
-          id: string;
-          page_id: string;
-          rotation: number;
-          type: string;
-          updated_at: string;
-          width: number;
-          x: number;
-          y: number;
-          z: number;
-        };
-        Insert: {
-          created_at?: string;
-          deleted?: boolean;
-          height: number;
-          id?: string;
-          page_id: string;
-          rotation: number;
-          type: string;
-          updated_at?: string;
-          width: number;
-          x: number;
-          y: number;
-          z: number;
-        };
-        Update: {
-          created_at?: string;
-          deleted?: boolean;
-          height?: number;
-          id?: string;
-          page_id?: string;
-          rotation?: number;
-          type?: string;
-          updated_at?: string;
-          width?: number;
-          x?: number;
-          y?: number;
-          z?: number;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "page_items_page_id_fkey";
-            columns: ["page_id"];
-            isOneToOne: false;
-            referencedRelation: "pages_old";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      page_reactions: {
-        Row: {
-          created_at: string;
-          created_by: string;
-          deleted: boolean;
-          draft: boolean;
-          id: string;
-          page_id: string;
-          updated_at: string;
-        };
-        Insert: {
-          created_at?: string;
-          created_by?: string;
-          deleted?: boolean;
-          draft?: boolean;
-          id?: string;
-          page_id: string;
-          updated_at: string;
-        };
-        Update: {
-          created_at?: string;
-          created_by?: string;
-          deleted?: boolean;
-          draft?: boolean;
-          id?: string;
-          page_id?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "page_reactions_created_by_fkey";
-            columns: ["created_by"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "page_reactions_page_id_fkey";
-            columns: ["page_id"];
-            isOneToOne: false;
-            referencedRelation: "pages_old";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
       pages: {
         Row: {
           canvas: Json | null;
@@ -427,63 +238,6 @@ export type Database = {
           }
         ];
       };
-      pages_old: {
-        Row: {
-          background_image: string | null;
-          created_at: string;
-          created_by: string;
-          date: string;
-          deleted: boolean;
-          draft: boolean;
-          group_id: string;
-          id: string;
-          screen_height: number;
-          screen_width: number;
-          updated_at: string;
-        };
-        Insert: {
-          background_image?: string | null;
-          created_at: string;
-          created_by: string;
-          date: string;
-          deleted?: boolean;
-          draft?: boolean;
-          group_id: string;
-          id?: string;
-          screen_height: number;
-          screen_width: number;
-          updated_at: string;
-        };
-        Update: {
-          background_image?: string | null;
-          created_at?: string;
-          created_by?: string;
-          date?: string;
-          deleted?: boolean;
-          draft?: boolean;
-          group_id?: string;
-          id?: string;
-          screen_height?: number;
-          screen_width?: number;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "pages_created_by_fkey";
-            columns: ["created_by"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "pages_group_id_fkey";
-            columns: ["group_id"];
-            isOneToOne: false;
-            referencedRelation: "groups";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
       profiles: {
         Row: {
           avatar_placeholder: string | null;
@@ -493,8 +247,8 @@ export type Database = {
           id: string;
           name: string | null;
           new: boolean;
+          push_enabled: boolean;
           push_token: string | null;
-          should_clear_storage: boolean;
           should_reset_storage: boolean;
           updated_at: string;
           username: string | null;
@@ -507,8 +261,8 @@ export type Database = {
           id?: string;
           name?: string | null;
           new?: boolean;
+          push_enabled?: boolean;
           push_token?: string | null;
-          should_clear_storage?: boolean;
           should_reset_storage?: boolean;
           updated_at?: string;
           username?: string | null;
@@ -521,8 +275,8 @@ export type Database = {
           id?: string;
           name?: string | null;
           new?: boolean;
+          push_enabled?: boolean;
           push_token?: string | null;
-          should_clear_storage?: boolean;
           should_reset_storage?: boolean;
           updated_at?: string;
           username?: string | null;
@@ -573,36 +327,6 @@ export type Database = {
             referencedColumns: ["id"];
           }
         ];
-      };
-      reactions_old: {
-        Row: {
-          created_at: string;
-          created_by: string;
-          deleted: boolean;
-          id: string;
-          page_id: string;
-          reaction: Json;
-          updated_at: string;
-        };
-        Insert: {
-          created_at?: string;
-          created_by?: string;
-          deleted?: boolean;
-          id?: string;
-          page_id: string;
-          reaction: Json;
-          updated_at?: string;
-        };
-        Update: {
-          created_at?: string;
-          created_by?: string;
-          deleted?: boolean;
-          id?: string;
-          page_id?: string;
-          reaction?: Json;
-          updated_at?: string;
-        };
-        Relationships: [];
       };
       stickers: {
         Row: {

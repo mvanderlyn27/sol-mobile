@@ -8,6 +8,7 @@ import { AnimatePresence, MotiView } from "moti";
 import { styled } from "nativewind";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { observer } from "@legendapp/state/react";
+import NotificationHolder from "@/src/components/notifications/NotificationHolder";
 const StyledMotiView = styled(MotiView);
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -54,6 +55,7 @@ const Modal = observer(function Modal() {
 
   return (
     <BlurView tint="dark" style={{ flex: 1, alignItems: "flex-start", justifyContent: "flex-start" }}>
+      <NotificationHolder />
       {/* Dismiss modal when pressing outside */}
       <Pressable onPress={startExit} style={StyleSheet.absoluteFill} />
       <AnimatePresence onExitComplete={() => setAnimating(false)}>

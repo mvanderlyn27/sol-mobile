@@ -42,12 +42,12 @@ export const RootLayout = observer(function RootLayout() {
     "PragmaticaExtended-Light": require("@/src/assets/fonts/PragmaticaExtended-light.otf"),
     PragmaticaExtended: require("@/src/assets/fonts/PragmaticaExtended.otf"),
   });
-
+  const notificationsEnabled = profiles$[authStore$.session.user.id.get() || ""].push_enabled.get();
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: false,
-      shouldSetBadge: false,
+      shouldShowAlert: notificationsEnabled,
+      shouldPlaySound: notificationsEnabled,
+      shouldSetBadge: notificationsEnabled,
     }),
   });
   setupAppStateListener();
