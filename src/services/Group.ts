@@ -10,6 +10,7 @@ import { groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";
 import { profiles$ } from "../stores/ProfileStore";
 import { addNotification } from "../stores/NotificationStore";
+
 export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {
   const session = authStore$.session.get();
   if (!session?.user.id) {
@@ -56,6 +57,34 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
 
   console.log("finished last update");
   return id;
+};
+
+export const joinGroup = async (groupCode: string): Promise<string | null> => {
+  const session = authStore$.session.get();
+  if (!session?.user.id) {
+    console.error("not logged in, can't create group");
+    posthog.capture("add-group-error", { error: "not logged in" });
+    return null;
+  }
+  if (!Object.keys(groups$).includes(groupCode)) {
+    console.log("group doesn't exist");
+    posthog.capture("join-group-error", { error: "group not found: " + groupCode });
+    addNotification({
+      id: generateId(),
+      message: "Group not found, please try again",
+      type: NotificationType.error,
+    });
+    return null;
+  }
+  const groupMemberId = generateId();
+  groupMembers$[groupMemberId].set({
+    id: groupMemberId,
+    user_id: session?.user.id,
+    group_id: groupCode,
+    role: "member",
+    status: "completed",
+  } as GroupMember);
+  return groupCode;
 };
 
 export const deleteGroup = async (group_id: string) => {

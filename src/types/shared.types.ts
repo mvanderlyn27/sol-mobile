@@ -43,6 +43,8 @@ export enum ButtonType {
   TextSize = "text-size",
   TextBackground = "text-background",
   Sliders = "sliders",
+  CreateGroup = "createGroup",
+  JoinGroup = "joinGroup",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {

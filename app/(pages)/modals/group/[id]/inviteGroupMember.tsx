@@ -11,6 +11,7 @@ import { generateId } from "@/src/stores/AsyncStorage";
 import { NotificationType } from "@/src/types/shared.types";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { inviteGroupMember } from "@/src/services/Group";
+import * as Clipboard from "expo-clipboard";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -65,10 +66,19 @@ export default function InviteGroupMember() {
     const sanitized = input.toLowerCase();
     setUsername(sanitized);
   };
-
+  const copyGroupId = async () => {
+    if (groupId) {
+      await Clipboard.setStringAsync(groupId);
+      addNotification({
+        id: generateId(),
+        message: "Code Copied!",
+        type: NotificationType.success,
+      });
+    }
+  };
   return (
     <StyledView className="flex-col flex-1 px-8 bg-[#F5EEE5]">
-      <StyledView className="flex-row justify-center items-center p-4 pb-20">
+      <StyledView className="flex-row justify-center items-center p-4">
         <StyledText className="text-lg font-bold">Invite New Member</StyledText>
       </StyledView>
       <StyledView className="absolute left-0 z-10">
@@ -82,7 +92,20 @@ export default function InviteGroupMember() {
         </StyledPressable>
       </StyledView>
       {/* Text Input for Username */}
-      <StyledView className="flex-row mb-4 items-center px-4">
+      <StyledView className="flex-1 flex-col justify-center items-start px-4">
+        <StyledText className="text-lg font-bold">Share group code, or enter username:</StyledText>
+        <StyledView className=" py-2">
+          <StyledText className="text-xs" numberOfLines={2}>
+            {groupId}
+          </StyledText>
+          <StyledView className="flex-row justify-end px-16 py-2">
+            <ModalButton action={copyGroupId} text="Copy" color={"bg-darkPrimary"} />
+          </StyledView>
+        </StyledView>
+      </StyledView>
+      <StyledView className="h-[1px] w-full bg-slate-400 my-4" />
+
+      <StyledView className="flex-1 flex-col justify-center items-center px-4">
         <StyledTextInput
           value={username}
           autoCapitalize={"none"}
@@ -91,11 +114,11 @@ export default function InviteGroupMember() {
           placeholderTextColor="#9c9c9c"
           className="w-full p-4 border-black border-2 rounded-lg text-center bg-transparent mb-4"
         />
-      </StyledView>
 
-      {/* Add Button */}
-      <StyledView className="flex-row justify-end px-20">
-        <ModalButton action={handleAddUser} text="Invite" color={"bg-primary"} />
+        {/* Add Button */}
+        <StyledView className="flex-row px-20">
+          <ModalButton action={handleAddUser} text="Invite" color={"bg-primary"} />
+        </StyledView>
       </StyledView>
     </StyledView>
   );
