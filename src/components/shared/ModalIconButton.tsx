@@ -44,6 +44,10 @@ export default function ModalIconButton({
         return <StyledFontAwesome name="apple" size={20} className={`${textColor ?? "text-white"} px-2`} />;
       case "android":
         return <StyledFontAwesome name="android" size={20} className={`${textColor ?? "text-white"} px-2`} />;
+      case "copy":
+        return <StyledFeather name="copy" size={20} className={`${textColor ?? "text-white"} px-2`} />;
+      case "share":
+        return <StyledFeather name="share" size={20} className={`${textColor ?? "text-white"} px-2`} />;
       default:
         return <StyledFeather name="plus" size={20} className={`${textColor ?? "text-white"} px-2`} />;
     }
@@ -54,7 +58,7 @@ export default function ModalIconButton({
       onPress={action}
       className={`${
         disabled ? "bg-disabled" : color
-      } flex-1 mx-1  py-3 rounded-xl shadow-md flex-row justify-start items-center`}>
+      } flex-1 mx-1  py-3 rounded-xl shadow-md flex-row justify-center items-center`}>
       {getIconType()}
       <StyledText
         className={`${textColor ?? "text-white"} text-xs font-bold`}

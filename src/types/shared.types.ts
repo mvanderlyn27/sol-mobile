@@ -47,6 +47,7 @@ export enum ButtonType {
   JoinGroup = "joinGroup",
   Android = "android",
   IOS = "ios",
+  Copy = "copy",
 }
 //Vertical Stack Types
 export type VerticalStackItem = {

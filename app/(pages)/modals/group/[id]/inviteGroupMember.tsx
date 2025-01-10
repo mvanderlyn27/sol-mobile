@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { styled } from "nativewind";
-import { View, Text, TextInput, Pressable } from "react-native";
+import { View, Text, TextInput, Pressable, Share } from "react-native";
 import ModalButton from "@/src/components/shared/ModalButton"; // Assuming this is a styled button
 import { router, useLocalSearchParams } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -8,10 +8,11 @@ import authStore$ from "@/src/stores/AuthStore";
 import { groupMembers$ } from "@/src/stores/MemberStore";
 import { addNotification, notificationStore$ } from "@/src/stores/NotificationStore";
 import { generateId } from "@/src/stores/AsyncStorage";
-import { NotificationType } from "@/src/types/shared.types";
+import { ButtonType, NotificationType } from "@/src/types/shared.types";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { inviteGroupMember } from "@/src/services/Group";
 import * as Clipboard from "expo-clipboard";
+import ModalIconButton from "@/src/components/shared/ModalIconButton";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -76,6 +77,17 @@ export default function InviteGroupMember() {
       });
     }
   };
+  const shareGroupId = async () => {
+    if (groupId) {
+      try {
+        const result = await Share.share({
+          message: `Join my shared journal! Group code:\n${groupId}`,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
   return (
     <StyledView className="flex-col flex-1 px-8 bg-[#F5EEE5]">
       <StyledView className="flex-row justify-center items-center p-4">
@@ -98,8 +110,14 @@ export default function InviteGroupMember() {
           <StyledText className="text-xs" numberOfLines={2}>
             {groupId}
           </StyledText>
-          <StyledView className="flex-row justify-end px-16 py-2">
-            <ModalButton action={copyGroupId} text="Copy" color={"bg-darkPrimary"} />
+          <StyledView className="flex-row justify-end  py-2">
+            <ModalIconButton action={copyGroupId} text="Copy" color={"bg-darkPrimary"} buttonType={ButtonType.Copy} />
+            <ModalIconButton
+              action={shareGroupId}
+              text="Share"
+              color={"bg-darkPrimary"}
+              buttonType={ButtonType.Share}
+            />
           </StyledView>
         </StyledView>
       </StyledView>
