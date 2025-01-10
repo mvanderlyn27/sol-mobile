@@ -109,14 +109,12 @@ export default function InviteGroupMember() {
       <StyledView className="flex-1 flex-col justify-center items-center px-4">
         <StyledText className="w-full text-start text-lg font-bold">Share group code, or enter username:</StyledText>
         <StyledView className=" py-4">
-          <StyledPressable onPress={copyGroupId} className="flex-row">
-            <StyledText selectable className="text-bold text-xs underline text-primary" numberOfLines={2}>
-              {groupId}
-            </StyledText>
-          </StyledPressable>
+          <StyledText selectable className=" text-xs " numberOfLines={2}>
+            {groupId}
+          </StyledText>
         </StyledView>
-        <StyledView className="flex-row  px-20 py-4">
-          {/* <ModalIconButton action={copyGroupId} text="Copy" color={"bg-darkPrimary"} buttonType={ButtonType.Copy} /> */}
+        <StyledView className="flex-row   py-4">
+          <ModalIconButton action={copyGroupId} text="Copy" color={"bg-darkPrimary"} buttonType={ButtonType.Copy} />
           <ModalIconButton action={shareGroupId} text="Share" color={"bg-darkPrimary"} buttonType={ButtonType.Share} />
         </StyledView>
       </StyledView>
