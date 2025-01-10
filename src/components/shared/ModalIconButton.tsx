@@ -40,6 +40,10 @@ export default function ModalIconButton({
         return <StyledFeather name="plus" size={20} className={`${textColor ?? "text-white"} px-2`} />;
       case "joinGroup":
         return <StyledFontAwesome name="group" size={20} className={`${textColor ?? "text-white"} px-2`} />;
+      case "ios":
+        return <StyledFontAwesome name="apple" size={20} className={`${textColor ?? "text-white"} px-2`} />;
+      case "android":
+        return <StyledFontAwesome name="android" size={20} className={`${textColor ?? "text-white"} px-2`} />;
       default:
         return <StyledFeather name="plus" size={20} className={`${textColor ?? "text-white"} px-2`} />;
     }

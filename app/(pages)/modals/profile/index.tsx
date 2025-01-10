@@ -8,7 +8,7 @@ import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { pages$ } from "@/src/stores/PagesStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { GroupMember, NotificationType, Page } from "@/src/types/shared.types";
+import { ButtonType, GroupMember, NotificationType, Page } from "@/src/types/shared.types";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { observer } from "@legendapp/state/react";
 import { Link, router } from "expo-router";
@@ -22,6 +22,7 @@ import { filterMyGroups, filterOutPending } from "@/src/services/Group";
 import { groupMembers$ } from "@/src/stores/MemberStore";
 import { useState } from "react";
 import UsernameInput from "@/src/components/modals/UsernameInput";
+import ModalIconButton from "@/src/components/shared/ModalIconButton";
 
 const StyledView = styled(View);
 const StyledScrollView = styled(ScrollView);
@@ -50,10 +51,14 @@ const CurProfile = observer(function CurProfile() {
     Object.values((pages$.get() as Record<string, Page>) || {}).filter((item: Page) => item.created_by === curUserId)
       ?.length || 0;
 
-  const handleInvite = async () => {
+  const handleInvite = async (type: string) => {
     try {
+      const url =
+        type === "android"
+          ? "https://play.google.com/apps/internaltest/4700953126034984120"
+          : "https://testflight.apple.com/join/MajqukKt";
       const result = await Share.share({
-        message: "Join my journal at https://sliceoflifeapp.com!",
+        message: `Hey! I want to invite you to my shared journal on Slice of Life! Sign up the beta here:\n${url}`,
       });
 
       if (result.action === Share.sharedAction) {
@@ -109,8 +114,21 @@ const CurProfile = observer(function CurProfile() {
           </StyledView>
         </StyledView>
 
-        <StyledView className="flex-row px-10 mt-4">
-          <ModalButton disabled={false} action={handleInvite} color={"bg-primary"} text="Invite friend" />
+        <StyledView className="flex-row  my-2">
+          <ModalIconButton
+            disabled={false}
+            action={() => handleInvite("ios")}
+            color={"bg-primary"}
+            text="Invite friend"
+            buttonType={ButtonType.IOS}
+          />
+          <ModalIconButton
+            disabled={false}
+            action={() => handleInvite("android")}
+            color={"bg-primary"}
+            text="Invite friend"
+            buttonType={ButtonType.Android}
+          />
         </StyledView>
       </StyledView>
     </StyledView>
