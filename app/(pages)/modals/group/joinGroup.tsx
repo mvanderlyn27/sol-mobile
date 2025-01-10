@@ -13,6 +13,9 @@ import StorageService from "@/src/api/storage";
 import { AnimatePresence, MotiView } from "moti";
 import { resizeImage } from "@/src/services/Media";
 import { joinGroup } from "@/src/services/Group";
+import { addNotification } from "@/src/stores/NotificationStore";
+import { NotificationType } from "@/src/types/shared.types";
+import { generateId } from "@/src/stores/AsyncStorage";
 
 const StyledView = styled(View);
 const StyledMotiView = styled(MotiView);
@@ -31,6 +34,11 @@ export default function JoinGroupModal() {
     if (groupCode) {
       const id = await joinGroup(groupCode);
       if (id) {
+        addNotification({
+          id: generateId(),
+          message: "Joined Group",
+          type: NotificationType.success,
+        });
         setCreating(false);
         router.push(`./${id}/groupDetails`);
       }
