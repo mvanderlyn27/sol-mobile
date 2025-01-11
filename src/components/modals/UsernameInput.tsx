@@ -55,7 +55,7 @@ export default function UsernameInput({ disabled }: { disabled?: boolean }) {
 
   const updateValue = (value: string) => {
     // Clean the input: trim spaces and convert to lowercase
-    const cleanedValue = value.trim().toLowerCase();
+    const cleanedValue = value.toLowerCase().replace(/ /g, "");
     setNewValue(cleanedValue);
   };
 

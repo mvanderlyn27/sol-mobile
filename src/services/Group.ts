@@ -200,7 +200,22 @@ export const initializeGroupRealtimeUpdates = () => {
           const deletedGroupId = payload.old.id;
           groups$[deletedGroupId].delete();
         } else {
-          const isOk = JSON.stringify(groups$.peek()[payload.new.id]) !== JSON.stringify(payload.new);
+          const old = groups$.peek()[payload.new.id];
+          const isOk =
+            JSON.stringify({
+              id: old?.id,
+              name: old?.name,
+              cover_url: old?.cover_url,
+              cover_placeholder: old?.cover_placeholder,
+              created_by: old?.created_by,
+            }) !==
+            JSON.stringify({
+              id: payload.new.id,
+              name: payload.new.name,
+              cover_url: payload.new.cover_url,
+              cover_placeholder: payload.new.cover_placeholder,
+              created_by: payload.new.created_by,
+            });
           if (isOk) {
             const newGroup: Group = payload.new as Group;
             // console.log("updating pages!", pages$[newPage.id].canvas.get() as Canvas);
@@ -225,7 +240,22 @@ export const initializeGroupMemberRealtimeUpdates = () => {
           const deletedGroupId = payload.old.id;
           groupMembers$[deletedGroupId].delete();
         } else {
-          const isOk = JSON.stringify(groupMembers$.peek()[payload.new.id]) !== JSON.stringify(payload.new);
+          const old = groupMembers$.peek()[payload.new.id];
+          const isOk =
+            JSON.stringify({
+              user_id: old?.user_id,
+              group_id: old?.group_id,
+              role: old?.role,
+              status: old?.status,
+              id: old?.id,
+            }) !==
+            JSON.stringify({
+              user_id: payload.new.user_id,
+              group_id: payload.new.group_id,
+              role: payload.new.role,
+              status: payload.new.status,
+              id: payload.new.id,
+            });
           console.log(
             "is ok to update? :",
             isOk,

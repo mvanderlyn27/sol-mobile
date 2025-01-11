@@ -71,7 +71,7 @@ const FtuxScreen = observer(function FtuxScreen() {
           value={username}
           placeholder="USERNAME"
           placeholderTextColor="#B0B0B0"
-          onChangeText={setUsername}
+          onChangeText={(val) => setUsername(val.toLowerCase().replace(/ /g, ""))}
           className="w-full text-secondary text-center"
           style={{ fontFamily: "PragmaticaExtended-light" }}
           autoCapitalize="none"

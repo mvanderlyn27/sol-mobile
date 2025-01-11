@@ -56,6 +56,11 @@ const PermissionsScreen = observer(function FtuxScreen() {
     const granted = await requestPushNotificationPermission();
     if (granted) {
       setPushNotificationEnabled(true);
+      const userId = authStore$.session.user.id.get();
+      if (!userId) {
+        return;
+      }
+      profiles$[userId].push_enabled.set(true);
     }
   };
   return (

@@ -98,7 +98,30 @@ export const initializeProfileRealtimeUpdates = () => {
           const deletedProfileId = payload.old.id;
           profiles$[deletedProfileId].delete();
         } else {
-          const isOk = JSON.stringify(profiles$.peek()[payload.new.id]) !== JSON.stringify(payload.new);
+          const old = profiles$.peek()[payload.new.id];
+          const isOk =
+            JSON.stringify({
+              id: old?.id,
+              username: old?.username,
+              push_token: old?.push_token,
+              avatar_url: old?.avatar_url,
+              avatar_placeholder: old?.avatar_placeholder,
+              new: old?.new,
+              should_reset_storage: old?.should_reset_storage,
+              push_enabled: old?.push_enabled,
+              should_clear_storage: old?.should_clear_storage,
+            }) !==
+            JSON.stringify({
+              id: payload.new.id,
+              username: payload.new.username,
+              push_token: payload.new.push_token,
+              avatar_url: payload.new.avatar_url,
+              avatar_placeholder: payload.new.avatar_placeholder,
+              new: payload.new.new,
+              should_reset_storage: payload.new.should_reset_storage,
+              push_enabled: payload.new.push_enabled,
+              should_clear_storage: payload.new.should_clear_storage,
+            });
           if (isOk) {
             const newProfile: Profile = payload.new as Profile;
             // console.log("updating pages!", pages$[newPage.id].canvas.get() as Canvas);
