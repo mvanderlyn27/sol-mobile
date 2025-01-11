@@ -1,7 +1,6 @@
 import { observable, syncState } from "@legendapp/state";
 import { pages$ } from "../stores/PagesStore";
 import { groupStore$, groups$ } from "../stores/GroupStore";
-import { images$ } from "../stores/ImageStore";
 import { groupMembers$ } from "../stores/MemberStore";
 import { profiles$ } from "../stores/ProfileStore";
 import { useEffect } from "react";

@@ -39,6 +39,7 @@ export const signUp = async (email: string, password: string) => {
   } else {
     authStore$.error.set(response.error || "Error signing up");
     posthog.capture("user-signup-error", { email, error: response.error });
+    addNotification({ id: generateId(), type: NotificationType.error, message: "Error signing in, try again" });
     console.debug("Error signing up:", response.error);
     //TOAST HERE for error
   }
@@ -60,11 +61,13 @@ export const signIn = async (email: string, password: string) => {
     } else {
       posthog.capture("user-failed-login", { email, error: "no user session returned" });
       authStore$.session.set(null);
+      addNotification({ id: generateId(), type: NotificationType.error, message: "Error signing in, try again" });
       authStore$.error.set("no user session returned");
     }
   } else {
     posthog.capture("user-failed-login", { email, error: response.error });
     authStore$.error.set(response.error || "Error signing in");
+    addNotification({ id: generateId(), type: NotificationType.error, message: "Error signing in, try again" });
     console.debug("Error signing in:", response.error);
     //   Toast.show("Error logging in", { duration: 3000 });
   }
@@ -90,6 +93,7 @@ export const signInApple = async (token: string, name: string) => {
   } else {
     posthog.capture("sign-in-with-apple-failed", { error: response.error || "missing user" });
     //   Toast.show("Error logging in, " + response.error, { duration: 3000 });
+    addNotification({ id: generateId(), type: NotificationType.error, message: "Error signing up, try again" });
     authStore$.error.set(response.error || "Error signing in");
   }
   authStore$.loading.set(false);
@@ -115,6 +119,7 @@ export const signInGoogle = async (token: string, name: string) => {
     posthog.capture("sign-in-with-google-failed", { error: response.error || "missing user" });
     //   Toast.show("Error logging in, " + response.error, { duration: 3000 });
     authStore$.error.set(response.error || "Error signing in");
+    addNotification({ id: generateId(), type: NotificationType.error, message: "Error signing up, try again" });
   }
   authStore$.loading.set(false);
 };

@@ -1,6 +1,5 @@
 import { observable } from "@legendapp/state";
 import { CanvasImage, NotificationType } from "../types/shared.types";
-import { images$ } from "./ImageStore";
 import { add } from "lodash";
 import { addNotification } from "./NotificationStore";
 import { generateId } from "./AsyncStorage";

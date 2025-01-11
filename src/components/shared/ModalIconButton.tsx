@@ -32,7 +32,6 @@ export default function ModalIconButton({
   text?: string;
   buttonType: ButtonType;
 }) {
-  console.log("buttonType", buttonType);
   const getIconType = () => {
     console.log("button type", buttonType);
     switch (buttonType) {

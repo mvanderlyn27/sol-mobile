@@ -7,6 +7,8 @@ import { Profile, NotificationType } from "../types/shared.types";
 import { posthog } from "./Posthog";
 import { checkNotificationStatus, registerForPushNotificationsAsync } from "./PushNotification";
 import * as Device from "expo-device";
+import { useEffect } from "react";
+import { supabase } from "../lib/supabase";
 
 // addGroup
 export const handleSignup = (userId: string) => {
@@ -85,4 +87,29 @@ export const requestPushNotificationPermission = async (): Promise<boolean> => {
   });
   profiles$[curId].push_token.set(token);
   return true;
+};
+
+export const initializeProfileRealtimeUpdates = () => {
+  useEffect(() => {
+    const subscription = supabase
+      .channel("realtime-profiles")
+      .on("postgres_changes", { event: "*", schema: "public", table: "profiles" }, (payload) => {
+        if (payload.eventType === "DELETE") {
+          const deletedProfileId = payload.old.id;
+          profiles$[deletedProfileId].delete();
+        } else {
+          const isOk = JSON.stringify(profiles$.peek()[payload.new.id]) !== JSON.stringify(payload.new);
+          if (isOk) {
+            const newProfile: Profile = payload.new as Profile;
+            // console.log("updating pages!", pages$[newPage.id].canvas.get() as Canvas);
+            console.log("updating profile!", profiles$[newProfile.id].updated_at.get());
+            profiles$[newProfile.id].set(newProfile);
+          }
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
 };

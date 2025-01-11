@@ -12,14 +12,14 @@ export const groupMembers$ = observable(
     collection: "group_members",
     select: (from) => from.select("*"),
     actions: ["read", "create", "update", "delete"],
-    realtime: true,
-    persist: {
-      name: `groupMembers-${process.env.APP_VARIANT}`,
-      retrySync: true, // Persist pending changes and retry
-    },
-    retry: {
-      infinite: true, // Retry changes with exponential backoff
-    },
+    // realtime: true,
+    // persist: {
+    //   name: `groupMembers-${process.env.APP_VARIANT}`,
+    //   retrySync: true, // Persist pending changes and retry
+    // },
+    // retry: {
+    //   infinite: true, // Retry changes with exponential backoff
+    // },
     waitForSet: ({ value }: WaitForSetCrudFnParams<GroupMember>) => {
       return () => !!profiles$[value.user_id]?.created_at?.get() && !!groups$[value.group_id].created_at;
     },

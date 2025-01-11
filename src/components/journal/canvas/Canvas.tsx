@@ -12,7 +12,6 @@ import { canvasStore$, pageStore$, pages$ } from "@/src/stores/PagesStore";
 import CanvasTextHolder from "./CanvasText";
 import { Observable, observable, syncState } from "@legendapp/state";
 import LoadingScreen from "../../screens/SplashScreen";
-import { images$ } from "@/src/stores/ImageStore";
 import { Skeleton } from "moti/skeleton";
 import { posthog } from "@/src/services/Posthog";
 import authStore$ from "@/src/stores/AuthStore";

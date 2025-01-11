@@ -8,10 +8,10 @@ import ProtectedLayout from "@/src/components/navigation/ProtectedRoute";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { posthog } from "@/src/services/Posthog";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { pages$ } from "@/src/stores/PagesStore";
-import { images$ } from "@/src/stores/ImageStore";
 import { clearLocalPersist, resyncObservables } from "@/src/services/AppStore";
 import { supabase } from "@/src/lib/supabase";
+import { initializeProfileRealtimeUpdates } from "@/src/services/Profile";
+import { initializeGroupMemberRealtimeUpdates, initializeGroupRealtimeUpdates } from "@/src/services/Group";
 
 export const unstable_settings = {
   initialRouteName: "home",
@@ -19,6 +19,9 @@ export const unstable_settings = {
 
 const Layout = observer(function Layout() {
   // useAppStateListener();
+  initializeProfileRealtimeUpdates();
+  initializeGroupRealtimeUpdates();
+  initializeGroupMemberRealtimeUpdates();
   useMount(async () => {
     const curId = authStore$.session.user.id.get();
     profiles$.onChange(async () => {

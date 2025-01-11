@@ -10,6 +10,7 @@ import { groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";
 import { profiles$ } from "../stores/ProfileStore";
 import { addNotification } from "../stores/NotificationStore";
+import { useEffect } from "react";
 
 export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {
   const session = authStore$.session.get();
@@ -25,15 +26,6 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     name,
     created_by: session?.user.id,
   });
-
-  const groupMemberId = generateId();
-  groupMembers$[groupMemberId].set({
-    id: groupMemberId,
-    user_id: session?.user.id,
-    group_id: id,
-    role: "admin",
-    status: "completed",
-  } as GroupMember);
 
   //upload image after we create new component for rls policies to work
   const base64 = await FileSystem.readAsStringAsync(cover_uri, { encoding: "base64" });
@@ -197,4 +189,61 @@ export const inviteGroupMember = async (groupId: string, username: string): Prom
   } as GroupMember;
   groupMembers$[inviteId].set(invite);
   return inviteId;
+};
+
+export const initializeGroupRealtimeUpdates = () => {
+  useEffect(() => {
+    const subscription = supabase
+      .channel("realtime-groups")
+      .on("postgres_changes", { event: "*", schema: "public", table: "groups" }, (payload) => {
+        if (payload.eventType === "DELETE") {
+          const deletedGroupId = payload.old.id;
+          groups$[deletedGroupId].delete();
+        } else {
+          const isOk = JSON.stringify(groups$.peek()[payload.new.id]) !== JSON.stringify(payload.new);
+          if (isOk) {
+            const newGroup: Group = payload.new as Group;
+            // console.log("updating pages!", pages$[newPage.id].canvas.get() as Canvas);
+            console.log("updating groups!", groups$[newGroup.id].updated_at.get());
+            groups$[newGroup.id].set(newGroup);
+          }
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
+};
+
+export const initializeGroupMemberRealtimeUpdates = () => {
+  useEffect(() => {
+    const subscription = supabase
+      .channel("realtime-groupmembers")
+      .on("postgres_changes", { event: "*", schema: "public", table: "group_members" }, (payload) => {
+        if (payload.eventType === "DELETE") {
+          const deletedGroupId = payload.old.id;
+          groupMembers$[deletedGroupId].delete();
+        } else {
+          const isOk = JSON.stringify(groupMembers$.peek()[payload.new.id]) !== JSON.stringify(payload.new);
+          console.log(
+            "is ok to update? :",
+            isOk,
+            "\n",
+            JSON.stringify(groupMembers$.peek()[payload.new.id]),
+            JSON.stringify(payload.new)
+          );
+          if (isOk) {
+            const newGroupMember: GroupMember = payload.new as GroupMember;
+            console.log("new info", newGroupMember);
+            groupMembers$[newGroupMember.id].set(newGroupMember);
+            console.log("updating group members!", groupMembers$[newGroupMember.id].get());
+          }
+        }
+      })
+      .subscribe();
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, []);
 };

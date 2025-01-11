@@ -4,7 +4,6 @@ import { supabase } from "../lib/supabase";
 import { customSupabaseSynced } from "./AsyncStorage";
 
 import { posthog } from "../services/Posthog";
-import { images$ } from "./ImageStore";
 import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
 import { groupStore$ } from "./GroupStore";
 

@@ -249,6 +249,7 @@ export type Database = {
           new: boolean;
           push_enabled: boolean;
           push_token: string | null;
+          should_clear_storage: boolean;
           should_reset_storage: boolean;
           updated_at: string;
           username: string | null;
@@ -263,6 +264,7 @@ export type Database = {
           new?: boolean;
           push_enabled?: boolean;
           push_token?: string | null;
+          should_clear_storage?: boolean;
           should_reset_storage?: boolean;
           updated_at?: string;
           username?: string | null;
@@ -277,6 +279,7 @@ export type Database = {
           new?: boolean;
           push_enabled?: boolean;
           push_token?: string | null;
+          should_clear_storage?: boolean;
           should_reset_storage?: boolean;
           updated_at?: string;
           username?: string | null;
