@@ -46,9 +46,9 @@ export default function SettingsSidebar() {
           </StyledPressable>
         </StyledText>
         <StyledView className="w-full my-2 h-[2px] bg-secondary" />
-        <StyledText className="text-secondary text-xl font-bold ">Socials</StyledText>
+        {/* <StyledText className="text-secondary text-xl font-bold ">Socials</StyledText>
         <SocialButtons />
-        <StyledView className="w-full my-2 h-[2px] bg-secondary" />
+        <StyledView className="w-full my-2 h-[2px] bg-secondary" /> */}
         <StyledView className="flex-row py-4">
           <LogoutButton />
         </StyledView>

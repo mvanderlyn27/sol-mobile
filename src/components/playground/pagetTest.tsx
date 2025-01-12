@@ -83,7 +83,8 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       initialScrollIndex={pageStore$.curRow.get() || 0}
       keyExtractor={(row) => `${row.user_id}-${col}`}
       renderItem={({ item: row, index }) => (
-        <View style={{ width: appState$.adjustedWidth.get(), height: appState$.adjustedHeight.get() }}>
+        <View
+          style={{ width: appState$.adjustedWidth.get(), height: appState$.adjustedHeight.get(), overflow: "hidden" }}>
           <PageRenderer rowIndex={index} colIndex={col} />
         </View>
       )}
