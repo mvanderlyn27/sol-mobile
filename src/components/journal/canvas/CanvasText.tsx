@@ -163,7 +163,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
                 color: item.fontColor,
               },
             ]}>
-            {item.textContent.split("").map((char, index) => {
+            {Array.from(item.textContent).map((char, index) => {
               const isSpace = char === "\n";
               return (
                 <StyledText
