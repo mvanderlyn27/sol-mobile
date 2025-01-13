@@ -93,12 +93,25 @@ const CanvasObject = observer(function CanvasObject({
         return;
       }
       return (
+        // <AnimatePresence key={`${editable ? "edit-" : ""}${textItem.id}`}>
+        // {
+        // active && (
+        //     <MotiView
+        //       style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+        //       from={{ opacity: 0 }}
+        //       animate={{ opacity: 1 }}
+        //       exit={{ opacity: 0 }}
+        //       transition={{ type: "timing", duration: 200 }}>
         <CanvasTextHolder
           key={`${pageId}-${editable ? "edit-" : ""}text-${item$.id.get()}`}
           item={textItem}
           userItem={editable}
           active={active}
         />
+        //     </MotiView>
+        // )
+        // }
+        // </AnimatePresence>
       );
     }
     default:

@@ -50,7 +50,7 @@ const DateIndicator = observer(function DateIndicator() {
       transition={{ type: "timing", duration: 100 }}>
       <StyledBlurView tint="dark" className="p-3 rounded-xl bg-black/80 overflow-hidden">
         <StyledMotiView key="bottom-bar" className="justify-between items-center rounded-full ">
-          <AnimatePresence exitBeforeEnter={true}>
+          {/* <AnimatePresence exitBeforeEnter={true}>
             <MotiView
               key={date.date} // Reset animation on each text change
               from={{
@@ -71,10 +71,10 @@ const DateIndicator = observer(function DateIndicator() {
               transition={{
                 type: "timing",
                 duration: 200,
-              }}>
-              <Text style={{ fontSize: 18, color: "white" }}>{date.date}</Text>
-            </MotiView>
-          </AnimatePresence>
+              }}> */}
+          <Text style={{ fontSize: 18, color: "white" }}>{date.date}</Text>
+          {/* </MotiView> */}
+          {/* </AnimatePresence> */}
         </StyledMotiView>
       </StyledBlurView>
     </StyledMotiView>

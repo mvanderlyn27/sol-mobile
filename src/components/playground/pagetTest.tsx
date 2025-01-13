@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { FlatList, View, Dimensions, Platform, ActivityIndicator, Text } from "react-native";
 import PagerView from "react-native-pager-view";
-import { Memo, observer } from "@legendapp/state/react";
+import { Memo, observer, useIsMounted, useMount, useMountOnce } from "@legendapp/state/react";
 import { CanvasHolder } from "../journal/canvas/Canvas";
 import JournalOverlays from "../journal/JournalOverlays";
 import { GroupMember } from "@/src/types/shared.types";
@@ -13,36 +13,31 @@ import { styled } from "nativewind";
 import LoadingScreen from "../screens/LoadingScreen";
 import { debounce } from "lodash";
 import { BlurView } from "expo-blur";
-import { BackgroundImage } from "@rneui/themed/dist/config";
-import { ImageBackground } from "expo-image";
-import { getImageFromPath } from "@/src/assets/images/images";
 import { appState$, initAppDimensions } from "@/src/services/AppStore";
-
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
 const StyledText = styled(Text);
 const StyledView = styled(View);
 
 const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIndex: number }) => {
+  // useTraceUpdates();
   const userId = pageStore$.members.get()?.[rowIndex]?.user_id;
   const date = pageStore$.dates.get()?.[colIndex]?.date;
   const active = rowIndex === pageStore$.curRow.get() && colIndex === pageStore$.curCol.get();
+  // const active = Math.abs(rowIndex - pageStore$.curRow.get()) < 2 && Math.abs(colIndex - pageStore$.curCol.get()) < 2;
   //should only update edit mode if its active
   const editMode = pageStore$.editMode.get() && active;
-  const page = getPageForUser(pages$.get(), userId, date);
-  // console.log("active", active, rowIndex, colIndex);
+  const page = getPageForUser(pages$.get() || {}, userId, date);
   const reactEditMode = reactStore$.reactEditMode.get() && active;
   return (
-    // <Memo>
     <View
       key={`${rowIndex}-${colIndex}${page ? "-" + page.updated_at : ""}-${editMode && active ? "edit" : "view"}-${
         page?.id
       }`}
       style={{ flex: 1 }}>
       <CanvasHolder pageId={page?.id} editMode={editMode} active={active} />
-      <ReactHolder pageId={page?.id} editMode={reactEditMode} />
+      {active && <ReactHolder pageId={page?.id} editMode={reactEditMode} />}
     </View>
-    // </Memo>
   );
 });
 
@@ -72,11 +67,11 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       extraData={pageStore$.editMode.get()}
       data={rows}
       pagingEnabled
-      initialNumToRender={5}
+      initialNumToRender={3}
       maxToRenderPerBatch={3}
-      windowSize={7}
+      windowSize={5}
       scrollEventThrottle={16} // Syncs scroll with 60fps
-      // removeClippedSubviews={true} // Improves performance by removing off-screen components
+      removeClippedSubviews={true} // Improves performance by removing off-screen components
       scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
@@ -84,33 +79,46 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       keyExtractor={(row) => `${row.user_id}-${col}`}
       renderItem={({ item: row, index }) => (
         <View
-          style={{ width: appState$.adjustedWidth.get(), height: appState$.adjustedHeight.get(), overflow: "hidden" }}>
+          style={{
+            // justifyContent: "center",
+            // alignItems: "center",
+            width: appState$.adjustedWidth.get(),
+            height: appState$.adjustedHeight.get(),
+            overflow: "hidden",
+          }}>
           <PageRenderer rowIndex={index} colIndex={col} />
+          {/* <Text>{row.user_id}</Text> */}
         </View>
       )}
       viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, waitForInteraction: false }}
       onScrollToIndexFailed={() => {
         console.log("failed to scroll vertical");
       }}
-      // getItemLayout={(data, index) => ({
-      //   length: height, // Replace with actual item height
-      //   offset: height * index,
-      //   index,
-      // })}
+      getItemLayout={(data, index) => ({
+        length: appState$.adjustedHeight.get(), // Replace with actual item height
+        offset: appState$.adjustedHeight.get() * index,
+        index,
+      })}
     />
   );
 });
+// });
 // Outer parent component with PagerView
 const Canvas2DScroller = observer(() => {
   const listRef = useRef<FlatList>(null);
-  const onViewableItemsChanged = debounce(({ viewableItems }) => {
+  // const onViewableItemsChanged = debounce(({ viewableItems }) => {
+  //   if (viewableItems.length > 0) {
+  //     pageStore$.curCol.set(viewableItems[0].index);
+  //   }
+  // }, 200);
+  const onViewableItemsChanged = ({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       pageStore$.curCol.set(viewableItems[0].index);
     }
-  }, 100);
-  initAppDimensions();
-  console.log("adjusted", appState$.adjustedWidth.peek(), appState$.adjustedHeight.peek());
-  console.log("nonadjusted", width, height);
+  };
+  useMountOnce(() => {
+    initAppDimensions();
+  });
   const handleEndReached = async () => {
     await loadMorePages();
   };
@@ -139,11 +147,11 @@ const Canvas2DScroller = observer(() => {
           onScrollToIndexFailed={({ index }) => {
             console.log("failed to scroll horizontal: ", index);
           }}
-          initialNumToRender={5}
+          initialNumToRender={3}
           maxToRenderPerBatch={3}
-          windowSize={7}
+          windowSize={5}
           scrollEventThrottle={16} // Syncs scroll with 60fps
-          // removeClippedSubviews={true} // Improves performance by removing off-screen components
+          removeClippedSubviews={true} // Improves performance by removing off-screen components
           onEndReachedThreshold={0.5}
           pagingEnabled
           showsHorizontalScrollIndicator={false}
@@ -152,11 +160,11 @@ const Canvas2DScroller = observer(() => {
           onEndReached={handleEndReached}
           renderItem={({ item, index }) => <VerticalPageList rows={pageStore$.members.get()} col={index} />}
           keyExtractor={(item, index) => `${item.date}`}
-          // getItemLayout={(data, index) => ({
-          //   length: width,
-          //   offset: width * index,
-          //   index,
-          // })}
+          getItemLayout={(data, index) => ({
+            length: appState$.adjustedWidth.get(),
+            offset: appState$.adjustedWidth.get() * index,
+            index,
+          })}
           ListFooterComponent={
             <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
               <LoadingScreen />

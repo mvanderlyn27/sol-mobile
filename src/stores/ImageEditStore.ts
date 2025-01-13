@@ -34,7 +34,6 @@ export const imageEditStore$ = observable<ImageEditStore>({
       });
       return;
     }
-    console.log("item", item);
     const path = item.path;
     if (!path) {
       addNotification({

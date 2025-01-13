@@ -22,7 +22,7 @@ import { resyncObservables } from "./AppStore";
 import { useEffect } from "react";
 
 export const backgroundImages = ["bg_01", "bg_02", "bg_03", "bg_04", "bg_05", "bg_09"];
-export const START_PAGE_NUM = 5; // Number of pages to load initially per user
+export const START_PAGE_NUM = 30; // Number of pages to load initially per user
 // export const START_PAGE_NUM = 3; // Number of pages to load initially per user
 export const LOAD_MORE_PAGES = 5; // Number of pages to load in each additional batch
 // export const LOAD_MORE_PAGES = 2; // Number of pages to load in each additional batch

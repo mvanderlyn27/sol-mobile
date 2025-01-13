@@ -66,6 +66,14 @@ const TextOverlay = observer(function TextOverlay() {
               className="absolute p-0 m-0"
               style={{
                 width: "100%", // Ensure it spans the full width
+                backgroundColor:
+                  textBackground === null
+                    ? "transparent"
+                    : textBackground === "normal"
+                    ? textBackgroundColor
+                      ? textBackgroundColor
+                      : "transparent"
+                    : textColor,
               }}
               // value={text}
               onChangeText={(newText) => textStore$.text.set(newText)}
@@ -74,6 +82,7 @@ const TextOverlay = observer(function TextOverlay() {
               ref={textInputRef}>
               <Text
                 style={{
+                  width: "100%",
                   fontSize: textSize * appState$.adjustedHeight.get(),
                   color:
                     textBackground === "inversed"
@@ -85,14 +94,6 @@ const TextOverlay = observer(function TextOverlay() {
                   textAlign: textAlign || "left",
                   // lineHeight: textSize * 1.1, // Match line height
                   lineHeight: textSize * appState$.adjustedHeight.get() * 1.1, // Match line height
-                  backgroundColor:
-                    textBackground === null
-                      ? "transparent"
-                      : textBackground === "normal"
-                      ? textBackgroundColor
-                        ? textBackgroundColor
-                        : "transparent"
-                      : textColor,
                 }}>
                 {text}
               </Text>

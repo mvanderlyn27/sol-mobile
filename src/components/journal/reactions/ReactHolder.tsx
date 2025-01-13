@@ -41,8 +41,6 @@ const ReactHolder = observer(function ReactHolder({
       return reaction.items;
     })
     .flat();
-  console.log("my reactions", myReactions);
-  console.log("other reactions", otherReactions);
   return (
     <StyledView
       key={`${pageId}`}
@@ -77,7 +75,7 @@ const ReactHolder = observer(function ReactHolder({
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ type: "timing", duration: 200 }}>
-                  <ReactItem item={reaction} usersReaction={false} />
+                  <ReactItem key={`nonUser-${reaction.id}-${index}`} item={reaction} usersReaction={false} />
                 </MotiView>
               </AnimatePresence>
             );
@@ -88,4 +86,4 @@ const ReactHolder = observer(function ReactHolder({
   );
 });
 
-export default memo(ReactHolder);
+export default ReactHolder;

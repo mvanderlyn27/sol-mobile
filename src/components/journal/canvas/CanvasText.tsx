@@ -148,29 +148,28 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
     }
     return item.fontBackgroundColor ? item.fontBackgroundColor : "transparent";
   };
-
-  console.log("item", item, animatedStyles.transform);
+  const alignContent = () => {
+    switch (item.fontAlign) {
+      case "center":
+        return "center";
+      case "right":
+        return "flex-end";
+      default:
+        return "flex-start";
+    }
+  };
   return (
     <StyledMotiView key={"text-" + item.id} style={[animatedStyles, { position: "absolute", paddingHorizontal: 10 }]}>
       <GestureDetector gesture={composed}>
         <StyledPressable onPress={editMode ? handleEdit : null}>
-          <StyledText
-            style={[
-              animatedText,
-              {
-                fontFamily: item.fontType || "Calibri",
-                textAlign: item.fontAlign || "left",
-                color: item.fontColor,
-              },
-            ]}>
-            {Array.from(item.textContent).map((char, index) => {
-              const isSpace = char === "\n";
+          {/* <StyledMotiView>
+            {Array.from(item.textContent.split("\n")).map((line, index) => {
               return (
                 <StyledText
                   key={index}
                   style={[
+                    animatedText,
                     {
-                      alignSelf: "flex-start",
                       textAlign: item.fontAlign || "left",
                       fontFamily: item.fontType || "Calibri",
                       color:
@@ -179,15 +178,31 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
                           : item.fontBackgroundColor
                           ? item.fontBackgroundColor
                           : "#000",
-                      backgroundColor: getBackgroundColor(isSpace),
-                      paddingVertical: 0,
-                      marginVertical: 0,
+                      backgroundColor: getBackgroundColor(false),
+                      alignSelf: alignContent(),
                     },
                   ]}>
-                  {char}
+                  {line}
                 </StyledText>
               );
             })}
+          </StyledMotiView> */}
+          <StyledText
+            style={[
+              animatedText,
+              {
+                textAlign: item.fontAlign || "left",
+                fontFamily: item.fontType || "Calibri",
+                color:
+                  item.fontBackground !== "inversed"
+                    ? item.fontColor
+                    : item.fontBackgroundColor
+                    ? item.fontBackgroundColor
+                    : "#000",
+                backgroundColor: getBackgroundColor(false),
+              },
+            ]}>
+            {item.textContent}
           </StyledText>
           {/* <StyledText className="absolute bottom-0 left-0 text-xs text-red-500">
             {fontSize.value} {item.fontSize} {adjustedHeight}
@@ -198,4 +213,4 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
   );
 });
 
-export default CanvasTextHolder;
+export default memo(CanvasTextHolder);
