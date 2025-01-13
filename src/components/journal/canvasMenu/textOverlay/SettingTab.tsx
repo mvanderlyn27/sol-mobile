@@ -48,7 +48,7 @@ const SettingsTab = observer(function () {
     setIsColorPickerOpen(true);
   };
   return (
-    <StyledView className="px-4 pt-2">
+    <StyledView className="p-4 ">
       {/* Text Size Slider */}
       {/* <StyledText className="text-lg  mb-2 text-white">
         Text Size: <Text style={{ fontWeight: "bold" }}>{size}px</Text>
@@ -62,7 +62,7 @@ const SettingsTab = observer(function () {
         sliderThickness={5}
         thumbSize={20}
         thumbInnerStyle={{ borderWidth: 2, borderColor: "#e7dbcb" }}>
-        <StyledView className="pt-3 flex-row items-center justify-center">
+        <StyledView className=" flex-row items-center justify-center">
           <StyledView className="flex-none">
             <MenuButton disabled onPress={() => console.log("slider")} buttonType={ButtonType.TextSize} />
           </StyledView>
@@ -85,8 +85,8 @@ const SettingsTab = observer(function () {
           </StyledView>
         </StyledView>
 
-        <StyledView className="flex-col">
-          <StyledView className="py-3 flex-row items-center justify-center">
+        <StyledView className="flex-col pt-2">
+          <StyledView className="flex-row items-center justify-center">
             {/* <StyledView className="flex-none"> */}
             <MenuButton onPress={() => handleColorSliderClick()} buttonType={ButtonType.Sliders} />
             {/* </StyledView> */}
@@ -99,7 +99,7 @@ const SettingsTab = observer(function () {
           </StyledView>
 
           {isColorPickerOpen && (
-            <StyledView className="py-3 flex-row items-center justify-center">
+            <StyledView className=" flex-row items-center justify-center">
               <StyledView className="flex-none" style={{ opacity: 0 }}>
                 <MenuButton disabled onPress={() => {}} buttonType={ButtonType.TextSize} />
               </StyledView>

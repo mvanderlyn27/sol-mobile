@@ -69,7 +69,7 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
             <StyledView className="flex-row px-4 pb-4 ">
               <UserPic userId={groupList[0].user_id} pending={groupList[0].status === "pending"} />
               <UserPic userId={groupList[1].user_id} pending={groupList[1].status === "pending"} />
-              <UserPic number={groupList.length - 3} />
+              <UserPic number={groupList.length - 2} />
             </StyledView>
           )}
         </StyledView>
