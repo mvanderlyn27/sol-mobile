@@ -5,6 +5,8 @@ import { styled } from "nativewind";
 import { AntDesign, MaterialIcons, MaterialCommunityIcons, Feather, Foundation, FontAwesome } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { MotiView } from "moti";
+import { getImageFromPath } from "@/src/assets/images/images";
+import { Image } from "expo-image";
 //<AntDesign name="closecircleo" size={24} color="black" />
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
@@ -63,7 +65,12 @@ export default function MenuButton({
       case "text-background":
         return <StyledFoundation name="background-color" size={24} className={"text-secondary"} />;
       case "sliders":
-        return <StyledAwesome name="sliders" size={24} className={"text-secondary"} />;
+        return (
+          <Image
+            source={getImageFromPath("color_wheel")}
+            style={{ width: 30, height: 30, borderWidth: 2, borderColor: "#e7dbcb", borderRadius: 100 }}
+          />
+        );
       default:
         return null;
     }

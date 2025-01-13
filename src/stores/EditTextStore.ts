@@ -35,7 +35,7 @@ interface TextStore {
 }
 export const textStore$ = observable<TextStore>({
   id: "",
-  size: 0.1,
+  size: 0.05,
   color: "#000",
   font: "Calibri",
   text: "",
@@ -44,7 +44,7 @@ export const textStore$ = observable<TextStore>({
   textBackgroundColor: null,
   reset: () => {
     textStore$.id.set("");
-    textStore$.size.set(0.1);
+    textStore$.size.set(0.05);
     textStore$.color.set("#000");
     textStore$.font.set("Calibri");
     textStore$.text.set("");

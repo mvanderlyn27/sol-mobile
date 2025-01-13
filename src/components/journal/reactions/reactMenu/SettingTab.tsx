@@ -69,7 +69,7 @@ const SettingsTab = observer(function () {
 
           <StyledView className="flex-1">
             <Slider
-              minimumValue={0.02}
+              minimumValue={0.01}
               maximumValue={0.2}
               step={0.001}
               value={size}
@@ -85,53 +85,48 @@ const SettingsTab = observer(function () {
           </StyledView>
         </StyledView>
 
-        <StyledView className="py-3 flex-row items-start justify-center">
-          <StyledView className="flex-none">
+        <StyledView className="flex-col">
+          <StyledView className="py-3 flex-row items-center justify-center">
+            {/* <StyledView className="flex-none"> */}
             <MenuButton onPress={() => handleColorSliderClick()} buttonType={ButtonType.Sliders} />
-          </StyledView>
+            {/* </StyledView> */}
 
-          <StyledView className="flex-1">
             <Swatches
               colors={colorOptions}
-              swatchStyle={{ width: 26, height: 26, borderWidth: 2, borderColor: "#e7dbcb" }}
+              swatchStyle={{ borderWidth: 2, borderColor: "#e7dbcb" }}
               style={{ alignItems: "center" }}
             />
-            <AnimatePresence>
-              {isColorPickerOpen && (
-                <StyledMotiView
-                  className=" pt-2"
-                  from={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ type: "timing", duration: 300 }}>
-                  <StyledView className="py-3">
-                    <HueSlider />
-                  </StyledView>
-                  <StyledView className="py-3">
-                    <BrightnessSlider />
-                  </StyledView>
-                  <StyledView className="py-3">
-                    <SaturationSlider />
-                  </StyledView>
-                </StyledMotiView>
-              )}
-            </AnimatePresence>
           </StyledView>
+
+          {isColorPickerOpen && (
+            <StyledView className="py-3 flex-row items-center justify-center">
+              <StyledView className="flex-none" style={{ opacity: 0 }}>
+                <MenuButton disabled onPress={() => {}} buttonType={ButtonType.TextSize} />
+              </StyledView>
+              <StyledView className="flex-1">
+                <AnimatePresence>
+                  <StyledMotiView
+                    className=" pt-2"
+                    from={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ type: "timing", duration: 300 }}>
+                    <StyledView className="py-3">
+                      <HueSlider />
+                    </StyledView>
+                    <StyledView className="py-3">
+                      <BrightnessSlider />
+                    </StyledView>
+                    <StyledView className="py-3">
+                      <SaturationSlider />
+                    </StyledView>
+                  </StyledMotiView>
+                </AnimatePresence>
+              </StyledView>
+            </StyledView>
+          )}
         </StyledView>
       </ColorPicker>
-      {/* Color Selector */}
-      {/* <StyledView className="flex-row justify-center mt-2">
-        {colorOptions.map((color) => (
-          <StyledTouchableOpacity
-            key={color}
-            onPress={() => handleColorSelect(color)}
-            className={`w-10 h-10 rounded-full m-2 ${
-              color === color ? "border-4 border-secondary" : "border-2 border-secondary"
-            }`}
-            style={{ backgroundColor: color }}
-          />
-        ))}
-      </StyledView> */}
     </StyledView>
   );
 });

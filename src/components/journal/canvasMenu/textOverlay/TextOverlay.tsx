@@ -63,9 +63,9 @@ const TextOverlay = observer(function TextOverlay() {
             style={{ paddingHorizontal: 10 }}>
             {/* Transparent TextInput */}
             <StyledTextInput
-              className="absolute p-0 m-0"
+              className="absolute p-2 m-0"
               style={{
-                width: "100%", // Ensure it spans the full width
+                // width: "100%", // Ensure it spans the full width
                 backgroundColor:
                   textBackground === null
                     ? "transparent"

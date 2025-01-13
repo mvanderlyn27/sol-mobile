@@ -4,6 +4,7 @@ export const BG_03 = require("./backgrounds/BG_Paper_03.jpg");
 export const BG_04 = require("./backgrounds/BG_Paper_04.jpg");
 export const BG_05 = require("./backgrounds/BG_Paper_05.jpg");
 export const BG_09 = require("./backgrounds/BG_Paper_09.jpg");
+export const ColorWheel = require("./icons/color-wheel.png");
 
 export const DefaultAvatar = require("./Default_Avatar.jpg");
 
@@ -22,6 +23,8 @@ export const getImageFromPath = (path: string) => {
       return BG_05;
     case "bg_09":
       return BG_09;
+    case "color_wheel":
+      return ColorWheel;
     case "default_avatar":
       return DefaultAvatar;
     default:

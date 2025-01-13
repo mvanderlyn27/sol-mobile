@@ -188,6 +188,7 @@ const CanvasTextHolder = observer(function CanvasTextHolder({
             })}
           </StyledMotiView> */}
           <StyledText
+            className="p-2"
             style={[
               animatedText,
               {

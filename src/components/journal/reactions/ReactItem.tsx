@@ -174,6 +174,7 @@ const ReactItem = observer(function ReactItem({
             })}
           </StyledMotiView> */}
           <StyledText
+            className="p-2"
             style={[
               animatedText,
               {
