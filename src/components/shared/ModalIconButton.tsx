@@ -33,7 +33,6 @@ export default function ModalIconButton({
   buttonType: ButtonType;
 }) {
   const getIconType = () => {
-    console.log("button type", buttonType);
     switch (buttonType) {
       case "createGroup":
         return <StyledFeather name="plus" size={20} className={`${textColor ?? "text-white"} px-2`} />;

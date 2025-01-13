@@ -38,6 +38,10 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
   const groupMemberList = Object.values(filterGroupMembers(groupMembers$.get(), group.id) || {});
   const pendingMemberList = Object.values(filterPendingGroupMembers(groupMembers$.get(), group.id) || {});
   const groupList = [...groupMemberList, ...pendingMemberList];
+  console.log(
+    "group list",
+    groupList.map((gm) => gm.user_id)
+  );
   return (
     <StyledPressable
       className={`flex-1 flex-col justify-center items-center rounded-xl  ${
@@ -63,9 +67,9 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
             </StyledView>
           ) : (
             <StyledView className="flex-row px-4 pb-4 ">
-              <UserPic userId={groupList[0].id} pending={groupList[0].status === "pending"} />
-              <UserPic userId={groupList[1].id} pending={groupList[1].status === "pending"} />
-              <UserPic number={groupList.length - 1} />
+              <UserPic userId={groupList[0].user_id} pending={groupList[0].status === "pending"} />
+              <UserPic userId={groupList[1].user_id} pending={groupList[1].status === "pending"} />
+              <UserPic number={groupList.length - 3} />
             </StyledView>
           )}
         </StyledView>
