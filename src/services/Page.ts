@@ -282,17 +282,18 @@ export const handleSave = async () => {
   const { error } = await uploadImages();
   if (error) {
     console.log("error", error);
+    posthog.capture("page-save-error", { error });
+    pageStore$.saving.set(false);
     addNotification({
       id: generateId(),
       type: NotificationType.error,
       message: "Failed to save, please try again",
     });
-    posthog.capture("page-save-error", { error });
     return;
   }
   console.log("saving for page: ", pageId);
   if (!pageId) {
-    console.log("creaitng new page");
+    console.log("creating new page");
     pageId = generateId();
     canvasStore$.canvas.id.set(pageId);
     const page = {
