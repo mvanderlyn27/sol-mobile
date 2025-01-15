@@ -39,13 +39,13 @@ export default function MenuButton({
           <StyledMaterial name="text-fields" size={24} className={selected ? "text-darkPrimary" : "text-secondary"} />
         );
       case "save":
-        return <StyledMaterialCommunity name="content-save-outline" size={24} className="text-primary" />;
+        return <StyledMaterialCommunity name="content-save-outline" size={34} className="text-primary" />;
       case "image":
         return <StyledFeather name="image" size={24} className={selected ? "text-darkPrimary" : "text-secondary"} />;
       case "template":
         return <StyledFeather name="layout" size={24} className={selected ? "text-darkPrimary" : "text-secondary"} />;
       case "x":
-        return <StyledAnt name="closecircleo" size={24} className="text-red-500" />;
+        return <StyledAnt name="closecircleo" size={30} className="text-red-500" />;
       case "sticker":
         return <StyledAnt name="smile-circle" size={24} className="text-secondary" />;
       case "background":
