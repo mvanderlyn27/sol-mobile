@@ -19,9 +19,9 @@ export const unstable_settings = {
 
 const Layout = observer(function Layout() {
   // useAppStateListener();
-  initializeProfileRealtimeUpdates();
-  initializeGroupRealtimeUpdates();
-  initializeGroupMemberRealtimeUpdates();
+  // initializeProfileRealtimeUpdates();
+  // initializeGroupRealtimeUpdates();
+  // initializeGroupMemberRealtimeUpdates();
   useMount(async () => {
     const curId = authStore$.session.user.id.get();
     profiles$.onChange(async () => {

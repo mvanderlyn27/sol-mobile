@@ -14,6 +14,14 @@ export const profiles$ = observable(
   customSupabaseSynced({
     supabase,
     collection: "profiles",
+    realtime: true,
+    persist: {
+      name: `profiles-${process.env.APP_VARIANT}`,
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
     select: (from) => from.select("*"),
   })
 );

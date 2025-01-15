@@ -161,7 +161,7 @@ export const removeMember = (groupId: string, userId: string) => {
 export const checkAdmin = (groupId: string, userId: string) => {
   const id = getMember(groupId, userId);
   if (!id) {
-    posthog.capture("check-admin-error", { error: "user not found" });
+    posthog.capture("check-admin-error", { error: "user not found " + userId });
     console.log("user not found");
     return;
   }

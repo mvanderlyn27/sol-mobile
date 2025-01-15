@@ -40,7 +40,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
       }`}
       style={{ flex: 1 }}>
       <CanvasHolder pageId={page?.id} editMode={editMode} active={active} />
-      <ReactHolder pageId={page?.id} editMode={reactEditMode} />
+      {active && <ReactHolder pageId={page?.id} editMode={reactEditMode} />}
     </View>
     // </Memo>
   );

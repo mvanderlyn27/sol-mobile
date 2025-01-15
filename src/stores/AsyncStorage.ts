@@ -16,16 +16,16 @@ export const persistOptions = configureSynced({
 });
 export const customSupabaseSynced = configureSynced(syncedSupabase, {
   // Use React Native Async Storage
-  // persist: {
-  //   plugin: observablePersistAsyncStorage({
-  //     AsyncStorage,
-  //   }),
-  // },
+  persist: {
+    plugin: observablePersistAsyncStorage({
+      AsyncStorage,
+    }),
+  },
   actions: ["read", "create", "update", "delete"],
   generateId,
   supabase,
-  // changesSince: "last-sync",
+  changesSince: "last-sync",
   fieldCreatedAt: "created_at",
   fieldUpdatedAt: "updated_at",
-  // fieldDeleted: "deleted",
+  fieldDeleted: "deleted",
 });

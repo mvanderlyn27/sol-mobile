@@ -53,6 +53,15 @@ export const pages$ = observable(
   customSupabaseSynced({
     supabase,
     collection: "pages",
+    realtime: true,
+    persist: {
+      name: `pages-${process.env.APP_VARIANT}`,
+      retrySync: true, // Persist pending changes and retry
+    },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
+
     select: (from) => {
       const selectedGroup = groupStore$.selectedGroup.get();
       if (!selectedGroup) {
