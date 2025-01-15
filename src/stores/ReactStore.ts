@@ -13,6 +13,15 @@ export const reactions$ = observable(
   customSupabaseSynced({
     supabase,
     collection: "reactions",
+    // realtime: true,
+    // persist: {
+    //   name: `reactions-${process.env.APP_VARIANT}`,
+    //   retrySync: true, // Persist pending changes and retry
+    // },
+    retry: {
+      infinite: true, // Retry changes with exponential backoff
+    },
+
     select: (from: any) =>
       from.select("*").in(
         "page_id",

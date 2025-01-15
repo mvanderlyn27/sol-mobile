@@ -99,31 +99,37 @@ export async function loadMorePages() {
 export async function useInitializePageRealtimeUpdates() {
   useEffect(() => {
     const subscription = supabase
-      .channel("realtime-pages")
-      .on("postgres_changes", { event: "*", schema: "public", table: "pages" }, (payload) => {
-        if (payload.eventType === "DELETE") {
-          const deletedPageId = payload.old.id;
-          pages$[deletedPageId].delete();
-        } else {
-          if (payload.new.group_id !== groupStore$.selectedGroup.get()) return;
-          // const cur = pages$.peek()?.[payload.new.id];
-          // let lastSync = undefined;
-          // const curDateStr = cur && (cur.updated_at || cur.created_at);
-          // const valueDateStr = payload.new.updated_at || payload.new.created_at;
-          // lastSync = +new Date(valueDateStr);
-          // let isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
-          // console.log("is ok to update? :", isOk, lastSync, curDateStr, valueDateStr);
+      .channel("pages")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          table: "pages",
+          schema: "public",
+          // filter: filter || undefined,
+        },
+        (payload) => {
+          console.log("realtime update pages", payload);
+          const { eventType, new: value, old } = payload;
+          if (eventType === "INSERT" || eventType === "UPDATE") {
+            const cur = pages$.peek()?.[value.id];
+            let isOk = false;
+            let lastSync = undefined;
+            if (!isOk) {
+              const curDateStr = cur && (cur["updated_at"] || cur["created_at"]);
+              const valueDateStr = (true && value["updated_at"]) || (true && value["created_at"]);
+              lastSync = +new Date(valueDateStr);
 
-          //test right now to see if we have new values to canvas
-          const isOk = JSON.stringify(pages$.peek()[payload.new.id]?.canvas) !== JSON.stringify(payload.new.canvas);
-          if (isOk) {
-            const newPage: Page = payload.new as Page;
-            // console.log("updating pages!", pages$[newPage.id].canvas.get() as Canvas);
-            console.log("updating pages!", pages$[newPage.id].updated_at.get());
-            pages$[newPage.id].set(newPage);
+              isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
+            }
+            if (isOk) {
+              pages$[value.id].set(value as Page);
+            }
+          } else if (eventType === "DELETE") {
+            pages$[old.id].delete();
           }
         }
-      })
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(subscription);

@@ -15,45 +15,36 @@ export const initializeReactStore = () => {};
 export const useInitializeReactRealtimeListeners = () => {
   useEffect(() => {
     const subscription = supabase
-      .channel("realtime-reactions")
-      .on("postgres_changes", { event: "*", schema: "public", table: "reactions" }, (payload) => {
-        console.log("recieved real time reaction update!");
-        if (payload.eventType === "DELETE") {
-          const deletedReactionId = payload.old.id;
-          reactions$[deletedReactionId].delete();
-        } else {
-          //check if reaction is in current pages
-          if (
-            pages$[payload.new.page_id]?.group_id.get() !== groupStore$.selectedGroup.get() ||
-            !pageStore$.dates
-              .get()
-              .map((d) => d.date)
-              .includes(pages$[payload.new.page_id].date.get())
-          ) {
-            console.log("reaction not in current page");
-            return;
-          }
-          // const cur = reactions$.peek()?.[payload.new.id];
-          // let lastSync = undefined;
-          // const curDateStr = cur && (cur.updated_at || cur.created_at);
-          // const valueDateStr = payload.new.updated_at || payload.new.created_at;
-          // lastSync = +new Date(valueDateStr);
-          // let isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
-          const isOk =
-            JSON.stringify(payload.new.reaction) !== JSON.stringify(reactions$.peek()[payload.new.id]?.reaction);
-          console.log(
-            "reaction changed",
-            JSON.stringify(payload.new.reaction),
-            JSON.stringify(reactions$.peek()[payload.new.id]?.reaction),
-            isOk
-          );
-          if (isOk) {
-            const newReaction: Reaction = payload.new as Reaction;
-            reactions$[newReaction.id].set(newReaction);
-            console.log("new reaction updated");
+      .channel("reactions")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          table: "reactions",
+          schema: "public",
+          // filter: filter || undefined,
+        },
+        (payload) => {
+          console.log("realtime update reactions", payload);
+          const { eventType, new: value, old } = payload;
+          if (eventType === "INSERT" || eventType === "UPDATE") {
+            const cur = reactions$.peek()?.[value.id];
+            let isOk = false;
+            let lastSync = undefined;
+            if (!isOk) {
+              const curDateStr = cur && (cur["updated_at"] || cur["created_at"]);
+              const valueDateStr = (true && value["updated_at"]) || (true && value["created_at"]);
+              lastSync = +new Date(valueDateStr);
+              isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
+            }
+            if (isOk) {
+              reactions$[value.id].set(value as Reaction);
+            }
+          } else if (eventType === "DELETE") {
+            reactions$[old.id].delete();
           }
         }
-      })
+      )
       .subscribe();
 
     // Cleanup function to unsubscribe

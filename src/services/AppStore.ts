@@ -9,6 +9,10 @@ import { posthog } from "./Posthog";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import authStore$ from "../stores/AuthStore";
 import { signOut } from "./Auth";
+import { reactions$ } from "../stores/ReactStore";
+import { addNotification } from "../stores/NotificationStore";
+import { NotificationType } from "../types/shared.types";
+import { generateId } from "../stores/AsyncStorage";
 const { height, width } = Dimensions.get("window");
 interface AppStore {
   adjustedWidth: number;
@@ -30,42 +34,16 @@ export const initAppDimensions = () => {
   }
 };
 export const clearLocalPersist = async () => {
-  // // const pageItemsState$ = syncState(pageItems$);
-  // // const textItemsState$ = syncState(textItems$);
-  // const clearProfiles = syncState(profiles$).clearPersist();
-  // const clearGroups = syncState(groups$).clearPersist();
-  // const clearGroupMembers = syncState(groupMembers$).clearPersist();
-  // // const imagesState$ = syncState(images$);
-  // // const reactionItemsState$ = syncState(reactionItems$);
-  // // const reactionTextItemsState$ = syncState(reactionTextItems$);
-  // console.log("info", clearProfiles);
-  // await Promise.all([clearGroupMembers, clearProfiles, clearGroups]);
   AsyncStorage.clear();
   signOut();
 };
 export const resyncObservables = async () => {
   console.log("resyncing observables");
   const pagesState$ = syncState(pages$);
-  // const pageItemsState$ = syncState(pageItems$);
-  // const textItemsState$ = syncState(textItems$);
-  const profilesState$ = syncState(profiles$);
-  const groupsState$ = syncState(groups$);
-  const groupMembersState$ = syncState(groupMembers$);
-  // const imagesState$ = syncState(images$);
-  // const reactionItemsState$ = syncState(reactionItems$);
-  // const reactionTextItemsState$ = syncState(reactionTextItems$);
 
-  await Promise.all([
-    pagesState$.sync(),
-    // pageItemsState$.sync(),
-    // textItemsState$.sync(),
-    profilesState$.sync(),
-    groupsState$.sync(),
-    groupMembersState$.sync(),
-    // imagesState$.sync(),
-    // reactionItemsState$.sync(),
-    // reactionTextItemsState$.sync(),
-  ]);
+  const reactionsState$ = syncState(reactions$);
+
+  await Promise.all([pagesState$.sync(), reactionsState$.sync()]);
 };
 
 export const setupAppStateListener = () => {
@@ -78,6 +56,11 @@ export const setupAppStateListener = () => {
           //   console.log("Observables resynced successfully");
         } catch (error) {
           posthog.capture("appstate-listener-failed", { message: error });
+          addNotification({
+            id: generateId(),
+            type: NotificationType.error,
+            message: "Failed to data is stale, please restart app",
+          });
           console.error("Failed to resync observables:", error);
         }
       }

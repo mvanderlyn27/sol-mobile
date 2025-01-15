@@ -26,6 +26,14 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     name,
     created_by: session?.user.id,
   });
+  const newGroupMemberId = generateId();
+  groupMembers$[newGroupMemberId].set({
+    id: newGroupMemberId,
+    group_id: id,
+    user_id: session?.user.id,
+    role: "admin",
+    status: "completed",
+  } as GroupMember);
 
   //upload image after we create new component for rls policies to work
   const base64 = await FileSystem.readAsStringAsync(cover_uri, { encoding: "base64" });
@@ -161,7 +169,7 @@ export const removeMember = (groupId: string, userId: string) => {
 export const checkAdmin = (groupId: string, userId: string) => {
   const id = getMember(groupId, userId);
   if (!id) {
-    posthog.capture("check-admin-error", { error: "user not found" });
+    posthog.capture("check-admin-error", { error: "user not found " + userId });
     console.log("user not found");
     return;
   }
