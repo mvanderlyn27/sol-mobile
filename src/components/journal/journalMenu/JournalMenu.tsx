@@ -50,7 +50,7 @@ const JournalMenu = observer(function JournalMenu() {
   const [showCancelDrawer, setShowCancelDrawer] = useState<boolean>(false);
   const members = pageStore$.members.get();
   const row = pageStore$.curRow.get();
-  const userId = members[row].user_id;
+  const userId = members[row]?.user_id;
   return (
     <StyledView className="flex-1" pointerEvents={"box-none"}>
       <StyledMotiView

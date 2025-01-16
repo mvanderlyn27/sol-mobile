@@ -6,7 +6,7 @@ import { pageStore$, pages$ } from "../stores/PagesStore";
 import { reactions$, reactStore$ } from "../stores/ReactStore";
 import { uiStore$ } from "../stores/UIStore";
 import { CanvasReaction, CanvasReactionItem, Json, NotificationType, Reaction } from "../types/shared.types";
-import { max } from "lodash";
+import { isEqual, max } from "lodash";
 import { getPageForUser } from "./Page";
 import { supabase } from "../lib/supabase";
 import { useEffect } from "react";
@@ -29,15 +29,23 @@ export const useInitializeReactRealtimeListeners = () => {
           const { eventType, new: value, old } = payload;
           if (eventType === "INSERT" || eventType === "UPDATE") {
             const cur = reactions$.peek()?.[value.id];
+            if (cur && isEqual(value.reaction, cur?.reaction)) {
+              console.log("No reaction changes detected, skipping update");
+              return;
+            }
             let isOk = false;
             let lastSync = undefined;
             if (!isOk) {
               const curDateStr = cur && (cur["updated_at"] || cur["created_at"]);
               const valueDateStr = (true && value["updated_at"]) || (true && value["created_at"]);
               lastSync = +new Date(valueDateStr);
-              isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
+              isOk =
+                valueDateStr &&
+                (!curDateStr || lastSync > +new Date(curDateStr)) &&
+                JSON.stringify(value.reaction) !== JSON.stringify(cur?.reaction);
             }
             if (isOk) {
+              console.log("updating reaction from realtime");
               reactions$[value.id].set(value as Reaction);
             }
           } else if (eventType === "DELETE") {

@@ -1,6 +1,6 @@
 import { batch, beginBatch, endBatch, observable, Observable, when } from "@legendapp/state";
 import { differenceInCalendarDays, startOfToday, subDays, eachDayOfInterval, format, addDays } from "date-fns";
-import { max } from "lodash";
+import { isEqual, max } from "lodash";
 import { Blurhash } from "react-native-blurhash";
 import StorageService from "../api/storage";
 import { supabase } from "../lib/supabase";
@@ -39,10 +39,11 @@ export const getPageForUser = (pages: Record<string, Page>, curUser: string, dat
  * Initialize the group members and pages for a specific group.
  */
 export async function initializePageStore(user?: string, day?: string) {
-  // await resyncObservables();
   await when(pages$);
+  await when(groupMembers$);
   loadGroupMembers(user);
   await loadInitialPages(day);
+  uiStore$.displayJournalMenu.set(true);
 }
 
 /**
@@ -57,6 +58,7 @@ function loadGroupMembers(user?: string) {
     if (b.user_id === currentUserId) return 1; // Keep the logged-in user at the top
     return 0; // Leave the order unchanged for others
   });
+  console.log("loading group members", users, groupMembers$.get(), groupStore$.selectedGroup.get());
   const userIds = users.map((user) => user.user_id);
   if (user && userIds.includes(user)) {
     const userIndex = userIds.indexOf(user);
@@ -109,10 +111,13 @@ export async function useInitializePageRealtimeUpdates() {
           // filter: filter || undefined,
         },
         (payload) => {
-          console.log("realtime update pages", payload);
           const { eventType, new: value, old } = payload;
           if (eventType === "INSERT" || eventType === "UPDATE") {
             const cur = pages$.peek()?.[value.id];
+            if (cur && isEqual(value.canvas, cur?.canvas)) {
+              console.log("No canvas changes detected, skipping update");
+              return;
+            }
             let isOk = false;
             let lastSync = undefined;
             if (!isOk) {
@@ -123,6 +128,7 @@ export async function useInitializePageRealtimeUpdates() {
               isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
             }
             if (isOk) {
+              console.log("setting value from realtime update");
               pages$[value.id].set(value as Page);
             }
           } else if (eventType === "DELETE") {

@@ -4,7 +4,7 @@ export const uiStore$ = observable({
   displayNavigationBar: false,
   displayCanvasMenu: false,
   displayQuickActionsOverlay: false,
-  displayJournalMenu: true,
+  displayJournalMenu: false,
   displayImageEditOverlay: false,
   displaySideBar: false,
   displayReactMenu: false,

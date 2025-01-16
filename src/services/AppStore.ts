@@ -1,4 +1,4 @@
-import { observable, syncState } from "@legendapp/state";
+import { observable, syncState, when } from "@legendapp/state";
 import { pages$ } from "../stores/PagesStore";
 import { groupStore$, groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";

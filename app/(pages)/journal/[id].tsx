@@ -4,18 +4,18 @@ import { resyncObservables } from "@/src/services/AppStore";
 import { initializePageStore, useInitializePageRealtimeUpdates } from "@/src/services/Page";
 import { initializeReactStore, useInitializeReactRealtimeListeners } from "@/src/services/Reaction";
 import { groupStore$ } from "@/src/stores/GroupStore";
+import { groupMembers$ } from "@/src/stores/MemberStore";
 import { pageStore$, pages$ } from "@/src/stores/PagesStore";
 import { reactStore$ } from "@/src/stores/ReactStore";
-import { beginBatch, endBatch, syncState } from "@legendapp/state";
+import { beginBatch, endBatch, syncState, when } from "@legendapp/state";
 import { observer, useMount, useMountOnce } from "@legendapp/state/react";
 import { useLocalSearchParams } from "expo-router";
 
 const Journal = observer(function Journal() {
   const { id, user, date } = useLocalSearchParams<{ id: string; user?: string; date?: string }>();
   // Extract parameters from URL
-  // useInitializePageRealtimeUpdates();
-  // useInitializeReactRealtimeListeners();
   useMount(async () => {
+    console.log("mounting journal");
     pageStore$.ready.set(false);
     groupStore$.selectedGroup.set(id);
     await resyncObservables();
