@@ -99,7 +99,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
   );
 });
 // });
-// Outer parent component with PagerView
+// Outer paent component with PagerView
 const Canvas2DScroller = observer(() => {
   const listRef = useRef<FlatList>(null);
   // const onViewableItemsChanged = debounce(({ viewableItems }) => {
@@ -118,6 +118,8 @@ const Canvas2DScroller = observer(() => {
   const handleEndReached = async () => {
     await loadMorePages();
   };
+
+  // console.log("test data", test$.get());
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <BlurView

@@ -141,7 +141,6 @@ const ReactItem = observer(function ReactItem({
   };
   return (
     <StyledMotiView
-      key={"text-" + item.id}
       style={[animatedStyles, { position: "absolute", paddingHorizontal: 10 }]}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}

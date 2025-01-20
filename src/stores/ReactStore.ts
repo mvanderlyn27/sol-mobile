@@ -9,33 +9,34 @@ import { groupStore$ } from "./GroupStore";
 import { CanvasReaction, Reaction } from "../types/shared.types";
 
 //@ts-ignore
-export const reactions$ = observable(
-  customSupabaseSynced({
-    supabase,
-    collection: "reactions",
-    // realtime: true,
-    // persist: {
-    //   name: `reactions-${process.env.APP_VARIANT}`,
-    //   retrySync: true, // Persist pending changes and retry
-    // },
-    retry: {
-      infinite: true, // Retry changes with exponential backoff
-    },
+// export const reactions$ = observable(
+//   customSupabaseSynced({
+//     supabase,
+//     collection: "reactions",
+//     // realtime: true,
+//     // persist: {
+//     //   name: `reactions-${process.env.APP_VARIANT}`,
+//     //   retrySync: true, // Persist pending changes and retry
+//     // },
+//     retry: {
+//       infinite: true, // Retry changes with exponential backoff
+//     },
 
-    select: (from: any) =>
-      from.select("*").in(
-        "page_id",
-        Object.values(pages$.get()).map((p) => p.id)
-      ),
-    waitForSet: ({ value }: WaitForSetCrudFnParams<Reaction>) => {
-      return pages$[value.page_id].created_at;
-    },
-    onError: (error: any) => {
-      console.log("page reaction error", error);
-      posthog.capture("page-reaction-sync-error", { error });
-    },
-  })
-);
+//     select: (from: any) =>
+//       from.select("*").in(
+//         "page_id",
+//         Object.values(pages$.get()).map((p) => p.id)
+//       ),
+//     waitForSet: ({ value }: WaitForSetCrudFnParams<Reaction>) => {
+//       return pages$[value.page_id].created_at;
+//     },
+//     onError: (error: any) => {
+//       console.log("page reaction error", error);
+//       posthog.capture("page-reaction-sync-error", { error });
+//     },
+//   })
+// );
+export const reactions$ = observable<Record<string, Reaction>>();
 
 interface ReactStore {
   showReactions: boolean;

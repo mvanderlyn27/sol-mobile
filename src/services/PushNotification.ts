@@ -149,3 +149,18 @@ async function cancelDailyReminder() {
     type: NotificationType.info,
   });
 }
+// setup for realtime push notifications while app is open
+// async subscribeToRealtimeUpdates() {
+//   const subscription = supabase
+//     .channel('reactions')
+//     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reactions' }, (payload) => {
+//       console.log('New reaction received:', payload);
+//     })
+//     .subscribe();
+//   return subscription;
+// },
+
+// async sendPushNotification(userId, message) {
+//   // Use Expo Notifications or a similar service
+//   await ExpoNotifications.sendNotification(userId, message);
+// },

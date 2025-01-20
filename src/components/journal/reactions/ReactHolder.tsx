@@ -2,10 +2,11 @@ import { Show, observer } from "@legendapp/state/react";
 import ReactItem from "./ReactItem";
 import { CanvasReaction, CanvasTextReaction } from "@/src/types/shared.types";
 import { styled } from "nativewind";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { AnimatePresence, MotiView, View } from "moti";
 import authStore$ from "@/src/stores/AuthStore";
 import { reactStore$, reactions$ } from "@/src/stores/ReactStore";
+import { generateJsonHash } from "@/src/utils/crypto";
 
 const StyledView = styled(View);
 
@@ -41,17 +42,17 @@ const ReactHolder = observer(function ReactHolder({
       return reaction.items;
     })
     .flat();
+  // const key = useMemo(() => generateJsonHash([myReactions, ...otherReactions]), [myReactions, otherReactions]);
+  // console.log("keys", key);
   return (
-    <StyledView
-      key={`${pageId}`}
-      className="absolute top-0 right-0 left-0 bottom-0 bg-transparent"
-      pointerEvents="box-none">
+    <StyledView className="absolute top-0 right-0 left-0 bottom-0 bg-transparent" pointerEvents="box-none">
       {myReactions?.items.map((reaction, index) => {
         if (!reaction) return null;
+        const key = useMemo(() => generateJsonHash(reaction), [reaction]);
         switch (reaction.type) {
           case "text": {
             return (
-              <AnimatePresence key={`nonUser-${reaction.id}-${index}`}>
+              <AnimatePresence key={key}>
                 <MotiView
                   from={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -66,10 +67,11 @@ const ReactHolder = observer(function ReactHolder({
       })}
       {otherReactions.map((reaction, index) => {
         if (!reaction) return null;
+        const key = useMemo(() => generateJsonHash(reaction), [reaction]);
         switch (reaction.type) {
           case "text": {
             return (
-              <AnimatePresence key={`nonUser-${reaction.id}-${index}`}>
+              <AnimatePresence key={key}>
                 <MotiView
                   from={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

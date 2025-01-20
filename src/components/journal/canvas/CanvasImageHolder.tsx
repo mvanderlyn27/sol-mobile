@@ -53,11 +53,13 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
     rotation.value = item.rotation;
   }, [item, adjustedWidth, adjustedHeight]);
 
-  const animatedFrameGroupStyles = useAnimatedStyle(() => ({
-    width: width.value,
-    height: height.value,
-    transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
-  }));
+  const animatedFrameGroupStyles = useAnimatedStyle(() => {
+    return {
+      width: width.value,
+      height: height.value,
+      transform: [{ translateX: offset.value.x }, { translateY: offset.value.y }, { rotateZ: `${rotation.value}rad` }],
+    };
+  });
 
   const handleGestureStart = () => {
     if (!pageStore$.editMode) return;
@@ -130,26 +132,24 @@ const CanvasImageHolder = observer(function CanvasImageHolder({
 
   return (
     <GestureDetector gesture={composed}>
-      <AnimatePresence>
-        <StyledMotiView
-          style={[
-            {
-              position: "absolute",
-              zIndex: item.z,
-            },
-            animatedFrameGroupStyles,
-          ]}>
-          <StyledPressable onPress={editMode ? handleEdit : null}>
-            <StyledImage
-              priority={active ? "high" : "low"}
-              source={{ uri: item.path }}
-              placeholder={{ blurhash: item.placeholder }}
-              style={{ width: "100%", height: "100%" }}
-              contentFit="cover"
-            />
-          </StyledPressable>
-        </StyledMotiView>
-      </AnimatePresence>
+      <StyledMotiView
+        style={[
+          {
+            position: "absolute",
+            zIndex: item.z,
+          },
+          animatedFrameGroupStyles,
+        ]}>
+        <StyledPressable onPress={editMode ? handleEdit : null}>
+          <StyledImage
+            priority={active ? "high" : "low"}
+            source={{ uri: item.path }}
+            placeholder={{ blurhash: item.placeholder }}
+            style={{ width: "100%", height: "100%" }}
+            contentFit="cover"
+          />
+        </StyledPressable>
+      </StyledMotiView>
     </GestureDetector>
   );
 });

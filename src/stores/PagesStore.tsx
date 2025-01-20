@@ -142,42 +142,42 @@ export const pageStore$ = observable<PageStore>({
 // const groupId = "4b381455-be80-45e1-96e9-03ea15450ad8";
 
 // generatePages(createdByArray, datesArray, groupId);
-export const pages$ = observable(
-  customSupabaseSynced({
-    supabase,
-    collection: "pages",
-    // realtime: true,
-    // persist: {
-    //   name: `pages-${process.env.APP_VARIANT}`,
-    //   retrySync: true, // Persist pending changes and retry
-    // },
-    retry: {
-      infinite: true, // Retry changes with exponential backoff
-    },
+// export const pages$ = observable(
+//   customSupabaseSynced({
+//     supabase,
+//     collection: "pages",
+//     // realtime: true,
+//     // persist: {
+//     //   name: `pages-${process.env.APP_VARIANT}`,
+//     //   retrySync: true, // Persist pending changes and retry
+//     // },
+//     retry: {
+//       infinite: true, // Retry changes with exponential backoff
+//     },
 
-    // select: (from) => {
-    //   const selectedGroup = groupStore$.selectedGroup.get();
-    //   if (!selectedGroup) {
-    //     return from.select().limit(0);
-    //   }
+//     // select: (from) => {
+//     //   const selectedGroup = groupStore$.selectedGroup.get();
+//     //   if (!selectedGroup) {
+//     //     return from.select().limit(0);
+//     //   }
 
-    //   const dates = pageStore$.dates.get();
-    //   if (!dates || !dates.length) {
-    //     console.log("no date selected");
-    //     return from.select().limit(0);
-    //   }
-    //   return from
-    //     .select("*")
-    //     .eq("group_id", selectedGroup)
-    //     .lte("date", dates[0].date)
-    //     .gte("date", dates[dates.length - 1].date);
-    // },
-    // waitFor: [groupStore$.selectedGroup.get(), pageStore$.dates.get()],
-    onError: (error) => {
-      console.log("pages error", error);
-    },
-  })
-);
+//     //   const dates = pageStore$.dates.get();
+//     //   if (!dates || !dates.length) {
+//     //     console.log("no date selected");
+//     //     return from.select().limit(0);
+//     //   }
+//     //   return from
+//     //     .select("*")
+//     //     .eq("group_id", selectedGroup)
+//     //     .lte("date", dates[0].date)
+//     //     .gte("date", dates[dates.length - 1].date);
+//     // },
+//     // waitFor: [groupStore$.selectedGroup.get(), pageStore$.dates.get()],
+//     onError: (error) => {
+//       console.log("pages error", error);
+//     },
+//   })
+// );
 
 interface CanvasStore {
   canvas: Canvas | null;
@@ -185,3 +185,4 @@ interface CanvasStore {
 export const canvasStore$ = observable<CanvasStore>({
   canvas: null,
 });
+export const pages$ = observable<Record<string, Page>>();

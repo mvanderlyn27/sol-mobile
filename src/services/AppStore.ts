@@ -13,6 +13,7 @@ import { reactions$ } from "../stores/ReactStore";
 import { addNotification } from "../stores/NotificationStore";
 import { NotificationType } from "../types/shared.types";
 import { generateId } from "../stores/AsyncStorage";
+import { SyncService } from "./SyncService";
 const { height, width } = Dimensions.get("window");
 interface AppStore {
   adjustedWidth: number;
@@ -39,11 +40,13 @@ export const clearLocalPersist = async () => {
 };
 export const resyncObservables = async () => {
   console.log("resyncing observables");
-  const pagesState$ = syncState(pages$);
+  // const pagesState$ = syncState(pages$);
 
-  const reactionsState$ = syncState(reactions$);
+  // const reactionsState$ = syncState(reactions$);
+  const syncPages = SyncService.syncData("pages");
+  const syncReactions = SyncService.syncData("reactions");
 
-  await Promise.all([pagesState$.sync(), reactionsState$.sync()]);
+  await Promise.all([syncPages, syncReactions]);
 };
 
 export const setupAppStateListener = () => {

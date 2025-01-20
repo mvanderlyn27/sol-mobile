@@ -1,6 +1,6 @@
 import { styled } from "nativewind";
 import { AnimatePresence, MotiView } from "moti";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Dimensions, Text, View } from "react-native";
 import { Canvas, CanvasImage, CanvasText, CanvasItem, Image, Page } from "@/src/types/shared.types";
 import { Image as ExpoImage } from "expo-image";
@@ -15,6 +15,7 @@ import LoadingScreen from "../../screens/SplashScreen";
 import { Skeleton } from "moti/skeleton";
 import { posthog } from "@/src/services/Posthog";
 import authStore$ from "@/src/stores/AuthStore";
+import { generateJsonHash } from "@/src/utils/crypto";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
@@ -29,13 +30,16 @@ export const CanvasHolder = observer(function CanvasHolder({
   editMode: boolean;
   active: boolean;
 }) {
-  const page$ = pages$[pageId || ""];
+  const page$ = pages$[pageId || ""] || {};
+  // console.log("pageId", pageId, page$.get());
+  const updated_at = page$.updated_at.get();
   const canvas: Observable<Canvas | null> = !editMode ? observable(page$.canvas.get() as Canvas) : canvasStore$.canvas;
-  // if (active) {
-  //   console.log("canvas items", editMode, active, canvas.items.get());
-  // }
+  if (active) {
+    console.log("canvas items", editMode, active, canvas.items.get());
+  }
+  const key = useMemo(() => generateJsonHash(canvas.get() || {}), [canvas.get()]);
   return (
-    <StyledMotiView key={`${editMode ? "edit-" : ""}canvas-${pageId}`} className="flex-1">
+    <StyledMotiView key={`${editMode ? "edit-" : ""}${key}`} className="flex-1">
       <ExpoImage
         priority={active ? "high" : "low"}
         key="backgroundImage"

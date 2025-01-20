@@ -12,16 +12,12 @@ import { clearLocalPersist, resyncObservables } from "@/src/services/AppStore";
 import { supabase } from "@/src/lib/supabase";
 import { initializeProfileRealtimeUpdates } from "@/src/services/Profile";
 import { initializeGroupMemberRealtimeUpdates, initializeGroupRealtimeUpdates } from "@/src/services/Group";
-import { useInitializePageRealtimeUpdates } from "@/src/services/Page";
-import { useInitializeReactRealtimeListeners } from "@/src/services/Reaction";
 
 export const unstable_settings = {
   initialRouteName: "home",
 };
 
 const Layout = observer(function Layout() {
-  useInitializePageRealtimeUpdates();
-  useInitializeReactRealtimeListeners();
   useMount(async () => {
     const curId = authStore$.session.user.id.get();
     profiles$.onChange(async () => {

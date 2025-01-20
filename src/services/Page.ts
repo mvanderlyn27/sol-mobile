@@ -30,9 +30,11 @@ const { width, height } = Dimensions.get("window");
 
 export const getPageForUser = (pages: Record<string, Page>, curUser: string, date: string): Page | undefined => {
   const groupId = groupStore$.selectedGroup.get();
+  // console.log("getting page for user", curUser, date, groupId);
   const out = Object.values(pages || {}).find((page: Page) => {
     return page.created_by === curUser && page.date === date && page.group_id === groupId;
   });
+  // console.log("out", out);
   return out;
 };
 /**
@@ -58,7 +60,6 @@ function loadGroupMembers(user?: string) {
     if (b.user_id === currentUserId) return 1; // Keep the logged-in user at the top
     return 0; // Leave the order unchanged for others
   });
-  console.log("loading group members", users, groupMembers$.get(), groupStore$.selectedGroup.get());
   const userIds = users.map((user) => user.user_id);
   if (user && userIds.includes(user)) {
     const userIndex = userIds.indexOf(user);
@@ -266,7 +267,7 @@ export const handleEdit = () => {
   */
   const curUser = pageStore$.members[pageStore$.curRow.get()].user_id.get();
   const curDate = pageStore$.dates[pageStore$.curCol.get()].date.get();
-  const page = getPageForUser(pages$.get(), curUser, curDate);
+  const page = getPageForUser(pages$.get() as Record<string, Page>, curUser, curDate);
   const canvas = page?.canvas;
   console.log("canvas for edit", page?.canvas);
   if (!canvas) {
