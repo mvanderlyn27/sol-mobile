@@ -48,11 +48,11 @@ const ReactHolder = observer(function ReactHolder({
     <StyledView className="absolute top-0 right-0 left-0 bottom-0 bg-transparent" pointerEvents="box-none">
       {myReactions?.items.map((reaction, index) => {
         if (!reaction) return null;
-        const key = useMemo(() => generateJsonHash(reaction), [reaction]);
+        // const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
         switch (reaction.type) {
           case "text": {
             return (
-              <AnimatePresence key={key}>
+              <AnimatePresence key={`${index}`}>
                 <MotiView
                   from={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -67,7 +67,7 @@ const ReactHolder = observer(function ReactHolder({
       })}
       {otherReactions.map((reaction, index) => {
         if (!reaction) return null;
-        const key = useMemo(() => generateJsonHash(reaction), [reaction]);
+        const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
         switch (reaction.type) {
           case "text": {
             return (

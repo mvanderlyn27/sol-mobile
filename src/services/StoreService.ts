@@ -2,6 +2,7 @@ import { mergeIntoObservable } from "@legendapp/state";
 import { pages$ } from "../stores/PagesStore";
 import { reactions$ } from "../stores/ReactStore";
 import { SupabaseTable } from "./ApiService";
+import { undoRedo } from "@legendapp/state/helpers/undoRedo";
 
 export const StoreService = {
   //     initializeStore(tableName) {
@@ -14,7 +15,7 @@ export const StoreService = {
   //     //   return store;
   //     },
   //   };
-  setStore: async (tableName: SupabaseTable, data: any) => {
+  setStore: (tableName: SupabaseTable, data: any) => {
     //switch on what table to update
     switch (tableName) {
       case "pages":
@@ -28,20 +29,21 @@ export const StoreService = {
         throw new Error("Table not found");
     }
   },
-  updateStore: async (tableName: SupabaseTable, data: any) => {
+  updateStore: (tableName: SupabaseTable, data: any) => {
     //UPDATE THE STORE, UPDATE DB, IF FAILED, ROLLBACK
     switch (tableName) {
       case "pages":
+        const { undo: undoPages } = undoRedo(pages$[data.id], { limit: 5 });
         pages$[data.id].set(data);
-        return;
+        return undoPages;
       case "reactions":
+        const { undo: undoReactions } = undoRedo(reactions$[data.id], { limit: 5 });
         reactions$[data.id].set(data);
-        return;
+        return undoReactions;
       default:
         throw new Error("Table not found");
     }
   },
-  // NEED SOMETHING FOR UPDATING SOME VALUES
 
   // NEED SOMETHING FOR DELETING VALUES
 };

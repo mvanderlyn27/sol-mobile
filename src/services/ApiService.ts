@@ -1,5 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { Page, Font, Frame, Group, GroupMember, Profile, Reaction, Sticker, Template } from "../types/shared.types";
+import { ErrorService } from "./ErrorService";
+import { StoreService } from "./StoreService";
 
 export type SupabaseTable =
   | "fonts"
@@ -32,14 +34,27 @@ export const ApiService = {
     return toMap(data);
   },
   upsert: async (table: SupabaseTable, payload: any) => {
-    const { data, error } = await supabase.from(table).upsert(payload);
+    //no return
+    const { error } = await supabase.from(table).upsert(payload);
     if (error) throw error;
-    return toMap(data);
+    return;
   },
   delete: async (table: SupabaseTable, payload: any) => {
     const { data, error } = await supabase.from(table).delete().eq("id", payload);
     if (error) throw error;
     return toMap(data);
+  },
+  optimisticSave: async (table: SupabaseTable, payload: any) => {
+    //sets local store, then saves data to save
+    const undo = StoreService.updateStore(table, payload);
+    try {
+      await ApiService.upsert(table, payload);
+      return { error: null };
+    } catch (error) {
+      undo();
+      ErrorService.handleError("Error syncing data", error);
+      return { error };
+    }
   },
 };
 const toMap = (data: any) => {

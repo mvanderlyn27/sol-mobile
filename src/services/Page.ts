@@ -20,6 +20,7 @@ import { filterGroupMembers } from "./Group";
 import { groupMembers$ } from "../stores/MemberStore";
 import { resyncObservables } from "./AppStore";
 import { useEffect } from "react";
+import { ApiService } from "./ApiService";
 
 export const backgroundImages = ["bg_01", "bg_02", "bg_03", "bg_04", "bg_05", "bg_09"];
 export const START_PAGE_NUM = 30; // Number of pages to load initially per user
@@ -318,9 +319,11 @@ export const handleSave = async () => {
     } as Page;
     //save new canvas
     pages$[pageId].set(page);
+    ApiService.optimisticSave("pages", page);
   } else {
     console.log("updating existing page");
-    pages$[pageId].canvas.set(canvasStore$.canvas.get());
+    // pages$[pageId].canvas.set(canvasStore$.canvas.get());
+    ApiService.optimisticSave("pages", { ...pages$[pageId].get(), canvas: canvasStore$.canvas.get() });
   }
   handleClose();
 };

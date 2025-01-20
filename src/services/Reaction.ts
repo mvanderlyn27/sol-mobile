@@ -5,12 +5,13 @@ import { addNotification } from "../stores/NotificationStore";
 import { pageStore$, pages$ } from "../stores/PagesStore";
 import { reactions$, reactStore$ } from "../stores/ReactStore";
 import { uiStore$ } from "../stores/UIStore";
-import { CanvasReaction, CanvasReactionItem, Json, NotificationType, Reaction } from "../types/shared.types";
+import { CanvasReaction, CanvasReactionItem, Json, NotificationType, Page, Reaction } from "../types/shared.types";
 import { isEqual, max } from "lodash";
 import { getPageForUser } from "./Page";
 import { supabase } from "../lib/supabase";
 import { useEffect } from "react";
 import { groupStore$ } from "../stores/GroupStore";
+import { ApiService } from "./ApiService";
 export const initializeReactStore = () => {};
 export const useInitializeReactRealtimeListeners = () => {
   useEffect(() => {
@@ -66,7 +67,7 @@ export const handleEditReaction = () => {
   const day = pageStore$.dates[pageStore$.curCol.get()].get();
   const userId = pageStore$.members[pageStore$.curRow.get()]?.user_id.get();
   const curUserId = authStore$.session.user.id.get();
-  const pageId = getPageForUser(pages$.get(), userId, day.date)?.id;
+  const pageId = getPageForUser(pages$.get() as Record<string, Page>, userId, day.date)?.id;
   if (!pageId) {
     console.log("error finding page for edit");
     addNotification({
@@ -76,11 +77,11 @@ export const handleEditReaction = () => {
     });
     return;
   }
-  const reactionId = Object.values(reactions$.get()).find(
+  const reactionId = Object.values(reactions$.get() || {}).find(
     (r) => r.page_id === pageId && r.created_by === curUserId
   )?.id;
   if (reactionId) {
-    const oldReaction = reactions$[reactionId].get().reaction as CanvasReaction;
+    const oldReaction = reactions$[reactionId].get()?.reaction as CanvasReaction;
     reactStore$.reaction.set(JSON.parse(JSON.stringify(oldReaction)));
     reactStore$.curReactionId.set(reactionId);
   } else {
@@ -108,12 +109,17 @@ export const handleCancelReaction = () => {
   reactStore$.showNonUserReactions.set(true);
   endBatch();
 };
-export const handleSaveReaction = () => {
+export const handleSaveReaction = async () => {
   const reactionId = reactStore$.curReactionId.get();
   if (reactionId) {
     //reaction exits, update it
     const updatedReaction = { reaction: reactStore$.reaction.get() as Json } as Reaction;
-    reactions$[reactionId].assign(updatedReaction);
+    // reactions$[reactionId].assign(updatedReaction);
+    const { error } = await ApiService.optimisticSave("reactions", updatedReaction);
+    if (error) {
+      console.log("error updating reaction");
+      //update state properly
+    }
   } else {
     console.log("creating new reaction");
     //create new reaction
@@ -124,7 +130,12 @@ export const handleSaveReaction = () => {
       created_by: authStore$.session.user.id.get(),
       reaction: reactStore$.reaction.get() as Json,
     } as Reaction;
-    reactions$[newReactionId].set(newReaction);
+    // reactions$[newReactionId].set(newReaction);
+    const { error } = await ApiService.optimisticSave("reactions", newReaction);
+    if (error) {
+      console.log("error saving reaction");
+      //update state properly
+    }
   }
   //save draft reaction, delete old reaction
   beginBatch();

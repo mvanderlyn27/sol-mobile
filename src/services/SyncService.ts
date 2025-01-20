@@ -13,14 +13,14 @@ export const SyncService = {
 
       // Merge or reconcile data
       // const mergedData = reconcile(localData, remoteData);
-      await StoreService.setStore(table, remoteData);
+      StoreService.setStore(table, remoteData);
     } catch (error) {
       ErrorService.handleError("Error syncing data", error);
     }
-  },
-  pushPendingChanges: async (table: SupabaseTable, pendingChanges: any[]) => {
-    for (const change of pendingChanges) {
-      await ApiService.upsert(table, change);
-    }
+    //implement this later when we have local first changes
+    //   pushPendingChanges: async (table: SupabaseTable, pendingChanges: any[]) => {
+    //     for (const change of pendingChanges) {
+    //       await ApiService.upsert(table, change);
+    //     }
   },
 };
