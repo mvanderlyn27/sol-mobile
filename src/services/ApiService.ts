@@ -46,13 +46,26 @@ export const ApiService = {
   },
   optimisticSave: async (table: SupabaseTable, payload: any) => {
     //sets local store, then saves data to save
-    const undo = StoreService.updateStore(table, payload);
+    const curValue = StoreService.getStoreValue(table, payload.id);
+    StoreService.updateStore(table, payload);
     try {
       await ApiService.upsert(table, payload);
       return { error: null };
     } catch (error) {
-      undo();
-      ErrorService.handleError("Error syncing data", error);
+      StoreService.updateStore(table, curValue);
+      ErrorService.handleError("Error syncing data", JSON.stringify(error));
+      return { error };
+    }
+  },
+  optimisticDelete: async (table: SupabaseTable, id: string) => {
+    const curValue = StoreService.getStoreValue(table, id);
+    try {
+      StoreService.removeStore(table, id);
+      await ApiService.delete(table, id);
+      return { error: null };
+    } catch (error) {
+      StoreService.updateStore(table, curValue);
+      ErrorService.handleError("Error syncing data", JSON.stringify(error));
       return { error };
     }
   },

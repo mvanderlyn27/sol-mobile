@@ -15,7 +15,7 @@ export const SyncService = {
       // const mergedData = reconcile(localData, remoteData);
       StoreService.setStore(table, remoteData);
     } catch (error) {
-      ErrorService.handleError("Error syncing data", error);
+      ErrorService.handleError("Error syncing data", JSON.stringify(error));
     }
     //implement this later when we have local first changes
     //   pushPendingChanges: async (table: SupabaseTable, pendingChanges: any[]) => {

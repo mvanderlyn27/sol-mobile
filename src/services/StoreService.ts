@@ -29,16 +29,41 @@ export const StoreService = {
         throw new Error("Table not found");
     }
   },
-  updateStore: (tableName: SupabaseTable, data: any) => {
-    //UPDATE THE STORE, UPDATE DB, IF FAILED, ROLLBACK
+  getStoreValue: (tableName: SupabaseTable, id: string) => {
     switch (tableName) {
       case "pages":
-        const { undo: undoPages } = undoRedo(pages$[data.id], { limit: 5 });
+        return pages$[id].get();
+      case "reactions":
+        return reactions$[id].get();
+      default:
+        throw new Error("Table not found");
+    }
+  },
+  updateStore: (tableName: SupabaseTable, data: any) => {
+    //UPDATE THE STORE, UPDATE DB, IF FAILED, ROLLBACK
+    console.log("udpate store", tableName);
+    switch (tableName) {
+      case "pages":
+        console.log("date", data);
         pages$[data.id].set(data);
+        return;
+      case "reactions":
+        console.log("reactions", data);
+        reactions$[data.id].set(data);
+        return;
+      default:
+        throw new Error("Table not found");
+    }
+  },
+  removeStore: (tableName: SupabaseTable, id: string) => {
+    switch (tableName) {
+      case "pages":
+        const { undo: undoPages } = undoRedo(pages$[id], { limit: 5 });
+        pages$[id].delete();
         return undoPages;
       case "reactions":
-        const { undo: undoReactions } = undoRedo(reactions$[data.id], { limit: 5 });
-        reactions$[data.id].set(data);
+        const { undo: undoReactions } = undoRedo(reactions$[id], { limit: 5 });
+        reactions$[id].delete();
         return undoReactions;
       default:
         throw new Error("Table not found");

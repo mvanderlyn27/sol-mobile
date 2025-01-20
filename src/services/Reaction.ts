@@ -115,7 +115,10 @@ export const handleSaveReaction = async () => {
     //reaction exits, update it
     const updatedReaction = { reaction: reactStore$.reaction.get() as Json } as Reaction;
     // reactions$[reactionId].assign(updatedReaction);
-    const { error } = await ApiService.optimisticSave("reactions", updatedReaction);
+    const { error } = await ApiService.optimisticSave("reactions", {
+      ...reactions$[reactionId].get(),
+      ...updatedReaction,
+    });
     if (error) {
       console.log("error updating reaction");
       //update state properly

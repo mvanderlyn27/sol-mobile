@@ -4,8 +4,8 @@ import { NotificationType } from "../types/shared.types";
 import { posthog } from "./Posthog";
 
 export const ErrorService = {
-  handleError: (errorName: string, error: any) => {
-    posthog.capture(errorName, { error });
+  handleError: (errorName: string, error: string) => {
+    posthog.capture(errorName, { error: error });
     addNotification({
       id: generateId(),
       type: NotificationType.error,

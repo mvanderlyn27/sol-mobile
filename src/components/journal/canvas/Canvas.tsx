@@ -39,7 +39,7 @@ export const CanvasHolder = observer(function CanvasHolder({
   }
   const key = useMemo(() => generateJsonHash(canvas.get() || {}), [canvas.get()]);
   return (
-    <StyledMotiView key={`${editMode ? "edit-" : ""}${key}`} className="flex-1">
+    <StyledMotiView key={`${editMode ? "edit-" : ""}`} className="flex-1">
       <ExpoImage
         priority={active ? "high" : "low"}
         key="backgroundImage"
@@ -49,7 +49,7 @@ export const CanvasHolder = observer(function CanvasHolder({
       {canvas.items.map((item, index) => (
         <CanvasObject
           active={active}
-          key={`item-${index}-${editMode ? "edit" : ""}-${item.id.get()}`}
+          key={`item-${index}-${editMode ? "edit" : ""}-${key}`}
           item$={item}
           editable={editMode}
           pageId={pageId || ""}

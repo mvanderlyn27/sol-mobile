@@ -46,25 +46,26 @@ const ReactHolder = observer(function ReactHolder({
   // console.log("keys", key);
   return (
     <StyledView className="absolute top-0 right-0 left-0 bottom-0 bg-transparent" pointerEvents="box-none">
-      {myReactions?.items.map((reaction, index) => {
-        if (!reaction) return null;
-        // const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
-        switch (reaction.type) {
-          case "text": {
-            return (
-              <AnimatePresence key={`${index}`}>
-                <MotiView
-                  from={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ type: "timing", duration: 200 }}>
-                  <ReactItem item={reaction} usersReaction={true} />
-                </MotiView>
-              </AnimatePresence>
-            );
+      {myReactions &&
+        myReactions.items.map((reaction, index) => {
+          if (!reaction) return null;
+          // const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
+          switch (reaction.type) {
+            case "text": {
+              return (
+                <AnimatePresence key={`${index}`}>
+                  <MotiView
+                    from={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ type: "timing", duration: 200 }}>
+                    <ReactItem item={reaction} usersReaction={true} />
+                  </MotiView>
+                </AnimatePresence>
+              );
+            }
           }
-        }
-      })}
+        })}
       {otherReactions.map((reaction, index) => {
         if (!reaction) return null;
         const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
