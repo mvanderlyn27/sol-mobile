@@ -15,7 +15,6 @@ import LoadingScreen from "../../screens/SplashScreen";
 import { Skeleton } from "moti/skeleton";
 import { posthog } from "@/src/services/Posthog";
 import authStore$ from "@/src/stores/AuthStore";
-import { generateJsonHash } from "@/src/utils/crypto";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledView = styled(View);
@@ -34,10 +33,6 @@ export const CanvasHolder = observer(function CanvasHolder({
   // console.log("pageId", pageId, page$.get());
   const updated_at = page$.updated_at.get();
   const canvas: Observable<Canvas | null> = !editMode ? observable(page$.canvas.get() as Canvas) : canvasStore$.canvas;
-  if (active) {
-    console.log("canvas items", editMode, active, canvas.items.get());
-  }
-  const key = useMemo(() => generateJsonHash(canvas.get() || {}), [canvas.get()]);
   return (
     <StyledMotiView key={`${editMode ? "edit-" : ""}`} className="flex-1">
       <ExpoImage
@@ -49,7 +44,7 @@ export const CanvasHolder = observer(function CanvasHolder({
       {canvas.items.map((item, index) => (
         <CanvasObject
           active={active}
-          key={`item-${index}-${editMode ? "edit" : ""}-${key}`}
+          key={`item-${index}-${editMode ? "edit" : ""}-${updated_at}`}
           item$={item}
           editable={editMode}
           pageId={pageId || ""}
@@ -83,7 +78,7 @@ const CanvasObject = observer(function CanvasObject({
 
       return (
         <CanvasImageHolder
-          key={`${pageId}-${editable ? "edit-" : ""}image-${item$.id.get()}`}
+          key={`${pageId}-${editable ? "edit-" : ""}image-${imageItem.id}`}
           item={imageItem}
           userItem={editable}
           active={active}
@@ -107,7 +102,7 @@ const CanvasObject = observer(function CanvasObject({
         //       exit={{ opacity: 0 }}
         //       transition={{ type: "timing", duration: 200 }}>
         <CanvasTextHolder
-          key={`${pageId}-${editable ? "edit-" : ""}text-${item$.id.get()}`}
+          key={`${pageId}-${editable ? "edit-" : ""}text-${textItem.id}`}
           item={textItem}
           userItem={editable}
           active={active}

@@ -14,6 +14,7 @@ import LoadingScreen from "../screens/LoadingScreen";
 import { debounce } from "lodash";
 import { BlurView } from "expo-blur";
 import { appState$, initAppDimensions } from "@/src/services/AppStore";
+import { ErrorService } from "@/src/services/ErrorService";
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
 const StyledText = styled(Text);
@@ -32,6 +33,7 @@ const PageRenderer = observer(({ rowIndex, colIndex }: { rowIndex: number; colIn
   return (
     <View key={`${rowIndex}-${colIndex}-${editMode && active ? "edit" : "view"}-${page?.id}`} style={{ flex: 1 }}>
       <CanvasHolder pageId={page?.id} editMode={editMode} active={active} />
+      {/* {active && <ReactHolder pageId={page?.id} editMode={reactEditMode} />} */}
       {active && <ReactHolder pageId={page?.id} editMode={reactEditMode} />}
     </View>
   );
@@ -55,7 +57,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
     if (viewableItems.length > 0 && col === pageStore$.curCol.get()) {
       pageStore$.curRow.set(viewableItems[0].index);
     }
-  }, 100);
+  }, 200);
   return (
     <FlatList
       key={`${col}`}
@@ -67,7 +69,7 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
       maxToRenderPerBatch={3}
       windowSize={5}
       scrollEventThrottle={16} // Syncs scroll with 60fps
-      removeClippedSubviews={true} // Improves performance by removing off-screen components
+      // removeClippedSubviews={true} // Improves performance by removing off-screen components
       scrollEnabled={!pageStore$.editMode.get() && !reactStore$.reactEditMode.get()}
       showsVerticalScrollIndicator={false}
       onViewableItemsChanged={onViewableItemsChanged}
@@ -87,8 +89,9 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
         </View>
       )}
       viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50, waitForInteraction: false }}
-      onScrollToIndexFailed={() => {
+      onScrollToIndexFailed={(index) => {
         console.log("failed to scroll vertical");
+        ErrorService.handleError("failed to scroll horizontal", "" + index);
       }}
       getItemLayout={(data, index) => ({
         length: appState$.adjustedHeight.get(), // Replace with actual item height
@@ -102,16 +105,16 @@ const VerticalPageList = observer(({ col, rows }: { col: number; rows: GroupMemb
 // Outer paent component with PagerView
 const Canvas2DScroller = observer(() => {
   const listRef = useRef<FlatList>(null);
-  // const onViewableItemsChanged = debounce(({ viewableItems }) => {
-  //   if (viewableItems.length > 0) {
-  //     pageStore$.curCol.set(viewableItems[0].index);
-  //   }
-  // }, 200);
-  const onViewableItemsChanged = ({ viewableItems }: any) => {
+  const onViewableItemsChanged = debounce(({ viewableItems }) => {
     if (viewableItems.length > 0) {
       pageStore$.curCol.set(viewableItems[0].index);
     }
-  };
+  }, 200);
+  // const onViewableItemsChanged = ({ viewableItems }: any) => {
+  //   if (viewableItems.length > 0) {
+  //     pageStore$.curCol.set(viewableItems[0].index);
+  //   }
+  // };
   useMountOnce(() => {
     initAppDimensions();
   });
@@ -144,12 +147,13 @@ const Canvas2DScroller = observer(() => {
           initialScrollIndex={pageStore$.curCol.get() || 0}
           onScrollToIndexFailed={({ index }) => {
             console.log("failed to scroll horizontal: ", index);
+            ErrorService.handleError("failed to scroll horizontal", "" + index);
           }}
           initialNumToRender={3}
           maxToRenderPerBatch={3}
           windowSize={5}
           scrollEventThrottle={16} // Syncs scroll with 60fps
-          removeClippedSubviews={true} // Improves performance by removing off-screen components
+          // removeClippedSubviews={true} // Improves performance by removing off-screen components
           onEndReachedThreshold={0.5}
           pagingEnabled
           showsHorizontalScrollIndicator={false}

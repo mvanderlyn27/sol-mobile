@@ -1,11 +1,11 @@
 import { observable } from "@legendapp/state";
 import { Dimensions } from "react-native";
-import { customSupabaseSynced } from "./AsyncStorage";
-import { supabase } from "../lib/supabase";
-import { pageStore$, pages$ } from "./PagesStore";
-import { posthog } from "../services/Posthog";
-import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
-import { groupStore$ } from "./GroupStore";
+// import { customSupabaseSynced } from "./AsyncStorage";
+// import { supabase } from "../lib/supabase";
+// import { pageStore$, pages$ } from "./PagesStore";
+// import { posthog } from "../services/Posthog";
+// import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
+// import { groupStore$ } from "./GroupStore";
 import { CanvasReaction, Reaction } from "../types/shared.types";
 
 //@ts-ignore

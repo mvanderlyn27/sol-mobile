@@ -1,10 +1,9 @@
 import { observable } from "@legendapp/state";
-import { customSupabaseSynced } from "./AsyncStorage";
 import { GroupMember } from "../types/shared.types";
-import { supabase } from "../lib/supabase";
-import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
-import { groups$ } from "./GroupStore";
-import { profiles$ } from "./ProfileStore";
+// import { supabase } from "../lib/supabase";
+// import { WaitForSetCrudFnParams } from "@legendapp/state/sync-plugins/crud";
+// import { groups$ } from "./GroupStore";
+// import { profiles$ } from "./ProfileStore";
 
 // export const groupMembers$ = observable(
 //   customSupabaseSynced({

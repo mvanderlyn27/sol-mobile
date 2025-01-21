@@ -6,7 +6,6 @@ import { memo, useMemo } from "react";
 import { AnimatePresence, MotiView, View } from "moti";
 import authStore$ from "@/src/stores/AuthStore";
 import { reactStore$, reactions$ } from "@/src/stores/ReactStore";
-import { generateJsonHash } from "@/src/utils/crypto";
 
 const StyledView = styled(View);
 
@@ -42,14 +41,11 @@ const ReactHolder = observer(function ReactHolder({
       return reaction.items;
     })
     .flat();
-  // const key = useMemo(() => generateJsonHash([myReactions, ...otherReactions]), [myReactions, otherReactions]);
-  // console.log("keys", key);
   return (
     <StyledView className="absolute top-0 right-0 left-0 bottom-0 bg-transparent" pointerEvents="box-none">
       {myReactions &&
         myReactions.items.map((reaction, index) => {
           if (!reaction) return null;
-          // const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
           switch (reaction.type) {
             case "text": {
               return (
@@ -68,7 +64,6 @@ const ReactHolder = observer(function ReactHolder({
         })}
       {otherReactions.map((reaction, index) => {
         if (!reaction) return null;
-        // const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
         switch (reaction.type) {
           case "text": {
             return (

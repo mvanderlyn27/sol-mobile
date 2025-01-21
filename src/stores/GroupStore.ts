@@ -1,5 +1,4 @@
-import { observable, syncState } from "@legendapp/state";
-import { customSupabaseSynced, generateId } from "./AsyncStorage";
+import { observable } from "@legendapp/state";
 import { Group } from "../types/shared.types";
 
 // export const groups$ = observable(
