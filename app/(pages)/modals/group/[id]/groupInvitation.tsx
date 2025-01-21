@@ -5,7 +5,7 @@ import EditableText from "@/src/components/shared/EditableText";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import { supabase } from "@/src/lib/supabase";
-import { filterMyInvites } from "@/src/services/Group";
+import { acceptInvite, declineInvite, filterMyInvites } from "@/src/services/Group";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
 import { groupMembers$ } from "@/src/stores/MemberStore";
@@ -26,8 +26,12 @@ const GroupDetails = observer(function GroupDetails() {
   let group_id = ensureNotArray(useLocalSearchParams().id);
 
   const selectedGroup = groups$[group_id].get();
+  if (!selectedGroup) {
+    router.navigate("/home");
+    return;
+  }
   const userId = authStore$.session.get()?.user.id;
-  const inviteId = Object.entries(filterMyInvites(groupMembers$.get(), userId || "") || {}).find(
+  const inviteId = Object.entries(filterMyInvites(groupMembers$.get() || {}, userId || "") || {}).find(
     ([, invite]) => invite.group_id === group_id && invite.user_id === userId
   )?.[0];
   if (!inviteId) {
@@ -35,13 +39,13 @@ const GroupDetails = observer(function GroupDetails() {
   }
   const handleAccept = async () => {
     // Update the Legend State observable with the fetched data
-    groupMembers$[inviteId].status.set("completed");
-    router.dismissAll();
+    acceptInvite(inviteId);
+    router.navigate("/home");
   };
   const handleDecline = async () => {
     // Update the Legend State observable with the fetched data
-    groupMembers$[inviteId].status.set("declined");
-    router.dismissAll();
+    declineInvite(inviteId);
+    router.navigate("/home");
   };
 
   return (

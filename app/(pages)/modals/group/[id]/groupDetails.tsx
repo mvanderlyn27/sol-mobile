@@ -4,9 +4,10 @@ import ProfilePic from "@/src/components/profile/ProfilePic";
 import EditableText from "@/src/components/shared/EditableText";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
-import { deleteGroup, checkAdmin } from "@/src/services/Group";
+import { deleteGroup, checkAdmin, updateGroup } from "@/src/services/Group";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
+import { Group } from "@/src/types/shared.types";
 import { observer } from "@legendapp/state/react";
 import { Link, router, useLocalSearchParams } from "expo-router";
 import { styled } from "nativewind";
@@ -33,7 +34,7 @@ const GroupDetails = observer(function GroupDetails() {
     deleteGroup(group_id);
   };
   const handleUpdateName = (val: string) => {
-    groups$[group_id].name.set(val);
+    updateGroup(group_id, { ...groups$[group_id].get(), name: val } as Group);
   };
   const isAdmin = currentUser ? checkAdmin(group_id, currentUser) : false;
   if (!selectedGroup) {

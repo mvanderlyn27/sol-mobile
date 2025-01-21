@@ -35,8 +35,8 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
     }
   };
   const gm = groupMembers$.get();
-  const groupMemberList = Object.values(filterGroupMembers(groupMembers$.get(), group.id) || {});
-  const pendingMemberList = Object.values(filterPendingGroupMembers(groupMembers$.get(), group.id) || {});
+  const groupMemberList = Object.values(filterGroupMembers(groupMembers$.get() || {}, group.id) || {});
+  const pendingMemberList = Object.values(filterPendingGroupMembers(groupMembers$.get() || {}, group.id) || {});
   const groupList = [...groupMemberList, ...pendingMemberList];
   console.log(
     "group list",

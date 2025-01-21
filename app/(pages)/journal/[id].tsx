@@ -1,8 +1,7 @@
 import Canvas2DScroller from "@/src/components/playground/pagetTest";
 import LoadingScreen from "@/src/components/screens/LoadingScreen";
 import { resyncObservables } from "@/src/services/AppStore";
-import { initializePageStore, useInitializePageRealtimeUpdates } from "@/src/services/Page";
-import { initializeReactStore, useInitializeReactRealtimeListeners } from "@/src/services/Reaction";
+import { initializePageStore } from "@/src/services/Page";
 import { RealtimeService } from "@/src/services/RealtimeService";
 import { StoreService } from "@/src/services/StoreService";
 import { SyncService } from "@/src/services/SyncService";
@@ -21,7 +20,7 @@ const Journal = observer(function Journal() {
   const initJournal = async () => {
     pageStore$.ready.set(false);
     groupStore$.selectedGroup.set(id);
-    await resyncObservables();
+    await resyncObservables(["pages", "reactions"]);
     await initializePageStore(user, date);
     pageStore$.ready.set(true);
   };
@@ -30,10 +29,18 @@ const Journal = observer(function Journal() {
     const cleanupReconnection = RealtimeService.initWithReconnection(() => {
       RealtimeService.unsubscribeAll();
       RealtimeService.subscribeToTable("pages", (payload) => {
-        StoreService.updateStore("pages", payload.new);
+        if (payload.eventType === "DELETE") {
+          StoreService.removeStore("pages", payload.old.id);
+        } else {
+          StoreService.updateStore("pages", payload.new);
+        }
       });
       RealtimeService.subscribeToTable("reactions", (payload) => {
-        StoreService.updateStore("reactions", payload.new);
+        if (payload.eventType === "DELETE") {
+          StoreService.removeStore("reactions", payload.old.id);
+        } else {
+          StoreService.updateStore("reactions", payload.new);
+        }
       });
     });
 

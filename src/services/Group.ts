@@ -11,6 +11,8 @@ import { groupMembers$ } from "../stores/MemberStore";
 import { profiles$ } from "../stores/ProfileStore";
 import { addNotification } from "../stores/NotificationStore";
 import { useEffect } from "react";
+import { ApiService } from "./ApiService";
+import { ErrorService } from "./ErrorService";
 
 export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {
   const session = authStore$.session.get();
@@ -20,14 +22,13 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
     return null;
   }
   const id = generateId();
-
-  groups$[id].set({
+  await ApiService.optimisticSave("groups", {
     id,
     name,
     created_by: session?.user.id,
-  });
+  } as Group);
   const newGroupMemberId = generateId();
-  groupMembers$[newGroupMemberId].set({
+  await ApiService.optimisticSave("group_members", {
     id: newGroupMemberId,
     group_id: id,
     user_id: session?.user.id,
@@ -46,8 +47,11 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
   });
   const path = supabase.storage.from("group_covers").getPublicUrl(`${id}/cover.webp`);
   console.log("starting last update");
-  groups$[id].cover_url.set(path.data.publicUrl);
-  groups$[id].cover_placeholder.set(cover_placeholder);
+  await ApiService.optimisticSave("groups", {
+    ...groups$[id].get(),
+    cover_url: path.data.publicUrl,
+    cover_placeholder,
+  });
   console.log("done uploading", error, data, success);
   if (error || !data) {
     console.error("error uploading", error);
@@ -62,22 +66,15 @@ export const addGroup = async (name: string, cover_uri: string, cover_placeholde
 export const joinGroup = async (groupCode: string): Promise<string | null> => {
   const session = authStore$.session.get();
   if (!session?.user.id) {
-    console.error("not logged in, can't create group");
-    posthog.capture("add-group-error", { error: "not logged in" });
+    ErrorService.handleError("Error joining group", "User not logged in");
     return null;
   }
   if (!Object.keys(groups$).includes(groupCode)) {
-    console.log("group doesn't exist");
-    posthog.capture("join-group-error", { error: "group not found: " + groupCode });
-    addNotification({
-      id: generateId(),
-      message: "Group not found, please try again",
-      type: NotificationType.error,
-    });
+    ErrorService.handleError("Error joining group", "Group " + groupCode + " does not exist");
     return null;
   }
   const groupMemberId = generateId();
-  groupMembers$[groupMemberId].set({
+  ApiService.optimisticSave("group_members", {
     id: groupMemberId,
     user_id: session?.user.id,
     group_id: groupCode,
@@ -86,15 +83,42 @@ export const joinGroup = async (groupCode: string): Promise<string | null> => {
   } as GroupMember);
   return groupCode;
 };
+export const acceptInvite = async (memberId: string) => {
+  const session = authStore$.session.get();
+  if (!session?.user.id) {
+    ErrorService.handleError("Error accepting invite", "User not logged in");
+    return;
+  }
+  ApiService.optimisticSave("group_members", {
+    ...groupMembers$[memberId].get(),
+    status: "completed",
+    user_id: session?.user.id,
+  });
+};
+export const declineInvite = async (memberId: string) => {
+  const session = authStore$.session.get();
+  if (!session?.user.id) {
+    ErrorService.handleError("Error declining invite", "User not logged in");
+    return;
+  }
+  ApiService.optimisticDelete("group_members", memberId);
+};
 
 export const deleteGroup = async (group_id: string) => {
-  if (!Object.keys(groups$.get()).includes(group_id)) {
+  if (!Object.keys(groups$.get() || {}).includes(group_id)) {
     console.error("id not in groups");
     return;
   }
-  groups$[group_id].delete();
+  ApiService.optimisticDelete("groups", group_id);
 };
 
+export const updateGroup = async (group_id: string, group: Group) => {
+  const { error } = await ApiService.optimisticSave("groups", group);
+  if (error) {
+    return { error };
+  }
+  return;
+};
 export const filterOutPending = (map: Record<string, GroupMember>): Record<string, GroupMember> | null => {
   if (!map) {
     return null;
@@ -152,7 +176,7 @@ export const filterPendingGroupMembers = (
 export const getMember = (groupId: string, userId: string) => {
   const groupMembers = groupMembers$.get();
   console.log(groupId, userId);
-  const id = Object.entries(groupMembers).find(
+  const id = Object.entries(groupMembers || {}).find(
     ([, groupMember]) => groupMember.group_id === groupId && groupMember.user_id === userId
   )?.[0];
   return id;
@@ -164,7 +188,7 @@ export const removeMember = (groupId: string, userId: string) => {
     console.log("user not found");
     return;
   }
-  groupMembers$[id].delete();
+  ApiService.optimisticDelete("group_members", id);
 };
 export const checkAdmin = (groupId: string, userId: string) => {
   const id = getMember(groupId, userId);
@@ -176,7 +200,7 @@ export const checkAdmin = (groupId: string, userId: string) => {
   return groupMembers$[id].role.get() === "admin";
 };
 export const inviteGroupMember = async (groupId: string, username: string): Promise<string | null> => {
-  const entry = Object.values(profiles$.get()).find((profile) => profile.username === username);
+  const entry = Object.values(profiles$.get() || {}).find((profile) => profile.username === username);
   if (!entry) {
     posthog.capture("invite-group-member-error", { error: "user not found" });
     addNotification({
@@ -195,93 +219,6 @@ export const inviteGroupMember = async (groupId: string, username: string): Prom
     role: "member",
     status: "pending",
   } as GroupMember;
-  groupMembers$[inviteId].set(invite);
+  ApiService.optimisticSave("group_members", invite);
   return inviteId;
-};
-
-export const initializeGroupRealtimeUpdates = () => {
-  useEffect(() => {
-    const subscription = supabase
-      .channel("realtime-groups")
-      .on("postgres_changes", { event: "*", schema: "public", table: "groups" }, (payload) => {
-        if (payload.eventType === "DELETE") {
-          const deletedGroupId = payload.old.id;
-          groups$[deletedGroupId].delete();
-        } else {
-          const old = groups$.peek()[payload.new.id];
-          const isOk =
-            JSON.stringify({
-              id: old?.id,
-              name: old?.name,
-              cover_url: old?.cover_url,
-              cover_placeholder: old?.cover_placeholder,
-              created_by: old?.created_by,
-            }) !==
-            JSON.stringify({
-              id: payload.new.id,
-              name: payload.new.name,
-              cover_url: payload.new.cover_url,
-              cover_placeholder: payload.new.cover_placeholder,
-              created_by: payload.new.created_by,
-            });
-          if (isOk) {
-            const newGroup: Group = payload.new as Group;
-            // console.log("updating pages!", pages$[newPage.id].canvas.get() as Canvas);
-            console.log("updating groups!", groups$[newGroup.id].updated_at.get());
-            groups$[newGroup.id].set(newGroup);
-          }
-        }
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, []);
-};
-
-export const initializeGroupMemberRealtimeUpdates = () => {
-  useEffect(() => {
-    const subscription = supabase
-      .channel("realtime-groupmembers")
-      .on("postgres_changes", { event: "*", schema: "public", table: "group_members" }, (payload) => {
-        if (payload.eventType === "DELETE") {
-          const deletedGroupId = payload.old.id;
-          groupMembers$[deletedGroupId].delete();
-        } else {
-          const old = groupMembers$.peek()[payload.new.id];
-          const isOk =
-            JSON.stringify({
-              user_id: old?.user_id,
-              group_id: old?.group_id,
-              role: old?.role,
-              status: old?.status,
-              id: old?.id,
-            }) !==
-            JSON.stringify({
-              user_id: payload.new.user_id,
-              group_id: payload.new.group_id,
-              role: payload.new.role,
-              status: payload.new.status,
-              id: payload.new.id,
-            });
-          console.log(
-            "is ok to update? :",
-            isOk,
-            "\n",
-            JSON.stringify(groupMembers$.peek()[payload.new.id]),
-            JSON.stringify(payload.new)
-          );
-          if (isOk) {
-            const newGroupMember: GroupMember = payload.new as GroupMember;
-            console.log("new info", newGroupMember);
-            groupMembers$[newGroupMember.id].set(newGroupMember);
-            console.log("updating group members!", groupMembers$[newGroupMember.id].get());
-          }
-        }
-      })
-      .subscribe();
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, []);
 };

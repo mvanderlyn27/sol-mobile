@@ -3,6 +3,9 @@ import { pages$ } from "../stores/PagesStore";
 import { reactions$ } from "../stores/ReactStore";
 import { SupabaseTable } from "./ApiService";
 import { undoRedo } from "@legendapp/state/helpers/undoRedo";
+import { groups$ } from "../stores/GroupStore";
+import { groupMembers$ } from "../stores/MemberStore";
+import { profiles$ } from "../stores/ProfileStore";
 
 export const StoreService = {
   //     initializeStore(tableName) {
@@ -25,6 +28,15 @@ export const StoreService = {
       case "reactions":
         reactions$.set(data);
         return;
+      case "groups":
+        groups$.set(data);
+        return;
+      case "group_members":
+        groupMembers$.set(data);
+        return;
+      case "profiles":
+        profiles$.set(data);
+        return;
       default:
         throw new Error("Table not found");
     }
@@ -35,6 +47,12 @@ export const StoreService = {
         return pages$[id].get();
       case "reactions":
         return reactions$[id].get();
+      case "groups":
+        return groups$[id].get();
+      case "group_members":
+        return groupMembers$[id].get();
+      case "profiles":
+        return profiles$[id].get();
       default:
         throw new Error("Table not found");
     }
@@ -51,20 +69,37 @@ export const StoreService = {
         console.log("reactions", data);
         reactions$[data.id].set(data);
         return;
+      case "groups":
+        groups$[data.id].set(data);
+        return;
+      case "group_members":
+        groupMembers$[data.id].set(data);
+        return;
+      case "profiles":
+        profiles$[data.id].set(data);
+        return;
       default:
         throw new Error("Table not found");
     }
   },
   removeStore: (tableName: SupabaseTable, id: string) => {
+    console.log("removing store", tableName, id);
     switch (tableName) {
       case "pages":
-        const { undo: undoPages } = undoRedo(pages$[id], { limit: 5 });
         pages$[id].delete();
-        return undoPages;
+        return;
       case "reactions":
-        const { undo: undoReactions } = undoRedo(reactions$[id], { limit: 5 });
         reactions$[id].delete();
-        return undoReactions;
+        return;
+      case "groups":
+        groups$[id].delete();
+        return;
+      case "group_members":
+        groupMembers$[id].delete();
+        return;
+      case "profiles":
+        profiles$[id].delete();
+        return;
       default:
         throw new Error("Table not found");
     }

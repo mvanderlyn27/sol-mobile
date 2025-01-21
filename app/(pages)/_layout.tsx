@@ -10,14 +10,46 @@ import { posthog } from "@/src/services/Posthog";
 import { profiles$ } from "@/src/stores/ProfileStore";
 import { clearLocalPersist, resyncObservables } from "@/src/services/AppStore";
 import { supabase } from "@/src/lib/supabase";
-import { initializeProfileRealtimeUpdates } from "@/src/services/Profile";
-import { initializeGroupMemberRealtimeUpdates, initializeGroupRealtimeUpdates } from "@/src/services/Group";
+import { RealtimeService } from "@/src/services/RealtimeService";
+import { StoreService } from "@/src/services/StoreService";
 
 export const unstable_settings = {
   initialRouteName: "home",
 };
 
 const Layout = observer(function Layout() {
+  useEffect(() => {
+    const cleanupReconnection = RealtimeService.initWithReconnection(() => {
+      RealtimeService.unsubscribeAll();
+      RealtimeService.subscribeToTable("profiles", (payload) => {
+        if (payload.eventType === "DELETE") {
+          StoreService.removeStore("profiles", payload.old.id);
+        } else {
+          StoreService.updateStore("profiles", payload.new);
+        }
+      });
+      RealtimeService.subscribeToTable("groups", (payload) => {
+        if (payload.eventType === "DELETE") {
+          StoreService.removeStore("groups", payload.old.id);
+        } else {
+          StoreService.updateStore("groups", payload.new);
+        }
+      });
+      RealtimeService.subscribeToTable("group_members", (payload) => {
+        if (payload.eventType === "DELETE") {
+          StoreService.removeStore("group_members", payload.old.id);
+        } else {
+          StoreService.updateStore("group_members", payload.new);
+        }
+      });
+    });
+
+    // Cleanup subscriptions and listeners on unmount
+    return () => {
+      RealtimeService.unsubscribeAll();
+      cleanupReconnection();
+    };
+  }, []);
   useMount(async () => {
     const curId = authStore$.session.user.id.get();
     profiles$.onChange(async () => {

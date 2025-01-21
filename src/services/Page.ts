@@ -10,7 +10,18 @@ import { groupStore$ } from "../stores/GroupStore";
 import { addNotification } from "../stores/NotificationStore";
 import { pageStore$, pages$, DateItem, canvasStore$ } from "../stores/PagesStore";
 import { uiStore$ } from "../stores/UIStore";
-import { NotificationType, Page, CanvasItem, Image, Json, Canvas, ImageType, CanvasImage } from "../types/shared.types";
+import {
+  NotificationType,
+  Page,
+  CanvasItem,
+  Image,
+  Json,
+  Canvas,
+  ImageType,
+  CanvasImage,
+  Group,
+  GroupMember,
+} from "../types/shared.types";
 import { resizeImage } from "./Media";
 import { posthog } from "./Posthog";
 import * as ImageManipulator from "expo-image-manipulator"; // Import ImageManipulator
@@ -55,7 +66,7 @@ export async function initializePageStore(user?: string, day?: string) {
 function loadGroupMembers(user?: string) {
   const currentUserId = authStore$.session.user.id.get();
   const users = Object.values(
-    filterGroupMembers(groupMembers$.get(), groupStore$.selectedGroup.get() || "") || {}
+    filterGroupMembers(groupMembers$.get() as Record<string, GroupMember>, groupStore$.selectedGroup.get() || "") || {}
   ).sort((a, b) => {
     if (a.user_id === currentUserId) return -1; // Move the logged-in user to the top
     if (b.user_id === currentUserId) return 1; // Keep the logged-in user at the top
@@ -98,51 +109,6 @@ export async function loadMorePages() {
   const startDate = dates[dates.length - 1].date;
   const newDates = getAllUniqueDates(LOAD_MORE_PAGES, startDate);
   pageStore$.dates.set([...dates, ...newDates]);
-}
-
-export async function useInitializePageRealtimeUpdates() {
-  useEffect(() => {
-    const subscription = supabase
-      .channel("pages")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          table: "pages",
-          schema: "public",
-          // filter: filter || undefined,
-        },
-        (payload) => {
-          const { eventType, new: value, old } = payload;
-          if (eventType === "INSERT" || eventType === "UPDATE") {
-            const cur = pages$.peek()?.[value.id];
-            if (cur && isEqual(value.canvas, cur?.canvas)) {
-              console.log("No canvas changes detected, skipping update");
-              return;
-            }
-            let isOk = false;
-            let lastSync = undefined;
-            if (!isOk) {
-              const curDateStr = cur && (cur["updated_at"] || cur["created_at"]);
-              const valueDateStr = (true && value["updated_at"]) || (true && value["created_at"]);
-              lastSync = +new Date(valueDateStr);
-
-              isOk = valueDateStr && (!curDateStr || lastSync > +new Date(curDateStr));
-            }
-            if (isOk) {
-              console.log("setting value from realtime update");
-              pages$[value.id].set(value as Page);
-            }
-          } else if (eventType === "DELETE") {
-            pages$[old.id].delete();
-          }
-        }
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(subscription);
-    };
-  }, []);
 }
 
 /**

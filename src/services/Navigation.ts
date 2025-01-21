@@ -10,6 +10,7 @@ import * as Notifications from "expo-notifications";
 import { addNotification } from "../stores/NotificationStore";
 import { generateId } from "../stores/AsyncStorage";
 import { NotificationType } from "../types/shared.types";
+import { resyncObservables } from "./AppStore";
 
 export function useAppNavigation() {
   useEffect(() => {
@@ -25,7 +26,9 @@ export function useAppNavigation() {
           return;
         }
         SplashScreen.hideAsync();
-        const profile = await when(profiles$[userId]);
+        await resyncObservables();
+        const profile = profiles$[userId].get();
+        console.log("Profile", profile);
         // Check if the app was opened via a notification
         const response = await Notifications.getLastNotificationResponseAsync();
         const url = response?.notification?.request.content.data?.url;

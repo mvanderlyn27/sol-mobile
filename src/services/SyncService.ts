@@ -10,7 +10,6 @@ export const SyncService = {
     try {
       const remoteData = await ApiService.getAll(table);
       // const localData = await StoreService.getLocalData(table);
-
       // Merge or reconcile data
       // const mergedData = reconcile(localData, remoteData);
       StoreService.setStore(table, remoteData);

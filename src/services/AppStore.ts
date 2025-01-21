@@ -1,5 +1,5 @@
 import { observable, syncState, when } from "@legendapp/state";
-import { pages$ } from "../stores/PagesStore";
+import { pageStore$, pages$ } from "../stores/PagesStore";
 import { groupStore$, groups$ } from "../stores/GroupStore";
 import { groupMembers$ } from "../stores/MemberStore";
 import { profiles$ } from "../stores/ProfileStore";
@@ -38,15 +38,36 @@ export const clearLocalPersist = async () => {
   AsyncStorage.clear();
   signOut();
 };
-export const resyncObservables = async () => {
-  console.log("resyncing observables");
+export const resyncObservables = async (
+  observables: string[] = ["pages", "reactions", "groups", "groupMembers", "profiles"]
+) => {
   // const pagesState$ = syncState(pages$);
-
+  let observablesToSync: Promise<void>[] = [];
   // const reactionsState$ = syncState(reactions$);
-  const syncPages = SyncService.syncData("pages");
-  const syncReactions = SyncService.syncData("reactions");
+  if (observables.includes("pages")) {
+    const syncPages = SyncService.syncData("pages");
+    observablesToSync.push(syncPages);
+  }
+  if (observables.includes("reactions")) {
+    const syncReactions = SyncService.syncData("reactions");
+    observablesToSync.push(syncReactions);
+  }
+  if (observables.includes("groups")) {
+    const syncGroups = SyncService.syncData("groups");
 
-  await Promise.all([syncPages, syncReactions]);
+    observablesToSync.push(syncGroups);
+  }
+  if (observables.includes("groupMembers")) {
+    const syncGroupMembers = SyncService.syncData("group_members");
+
+    observablesToSync.push(syncGroupMembers);
+  }
+  if (observables.includes("profiles")) {
+    const syncProfiles = SyncService.syncData("profiles");
+    observablesToSync.push(syncProfiles);
+  }
+  console.log("observablesToSync", observables);
+  await Promise.all(observablesToSync);
 };
 
 export const setupAppStateListener = () => {
@@ -54,6 +75,7 @@ export const setupAppStateListener = () => {
     const handleAppStateChange = async (nextAppState: AppStateStatus) => {
       if (nextAppState === "active") {
         console.log("App is active, resyncing observables...");
+        pageStore$.ready.set(false);
         try {
           await resyncObservables();
           //   console.log("Observables resynced successfully");
@@ -66,6 +88,7 @@ export const setupAppStateListener = () => {
           });
           console.error("Failed to resync observables:", error);
         }
+        pageStore$.ready.set(true);
       }
     };
 

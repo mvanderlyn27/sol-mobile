@@ -53,7 +53,7 @@ const ReactHolder = observer(function ReactHolder({
           switch (reaction.type) {
             case "text": {
               return (
-                <AnimatePresence key={`${index}`}>
+                <AnimatePresence key={`${reaction.id}-${index}`}>
                   <MotiView
                     from={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -68,11 +68,11 @@ const ReactHolder = observer(function ReactHolder({
         })}
       {otherReactions.map((reaction, index) => {
         if (!reaction) return null;
-        const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
+        // const key = useMemo(() => generateJsonHash(reaction), [reaction ? reaction : null]);
         switch (reaction.type) {
           case "text": {
             return (
-              <AnimatePresence key={key}>
+              <AnimatePresence key={`${reaction.id}-${index}`}>
                 <MotiView
                   from={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
