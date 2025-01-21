@@ -9,6 +9,7 @@ import { profiles$ } from "@/src/stores/ProfileStore";
 import authStore$ from "@/src/stores/AuthStore";
 import { filterOutPending, filterGroupMembers, filterPendingGroupMembers } from "@/src/services/Group";
 import { groupMembers$ } from "@/src/stores/MemberStore";
+import { observer } from "@legendapp/state/react";
 
 const StyledView = styled(View);
 const StyledText = styled(Text);
@@ -23,12 +24,12 @@ function chunkArray(array: GroupMember[], size: number) {
   return chunks;
 }
 
-export default function MemberList({ groupId }: { groupId: string }) {
+const MemberList = observer(function ({ groupId }: { groupId: string }) {
   // Split members into chunks of 8 for each page
   const userId = authStore$.session.get()?.user.id;
-  const groupMembersRaw = filterOutPending(groupMembers$.get());
-  const groupMemberList = Object.values(filterGroupMembers(groupMembers$.get(), groupId) || {});
-  const pendingMemberList = Object.values(filterPendingGroupMembers(groupMembers$.get(), groupId) || {});
+  const groupMembersRaw = filterOutPending(groupMembers$.get() || {});
+  const groupMemberList = Object.values(filterGroupMembers(groupMembers$.get() || {}, groupId) || {});
+  const pendingMemberList = Object.values(filterPendingGroupMembers(groupMembers$.get() || {}, groupId) || {});
   const groupList = [...groupMemberList, ...pendingMemberList];
   if (!userId || !groupMembersRaw) return null;
   const pages = chunkArray(groupList, 8);
@@ -65,4 +66,5 @@ export default function MemberList({ groupId }: { groupId: string }) {
       ))}
     </PagerView>
   );
-}
+});
+export default MemberList;

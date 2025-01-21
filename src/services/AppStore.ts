@@ -18,10 +18,16 @@ const { height, width } = Dimensions.get("window");
 interface AppStore {
   adjustedWidth: number;
   adjustedHeight: number;
+  saving: boolean;
+  loading: boolean;
+  internetConnection: boolean;
 }
 export const appState$ = observable<AppStore>({
   adjustedHeight: height,
   adjustedWidth: width,
+  saving: false,
+  loading: false,
+  internetConnection: false,
 });
 export const initAppDimensions = () => {
   const aspectRatio = 9 / 18;

@@ -1,4 +1,5 @@
 import { getImageFromPath } from "@/src/assets/images/images";
+import { ApiService } from "@/src/services/ApiService";
 import { posthog } from "@/src/services/Posthog";
 import { requestPushNotificationPermission } from "@/src/services/Profile";
 import { checkNotificationStatus, scheduleDailyReminder } from "@/src/services/PushNotification";
@@ -6,7 +7,7 @@ import { generateId } from "@/src/stores/AsyncStorage";
 import authStore$ from "@/src/stores/AuthStore";
 import { addNotification } from "@/src/stores/NotificationStore";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { NotificationType } from "@/src/types/shared.types";
+import { NotificationType, Profile } from "@/src/types/shared.types";
 import { observer } from "@legendapp/state/react";
 import { email } from "@snaplet/copycat/dist/email";
 import { Link, router } from "expo-router";
@@ -37,7 +38,7 @@ const PermissionsScreen = observer(function FtuxScreen() {
       router.navigate("/login");
       return;
     }
-    profiles$[userId].new.set(false);
+    ApiService.optimisticSave("profiles", { ...profiles$[userId].get(), new: false } as Profile);
     router.replace("/home");
   };
   const showDatePicker = () => {
@@ -60,7 +61,7 @@ const PermissionsScreen = observer(function FtuxScreen() {
       if (!userId) {
         return;
       }
-      profiles$[userId].push_enabled.set(true);
+      ApiService.optimisticSave("profiles", { ...profiles$[userId].get(), push_enabled: true } as Profile);
     }
   };
   return (

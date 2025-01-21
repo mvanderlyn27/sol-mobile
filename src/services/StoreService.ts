@@ -59,7 +59,7 @@ export const StoreService = {
   },
   updateStore: (tableName: SupabaseTable, data: any) => {
     //UPDATE THE STORE, UPDATE DB, IF FAILED, ROLLBACK
-    console.log("udpate store", tableName);
+    console.log("udpate store", tableName, data);
     switch (tableName) {
       case "pages":
         console.log("date", data);
