@@ -13,6 +13,10 @@ import { addNotification } from "../stores/NotificationStore";
 import { useEffect } from "react";
 import { ApiService } from "./ApiService";
 import { ErrorService } from "./ErrorService";
+import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator"; // Import ImageManipulator
+
+import { Blurhash } from "react-native-blurhash";
 
 export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {
   const session = authStore$.session.get();
@@ -197,6 +201,66 @@ export const removeMember = async (groupId: string, userId: string) => {
       message: "Member removed",
       type: NotificationType.success,
     });
+  }
+};
+export const updateGroupPhoto = async (groupId: string) => {
+  let result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.All,
+    allowsEditing: true,
+    quality: 1,
+  });
+
+  if (!result.canceled) {
+    const selectedImageUri = result.assets[0].uri;
+    const blurhash = await ImageManipulator.manipulateAsync(
+      selectedImageUri,
+      [{ resize: { width: 100, height: 100 } }],
+      {
+        compress: 0.5,
+        format: ImageManipulator.SaveFormat.PNG,
+      }
+    )
+      .then((resizedImage) => Blurhash.encode(resizedImage.uri, 4, 3))
+      .then((blurhash) => blurhash)
+      .catch((error) => {
+        ErrorService.handleError("update-group-error", "Error generating blurhash" + error);
+        return null;
+      });
+    const image = await resizeImage(selectedImageUri, result.assets[0].width, result.assets[0].height)
+      .then((image) => image)
+      .catch((error) => {
+        ErrorService.handleError("update-group-error", "Error resizing image " + error);
+        return null;
+      });
+
+    if (!image || !blurhash) {
+      return;
+    }
+    const base64 = await FileSystem.readAsStringAsync(image, { encoding: "base64" });
+    const { success, data, error } = await StorageService.uploadFile({
+      bucket: "group_covers",
+      filePath: `${groupId}/cover.webp`,
+      base64: base64,
+      fileExtension: "webp",
+      mimeType: "image/webp",
+    });
+    console.log("done uploading", error, data, success);
+    if (error || !data) {
+      ErrorService.handleError("update-group-error", "Error uploading photo " + error);
+      return null;
+    }
+    const path = supabase.storage.from("group_covers").getPublicUrl(`${groupId}/cover.webp`);
+    console.log("starting last update");
+    const { error: lastError } = await ApiService.optimisticSave("groups", {
+      ...groups$[groupId].get(),
+      cover_url: path.data.publicUrl + `?t=${new Date().toISOString()}`,
+      cover_placeholder: blurhash,
+    });
+    if (lastError) {
+      ErrorService.handleError("update-group-error", lastError + "");
+      return;
+    }
+    return;
   }
 };
 export const checkAdmin = (groupId: string, userId: string) => {
