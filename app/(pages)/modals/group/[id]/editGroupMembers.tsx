@@ -26,7 +26,7 @@ const EditGroupMembers = observer(function EditGroupMembers() {
 
   const userId = authStore$.session.get()?.user.id;
   if (!userId) return null;
-  const groupMembersMap = Object.entries(groupMembers$.get()).reduce((acc: any, [_, member]) => {
+  const groupMembersMap = Object.entries(groupMembers$.get() || {}).reduce((acc: any, [_, member]) => {
     (acc[member.group_id] = acc[member.group_id] || []).push(member);
     return acc;
   }, {});

@@ -40,9 +40,9 @@ export const ApiService = {
     return;
   },
   delete: async (table: SupabaseTable, payload: any) => {
-    const { data, error } = await supabase.from(table).delete().eq("id", payload);
+    const { error } = await supabase.from(table).delete().eq("id", payload);
     if (error) throw error;
-    return toMap(data);
+    return;
   },
   optimisticSave: async (table: SupabaseTable, payload: any) => {
     //sets local store, then saves data to save

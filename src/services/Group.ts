@@ -181,14 +181,23 @@ export const getMember = (groupId: string, userId: string) => {
   )?.[0];
   return id;
 };
-export const removeMember = (groupId: string, userId: string) => {
+export const removeMember = async (groupId: string, userId: string) => {
   const id = getMember(groupId, userId);
   if (!id) {
     posthog.capture("remove-member-error", { error: "user not found" });
     console.log("user not found");
     return;
   }
-  ApiService.optimisticDelete("group_members", id);
+  const { error } = await ApiService.optimisticDelete("group_members", id);
+  if (error) {
+    console.error(error);
+  } else {
+    addNotification({
+      id: generateId(),
+      message: "Member removed",
+      type: NotificationType.success,
+    });
+  }
 };
 export const checkAdmin = (groupId: string, userId: string) => {
   const id = getMember(groupId, userId);
