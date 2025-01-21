@@ -14,78 +14,19 @@ import { resizeImage } from "@/src/services/Media";
 import { observer } from "@legendapp/state/react";
 import { Skeleton } from "moti/skeleton";
 import { AnimatePresence, MotiView } from "moti";
+import { setProfilePic } from "@/src/services/Profile";
 const StyledView = styled(MotiView);
 const StyledPressable = styled(Pressable);
-const ProfilePic = observer(function ProfilePic({ editable, userId }: { editable?: boolean; userId?: string }) {
+const ProfilePic = observer(function ProfilePic({ editable, userId }: { editable?: boolean; userId: string }) {
   const [loading, setLoading] = useState(false);
-  const curUserId = userId ? userId : authStore$.session.get()?.user.id;
-  if (curUserId === undefined) return null;
-  const profile = profiles$[curUserId].get();
+  if (userId === undefined) return null;
+  const profile = profiles$[userId].get();
   console.log("cur profile", profile);
-  const shortId = curUserId.slice(0, 8);
+  const shortId = userId.slice(0, 8);
   const handleUpdatePic = async () => {
-    console.log("clicked");
-
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setLoading(true);
-      const selectedImageUri = result.assets[0].uri;
-      // Resize the image to 100x100 using ImageManipulator
-      const blurhash = await ImageManipulator.manipulateAsync(
-        selectedImageUri,
-        [{ resize: { width: 100, height: 100 } }],
-        {
-          compress: 0.5,
-          format: ImageManipulator.SaveFormat.PNG,
-        }
-      )
-        .then((resizedImage) => Blurhash.encode(resizedImage.uri, 4, 3))
-        .then((blurhash) => blurhash)
-        .catch((error) => {
-          console.error("Error generating blurhash:", error);
-          // Alert.alert("Error", "Failed to generate blurhash.");
-          return null;
-        });
-      const image = await resizeImage(selectedImageUri, result.assets[0].width, result.assets[0].height)
-        .then((image) => image)
-        .catch((error) => {
-          console.log("error optimizing image");
-          return null;
-        });
-
-      if (!image || !blurhash) {
-        setLoading(false);
-        return;
-      }
-      const base64 = await FileSystem.readAsStringAsync(image, { encoding: "base64" });
-      const { success, data, error } = await StorageService.uploadFile({
-        bucket: "avatars",
-        filePath: `${curUserId}/avatar.webp`,
-        base64: base64,
-        fileExtension: "webp",
-        mimeType: "image/webp",
-      });
-      console.log("done uploading", error, data, success);
-      if (error || !data) {
-        console.error("error uploading", error);
-        //show notif here
-
-        setLoading(false);
-        return null;
-      }
-      const path = supabase.storage.from("avatars").getPublicUrl(`${curUserId}/avatar.webp`);
-      console.log("starting last update");
-      console.log("user", curUserId);
-      profiles$[curUserId].avatar_url.set(path.data.publicUrl + `?t=${new Date().toISOString()}`);
-      profiles$[curUserId].avatar_placeholder.set(blurhash);
-      console.log("finished update", path);
-      setLoading(false);
-    }
+    setLoading(true);
+    await setProfilePic(userId);
+    setLoading(false);
   };
   return (
     <StyledPressable

@@ -38,10 +38,11 @@ const CurProfile = observer(function CurProfile() {
   const curUserId = authStore$.session.get()?.user.id;
   if (!curUserId) return null;
   const profile = profiles$[curUserId].get();
-  const myGroupIds = Object.values(filterMyGroups(groupMembers$.get(), curUserId) || {}).map((gm) => gm.group_id);
+
+  const myGroupIds = Object.values(filterMyGroups(groupMembers$.get() || {}, curUserId) || {}).map((gm) => gm.group_id);
   const set = new Set([curUserId]);
   let friendCount = 0;
-  Object.values(filterOutPending(groupMembers$.get()) || {}).forEach((groupMember) => {
+  Object.values(filterOutPending(groupMembers$.get() || {}) || {}).forEach((groupMember) => {
     if (myGroupIds.includes(groupMember.group_id) && !set.has(groupMember.user_id)) {
       set.add(groupMember.user_id);
       friendCount += 1;
@@ -91,7 +92,7 @@ const CurProfile = observer(function CurProfile() {
       )}
       <StyledView className="flex-1  justify-center items-center w-full ">
         <StyledView className="flex-row px-14">
-          <ProfilePic editable />
+          <ProfilePic editable userId={curUserId} />
         </StyledView>
         <StyledView className="flex-row  items-center px-10 p-2">
           <UsernameInput disabled={loading} />

@@ -15,7 +15,6 @@ import { ApiService } from "./ApiService";
 import { ErrorService } from "./ErrorService";
 import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator"; // Import ImageManipulator
-
 import { Blurhash } from "react-native-blurhash";
 
 export const addGroup = async (name: string, cover_uri: string, cover_placeholder: string): Promise<string | null> => {
@@ -78,7 +77,7 @@ export const joinGroup = async (groupCode: string): Promise<string | null> => {
     return null;
   }
   const groupMemberId = generateId();
-  ApiService.optimisticSave("group_members", {
+  await ApiService.optimisticSave("group_members", {
     id: groupMemberId,
     user_id: session?.user.id,
     group_id: groupCode,

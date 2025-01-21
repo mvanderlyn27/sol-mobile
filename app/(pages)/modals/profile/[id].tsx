@@ -3,6 +3,7 @@ import ProfilePic from "@/src/components/modals/ProfilePic";
 import ModalButton from "@/src/components/shared/ModalButton";
 import RectangleButton from "@/src/components/shared/RectangleButton";
 import UserPic from "@/src/components/shared/UserPic";
+import { ErrorService } from "@/src/services/ErrorService";
 import { checkAdmin, filterOutPending, removeMember } from "@/src/services/Group";
 import authStore$ from "@/src/stores/AuthStore";
 import { groups$ } from "@/src/stores/GroupStore";
@@ -34,9 +35,13 @@ const UserProfile = observer(function UserProfile() {
   const isAdmin = currentUser ? checkAdmin(groupId, currentUser) : false;
 
   const profile = profiles$[userId].get();
+  if (!profile) {
+    ErrorService.handleError("Profile not found", "Profile not found");
+    return null;
+  }
   const groupList = Array.from(
     new Set(
-      Object.values(filterOutPending(groupMembers$.get()) || {})
+      Object.values(filterOutPending(groupMembers$.get() || {}) || {})
         .filter((groupMember) => groupMember.user_id === userId) // Filter by user_id
         .map((groupMember) => groupMember.group_id) // Extract group_id
     )
