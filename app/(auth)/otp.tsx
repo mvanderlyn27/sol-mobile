@@ -32,7 +32,7 @@ export default function OTP() {
         </StyledView>
         <StyledView className="flex-col items-center px-12 justify-center">
           <StyledText className="text-secondary  text-2xl pb-4" style={{ fontFamily: "PragmaticaExtended" }}>
-            ENTER ONE TIME PASSWORD
+            ENTER CODE
           </StyledText>
           <OtpForm email={email ?? ""} />
         </StyledView>

@@ -53,7 +53,7 @@ export default function ModalIconButton({
   return (
     <StyledPressable
       disabled={disabled}
-      onPress={action}
+      onPress={disabled ? null : action}
       className={`${
         disabled ? "bg-disabled" : color
       } flex-1 mx-1  py-3 rounded-xl shadow-md flex-row justify-center items-center`}>

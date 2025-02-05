@@ -13,7 +13,10 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NotificationHolder from "@/src/components/notifications/NotificationHolder";
 import * as Notifications from "expo-notifications";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { setupAppStateListener } from "@/src/services/AppStore";
+import { appState$, setupAppStateListener } from "@/src/services/AppStore";
+import { useNetInfo } from "@react-native-community/netinfo";
+import { useEffect } from "react";
+import { OfflinePage } from "@/src/components/shared/OfflinePage";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -40,6 +43,11 @@ export const RootLayout = observer(function RootLayout() {
     }),
   });
   setupAppStateListener();
+  const netInfo = useNetInfo();
+  useEffect(() => {
+    appState$.offline.set(!netInfo?.isConnected || false);
+    // appState$.offline.set(true);
+  }, [netInfo.isConnected]);
   useMount(() => {
     authStore$.init();
   });
@@ -68,7 +76,11 @@ export const RootLayout = observer(function RootLayout() {
             noCaptureProp: "ph-no-capture",
           }}>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
+            {appState$.offline.get() ? (
+              <OfflinePage />
+            ) : (
+              <Stack screenOptions={{ headerShown: false, animation: "fade" }} />
+            )}
           </GestureHandlerRootView>
         </PostHogProvider>
       </ImageBackground>

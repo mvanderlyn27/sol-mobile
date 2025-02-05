@@ -59,8 +59,8 @@ export default function ForgotPasswordForm() {
       <StyledPressable
         onPress={handleRequestPasswordReset}
         disabled={loading}
-        className={`w-full py-3 my-2 ${loading ? "bg-gray-400" : "bg-secondary"} border border-darkPrimary rounded-lg`}>
-        <StyledText className="text-center text-darkPrimary" style={{ fontFamily: "PragmaticaExtended" }}>
+        className={`w-full py-3 my-2 ${loading ? "bg-gray-400" : "bg-primary"}  rounded-lg`}>
+        <StyledText className="text-center text-white" style={{ fontFamily: "PragmaticaExtended" }}>
           SUBMIT
         </StyledText>
       </StyledPressable>

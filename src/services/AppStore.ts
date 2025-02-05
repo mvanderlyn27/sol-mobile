@@ -20,14 +20,14 @@ interface AppStore {
   adjustedHeight: number;
   saving: boolean;
   loading: boolean;
-  internetConnection: boolean;
+  offline: boolean;
 }
 export const appState$ = observable<AppStore>({
   adjustedHeight: height,
   adjustedWidth: width,
   saving: false,
   loading: false,
-  internetConnection: false,
+  offline: false,
 });
 export const initAppDimensions = () => {
   const aspectRatio = 9 / 18;

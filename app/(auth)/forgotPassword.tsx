@@ -4,6 +4,8 @@ import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { appState$ } from "@/src/services/AppStore";
+import authStore$ from "@/src/stores/AuthStore";
 const StyledView = styled(View);
 const StyledText = styled(Text);
 const StyledSafeAreaView = styled(SafeAreaView);
@@ -12,7 +14,12 @@ export default function ForgotPassword() {
     <StyledView className="flex-1 ">
       <StyledSafeAreaView className="flex-1 justify-center">
         <StyledView className="absolute left-10 top-20">
-          <Pressable onPress={() => router.back()} style={{ padding: 4 }}>
+          <Pressable
+            onPress={() => {
+              authStore$.resettingPassword.set(false);
+              router.back();
+            }}
+            style={{ padding: 4 }}>
             <Ionicons name="chevron-back" size={24} color="#E7DBCB" />
           </Pressable>
         </StyledView>
