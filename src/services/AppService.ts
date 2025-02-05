@@ -14,21 +14,10 @@ import { addNotification } from "../stores/NotificationStore";
 import { NotificationType } from "../types/shared.types";
 import { generateId } from "../stores/AsyncStorage";
 import { SyncService } from "./SyncService";
+import { appState$ } from "../stores/AppStore";
+import { ErrorService } from "./ErrorService";
 const { height, width } = Dimensions.get("window");
-interface AppStore {
-  adjustedWidth: number;
-  adjustedHeight: number;
-  saving: boolean;
-  loading: boolean;
-  offline: boolean;
-}
-export const appState$ = observable<AppStore>({
-  adjustedHeight: height,
-  adjustedWidth: width,
-  saving: false,
-  loading: false,
-  offline: false,
-});
+
 export const initAppDimensions = () => {
   const aspectRatio = 9 / 18;
   appState$.adjustedWidth.set(width);
@@ -40,40 +29,42 @@ export const initAppDimensions = () => {
     appState$.adjustedWidth.set(height * aspectRatio);
   }
 };
+
 export const clearLocalPersist = async () => {
   AsyncStorage.clear();
   signOut();
 };
+
 export const resyncObservables = async (
   observables: string[] = ["pages", "reactions", "groups", "groupMembers", "profiles"]
 ) => {
-  // const pagesState$ = syncState(pages$);
-  let observablesToSync: Promise<void>[] = [];
-  // const reactionsState$ = syncState(reactions$);
+  const observablesToSync: Promise<void>[] = [];
+
   if (observables.includes("pages")) {
-    const syncPages = SyncService.syncData("pages");
-    observablesToSync.push(syncPages);
+    observablesToSync.push(SyncService.syncData("pages"));
   }
   if (observables.includes("reactions")) {
-    const syncReactions = SyncService.syncData("reactions");
-    observablesToSync.push(syncReactions);
+    observablesToSync.push(SyncService.syncData("reactions"));
   }
   if (observables.includes("groups")) {
-    const syncGroups = SyncService.syncData("groups");
-
-    observablesToSync.push(syncGroups);
+    observablesToSync.push(SyncService.syncData("groups"));
   }
   if (observables.includes("groupMembers")) {
-    const syncGroupMembers = SyncService.syncData("group_members");
-
-    observablesToSync.push(syncGroupMembers);
+    observablesToSync.push(SyncService.syncData("group_members"));
   }
   if (observables.includes("profiles")) {
-    const syncProfiles = SyncService.syncData("profiles");
-    observablesToSync.push(syncProfiles);
+    observablesToSync.push(SyncService.syncData("profiles"));
   }
-  console.log("observablesToSync", observables);
-  await Promise.all(observablesToSync);
+
+  console.log("Syncing observables:", observables);
+
+  try {
+    // Attempt to sync all observables
+    await Promise.all(observablesToSync);
+    console.log("All observables synced successfully");
+  } catch (error) {
+    throw new Error("Failed to sync observables"); // Throw an error if any sync fails
+  }
 };
 
 export const setupAppStateListener = () => {
@@ -82,19 +73,20 @@ export const setupAppStateListener = () => {
       if (nextAppState === "active") {
         console.log("App is active, resyncing observables...");
         pageStore$.ready.set(false);
+
         try {
           await resyncObservables();
-          //   console.log("Observables resynced successfully");
+          console.log("Observables resynced successfully");
         } catch (error) {
-          posthog.capture("appstate-listener-failed", { message: error });
-          addNotification({
-            id: generateId(),
-            type: NotificationType.error,
-            message: "Failed to data is stale, please restart app",
-          });
-          console.error("Failed to resync observables:", error);
+          // If the app is not offline, handle the error using ErrorService
+          console.log("offline: ", appState$.offline.get());
+          if (!appState$.offline.get()) {
+            console.error("Failed to resync observables:", error);
+            ErrorService.handleError("Failed to sync observables", JSON.stringify(error) || "Unknown error");
+          }
+        } finally {
+          pageStore$.ready.set(true);
         }
-        pageStore$.ready.set(true);
       }
     };
 

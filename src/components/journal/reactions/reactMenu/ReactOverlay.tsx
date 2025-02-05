@@ -13,7 +13,7 @@ import ReactOverlayBar from "./ReactOverlayBar";
 import { getNiceContrastingColor } from "../../canvasMenu/textOverlay/TextOverlayBar";
 import TextOverlayButtons from "../../canvasMenu/textOverlay/TextOverlayButtons";
 import ReactOverlayButtons from "./ReactOverlayButtons";
-import { appState$ } from "@/src/services/AppStore";
+import { appState$ } from "@/src/stores/AppStore";
 
 const StyledPressable = styled(Pressable);
 const StyledText = styled(Text);

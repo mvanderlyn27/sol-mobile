@@ -11,7 +11,7 @@ import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
 import { bringToFront, updateCanvasItem } from "@/src/services/Page";
 import tinycolor from "tinycolor2"; // Use tinycolor2 for color manipulation
-import { appState$ } from "@/src/services/AppStore";
+import { appState$ } from "@/src/stores/AppStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);

@@ -10,7 +10,7 @@ import { AnimatePresence, MotiText, MotiView } from "moti";
 import { textStore$ } from "@/src/stores/EditTextStore";
 import { reactStore$ } from "@/src/stores/ReactStore";
 import { bringReactionToFront, updateReactionItem } from "@/src/services/Reaction";
-import { appState$ } from "@/src/services/AppStore";
+import { appState$ } from "@/src/stores/AppStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);

@@ -11,7 +11,7 @@ import TextOverlayButtons from "./TextOverlayButtons";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import tinycolor from "tinycolor2";
 import { set } from "lodash";
-import { appState$ } from "@/src/services/AppStore";
+import { appState$ } from "@/src/stores/AppStore";
 
 const StyledPressable = styled(Pressable);
 const StyledText = styled(Text);

@@ -4,7 +4,6 @@ import { Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaFrameContext, SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { appState$ } from "@/src/services/AppStore";
 import authStore$ from "@/src/stores/AuthStore";
 const StyledView = styled(View);
 const StyledText = styled(Text);

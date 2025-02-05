@@ -1,6 +1,6 @@
 import Canvas2DScroller from "@/src/components/playground/pagetTest";
 import LoadingScreen from "@/src/components/screens/LoadingScreen";
-import { resyncObservables } from "@/src/services/AppStore";
+import { resyncObservables } from "@/src/services/AppService";
 import { initializePageStore } from "@/src/services/Page";
 import { RealtimeService } from "@/src/services/RealtimeService";
 import { StoreService } from "@/src/services/StoreService";

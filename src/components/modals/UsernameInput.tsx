@@ -27,7 +27,7 @@ export default function UsernameInput({ disabled }: { disabled?: boolean }) {
   const handleUpdateUsername = (val: string) => {
     const { error } = updateUsername(val);
     if (error) {
-      addNotification({ id: generateId(), message: error, type: NotificationType.error });
+      addNotification({ id: generateId(), message: "udpate name error" + error, type: NotificationType.error });
       setNewValue(placeholder);
       setLoading(false);
     } else {

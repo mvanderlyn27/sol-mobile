@@ -13,8 +13,9 @@ import { styled } from "nativewind";
 import LoadingScreen from "../screens/LoadingScreen";
 import { debounce } from "lodash";
 import { BlurView } from "expo-blur";
-import { appState$, initAppDimensions } from "@/src/services/AppStore";
+import { initAppDimensions } from "@/src/services/AppService";
 import { ErrorService } from "@/src/services/ErrorService";
+import { appState$ } from "@/src/stores/AppStore";
 // Get screen dimensions for dynamic sizing
 const { width, height } = Dimensions.get("window");
 const StyledText = styled(Text);

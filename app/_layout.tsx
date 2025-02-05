@@ -13,10 +13,11 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import NotificationHolder from "@/src/components/notifications/NotificationHolder";
 import * as Notifications from "expo-notifications";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { appState$, setupAppStateListener } from "@/src/services/AppStore";
+import { setupAppStateListener } from "@/src/services/AppService";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { useEffect } from "react";
 import { OfflinePage } from "@/src/components/shared/OfflinePage";
+import { appState$ } from "@/src/stores/AppStore";
 SplashScreen.preventAutoHideAsync();
 export const StyledView = styled(View);
 export const StyledMotiView = styled(MotiView);
@@ -42,7 +43,6 @@ export const RootLayout = observer(function RootLayout() {
       shouldSetBadge: notificationsEnabled,
     }),
   });
-  setupAppStateListener();
   const netInfo = useNetInfo();
   useEffect(() => {
     appState$.offline.set(!netInfo?.isConnected || false);
@@ -51,7 +51,7 @@ export const RootLayout = observer(function RootLayout() {
   useMount(() => {
     authStore$.init();
   });
-
+  setupAppStateListener();
   if (!loaded && !error) {
     return null;
   }

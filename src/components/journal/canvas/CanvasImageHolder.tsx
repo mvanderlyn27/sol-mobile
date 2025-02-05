@@ -11,7 +11,7 @@ import { AnimatePresence, MotiView } from "moti";
 import { uiStore$ } from "@/src/stores/UIStore";
 import { imageEditStore$ } from "@/src/stores/ImageEditStore";
 import { bringToFront, updateCanvasItem } from "@/src/services/Page";
-import { appState$ } from "@/src/services/AppStore";
+import { appState$ } from "@/src/stores/AppStore";
 
 export const StyledMotiView = styled(MotiView);
 export const StyledImage = styled(Image);

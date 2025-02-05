@@ -9,8 +9,8 @@ export const ErrorService = {
     addNotification({
       id: generateId(),
       type: NotificationType.error,
-      message: error,
+      message: errorName,
     });
-    console.log(error);
+    console.log("error service message: ", errorName, error);
   },
 };

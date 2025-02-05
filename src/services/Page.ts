@@ -29,7 +29,7 @@ import * as FileSystem from "expo-file-system";
 import { Dimensions } from "react-native";
 import { filterGroupMembers } from "./Group";
 import { groupMembers$ } from "../stores/MemberStore";
-import { resyncObservables } from "./AppStore";
+import { resyncObservables } from "./AppService";
 import { useEffect } from "react";
 import { ApiService } from "./ApiService";
 

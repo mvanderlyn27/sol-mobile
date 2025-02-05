@@ -8,7 +8,7 @@ import ProtectedLayout from "@/src/components/navigation/ProtectedRoute";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { posthog } from "@/src/services/Posthog";
 import { profiles$ } from "@/src/stores/ProfileStore";
-import { clearLocalPersist, resyncObservables } from "@/src/services/AppStore";
+import { clearLocalPersist, resyncObservables } from "@/src/services/AppService";
 import { supabase } from "@/src/lib/supabase";
 import { RealtimeService } from "@/src/services/RealtimeService";
 import { StoreService } from "@/src/services/StoreService";

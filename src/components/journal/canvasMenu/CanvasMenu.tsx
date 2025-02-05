@@ -21,7 +21,7 @@ import RoundButton from "../../shared/CircleButton";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { reactStore$ } from "@/src/stores/ReactStore";
 import { addCanvasItem, changeBackground, handleCancel, handleSave } from "@/src/services/Page";
-import { appState$ } from "@/src/services/AppStore";
+import { appState$ } from "@/src/stores/AppStore";
 const StyledAnt = styled(AntDesign);
 const StyledMaterial = styled(MaterialIcons);
 const StyledMaterialCommunity = styled(MaterialCommunityIcons);

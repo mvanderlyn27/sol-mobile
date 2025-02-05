@@ -10,7 +10,7 @@ import * as Notifications from "expo-notifications";
 import { addNotification } from "../stores/NotificationStore";
 import { generateId } from "../stores/AsyncStorage";
 import { NotificationType } from "../types/shared.types";
-import { resyncObservables } from "./AppStore";
+import { resyncObservables } from "./AppService";
 import * as Linking from "expo-linking";
 
 export function useAppNavigation() {

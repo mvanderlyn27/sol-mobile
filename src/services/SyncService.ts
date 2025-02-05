@@ -1,5 +1,6 @@
 //service to ensure local store is up to date with remote DB
 import { ApiService, SupabaseTable } from "./ApiService";
+import { appState$ } from "../stores/AppStore";
 import { ErrorService } from "./ErrorService";
 import { posthog } from "./Posthog";
 import { StoreService } from "./StoreService";
@@ -14,7 +15,7 @@ export const SyncService = {
       // const mergedData = reconcile(localData, remoteData);
       StoreService.setStore(table, remoteData);
     } catch (error) {
-      ErrorService.handleError("Error syncing data", JSON.stringify(error));
+      throw new Error("Error syncing data: " + error);
     }
     //implement this later when we have local first changes
     //   pushPendingChanges: async (table: SupabaseTable, pendingChanges: any[]) => {

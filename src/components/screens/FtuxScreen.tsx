@@ -30,7 +30,7 @@ const FtuxScreen = observer(function FtuxScreen() {
     const { error } = updateUsername(username);
     if (error) {
       setError(error);
-      addNotification({ id: generateId(), message: error, type: NotificationType.error });
+      addNotification({ id: generateId(), message: "error updating name" + error, type: NotificationType.error });
       setLoading(false);
     } else {
       setLoading(false);
