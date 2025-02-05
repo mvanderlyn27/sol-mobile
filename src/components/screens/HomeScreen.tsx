@@ -26,11 +26,11 @@ const HomeScreen = observer(function HomeScreen() {
   }
   const curUserId = authStore$.session.get()?.user.id;
   // Get the group IDs from myGroups and myInvites
-  const myGroupsIds = Object.values(filterMyGroups(groupMembers$.get(), curUserId || "") || {}).map(
+  const myGroupsIds = Object.values(filterMyGroups(groupMembers$.get() || {}, curUserId || "") || {}).map(
     (groupMember) => groupMember.group_id
   );
 
-  const myInvitesIds = Object.values(filterMyInvites(groupMembers$.get(), curUserId || "") || {}).map(
+  const myInvitesIds = Object.values(filterMyInvites(groupMembers$.get() || {}, curUserId || "") || {}).map(
     (groupMember) => groupMember.group_id
   );
   console.log("group ids", myGroupsIds);
@@ -44,7 +44,7 @@ const HomeScreen = observer(function HomeScreen() {
         // Check if the groupId is in myGroups or myInvites
         if (myGroupsIds.includes(groupId) || myInvitesIds.includes(groupId)) {
           // Assuming that each group has a corresponding GroupMember object, add it to the array
-          acc.push({ ...group, group_id: groupId }); // Adjust based on your actual GroupMember structure
+          acc.push({ ...group, id: groupId }); // Adjust based on your actual GroupMember structure
         }
         return acc;
       }, [])

@@ -1,9 +1,27 @@
 import LoadingScreen from "@/src/components/screens/SplashScreen";
 import { useAppNavigation } from "@/src/services/Navigation";
-import { observer } from "@legendapp/state/react";
+import { generateId } from "@/src/stores/AsyncStorage";
+import { addNotification } from "@/src/stores/NotificationStore";
+import { NotificationType } from "@/src/types/shared.types";
+import { observer, useMountOnce } from "@legendapp/state/react";
 import { View } from "react-native";
-
+import * as Linking from "expo-linking";
+import { Href, router } from "expo-router";
+import { useEffect } from "react";
 const Loading = observer(function Loading() {
+  // useEffect(() => {
+  //   if (url) {
+  //     const { hostname, path, queryParams } = Linking.parse(url);
+
+  //     console.log(`Linked to app with hostname: ${hostname}, path: ${path} and data: ${JSON.stringify(queryParams)}`);
+  //     addNotification({
+  //       id: generateId(),
+  //       type: NotificationType.info,
+  //       message: `loading link: ${hostname}, path: ${path} and data: ${JSON.stringify(queryParams)}`,
+  //     });
+  //   }
+  // }, [url]);
+  // const testUrl = "/resetPassword?token=test_token&type=recovery";
   useAppNavigation();
   return (
     <View style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}>

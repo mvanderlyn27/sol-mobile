@@ -9,7 +9,7 @@ import { getImageFromPath } from "@/src/assets/images/images";
 const StyledView = styled(View);
 const Layout = observer(function Layout() {
   const session = authStore$.session.get();
-  if (session !== null) {
+  if (session !== null && !authStore$.resettingPassword.get()) {
     return <Redirect href="/loading" />;
   }
   return (

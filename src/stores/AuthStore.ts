@@ -10,12 +10,14 @@ interface AuthStore {
   session: Session | null;
   error: string | null;
   loading: boolean;
+  resettingPassword: boolean;
   init: () => void;
 }
 const authStore$ = observable<AuthStore>({
   session: null,
   error: null,
   loading: true,
+  resettingPassword: false,
   init: () => {
     authStore$.loading.set(true);
     AuthService.getSession()

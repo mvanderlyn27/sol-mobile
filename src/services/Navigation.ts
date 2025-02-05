@@ -11,48 +11,55 @@ import { addNotification } from "../stores/NotificationStore";
 import { generateId } from "../stores/AsyncStorage";
 import { NotificationType } from "../types/shared.types";
 import { resyncObservables } from "./AppStore";
+import * as Linking from "expo-linking";
 
 export function useAppNavigation() {
   useEffect(() => {
-    let notificationSubscription;
+    let notificationSubscription: Notifications.Subscription;
+
+    const handleNotification = async () => {
+      const response = await Notifications.getLastNotificationResponseAsync();
+      return response?.notification?.request.content.data?.url;
+    };
+
+    const handleProfileCheck = (userId: string) => {
+      const profile = profiles$[userId].get();
+      if (profile && profile.new) {
+        router.replace("/(ftux)/username");
+      } else {
+        router.replace("/home");
+      }
+    };
 
     const navigateApp = async () => {
       try {
-        // Wait for auth to finish loading
         const userId = authStore$.session.user.id.get();
+
+        // Handle unauthenticated users
         if (!userId) {
           SplashScreen.hideAsync();
           router.navigate("/login");
           return;
         }
+
         SplashScreen.hideAsync();
         await resyncObservables();
-        const profile = profiles$[userId].get();
-        console.log("Profile", profile);
-        // Check if the app was opened via a notification
-        const response = await Notifications.getLastNotificationResponseAsync();
-        const url = response?.notification?.request.content.data?.url;
-        if (url) {
-          router.replace(url);
+
+        // Handle notifications
+        const notificationUrl = await handleNotification();
+        if (notificationUrl) {
+          router.replace(notificationUrl);
         } else {
-          if (profile && profile.new) {
-            router.replace("/(ftux)/username");
-          } else {
-            router.replace("/home");
-          }
+          handleProfileCheck(userId);
         }
-        // Set up the notification listener after the app is initialized
+
+        // Set up notification listener
         notificationSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
           const url = response.notification.request.content.data?.url;
           console.log("Notification received:", url);
           const isAuthenticated = authStore$.session.get() !== null;
-          //hack to get journal working, fixes issue when journal is already open and notification comes in
-          pageStore$.ready.set(false);
-          if (isAuthenticated) {
-            router.replace(url ? url : "/home"); // Use push for better stack handling
-          } else {
-            router.replace("/login");
-          }
+          pageStore$.ready.set(false); // Hack to fix journal issue
+          router.replace(isAuthenticated ? url || "/home" : "/login");
         });
       } catch (error) {
         console.error("Error during app navigation:", error);
@@ -61,19 +68,18 @@ export function useAppNavigation() {
           message: "Error during app navigation",
           type: NotificationType.error,
         });
-        postMessage({
-          type: "error",
-          message: "Error during app navigation",
-          error: "error during app navigation" + error,
-        });
         const isAuthenticated = authStore$.session.get() !== null;
-        if (isAuthenticated) {
-          router.replace("/home"); // Use push for better stack handling
-        } else {
-          router.replace("/login");
-        }
+        router.replace(isAuthenticated ? "/home" : "/login");
       }
     };
+
     navigateApp();
+
+    // Clean up notification listener
+    return () => {
+      if (notificationSubscription) {
+        notificationSubscription.remove();
+      }
+    };
   }, []);
 }

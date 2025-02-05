@@ -38,10 +38,6 @@ const GroupCard = observer(function GroupCard({ group, invitation }: { group: Gr
   const groupMemberList = Object.values(filterGroupMembers(groupMembers$.get() || {}, group.id) || {});
   const pendingMemberList = Object.values(filterPendingGroupMembers(groupMembers$.get() || {}, group.id) || {});
   const groupList = [...groupMemberList, ...pendingMemberList];
-  console.log(
-    "group list",
-    groupList.map((gm) => gm.user_id)
-  );
   return (
     <StyledPressable
       className={`flex-1 flex-col justify-center items-center rounded-xl  ${

@@ -39,8 +39,16 @@ export class AuthService {
     }
     return { success: true, data: data.session };
   }
+  static async signInWithOtp(token: string, email: string) {
+    const { data, error } = await supabase.auth.verifyOtp({ email, token, type: "recovery" });
+    if (error) {
+      console.debug("Error signing in with token:", error);
+      return { success: false, error: error.message };
+    }
+    return { success: true, data: data.session };
+  }
   static async signInWithToken(tokenHash: string): Promise<SupabaseResponse<Session>> {
-    const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "email" });
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" });
     if (error) {
       console.debug("Error signing in with token:", error);
       return { success: false, error: error.message };
@@ -96,7 +104,9 @@ export class AuthService {
   }
   static async sendResetPasswordEmail(email: string): Promise<SupabaseResponse<null>> {
     // const resetPasswordURL = Linking.createURL("callback/resetPassword");
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {});
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "sliceoflife://resetPassword",
+    });
     if (error) {
       console.debug("Error sending reset password email:", error);
       return { success: false, error: error.message };
@@ -118,6 +128,7 @@ export class AuthService {
   }
   static setupSessionListener(onChange: (session: Session | null) => void) {
     supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("SUPABASE STATE", _event);
       onChange(session);
     });
   }

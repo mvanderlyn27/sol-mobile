@@ -3,6 +3,7 @@ import { generateId } from "../stores/AsyncStorage";
 import authStore$ from "../stores/AuthStore";
 import { addNotification } from "../stores/NotificationStore";
 import { NotificationType } from "../types/shared.types";
+import { ErrorService } from "./ErrorService";
 import { posthog } from "./Posthog";
 import { handleSignup } from "./Profile";
 
@@ -160,6 +161,7 @@ export const updatePassword = async (password: string) => {
     authStore$.session.set(response.data || null);
     authStore$.error.set(null);
     authStore$.loading.set(false);
+    return true;
   } else {
     posthog.capture("user-update-password-error", {
       email: authStore$.session.get()?.user.email,
@@ -167,5 +169,40 @@ export const updatePassword = async (password: string) => {
     });
     authStore$.error.set(response.error + "");
     authStore$.loading.set(false);
+    return false;
+  }
+};
+export const forgotPassword = async (email: string) => {
+  console.log("resetting email: " + email);
+  const response = await AuthService.sendResetPasswordEmail(email);
+  if (response.success) {
+    posthog.capture("user-reset-password", { email: email });
+    authStore$.session.set(response.data || null);
+    authStore$.error.set(null);
+    authStore$.loading.set(false);
+    return true;
+  } else {
+    authStore$.error.set(response.error + "");
+    ErrorService.handleError("reset-password-error", JSON.stringify(response.error));
+    authStore$.error.set(response.error + "");
+    authStore$.loading.set(false);
+    return false;
+  }
+};
+export const loginWithOtp = async (email: string, otp: string) => {
+  console.log("logging in with otp: " + email + "otp: " + otp);
+  const response = await AuthService.signInWithOtp(otp, email);
+  if (response.success) {
+    posthog.capture("login-otp-success", { email: email });
+    authStore$.session.set(response.data || null);
+    authStore$.error.set(null);
+    authStore$.loading.set(false);
+    return true;
+  } else {
+    authStore$.error.set(response.error + "");
+    ErrorService.handleError("login-otp-failed", JSON.stringify(response.error));
+    authStore$.error.set(response.error + "");
+    authStore$.loading.set(false);
+    return false;
   }
 };

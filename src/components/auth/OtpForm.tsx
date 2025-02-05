@@ -4,7 +4,7 @@ import { useAuth } from "../../contexts/AuthProvider";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Link, router } from "expo-router";
-import { forgotPassword } from "@/src/services/Auth";
+import { forgotPassword, loginWithOtp } from "@/src/services/Auth";
 import { addNotification } from "@/src/stores/NotificationStore";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { NotificationType } from "@/src/types/shared.types";
@@ -16,24 +16,24 @@ const StyledText = styled(Text);
 const StyledPressable = styled(Pressable);
 const StyledLink = styled(Link);
 
-export default function ForgotPasswordForm() {
-  const [email, setEmail] = useState("");
+export default function OtpForm({ email }: { email: string }) {
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleRequestPasswordReset() {
+  async function handleOtp() {
     setLoading(true);
-    const success = await forgotPassword(email);
+    const success = await loginWithOtp(email, otp);
     if (success) {
       addNotification({
         id: generateId(),
         type: NotificationType.info,
-        message: "Password reset email sent successfully",
+        message: "OTP successful",
       });
-      authStore$.resettingPassword.set(true);
+      setOtp("");
       setLoading(false);
-      router.navigate(`/otp?email=${email}`);
+      router.navigate(`/resetPassword`);
     } else {
-      authStore$.resettingPassword.set(true);
+      authStore$.resettingPassword.set(false);
       setLoading(false);
     }
   }
@@ -47,17 +47,17 @@ export default function ForgotPasswordForm() {
         exit={{ opacity: 0 }}
         transition={{ type: "timing", duration: 300 }}>
         <StyledTextInput
-          value={email}
+          value={otp}
           placeholder="EMAIL ADDRESS"
           placeholderTextColor="#B0B0B0"
-          onChangeText={setEmail}
+          onChangeText={setOtp}
           className="w-full text-secondary text-center"
           style={{ fontFamily: "PragmaticaExtended-light" }}
           autoCapitalize="none"
         />
       </StyledMotiView>
       <StyledPressable
-        onPress={handleRequestPasswordReset}
+        onPress={handleOtp}
         disabled={loading}
         className={`w-full py-3 my-2 ${loading ? "bg-gray-400" : "bg-secondary"} border border-darkPrimary rounded-lg`}>
         <StyledText className="text-center text-darkPrimary" style={{ fontFamily: "PragmaticaExtended" }}>

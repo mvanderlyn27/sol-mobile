@@ -78,6 +78,10 @@ const SignupForm = observer(function SignupForm() {
           LOGIN
         </StyledText>
       </StyledPressable>
+      <Link href="/(auth)/forgotPassword" style={{ color: "#fff", paddingVertical: 10 }}>
+        {" "}
+        Forgot Password?{" "}
+      </Link>
       <AppleAuthButton type="signin" />
       <GoogleAuthButton />
     </StyledMotiView>

@@ -20,7 +20,7 @@ export default {
       usesAppleSignIn: true,
       config: {
         usesNonExemptEncryption: false 
-      }
+      },
     },
     android: {
       adaptiveIcon: {

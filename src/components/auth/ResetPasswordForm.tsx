@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Text, TextInput, Pressable } from "react-native";
-import { useAuth } from "../../contexts/AuthProvider";
 import { MotiView } from "moti";
 import { styled } from "nativewind";
 import { Link, router } from "expo-router";
 import { generateId } from "@/src/stores/AsyncStorage";
 import { addNotification } from "@/src/stores/NotificationStore";
 import { NotificationType } from "@/src/types/shared.types";
+import { updatePassword } from "@/src/services/Auth";
+import { ErrorService } from "@/src/services/ErrorService";
+import authStore$ from "@/src/stores/AuthStore";
 
 const StyledMotiView = styled(MotiView);
 const StyledTextInput = styled(TextInput);
@@ -18,7 +20,6 @@ export default function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { updatePassword } = useAuth();
 
   async function handleRequestPasswordReset() {
     setLoading(true);
@@ -38,14 +39,19 @@ export default function ResetPasswordForm() {
         type: NotificationType.error,
       });
     }
-    await updatePassword(password);
-    addNotification({
-      id: generateId(),
-      message: "Password updated",
-      type: NotificationType.info,
-    });
+    const success = await updatePassword(password);
+    if (success) {
+      addNotification({
+        id: generateId(),
+        message: "Password updated",
+        type: NotificationType.info,
+      });
+      authStore$.resettingPassword.set(false);
+      router.push("/home");
+    } else {
+      ErrorService.handleError("Failed to update password", "failed to update password");
+    }
     setLoading(false);
-    router.push("/journal");
   }
 
   return (
@@ -90,7 +96,7 @@ export default function ResetPasswordForm() {
         disabled={loading}
         className={`w-full py-3 my-2 ${loading ? "bg-gray-400" : "bg-secondary"} border border-darkPrimary rounded-lg`}>
         <StyledText className="text-center text-darkPrimary" style={{ fontFamily: "PragmaticaExtended" }}>
-          SUBMIT
+          SAVE PASSWORD
         </StyledText>
       </StyledPressable>
     </StyledMotiView>

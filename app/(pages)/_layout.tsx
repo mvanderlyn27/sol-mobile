@@ -22,6 +22,7 @@ const Layout = observer(function Layout() {
     const cleanupReconnection = RealtimeService.initWithReconnection(() => {
       RealtimeService.unsubscribeAll();
       RealtimeService.subscribeToTable("profiles", (payload) => {
+        console.log("realtime profile update");
         if (payload.eventType === "DELETE") {
           StoreService.removeStore("profiles", payload.old.id);
         } else {
@@ -29,6 +30,7 @@ const Layout = observer(function Layout() {
         }
       });
       RealtimeService.subscribeToTable("groups", (payload) => {
+        console.log("realtime group update");
         if (payload.eventType === "DELETE") {
           StoreService.removeStore("groups", payload.old.id);
         } else {
@@ -36,6 +38,7 @@ const Layout = observer(function Layout() {
         }
       });
       RealtimeService.subscribeToTable("group_members", (payload) => {
+        console.log("realtime group member update");
         if (payload.eventType === "DELETE") {
           StoreService.removeStore("group_members", payload.old.id);
         } else {
