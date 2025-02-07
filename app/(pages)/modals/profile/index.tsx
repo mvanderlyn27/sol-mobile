@@ -52,14 +52,11 @@ const CurProfile = observer(function CurProfile() {
     Object.values((pages$.get() as Record<string, Page>) || {}).filter((item: Page) => item.created_by === curUserId)
       ?.length || 0;
 
-  const handleInvite = async (type: string) => {
+  const handleInvite = async () => {
     try {
-      const url =
-        type === "android"
-          ? "https://play.google.com/apps/internaltest/4700953126034984120"
-          : "https://testflight.apple.com/join/MajqukKt";
+      const url = "https://sliceoflifeapp.com";
       const result = await Share.share({
-        message: `Hey! I wanted to invite you to the Slice of Life Beta. Join here:\n${url}`,
+        message: `Hey! Join my Slice of Life journal. Get it here:\n${url}`,
       });
 
       if (result.action === Share.sharedAction) {
@@ -118,17 +115,10 @@ const CurProfile = observer(function CurProfile() {
         <StyledView className="flex-row  my-2">
           <ModalIconButton
             disabled={false}
-            action={() => handleInvite("ios")}
+            action={() => handleInvite()}
             color={"bg-primary"}
             text="Invite friend"
-            buttonType={ButtonType.IOS}
-          />
-          <ModalIconButton
-            disabled={false}
-            action={() => handleInvite("android")}
-            color={"bg-primary"}
-            text="Invite friend"
-            buttonType={ButtonType.Android}
+            buttonType={ButtonType.Share}
           />
         </StyledView>
       </StyledView>

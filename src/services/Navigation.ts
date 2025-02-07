@@ -25,8 +25,10 @@ export function useAppNavigation() {
     const handleProfileCheck = (userId: string) => {
       const profile = profiles$[userId].get();
       if (profile && profile.new) {
+        router.dismissAll();
         router.replace("/(ftux)/username");
       } else {
+        router.dismissAll();
         router.replace("/home");
       }
     };
@@ -38,7 +40,8 @@ export function useAppNavigation() {
         // Handle unauthenticated users
         if (!userId) {
           SplashScreen.hideAsync();
-          router.navigate("/login");
+          router.dismissAll();
+          router.replace("/login");
           return;
         }
 
@@ -48,6 +51,7 @@ export function useAppNavigation() {
         // Handle notifications
         const notificationUrl = await handleNotification();
         if (notificationUrl) {
+          router.dismissAll();
           router.replace(notificationUrl);
         } else {
           handleProfileCheck(userId);
@@ -59,6 +63,7 @@ export function useAppNavigation() {
           console.log("Notification received:", url);
           const isAuthenticated = authStore$.session.get() !== null;
           pageStore$.ready.set(false); // Hack to fix journal issue
+          router.dismissAll();
           router.replace(isAuthenticated ? url || "/home" : "/login");
         });
       } catch (error) {
@@ -69,6 +74,7 @@ export function useAppNavigation() {
           type: NotificationType.error,
         });
         const isAuthenticated = authStore$.session.get() !== null;
+        router.dismissAll();
         router.replace(isAuthenticated ? "/home" : "/login");
       }
     };
