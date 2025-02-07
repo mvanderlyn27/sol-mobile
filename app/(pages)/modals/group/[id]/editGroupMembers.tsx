@@ -82,7 +82,7 @@ const EditGroupMembers = observer(function EditGroupMembers() {
             </StyledView>
           ))}
         </StyledScrollView>
-        <StyledView className="flex-row px-20 ">
+        <StyledView className="flex-row px-20 py-4">
           <ModalButton disabled={false} action={handleInvite} color={"bg-primary"} text="Invite new" />
         </StyledView>
       </StyledView>
