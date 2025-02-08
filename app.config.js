@@ -15,7 +15,7 @@ export default {
       backgroundColor: "#0B0C06"
     },
     ios: {
-      supportsTablet: true,
+      supportsTablet: false,
       bundleIdentifier: IS_DEV ? "com.sliceoflifeapp.dev" : IS_PRE ? "com.sliceoflifeapp.pre" : "com.sliceoflifeapp",
       usesAppleSignIn: true,
       config: {

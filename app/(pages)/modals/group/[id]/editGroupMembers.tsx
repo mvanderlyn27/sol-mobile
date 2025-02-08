@@ -56,7 +56,7 @@ const EditGroupMembers = observer(function EditGroupMembers() {
             <StyledView key={index} className="flex-row py-4 items-center">
               <UserPic userId={member.user_id} pending={member.status === "pending"} />
               <StyledView className="flex-row justify-start flex-1 pl-4  ">
-                <Text>{profiles$[member.user_id].username.get() || profiles$[member.user_id].name.get()}</Text>
+                <Text>{profiles$[member.user_id].username.get() || "User"}</Text>
               </StyledView>
               {member.user_id !== userId ? (
                 <StyledView className="w-[90px] ">

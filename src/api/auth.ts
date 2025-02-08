@@ -113,13 +113,14 @@ export class AuthService {
     }
     return { success: true };
   }
-  static async deleteAccount(): Promise<SupabaseResponse<null>> {
+  static async deleteAccount(user_id: string): Promise<SupabaseResponse<null>> {
     //need to implement server function that does all this
-    // const { error } = await supabase.rpc("delete_account");
-    // if (error) {
-    //   console.error("Error deleting account:", error);
-    //   return { success: false, error: error.message };
-    // }
+    console.log("deleting user");
+    const { error } = await supabase.rpc("delete_user_account", { user_id });
+    if (error) {
+      console.error("Error deleting account:", error);
+      return { success: false, error: error.message };
+    }
     return { success: true };
   }
   static async getSession(): Promise<Session | null> {
