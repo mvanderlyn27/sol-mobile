@@ -13,6 +13,7 @@ import { addNotification } from "@/src/stores/NotificationStore";
 import { NotificationType } from "@/src/types/shared.types";
 import NotificationForm from "./NotificationForm";
 import { ScrollView } from "moti";
+import DeleteButton from "../auth/DeleteButton";
 
 const StyledView = styled(View);
 const StyledTextInput = styled(TextInput);
@@ -51,6 +52,9 @@ export default function SettingsSidebar() {
         <StyledView className="w-full my-2 h-[2px] bg-secondary" /> */}
         <StyledView className="flex-row py-4">
           <LogoutButton />
+        </StyledView>
+        <StyledView className="flex-row py-4">
+          <DeleteButton />
         </StyledView>
       </StyledView>
     </ScrollView>

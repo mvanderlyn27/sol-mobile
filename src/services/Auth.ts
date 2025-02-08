@@ -206,3 +206,27 @@ export const loginWithOtp = async (email: string, otp: string) => {
     return false;
   }
 };
+export const deleteAccount = async () => {
+  authStore$.loading.set(true);
+  const user = authStore$.session.user.get();
+  if (!user) {
+    console.log("No user to delete, returning false");
+    authStore$.loading.set(false);
+    return;
+  }
+  console.log("deleting account...");
+  const { success, error } = await AuthService.deleteAccount(user.id);
+  if (error) {
+    ErrorService.handleError("account-deletion", error);
+  }
+  posthog.capture("user-deleted", { id: user.id });
+  posthog.reset();
+  addNotification({
+    id: generateId(),
+    type: NotificationType.success,
+    message: "Account deleted successfully.",
+  });
+  authStore$.session.set(null);
+  authStore$.loading.set(false);
+  return success;
+};
